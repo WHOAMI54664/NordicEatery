@@ -6,6 +6,7 @@ import { useCart } from "@/components/CartProvider";
 import type { KitchenOrder, PaymentMethod } from "@/types/order";
 
 const ORDERS_STORAGE_KEY = "mikes-food-orders";
+const PENDING_STRIPE_ORDER_KEY = "mikes-food-pending-stripe-order";
 
 function createOrderId() {
   return `MF-${Date.now().toString(36).toUpperCase()}`;
@@ -51,6 +52,26 @@ export function CheckoutForm() {
     const comment = String(formData.get("comment") || "");
 
     if (selectedPaymentMethod === "card") {
+      const pendingOrder: KitchenOrder = {
+        id: generatedOrderId,
+        customerName,
+        customerPhone,
+        address,
+        deliveryType,
+        paymentMethod: "card",
+        paymentStatus: "awaiting_payment",
+        comment,
+        items,
+        totalPrice,
+        status: "new",
+        createdAt: new Date().toISOString(),
+      };
+
+      window.localStorage.setItem(
+        PENDING_STRIPE_ORDER_KEY,
+        JSON.stringify(pendingOrder)
+      );
+
       try {
         const response = await fetch("/api/stripe/checkout", {
           method: "POST",
@@ -72,6 +93,7 @@ export function CheckoutForm() {
         const data = await response.json();
 
         if (!response.ok || !data.url) {
+          window.localStorage.removeItem(PENDING_STRIPE_ORDER_KEY);
           alert("Stripe payment could not be started.");
           setIsLoading(false);
           return;
@@ -81,6 +103,7 @@ export function CheckoutForm() {
         return;
       } catch (error) {
         console.error("Stripe error:", error);
+        window.localStorage.removeItem(PENDING_STRIPE_ORDER_KEY);
         alert("Stripe payment could not be started.");
         setIsLoading(false);
         return;
@@ -312,7 +335,11 @@ export function CheckoutForm() {
           </div>
         </div>
 
-        <button type="submit" disabled={isLoading} className="btn-primary mt-6 w-full">
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="btn-primary mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60"
+        >
           {isLoading
             ? "Processing..."
             : paymentMethod === "card"
