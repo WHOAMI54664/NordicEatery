@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
   const { error } = await admin.auth.resetPasswordForEmail(email, {
-    redirectTo: `${siteUrl}/set-password`,
+    redirectTo: `${siteUrl}/auth/callback?next=/set-password`,
   });
 
   if (error) {
