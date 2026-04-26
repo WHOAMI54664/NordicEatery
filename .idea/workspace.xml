@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="060f1486-bf69-4dc5-842d-f3514b9af11e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.env.local" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/admin/analytics/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/admin/inventory/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/admin/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/admin/products/[id]/edit/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/admin/products/new/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/admin/products/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/admin/staff/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/cart/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/checkout/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/globals.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/kitchen/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/layout.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/login/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/menu/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/CartProvider.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/CartSummary.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/CheckoutForm.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/Footer.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/Header.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/KitchenBoard.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/LoginForm.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/ProductCard.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/StaffAccountMenu.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/StaffRolesPanel.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/admin/AdminShell.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/admin/InventoryManager.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/admin/ProductActions.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/admin/ProductForm.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/admin/ProductsTable.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/auth/roles.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/menu.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/supabase/browser.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/supabase/server.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/next-env.d.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/next.config.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/postcss.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/food 1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/food/knyzha.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/food/maczanka.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/mikes_logo.PNG" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tailwind.config.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/types/order.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/types/product.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="28" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;WHOAMI54664&quot;
+  }
+}</component>
+  <component name="GitToolBoxStore">
+    <option name="recentBranches">
+      <RecentBranches>
+        <option name="branchesForRepo">
+          <list>
+            <RecentBranchesForRepo>
+              <option name="branches">
+                <list>
+                  <RecentBranch>
+                    <option name="branchName" value="clean-main" />
+                    <option name="lastUsedInstant" value="1777220912" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="main" />
+                    <option name="lastUsedInstant" value="1777220911" />
+                  </RecentBranch>
+                </list>
+              </option>
+              <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
+            </RecentBranchesForRepo>
+          </list>
+        </option>
+      </RecentBranches>
+    </option>
+  </component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:WHOAMI54664/NordicEatery.git&quot;,
+    &quot;accountId&quot;: &quot;6e9c0e9a-a335-492d-9751-151ffe63bbf0&quot;
+  }
+}</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3CrECUV3UFIPBcZviTRup0TlcUO" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "clean-main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "kronk.content.tree.expanded.paths": "|Components",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/components/admin" />
+      <recent name="$PROJECT_DIR$/app/admin" />
+      <recent name="$PROJECT_DIR$/public" />
+      <recent name="$PROJECT_DIR$/public/food" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.32098.37" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="060f1486-bf69-4dc5-842d-f3514b9af11e" name="Changes" comment="" />
+      <created>1777135161012</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1777135161012</updated>
+    </task>
+    <servers />
+  </component>
+</project>
