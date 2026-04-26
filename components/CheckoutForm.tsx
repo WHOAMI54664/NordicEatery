@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/CartProvider";
-import type { KitchenOrder } from "@/types/order";
+import type { KitchenOrder, PaymentMethod } from "@/types/order";
 
 const ORDERS_STORAGE_KEY = "mikes-food-orders";
 
@@ -11,35 +11,91 @@ function createOrderId() {
   return `MF-${Date.now().toString(36).toUpperCase()}`;
 }
 
+function getPaymentStatus(paymentMethod: PaymentMethod) {
+  if (paymentMethod === "cash") return "unpaid";
+  return "awaiting_payment";
+}
+
 export function CheckoutForm() {
   const { items, totalPrice, clearCart } = useCart();
+
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
+  const [isLoading, setIsLoading] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    if (isLoading) return;
+
     const formData = new FormData(event.currentTarget);
+
     const selectedPaymentMethod = String(
       formData.get("paymentMethod") || "cash"
-    );
+    ) as PaymentMethod;
+
+    setPaymentMethod(selectedPaymentMethod);
+    setIsLoading(true);
+
+    const generatedOrderId = createOrderId();
+
+    const deliveryType =
+      String(formData.get("deliveryType")) === "pickup"
+        ? "pickup"
+        : "delivery";
+
+    const customerName = String(formData.get("customerName") || "");
+    const customerPhone = String(formData.get("customerPhone") || "");
+    const address = String(formData.get("address") || "");
+    const comment = String(formData.get("comment") || "");
+
+    if (selectedPaymentMethod === "card") {
+      try {
+        const response = await fetch("/api/stripe/checkout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            orderId: generatedOrderId,
+            customerName,
+            customerPhone,
+            address,
+            deliveryType,
+            comment,
+            items,
+            totalPrice,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.url) {
+          alert("Stripe payment could not be started.");
+          setIsLoading(false);
+          return;
+        }
+
+        window.location.href = data.url;
+        return;
+      } catch (error) {
+        console.error("Stripe error:", error);
+        alert("Stripe payment could not be started.");
+        setIsLoading(false);
+        return;
+      }
+    }
 
     const newOrder: KitchenOrder = {
-      id: createOrderId(),
-      customerName: String(formData.get("customerName") || ""),
-      customerPhone: String(formData.get("customerPhone") || ""),
-      address: String(formData.get("address") || ""),
-      deliveryType:
-        String(formData.get("deliveryType")) === "pickup"
-          ? "pickup"
-          : "delivery",
+      id: generatedOrderId,
+      customerName,
+      customerPhone,
+      address,
+      deliveryType,
       paymentMethod: selectedPaymentMethod,
-      paymentStatus:
-        selectedPaymentMethod === "swish" || selectedPaymentMethod === "card"
-          ? "awaiting_payment"
-          : "unpaid",
-      comment: String(formData.get("comment") || ""),
+      paymentStatus: getPaymentStatus(selectedPaymentMethod),
+      comment,
       items,
       totalPrice,
       status: "new",
@@ -59,6 +115,7 @@ export function CheckoutForm() {
     setOrderId(newOrder.id);
     clearCart();
     setIsSubmitted(true);
+    setIsLoading(false);
   }
 
   if (isSubmitted) {
@@ -75,22 +132,21 @@ export function CheckoutForm() {
           sent to the kitchen board.
         </p>
 
+        {paymentMethod === "cash" && (
+          <div className="mt-6 rounded-3xl bg-white/70 p-5 text-left">
+            <p className="font-black text-dark">Pay on pickup / delivery</p>
+            <p className="mt-2 text-sm leading-6 text-dark/60">
+              The customer will pay when receiving the order.
+            </p>
+          </div>
+        )}
+
         {paymentMethod === "swish" && (
           <div className="mt-6 rounded-3xl bg-white/70 p-5 text-left">
             <p className="font-black text-dark">Swish payment</p>
             <p className="mt-2 text-sm leading-6 text-dark/60">
               Please Swish the total amount to the restaurant number. Your order
-              will be marked as awaiting payment.
-            </p>
-          </div>
-        )}
-
-        {paymentMethod === "card" && (
-          <div className="mt-6 rounded-3xl bg-white/70 p-5 text-left">
-            <p className="font-black text-dark">Card payment</p>
-            <p className="mt-2 text-sm leading-6 text-dark/60">
-              Card payment will be connected with Stripe in the next step. This
-              order is currently marked as awaiting payment.
+              is marked as awaiting payment.
             </p>
           </div>
         )}
@@ -189,15 +245,18 @@ export function CheckoutForm() {
             <span className="mb-2 block text-sm font-bold text-dark">
               Payment method
             </span>
+
             <select
               name="paymentMethod"
               className="input-field"
               value={paymentMethod}
-              onChange={(event) => setPaymentMethod(event.target.value)}
+              onChange={(event) =>
+                setPaymentMethod(event.target.value as PaymentMethod)
+              }
             >
               <option value="cash">Pay on pickup / delivery</option>
               <option value="swish">Swish</option>
-              <option value="card">Card</option>
+              <option value="card">Card / Apple Pay / Google Pay</option>
             </select>
           </label>
 
@@ -210,9 +269,9 @@ export function CheckoutForm() {
 
           {paymentMethod === "card" && (
             <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
-              Card payment will be connected with Stripe. For now, this creates
-              an order with <span className="font-black">awaiting payment</span>{" "}
-              status.
+              You will be redirected to Stripe. Card, Apple Pay and Google Pay
+              will be available there. The order will not be sent to the kitchen
+              before payment is confirmed.
             </div>
           )}
 
@@ -220,6 +279,7 @@ export function CheckoutForm() {
             <span className="mb-2 block text-sm font-bold text-dark">
               Comment
             </span>
+
             <textarea
               name="comment"
               className="input-field min-h-28 resize-none"
@@ -239,6 +299,7 @@ export function CheckoutForm() {
                 <p className="font-black text-dark">{item.name}</p>
                 <p className="text-dark/50">x{item.quantity}</p>
               </div>
+
               <p className="font-black">{item.price * item.quantity} kr</p>
             </div>
           ))}
@@ -251,8 +312,12 @@ export function CheckoutForm() {
           </div>
         </div>
 
-        <button type="submit" className="btn-primary mt-6 w-full">
-          Place order
+        <button type="submit" disabled={isLoading} className="btn-primary mt-6 w-full">
+          {isLoading
+            ? "Processing..."
+            : paymentMethod === "card"
+              ? "Continue to payment"
+              : "Place order"}
         </button>
 
         <p className="mt-4 text-center text-xs leading-5 text-dark/45">
@@ -262,7 +327,7 @@ export function CheckoutForm() {
               ? "Pay on pickup / delivery"
               : paymentMethod === "swish"
                 ? "Swish"
-                : "Card"}
+                : "Card / Apple Pay / Google Pay"}
           </span>
         </p>
       </aside>
