@@ -5,13 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="060f1486-bf69-4dc5-842d-f3514b9af11e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/api/admin/staff/delete/route.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/api/admin/staff/invite/route.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/api/admin/staff/reset-password/route.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/api/admin/staff/update-role/route.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/supabase/admin.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/StaffRolesPanel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/StaffRolesPanel.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
