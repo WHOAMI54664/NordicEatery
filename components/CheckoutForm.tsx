@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/components/CartProvider";
 import type { KitchenOrder, PaymentMethod } from "@/types/order";
@@ -18,10 +19,12 @@ function getPaymentStatus(paymentMethod: PaymentMethod) {
 }
 
 export function CheckoutForm() {
+  const router = useRouter();
+  const params = useParams();
+  const locale = String(params.locale || "sv");
+
   const { items, totalPrice, clearCart } = useCart();
 
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [orderId, setOrderId] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -135,56 +138,8 @@ export function CheckoutForm() {
       JSON.stringify([newOrder, ...existingOrders])
     );
 
-    setOrderId(newOrder.id);
     clearCart();
-    setIsSubmitted(true);
-    setIsLoading(false);
-  }
-
-  if (isSubmitted) {
-    return (
-      <div className="glass-card mx-auto max-w-2xl p-8 text-center">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-paprika/10 text-4xl">
-          ✅
-        </div>
-
-        <h1 className="mt-6 text-3xl font-black text-dark">Order received</h1>
-
-        <p className="mt-3 text-dark/60">
-          Order <span className="font-black text-paprika">{orderId}</span> was
-          sent to the kitchen board.
-        </p>
-
-        {paymentMethod === "cash" && (
-          <div className="mt-6 rounded-3xl bg-white/70 p-5 text-left">
-            <p className="font-black text-dark">Pay on pickup / delivery</p>
-            <p className="mt-2 text-sm leading-6 text-dark/60">
-              The customer will pay when receiving the order.
-            </p>
-          </div>
-        )}
-
-        {paymentMethod === "swish" && (
-          <div className="mt-6 rounded-3xl bg-white/70 p-5 text-left">
-            <p className="font-black text-dark">Swish payment</p>
-            <p className="mt-2 text-sm leading-6 text-dark/60">
-              Please Swish the total amount to the restaurant number. Your order
-              is marked as awaiting payment.
-            </p>
-          </div>
-        )}
-
-        <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-          <Link href="/kitchen" className="btn-primary">
-            Open kitchen board
-          </Link>
-
-          <Link href="/menu" className="btn-secondary">
-            Back to menu
-          </Link>
-        </div>
-      </div>
-    );
+    router.push(`/${locale}/order/${newOrder.id}`);
   }
 
   if (items.length === 0) {
@@ -196,7 +151,7 @@ export function CheckoutForm() {
           Add food to your cart before checkout.
         </p>
 
-        <Link href="/menu" className="btn-primary mt-6">
+        <Link href={`/${locale}/menu`} className="btn-primary mt-6">
           Go to menu
         </Link>
       </div>
@@ -218,56 +173,29 @@ export function CheckoutForm() {
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           <label>
             <span className="mb-2 block text-sm font-bold text-dark">Name</span>
-            <input
-              required
-              name="customerName"
-              className="input-field"
-              placeholder="Your name"
-            />
+            <input required name="customerName" className="input-field" placeholder="Your name" />
           </label>
 
           <label>
-            <span className="mb-2 block text-sm font-bold text-dark">
-              Phone
-            </span>
-            <input
-              required
-              name="customerPhone"
-              className="input-field"
-              placeholder="+46..."
-            />
+            <span className="mb-2 block text-sm font-bold text-dark">Phone</span>
+            <input required name="customerPhone" className="input-field" placeholder="+46..." />
           </label>
 
           <label className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-dark">
-              Address
-            </span>
-            <input
-              required
-              name="address"
-              className="input-field"
-              placeholder="Street, apartment, city"
-            />
+            <span className="mb-2 block text-sm font-bold text-dark">Address</span>
+            <input required name="address" className="input-field" placeholder="Street, apartment, city" />
           </label>
 
           <label className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-dark">
-              Delivery type
-            </span>
-            <select
-              name="deliveryType"
-              className="input-field"
-              defaultValue="delivery"
-            >
+            <span className="mb-2 block text-sm font-bold text-dark">Delivery type</span>
+            <select name="deliveryType" className="input-field" defaultValue="delivery">
               <option value="delivery">Delivery</option>
               <option value="pickup">Pickup</option>
             </select>
           </label>
 
           <label className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-dark">
-              Payment method
-            </span>
+            <span className="mb-2 block text-sm font-bold text-dark">Payment method</span>
 
             <select
               name="paymentMethod"
@@ -285,24 +213,20 @@ export function CheckoutForm() {
 
           {paymentMethod === "swish" && (
             <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
-              Pay with Swish after placing the order. The kitchen will see this
-              order as <span className="font-black">awaiting payment</span>.
+              Pay with Swish after placing the order. The kitchen will see this order as{" "}
+              <span className="font-black">awaiting payment</span>.
             </div>
           )}
 
           {paymentMethod === "card" && (
             <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
-              You will be redirected to Stripe. Card, Apple Pay and Google Pay
-              will be available there. The order will not be sent to the kitchen
+              You will be redirected to Stripe. The order will not be sent to the kitchen
               before payment is confirmed.
             </div>
           )}
 
           <label className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-dark">
-              Comment
-            </span>
-
+            <span className="mb-2 block text-sm font-bold text-dark">Comment</span>
             <textarea
               name="comment"
               className="input-field min-h-28 resize-none"
@@ -346,17 +270,6 @@ export function CheckoutForm() {
               ? "Continue to payment"
               : "Place order"}
         </button>
-
-        <p className="mt-4 text-center text-xs leading-5 text-dark/45">
-          Selected payment:{" "}
-          <span className="font-black">
-            {paymentMethod === "cash"
-              ? "Pay on pickup / delivery"
-              : paymentMethod === "swish"
-                ? "Swish"
-                : "Card / Apple Pay / Google Pay"}
-          </span>
-        </p>
       </aside>
     </form>
   );

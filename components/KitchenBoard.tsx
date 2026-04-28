@@ -2,39 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Clock, CheckCircle2, ChefHat, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { KitchenOrder, OrderStatus } from "@/types/order";
 
 const ORDERS_STORAGE_KEY = "mikes-food-orders";
-
-const statusLabels: Record<OrderStatus, string> = {
-  new: "New",
-  preparing: "Preparing",
-  ready: "Ready",
-  completed: "Completed",
-  cancelled: "Cancelled"
-};
-
-const statusColumns: Array<{
-  status: OrderStatus;
-  title: string;
-  description: string;
-}> = [
-  {
-    status: "new",
-    title: "New orders",
-    description: "Accept and start cooking."
-  },
-  {
-    status: "preparing",
-    title: "Preparing",
-    description: "Orders currently in the kitchen."
-  },
-  {
-    status: "ready",
-    title: "Ready",
-    description: "Ready for pickup or delivery."
-  }
-];
 
 function readOrders(): KitchenOrder[] {
   if (typeof window === "undefined") return [];
@@ -56,7 +27,7 @@ function saveOrders(orders: KitchenOrder[]) {
 function formatTime(date: string) {
   return new Intl.DateTimeFormat("en-SE", {
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
   }).format(new Date(date));
 }
 
@@ -66,7 +37,38 @@ function minutesAgo(date: string) {
 }
 
 export function KitchenBoard() {
+  const t = useTranslations("admin.kitchen");
   const [orders, setOrders] = useState<KitchenOrder[]>([]);
+
+  const statusLabels: Record<OrderStatus, string> = {
+    new: t("statuses.new"),
+    preparing: t("statuses.preparing"),
+    ready: t("statuses.ready"),
+    completed: t("statuses.completed"),
+    cancelled: t("statuses.cancelled"),
+  };
+
+  const statusColumns: Array<{
+    status: OrderStatus;
+    title: string;
+    description: string;
+  }> = [
+    {
+      status: "new",
+      title: t("columns.newTitle"),
+      description: t("columns.newDescription"),
+    },
+    {
+      status: "preparing",
+      title: t("columns.preparingTitle"),
+      description: t("columns.preparingDescription"),
+    },
+    {
+      status: "ready",
+      title: t("columns.readyTitle"),
+      description: t("columns.readyDescription"),
+    },
+  ];
 
   useEffect(() => {
     setOrders(readOrders());
@@ -113,21 +115,24 @@ export function KitchenBoard() {
     setOrders(updatedOrders);
   }
 
-  const newOrdersCount = activeOrders.filter((order) => order.status === "new").length;
+  const newOrdersCount = activeOrders.filter(
+    (order) => order.status === "new"
+  ).length;
 
   return (
     <div>
       <div className="mb-8 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
         <div>
           <p className="font-black uppercase tracking-[0.25em] text-paprika">
-            Kitchen display
+            {t("display")}
           </p>
+
           <h1 className="mt-3 text-4xl font-black tracking-tight text-dark sm:text-6xl">
-            Orders board
+            {t("title")}
           </h1>
+
           <p className="mt-4 max-w-2xl text-lg leading-8 text-dark/60">
-            Keep this page open on the kitchen tablet. New orders will appear
-            here and can be moved through the kitchen workflow.
+            {t("subtitle")}
           </p>
         </div>
 
@@ -135,9 +140,10 @@ export function KitchenBoard() {
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-paprika text-white">
             <ChefHat size={24} />
           </div>
+
           <div>
             <p className="text-xs font-black uppercase tracking-[0.2em] text-dark/45">
-              New now
+              {t("newNow")}
             </p>
             <p className="text-2xl font-black text-paprika">
               {newOrdersCount}
@@ -151,12 +157,12 @@ export function KitchenBoard() {
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-paprika/10 text-4xl">
             👨‍🍳
           </div>
+
           <h2 className="mt-6 text-2xl font-black text-dark">
-            No active orders
+            {t("noActiveOrders")}
           </h2>
-          <p className="mt-3 text-dark/55">
-            Demo orders from checkout will appear here.
-          </p>
+
+          <p className="mt-3 text-dark/55">{t("emptyText")}</p>
         </div>
       ) : (
         <div className="grid gap-5 xl:grid-cols-3">
@@ -179,7 +185,7 @@ export function KitchenBoard() {
                 <div className="space-y-4">
                   {columnOrders.length === 0 ? (
                     <div className="rounded-[1.4rem] border border-dashed border-dark/10 p-5 text-center text-sm font-bold text-dark/35">
-                      Empty
+                      {t("empty")}
                     </div>
                   ) : (
                     columnOrders.map((order) => (
@@ -206,9 +212,11 @@ export function KitchenBoard() {
                           <span className="rounded-full bg-paprika/10 px-3 py-1 text-paprika">
                             {order.deliveryType}
                           </span>
+
                           <span className="inline-flex items-center gap-1 rounded-full bg-dark/5 px-3 py-1 text-dark/60">
                             <Clock size={13} />
-                            {formatTime(order.createdAt)} · {minutesAgo(order.createdAt)} min
+                            {formatTime(order.createdAt)} ·{" "}
+                            {minutesAgo(order.createdAt)} {t("min")}
                           </span>
                         </div>
 
@@ -226,6 +234,7 @@ export function KitchenBoard() {
                                   {item.subtitle}
                                 </p>
                               </div>
+
                               <p className="text-lg font-black text-paprika">
                                 x{item.quantity}
                               </p>
@@ -236,7 +245,7 @@ export function KitchenBoard() {
                         {order.comment && (
                           <div className="mt-4 rounded-2xl bg-honey/15 p-3">
                             <p className="text-xs font-black uppercase tracking-[0.15em] text-dark/40">
-                              Comment
+                              {t("comment")}
                             </p>
                             <p className="mt-1 text-sm font-bold text-dark">
                               {order.comment}
@@ -253,10 +262,12 @@ export function KitchenBoard() {
                           {order.status === "new" && (
                             <button
                               type="button"
-                              onClick={() => updateStatus(order.id, "preparing")}
+                              onClick={() =>
+                                updateStatus(order.id, "preparing")
+                              }
                               className="rounded-2xl bg-paprika px-4 py-3 text-sm font-black text-white transition hover:bg-cherry"
                             >
-                              Start preparing
+                              {t("startPreparing")}
                             </button>
                           )}
 
@@ -266,18 +277,20 @@ export function KitchenBoard() {
                               onClick={() => updateStatus(order.id, "ready")}
                               className="rounded-2xl bg-dark px-4 py-3 text-sm font-black text-white transition hover:opacity-90"
                             >
-                              Mark as ready
+                              {t("markReady")}
                             </button>
                           )}
 
                           {order.status === "ready" && (
                             <button
                               type="button"
-                              onClick={() => updateStatus(order.id, "completed")}
+                              onClick={() =>
+                                updateStatus(order.id, "completed")
+                              }
                               className="inline-flex items-center justify-center gap-2 rounded-2xl bg-honey px-4 py-3 text-sm font-black text-dark transition hover:opacity-90"
                             >
                               <CheckCircle2 size={18} />
-                              Complete order
+                              {t("completeOrder")}
                             </button>
                           )}
 
@@ -287,7 +300,7 @@ export function KitchenBoard() {
                             className="inline-flex items-center justify-center gap-2 rounded-2xl bg-dark/5 px-4 py-3 text-sm font-black text-dark/55 transition hover:bg-paprika/10 hover:text-paprika"
                           >
                             <Trash2 size={16} />
-                            Remove
+                            {t("remove")}
                           </button>
                         </div>
                       </article>

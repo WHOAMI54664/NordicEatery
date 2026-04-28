@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Minus, Plus, RotateCcw, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/browser";
 
 type Product = {
@@ -25,6 +26,8 @@ type InventoryManagerProps = {
 type MovementType = "in" | "out" | "adjustment";
 
 export function InventoryManager({ products }: InventoryManagerProps) {
+  const t = useTranslations("admin.inventory");
+
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
@@ -41,6 +44,12 @@ export function InventoryManager({ products }: InventoryManagerProps) {
     return text.includes(query.toLowerCase());
   });
 
+  function movementLabel(type: MovementType) {
+    if (type === "in") return t("in");
+    if (type === "out") return t("out");
+    return t("adjustment");
+  }
+
   async function applyMovement() {
     if (!selectedProduct) return;
 
@@ -51,7 +60,7 @@ export function InventoryManager({ products }: InventoryManagerProps) {
 
     if (amount <= 0) {
       setIsSaving(false);
-      setErrorMessage("Quantity must be greater than 0.");
+      setErrorMessage(t("quantityGreaterThanZero"));
       return;
     }
 
@@ -170,14 +179,14 @@ export function InventoryManager({ products }: InventoryManagerProps) {
           />
           <input
             className="input-field pl-11"
-            placeholder="Search products..."
+            placeholder={t("searchPlaceholder")}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
         </div>
 
         <div className="text-sm font-bold text-dark/50">
-          {filteredProducts.length} products
+          {filteredProducts.length} {t("products")}
         </div>
       </div>
 
@@ -232,7 +241,7 @@ export function InventoryManager({ products }: InventoryManagerProps) {
                         : "bg-dark/10 text-dark/50"
                     }`}
                   >
-                    {product.is_available ? "Available" : "Hidden"}
+                    {product.is_available ? t("available") : t("hidden")}
                   </span>
 
                   <span
@@ -242,18 +251,20 @@ export function InventoryManager({ products }: InventoryManagerProps) {
                         : "bg-dark/10 text-dark/50"
                     }`}
                   >
-                    {product.track_stock ? "Stock tracked" : "No stock tracking"}
+                    {product.track_stock
+                      ? t("stockTracked")
+                      : t("noStockTracking")}
                   </span>
 
                   {isOutOfStock && (
                     <span className="rounded-full bg-paprika px-3 py-1 text-xs font-black text-white">
-                      Out of stock
+                      {t("outOfStock")}
                     </span>
                   )}
 
                   {isLowStock && (
                     <span className="rounded-full bg-honey/25 px-3 py-1 text-xs font-black text-dark">
-                      Low stock
+                      {t("lowStock")}
                     </span>
                   )}
                 </div>
@@ -262,7 +273,7 @@ export function InventoryManager({ products }: InventoryManagerProps) {
               <div className="flex items-center lg:justify-center">
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.18em] text-dark/35">
-                    Current stock
+                    {t("currentStock")}
                   </p>
                   <p className="mt-2 text-4xl font-black text-paprika">
                     {product.track_stock ? product.stock_quantity : "∞"}
@@ -277,7 +288,7 @@ export function InventoryManager({ products }: InventoryManagerProps) {
                   className="inline-flex items-center justify-center gap-2 rounded-2xl bg-paprika px-3 py-3 text-sm font-black text-white transition hover:bg-cherry"
                 >
                   <Plus size={16} />
-                  Приход
+                  {t("in")}
                 </button>
 
                 <button
@@ -286,7 +297,7 @@ export function InventoryManager({ products }: InventoryManagerProps) {
                   className="inline-flex items-center justify-center gap-2 rounded-2xl bg-dark px-3 py-3 text-sm font-black text-white transition hover:opacity-90"
                 >
                   <Minus size={16} />
-                  Списание
+                  {t("out")}
                 </button>
 
                 <button
@@ -295,7 +306,7 @@ export function InventoryManager({ products }: InventoryManagerProps) {
                   className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/80 px-3 py-3 text-sm font-black text-dark transition hover:bg-white"
                 >
                   <RotateCcw size={16} />
-                  Коррекция
+                  {t("adjustment")}
                 </button>
 
                 <button
@@ -303,7 +314,7 @@ export function InventoryManager({ products }: InventoryManagerProps) {
                   onClick={() => toggleTrackStock(product)}
                   className="rounded-2xl bg-white/80 px-3 py-3 text-sm font-black text-dark transition hover:bg-white"
                 >
-                  {product.track_stock ? "No track" : "Track"}
+                  {product.track_stock ? t("noTrack") : t("track")}
                 </button>
 
                 {product.is_available ? (
@@ -312,7 +323,7 @@ export function InventoryManager({ products }: InventoryManagerProps) {
                     onClick={() => setUnavailable(product)}
                     className="col-span-2 rounded-2xl bg-paprika/10 px-3 py-3 text-sm font-black text-paprika transition hover:bg-paprika hover:text-white"
                   >
-                    Hide product
+                    {t("hideProduct")}
                   </button>
                 ) : (
                   <button
@@ -320,7 +331,7 @@ export function InventoryManager({ products }: InventoryManagerProps) {
                     onClick={() => setAvailable(product)}
                     className="col-span-2 rounded-2xl bg-green-100 px-3 py-3 text-sm font-black text-green-700 transition hover:bg-green-200"
                   >
-                    Show product
+                    {t("showProduct")}
                   </button>
                 )}
               </div>
@@ -334,25 +345,23 @@ export function InventoryManager({ products }: InventoryManagerProps) {
           <div className="w-full max-w-md rounded-[2rem] border border-white/70 bg-cream p-6 shadow-soft">
             <div className="mb-6">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-paprika">
-                {movementType === "in"
-                  ? "Приход"
-                  : movementType === "out"
-                    ? "Списание"
-                    : "Коррекция"}
+                {movementLabel(movementType)}
               </p>
+
               <h2 className="mt-2 text-2xl font-black text-dark">
                 {selectedProduct.name}
               </h2>
+
               <p className="mt-2 text-sm font-bold text-dark/50">
-                Current stock: {selectedProduct.stock_quantity}
+                {t("currentStock")}: {selectedProduct.stock_quantity}
               </p>
             </div>
 
             <label>
               <span className="mb-2 block text-sm font-bold text-dark">
                 {movementType === "adjustment"
-                  ? "New stock quantity"
-                  : "Quantity"}
+                  ? t("newStockQuantity")
+                  : t("quantity")}
               </span>
               <input
                 type="number"
@@ -366,11 +375,11 @@ export function InventoryManager({ products }: InventoryManagerProps) {
 
             <label className="mt-4 block">
               <span className="mb-2 block text-sm font-bold text-dark">
-                Note
+                {t("note")}
               </span>
               <textarea
                 className="input-field min-h-24 resize-none"
-                placeholder="Supplier, reason, mistake correction..."
+                placeholder={t("notePlaceholder")}
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
               />
@@ -383,7 +392,7 @@ export function InventoryManager({ products }: InventoryManagerProps) {
                 onClick={applyMovement}
                 className="btn-primary flex-1"
               >
-                {isSaving ? "Saving..." : "Apply"}
+                {isSaving ? t("saving") : t("apply")}
               </button>
 
               <button
@@ -392,7 +401,7 @@ export function InventoryManager({ products }: InventoryManagerProps) {
                 onClick={() => setSelectedProduct(null)}
                 className="btn-secondary flex-1"
               >
-                Cancel
+                {t("cancel")}
               </button>
             </div>
           </div>

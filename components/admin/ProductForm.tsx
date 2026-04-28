@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Upload } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/browser";
 
 type ProductFormValues = {
@@ -25,6 +26,7 @@ type ProductFormValues = {
 type ProductFormProps = {
   mode: "create" | "edit";
   product?: ProductFormValues;
+  locale?: string;
 };
 
 function makeProductId(name: string) {
@@ -36,7 +38,14 @@ function makeProductId(name: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-export function ProductForm({ mode, product }: ProductFormProps) {
+export function ProductForm({
+  mode,
+  product,
+  locale = "en",
+}: ProductFormProps) {
+  const t = useTranslations("admin.products");
+  const common = useTranslations("admin.common");
+
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
@@ -48,9 +57,7 @@ export function ProductForm({ mode, product }: ProductFormProps) {
   const [badge, setBadge] = useState(product?.badge || "");
   const [imageUrl, setImageUrl] = useState(product?.image_url || "");
   const [isPopular, setIsPopular] = useState(product?.is_popular || false);
-  const [isAvailable, setIsAvailable] = useState(
-    product?.is_available ?? true
-  );
+  const [isAvailable, setIsAvailable] = useState(product?.is_available ?? true);
   const [sortOrder, setSortOrder] = useState(String(product?.sort_order || 0));
   const [stockQuantity, setStockQuantity] = useState(
     String(product?.stock_quantity ?? 0)
@@ -74,14 +81,11 @@ export function ProductForm({ mode, product }: ProductFormProps) {
 
     const { error } = await supabase.storage
       .from("product-images")
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
+      .upload(filePath, file);
 
     if (error) {
-      setIsUploading(false);
       setErrorMessage(error.message);
+      setIsUploading(false);
       return;
     }
 
@@ -102,8 +106,8 @@ export function ProductForm({ mode, product }: ProductFormProps) {
     const productId = product?.id || makeProductId(name);
 
     if (!productId) {
+      setErrorMessage(t("nameRequired"));
       setIsSaving(false);
-      setErrorMessage("Product name is required.");
       return;
     }
 
@@ -120,25 +124,36 @@ export function ProductForm({ mode, product }: ProductFormProps) {
       is_available: isAvailable,
       sort_order: Number(sortOrder) || 0,
       track_stock: trackStock,
-      stock_quantity: trackStock ? Math.max(0, Number(stockQuantity) || 0) : 0,
+      stock_quantity: trackStock
+        ? Math.max(0, Number(stockQuantity) || 0)
+        : 0,
     };
 
-    const request =
-      mode === "create"
-        ? supabase.from("products").insert(payload)
-        : supabase.from("products").update(payload).eq("id", productId);
+    try {
+      if (mode === "create") {
+        const res = await fetch("/api/products/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
 
-    const { error } = await request;
+        if (!res.ok) throw new Error(t("saveError"));
+      } else {
+        const { error } = await supabase
+          .from("products")
+          .update(payload)
+          .eq("id", productId);
 
-    setIsSaving(false);
+        if (error) throw error;
+      }
 
-    if (error) {
-      setErrorMessage(error.message);
-      return;
+      router.push(`/${locale}/admin/products`);
+      router.refresh();
+    } catch (error: any) {
+      setErrorMessage(error.message || t("saveError"));
     }
 
-    router.push("/admin/products");
-    router.refresh();
+    setIsSaving(false);
   }
 
   return (
@@ -148,208 +163,93 @@ export function ProductForm({ mode, product }: ProductFormProps) {
     >
       <div className="glass-card p-6">
         <h2 className="text-2xl font-black text-dark">
-          {mode === "create" ? "Add product" : "Edit product"}
+          {mode === "create" ? t("formTitleCreate") : t("formTitleEdit")}
         </h2>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          <label className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-dark">
-              Product name
-            </span>
-            <input
-              required
-              className="input-field"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Maczanka Krakowska"
-            />
-          </label>
+          <input
+            className="input-field sm:col-span-2"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={t("productName")}
+            required
+          />
 
-          <label>
-            <span className="mb-2 block text-sm font-bold text-dark">
-              Subtitle
-            </span>
-            <input
-              required
-              className="input-field"
-              value={subtitle}
-              onChange={(event) => setSubtitle(event.target.value)}
-              placeholder="Signature pork sandwich"
-            />
-          </label>
+          <input
+            className="input-field"
+            value={subtitle}
+            onChange={(e) => setSubtitle(e.target.value)}
+            placeholder={t("subtitle")}
+          />
 
-          <label>
-            <span className="mb-2 block text-sm font-bold text-dark">
-              Category
-            </span>
-            <select
-              className="input-field"
-              value={category}
-              onChange={(event) => setCategory(event.target.value)}
-            >
-              <option value="maczanka">Maczanka</option>
-              <option value="knysza">Knysza</option>
-              <option value="sides">Sides</option>
-              <option value="drinks">Drinks</option>
-            </select>
-          </label>
+          <input
+            className="input-field"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder={t("priceKr")}
+            type="number"
+            required
+          />
 
-          <label>
-            <span className="mb-2 block text-sm font-bold text-dark">
-              Price, kr
-            </span>
-            <input
-              required
-              type="number"
-              min="0"
-              className="input-field"
-              value={price}
-              onChange={(event) => setPrice(event.target.value)}
-              placeholder="129"
-            />
-          </label>
+          <select
+            className="input-field"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="maczanka">Maczanka</option>
+            <option value="knysza">Knysza</option>
+            <option value="sides">Sides</option>
+            <option value="drinks">Drinks</option>
+          </select>
 
-          <label>
-            <span className="mb-2 block text-sm font-bold text-dark">
-              Badge
-            </span>
-            <input
-              className="input-field"
-              value={badge}
-              onChange={(event) => setBadge(event.target.value)}
-              placeholder="Signature"
-            />
-          </label>
+          <textarea
+            className="input-field sm:col-span-2"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={t("description")}
+            required
+          />
 
-          <label>
-            <span className="mb-2 block text-sm font-bold text-dark">
-              Sort order
-            </span>
-            <input
-              type="number"
-              className="input-field"
-              value={sortOrder}
-              onChange={(event) => setSortOrder(event.target.value)}
-              placeholder="0"
-            />
-          </label>
-
-          {trackStock && (
-            <label>
-              <span className="mb-2 block text-sm font-bold text-dark">
-                Stock quantity
-              </span>
-              <input
-                type="number"
-                min="0"
-                className="input-field"
-                value={stockQuantity}
-                onChange={(event) => setStockQuantity(event.target.value)}
-                placeholder="10"
-              />
-            </label>
-          )}
-
-          <label className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-dark">
-              Description
-            </span>
-            <textarea
-              required
-              className="input-field min-h-32 resize-none"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="Slow-cooked pork, rich gravy sauce, pickles and onion."
-            />
-          </label>
+          <input
+            className="input-field"
+            value={badge}
+            onChange={(e) => setBadge(e.target.value)}
+            placeholder={t("badge")}
+          />
         </div>
-
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl bg-white/70 px-4 py-3 text-sm font-bold text-dark">
-            <span>Popular</span>
-            <input
-              type="checkbox"
-              checked={isPopular}
-              onChange={(event) => setIsPopular(event.target.checked)}
-            />
-          </label>
-
-          <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl bg-white/70 px-4 py-3 text-sm font-bold text-dark">
-            <span>Available</span>
-            <input
-              type="checkbox"
-              checked={isAvailable}
-              onChange={(event) => setIsAvailable(event.target.checked)}
-            />
-          </label>
-
-          <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl bg-white/70 px-4 py-3 text-sm font-bold text-dark">
-            <span>Track stock</span>
-            <input
-              type="checkbox"
-              checked={trackStock}
-              onChange={(event) => setTrackStock(event.target.checked)}
-            />
-          </label>
-        </div>
-
-        <div className="mt-5 rounded-2xl bg-white/60 p-4 text-sm leading-6 text-dark/60">
-          {trackStock ? (
-            <>
-              Stock tracking is ON. This item will be hidden from the customer
-              menu when stock is 0.
-            </>
-          ) : (
-            <>
-              Stock tracking is OFF. Use this for dishes prepared to order, like
-              Maczanka or Knysza.
-            </>
-          )}
-        </div>
-
-        {trackStock && Number(stockQuantity) <= 0 && (
-          <div className="mt-5 rounded-2xl bg-paprika/10 p-4 text-sm font-bold text-paprika">
-            Stock is 0. This product will be hidden from the customer menu.
-          </div>
-        )}
 
         {errorMessage && (
-          <div className="mt-5 rounded-2xl bg-paprika/10 p-4 text-sm font-bold text-paprika">
+          <div className="mt-4 text-sm font-bold text-red-500">
             {errorMessage}
           </div>
         )}
       </div>
 
-      <aside className="glass-card h-fit p-6">
-        <h3 className="text-xl font-black text-dark">Product photo</h3>
+      <aside className="glass-card p-6">
+        <h3 className="font-black">{t("productPhoto")}</h3>
 
-        <div className="relative mt-5 flex aspect-square items-center justify-center overflow-hidden rounded-[1.5rem] bg-white/70">
-          {imageUrl ? (
+        {imageUrl && (
+          <div className="relative mt-4 h-48 w-full overflow-hidden rounded-2xl bg-white/70">
             <Image
               src={imageUrl}
-              alt={name || "Product image"}
+              alt={name || "Preview"}
               fill
               sizes="360px"
               className="object-contain p-4"
             />
-          ) : (
-            <div className="text-center text-dark/40">
-              <div className="text-5xl">🍽️</div>
-              <p className="mt-3 text-sm font-bold">No image</p>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-dark px-4 py-3 text-sm font-black text-white transition hover:opacity-90">
+        <label className="mt-4 flex cursor-pointer items-center gap-2 rounded-2xl bg-dark px-4 py-3 text-sm font-black text-white transition hover:opacity-90">
           <Upload size={18} />
-          {isUploading ? "Uploading..." : "Upload photo"}
+          {isUploading ? t("uploading") : t("uploadPhoto")}
           <input
             type="file"
             accept="image/png,image/jpeg,image/webp"
             className="hidden"
             disabled={isUploading}
-            onChange={(event) => {
-              const file = event.target.files?.[0];
+            onChange={(e) => {
+              const file = e.target.files?.[0];
               if (file) uploadImage(file);
             }}
           />
@@ -361,10 +261,12 @@ export function ProductForm({ mode, product }: ProductFormProps) {
           className="btn-primary mt-4 w-full"
         >
           {isSaving
-            ? "Saving..."
+            ? mode === "create"
+              ? common("creatingAndTranslating")
+              : common("saving")
             : mode === "create"
-              ? "Create product"
-              : "Save changes"}
+              ? common("createProduct")
+              : common("saveChanges")}
         </button>
       </aside>
     </form>

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Plus } from "lucide-react";
+import { useParams } from "next/navigation";
 import type { Product } from "@/types/product";
 import { useCart } from "@/components/CartProvider";
 
@@ -11,17 +12,28 @@ type ProductCardProps = {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
+  const params = useParams();
+  const locale = String(params.locale || "en");
+
+  // 🔥 локализация
+  const name =
+    product[`name_${locale}` as keyof Product] || product.name;
+
+  const description =
+    product[`description_${locale}` as keyof Product] || product.description;
+
+  const subtitle =
+    product[`subtitle_${locale}` as keyof Product] || product.subtitle;
 
   return (
     <article className="glass-card group overflow-hidden p-4 transition duration-300 hover:-translate-y-1 hover:bg-white/85">
       <div className="relative mb-5 flex aspect-[4/3] items-center justify-center overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-honey/45 via-paprika/20 to-white">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,.8),transparent_30%)]" />
 
-
         {product.image_url ? (
           <Image
             src={product.image_url}
-            alt={product.name}
+            alt={name}
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-contain p-6 drop-shadow-xl"
@@ -31,10 +43,10 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.category === "maczanka"
               ? "🥪"
               : product.category === "knysza"
-                ? "🌯"
-                : product.category === "drinks"
-                  ? "🥤"
-                  : "🍟"}
+              ? "🌯"
+              : product.category === "drinks"
+              ? "🥤"
+              : "🍟"}
           </div>
         )}
 
@@ -48,19 +60,23 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="text-xl font-black tracking-tight text-dark">
-            {product.name}
+            {name}
           </h3>
-          <p className="mt-1 text-sm font-bold text-paprika">
-            {product.subtitle}
-          </p>
+
+          {subtitle && (
+            <p className="mt-1 text-sm font-bold text-paprika">
+              {subtitle}
+            </p>
+          )}
         </div>
+
         <p className="rounded-full bg-dark px-3 py-1 text-sm font-black text-white">
           {product.price} kr
         </p>
       </div>
 
       <p className="mt-4 min-h-12 text-sm leading-6 text-dark/65">
-        {product.description}
+        {description}
       </p>
 
       <button

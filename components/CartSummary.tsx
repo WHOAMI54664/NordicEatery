@@ -2,10 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 
 export function CartSummary() {
+  const params = useParams();
+  const locale = String(params.locale || "sv");
+
   const { items, totalPrice, setQuantity, removeItem } = useCart();
 
   if (items.length === 0) {
@@ -14,14 +18,17 @@ export function CartSummary() {
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-paprika/10 text-4xl">
           🛒
         </div>
+
         <h2 className="mt-6 text-2xl font-black text-dark">
           Your cart is empty
         </h2>
+
         <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-dark/60">
           Choose Maczanka or Knysza from the menu and add your favorite food to
           the cart.
         </p>
-        <Link href="/menu" className="btn-primary mt-6">
+
+        <Link href={`/${locale}/menu`} className="btn-primary mt-6">
           Go to menu
         </Link>
       </div>
@@ -115,12 +122,17 @@ export function CartSummary() {
           <div className="border-t border-dark/10 pt-4">
             <div className="flex justify-between text-lg">
               <span className="font-black">Total</span>
-              <span className="font-black text-paprika">{totalPrice} kr</span>
+              <span className="font-black text-paprika">
+                {totalPrice} kr
+              </span>
             </div>
           </div>
         </div>
 
-        <Link href="/checkout" className="btn-primary mt-6 w-full">
+        <Link
+          href={`/${locale}/checkout`}
+          className="btn-primary mt-6 w-full"
+        >
           Continue to checkout
         </Link>
       </aside>

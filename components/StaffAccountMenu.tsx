@@ -12,7 +12,7 @@ import {
   Shield,
   Users,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import {
   canAccessKitchen,
@@ -30,11 +30,18 @@ type StaffProfile = {
 
 export function StaffAccountMenu() {
   const router = useRouter();
+  const params = useParams();
+  const locale = String(params.locale || "en");
+
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   const [profile, setProfile] = useState<StaffProfile | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const supabase = useMemo(() => createClient(), []);
+
+  function localePath(path: string) {
+    return `/${locale}${path}`;
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -101,7 +108,7 @@ export function StaffAccountMenu() {
   async function signOut() {
     await supabase.auth.signOut();
     setIsOpen(false);
-    router.push("/");
+    router.push(`/${locale}`);
     router.refresh();
   }
 
@@ -137,7 +144,7 @@ export function StaffAccountMenu() {
 
           <div className="py-2">
             <Link
-              href="/kitchen"
+              href={localePath("/admin/kitchen")}
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black text-dark transition hover:bg-cream"
             >
@@ -149,7 +156,7 @@ export function StaffAccountMenu() {
 
             {canManageProducts(profile.role) && (
               <Link
-                href="/admin/products"
+                href={localePath("/admin/products")}
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black text-dark transition hover:bg-cream"
               >
@@ -162,7 +169,7 @@ export function StaffAccountMenu() {
 
             {canManageInventory(profile.role) && (
               <Link
-                href="/admin/inventory"
+                href={localePath("/admin/inventory")}
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black text-dark transition hover:bg-cream"
               >
@@ -175,7 +182,7 @@ export function StaffAccountMenu() {
 
             {canViewAnalytics(profile.role) && (
               <Link
-                href="/admin/analytics"
+                href={localePath("/admin/analytics")}
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black text-dark transition hover:bg-cream"
               >
@@ -188,7 +195,7 @@ export function StaffAccountMenu() {
 
             {canManageStaff(profile.role) && (
               <Link
-                href="/admin/staff"
+                href={localePath("/admin/staff")}
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black text-dark transition hover:bg-cream"
               >

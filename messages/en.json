@@ -1,0 +1,268 @@
+{
+  "nav": {
+    "menu": "Menu",
+    "about": "About us",
+    "booking": "Booking",
+    "mikes": "Mike’s",
+    "catering": "Catering",
+    "contact": "Contact",
+    "support": "Support",
+    "cart": "Cart",
+    "delivery": "Delivery in 30–40 min"
+  },
+
+  "footer": {
+    "brand": "NordicEatery",
+    "tagline": "Real food. Fast service. No compromise.",
+    "navigation": "Navigation",
+    "menu": "Menu",
+    "about": "About",
+    "booking": "Booking",
+    "foodTruck": "Food truck",
+    "services": "Services",
+    "catering": "Catering",
+    "contact": "Contact",
+    "support": "Support",
+    "location": "Boden, Sweden",
+    "delivery": "Delivery: 30–40 min"
+  },
+
+  "pages": {
+    "home": {
+      "eyebrow": "Kitchen & Delivery",
+      "titleLine1": "Polish food.",
+      "titleLine2": "Delivered hot.",
+      "subtitle": "Maczanka, Knysza and homemade comfort food from Mike’s kitchen.",
+      "orderNow": "Order now",
+      "viewCart": "View cart",
+      "exploreMenu": "Explore menu",
+      "popular": "Popular",
+      "bestSellers": "Best sellers",
+      "fullMenu": "Full menu",
+      "categories": {
+        "maczanka": "Maczanka",
+        "knysza": "Knysza",
+        "sides": "Sides",
+        "drinks": "Drinks"
+      }
+    },
+
+    "menu": {
+      "eyebrow": "Menu",
+      "title": "Choose your Polish food",
+      "subtitle": "Fresh dishes made to order and selected items available from stock.",
+      "categories": {
+        "maczanka": "Maczanka",
+        "knysza": "Knysza",
+        "sides": "Sides",
+        "drinks": "Drinks"
+      }
+    },
+
+    "about": {
+      "title": "About Mike’s Food",
+      "subtitle": "Real food. No compromises.",
+      "whoTitle": "Who we are",
+      "whoText": "Mike’s Food is a modern street kitchen focused on fast service, quality ingredients, and honest prices.",
+      "freshTitle": "Fresh ingredients",
+      "freshText": "We cook everything fresh. No shortcuts.",
+      "fastTitle": "Fast service",
+      "fastText": "You get your food quickly without losing quality.",
+      "simpleTitle": "Simple menu",
+      "simpleText": "Only what really works. No unnecessary items.",
+      "tasteTitle": "Real taste",
+      "tasteText": "Street food energy with restaurant quality.",
+      "finalTitle": "Built for people who value good food",
+      "finalText": "No waiting. No overpricing. Just good food done right."
+    },
+
+    "booking": {
+      "eyebrow": "Reserve your table",
+      "title": "Booking",
+      "subtitle": "Book a table, catering or Mike’s Food Truck and we’ll confirm your request as soon as possible.",
+      "name": "Full name",
+      "namePlaceholder": "Your name",
+      "phone": "Phone number",
+      "date": "Date",
+      "time": "Time",
+      "guests": "Guests",
+      "message": "Message",
+      "messagePlaceholder": "Any special requests?",
+      "button": "Send booking request",
+      "successEyebrow": "Booking sent",
+      "successTitle": "Thank you!",
+      "successText": "We received your booking request and will contact you shortly.",
+      "error": "Something went wrong. Please try again."
+    },
+
+    "mikes": {
+      "eyebrow": "Mike's Food Truck",
+      "title": "Book our food truck for your event",
+      "subtitle": "Bring Mike's Food to your party, company event, festival, private celebration or special occasion.",
+      "button": "Book food truck",
+      "contact": "Contact us",
+      "privateTitle": "Private events",
+      "privateText": "Perfect for birthdays, parties, weddings and private celebrations.",
+      "businessTitle": "Business events",
+      "businessText": "Serve your team, guests or clients with fresh food on location.",
+      "festivalsTitle": "Festivals",
+      "festivalsText": "A strong street food setup for markets, festivals and outdoor events.",
+      "ctaTitle": "Want Mike's at your event?",
+      "ctaText": "Send us your date, location and expected number of guests — we’ll get back to you with the best option.",
+      "ctaButton": "Send booking request"
+    },
+
+    "catering": {
+      "eyebrow": "Catering",
+      "title": "Food for events, teams and celebrations",
+      "subtitle": "Fresh food for private parties, business lunches, company events, festivals and larger groups.",
+      "button": "Request catering",
+      "contactButton": "Contact us",
+      "smallTitle": "Small events",
+      "smallText": "Perfect for birthdays, family gatherings and private occasions.",
+      "companyTitle": "Company food",
+      "companyText": "Lunches, team events, office food and business meetings.",
+      "largeTitle": "Large groups",
+      "largeText": "Food solutions for bigger groups, festivals and outdoor events.",
+      "provideTitle": "What we can provide",
+      "provideCustomMenu": "Custom menu options",
+      "provideGroups": "Food for small and large groups",
+      "providePickup": "Pickup or delivery options",
+      "provideFoodTruck": "Food truck on location",
+      "providePlanning": "Simple event planning",
+      "provideFastCommunication": "Fast communication",
+      "ctaTitle": "Planning an event?",
+      "ctaText": "Tell us the date, location and number of guests — we’ll help you find the best food setup.",
+      "ctaButton": "Send catering request"
+    },
+
+    "contact": {
+      "eyebrow": "Contact",
+      "title": "Get in touch",
+      "subtitle": "Questions, bookings, catering or events — contact Mike’s Food and we’ll get back to you.",
+      "phone": "Phone",
+      "email": "Email",
+      "location": "Location",
+      "ctaTitle": "Want to book Mike’s Food?",
+      "ctaText": "Use the booking page to send us your date, time, location and number of guests.",
+      "ctaButton": "Go to booking"
+    },
+
+    "support": {
+      "eyebrow": "Support",
+      "title": "Need help?",
+      "subtitle": "If you have questions about your order, booking or catering — we are here to help.",
+      "q1": "How long does delivery take?",
+      "a1": "Usually between 30–40 minutes depending on demand.",
+      "q2": "Can I book the food truck?",
+      "a2": "Yes, go to the Mike’s page or Booking page and send a request.",
+      "q3": "Do you offer catering?",
+      "a3": "Yes, we provide catering for events, companies and private groups.",
+      "q4": "How can I contact you?",
+      "a4": "You can email us directly or use the Contact page.",
+      "ctaTitle": "Still need help?",
+      "ctaText": "Contact us directly and we’ll respond as quickly as possible.",
+      "contact": "Contact us",
+      "booking": "Booking"
+    }
+  },
+
+  "admin": {
+    "common": {
+      "admin": "Admin",
+      "edit": "Edit",
+      "active": "Active",
+      "hidden": "Hidden",
+      "saveChanges": "Save changes",
+      "saving": "Saving...",
+      "createProduct": "Create product",
+      "creatingAndTranslating": "Creating & translating..."
+    },
+    "products": {
+      "title": "Products",
+      "addProduct": "Add product",
+      "photo": "Photo",
+      "name": "Name",
+      "price": "Price",
+      "status": "Status",
+      "formTitleCreate": "Add product",
+      "formTitleEdit": "Edit product",
+      "productName": "Product name",
+      "subtitle": "Subtitle",
+      "category": "Category",
+      "priceKr": "Price, kr",
+      "badge": "Badge",
+      "sortOrder": "Sort order",
+      "stockQuantity": "Stock quantity",
+      "description": "Description",
+      "popular": "Popular",
+      "available": "Available",
+      "trackStock": "Track stock",
+      "stockOn": "Stock tracking is ON. This item will be hidden from the customer menu when stock is 0.",
+      "stockOff": "Stock tracking is OFF. Use this for dishes prepared to order, like Maczanka or Knysza.",
+      "stockZero": "Stock is 0. This product will be hidden from the customer menu.",
+      "productPhoto": "Product photo",
+      "noImage": "No image",
+      "uploadPhoto": "Upload photo",
+      "uploading": "Uploading...",
+      "nameRequired": "Product name is required.",
+      "saveError": "Something went wrong"
+    },
+    "inventory": {
+      "searchPlaceholder": "Search products...",
+      "products": "products",
+      "quantityGreaterThanZero": "Quantity must be greater than 0.",
+      "available": "Available",
+      "hidden": "Hidden",
+      "stockTracked": "Stock tracked",
+      "noStockTracking": "No stock tracking",
+      "outOfStock": "Out of stock",
+      "lowStock": "Low stock",
+      "currentStock": "Current stock",
+      "in": "Stock in",
+      "out": "Stock out",
+      "adjustment": "Adjustment",
+      "noTrack": "No track",
+      "track": "Track",
+      "hideProduct": "Hide product",
+      "showProduct": "Show product",
+      "newStockQuantity": "New stock quantity",
+      "quantity": "Quantity",
+      "note": "Note",
+      "notePlaceholder": "Supplier, reason, mistake correction...",
+      "saving": "Saving...",
+      "apply": "Apply",
+      "cancel": "Cancel"
+    },
+    "kitchen": {
+      "display": "Kitchen display",
+      "title": "Orders board",
+      "subtitle": "Keep this page open on the kitchen tablet. New orders will appear here and can be moved through the kitchen workflow.",
+      "newNow": "New now",
+      "noActiveOrders": "No active orders",
+      "emptyText": "Demo orders from checkout will appear here.",
+      "empty": "Empty",
+      "comment": "Comment",
+      "startPreparing": "Start preparing",
+      "markReady": "Mark as ready",
+      "completeOrder": "Complete order",
+      "remove": "Remove",
+      "min": "min",
+      "statuses": {
+        "new": "New",
+        "preparing": "Preparing",
+        "ready": "Ready",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "columns": {
+        "newTitle": "New orders",
+        "newDescription": "Accept and start cooking.",
+        "preparingTitle": "Preparing",
+        "preparingDescription": "Orders currently in the kitchen.",
+        "readyTitle": "Ready",
+        "readyDescription": "Ready for pickup or delivery."
+      }
+    }
+  }
+}

@@ -5,7 +5,52 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="060f1486-bf69-4dc5-842d-f3514b9af11e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/app/api/admin/staff/invite/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/admin/staff/invite/route.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/[locale]/layout.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/[locale]/order/[id]/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/api/booking/route.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/api/products/create/route.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/LanguageSwitcher.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/i18n/request.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/i18n/routing.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/messages/en.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/middleware.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/images/about/fries1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/images/about/fries2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/images/about/fries3.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/images/about/hero.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/images/about/knysza.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/images/about/machanka.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/translate.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/admin/analytics/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/admin/inventory/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/admin/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/admin/products/[id]/edit/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/admin/products/new/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/admin/products/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/admin/staff/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/cart/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/checkout/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/checkout/success/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/kitchen/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/kitchen/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/menu/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/CartSummary.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/CartSummary.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/CheckoutForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/CheckoutForm.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/Footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/Footer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/Header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/Header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/KitchenBoard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/KitchenBoard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ProductCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/ProductCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/StaffAccountMenu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/StaffAccountMenu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/admin/InventoryManager.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/admin/InventoryManager.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/admin/ProductForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/admin/ProductForm.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/supabase/admin.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/supabase/admin.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/supabase/server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/supabase/server.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/next.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/next.config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/types/product.ts" beforeDir="false" afterPath="$PROJECT_DIR$/types/product.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -13,7 +58,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="28" />
+    <option name="cachedIndexableFilesCount" value="16541" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
@@ -76,6 +121,7 @@
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;kronk.content.tree.expanded.paths&quot;: &quot;|Components&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/daniel/Desktop/mikes-food-starter/public/images/about&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
   },
@@ -86,11 +132,15 @@
   }
 }</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/public/images/about" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/[locale]" />
+      <recent name="$PROJECT_DIR$/app/[locale]/admin" />
+      <recent name="$PROJECT_DIR$/public/images/about" />
       <recent name="$PROJECT_DIR$/components/admin" />
       <recent name="$PROJECT_DIR$/app/admin" />
-      <recent name="$PROJECT_DIR$/public" />
-      <recent name="$PROJECT_DIR$/public/food" />
     </key>
   </component>
   <component name="SharedIndexes">
