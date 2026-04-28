@@ -61,7 +61,7 @@ export function SetPasswordForm() {
       </h1>
 
       <p className="mt-2 text-center text-sm leading-6 text-dark/60">
-        Create a password to access the Nordic Eatery staff area.
+        Create a password to access the Nordic Eatery staff area
       </p>
 
       {errorMessage && (
