@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import * as deepl from "deepl-node";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const translator = new deepl.Translator(process.env.DEEPL_API_KEY!);
-
-async function translateText(text: string | null | undefined, target: deepl.TargetLanguageCode) {
+async function translateText(
+  translator: deepl.Translator,
+  text: string | null | undefined,
+  target: deepl.TargetLanguageCode
+) {
   if (!text || !text.trim()) return null;
 
   const result = await translator.translateText(text, "EN", target);
@@ -13,12 +15,16 @@ async function translateText(text: string | null | undefined, target: deepl.Targ
 
 export async function POST(request: Request) {
   try {
-    if (!process.env.DEEPL_API_KEY) {
+    const deeplApiKey = process.env.DEEPL_API_KEY;
+
+    if (!deeplApiKey) {
       return NextResponse.json(
         { error: "Missing DEEPL_API_KEY" },
         { status: 500 }
       );
     }
+
+    const translator = new deepl.Translator(deeplApiKey);
 
     const body = await request.json();
 
@@ -55,17 +61,17 @@ export async function POST(request: Request) {
       description_pl,
       description_ru,
     ] = await Promise.all([
-      translateText(name, "SV"),
-      translateText(name, "PL"),
-      translateText(name, "RU"),
+      translateText(translator, name, "SV"),
+      translateText(translator, name, "PL"),
+      translateText(translator, name, "RU"),
 
-      translateText(subtitle, "SV"),
-      translateText(subtitle, "PL"),
-      translateText(subtitle, "RU"),
+      translateText(translator, subtitle, "SV"),
+      translateText(translator, subtitle, "PL"),
+      translateText(translator, subtitle, "RU"),
 
-      translateText(description, "SV"),
-      translateText(description, "PL"),
-      translateText(description, "RU"),
+      translateText(translator, description, "SV"),
+      translateText(translator, description, "PL"),
+      translateText(translator, description, "RU"),
     ]);
 
     const supabase = createAdminClient();
