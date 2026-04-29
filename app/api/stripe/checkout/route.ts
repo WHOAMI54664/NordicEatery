@@ -78,7 +78,7 @@ export async function POST(request: Request) {
     const safeLocale = getSafeLocale(locale);
 
     const { error: orderError } = await supabase.from("orders").upsert({
-      id: orderId,
+      order_number: orderId,
       customer_name: customerName,
       customer_phone: customerPhone,
       address,
@@ -123,7 +123,7 @@ export async function POST(request: Request) {
           stripe_session_id: session.id,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", orderId);
+        .eq("order_number", orderId);
 
     if (updateError) {
       return NextResponse.json({ error: updateError.message }, { status: 500 });
