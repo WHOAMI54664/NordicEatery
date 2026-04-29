@@ -44,7 +44,11 @@ export async function POST(request: Request) {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (error) {
     console.error("Webhook signature error:", error);
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+
+    return NextResponse.json(
+        { error: "Invalid signature" },
+        { status: 400 }
+    );
   }
 
   if (event.type === "checkout.session.completed") {
@@ -52,7 +56,14 @@ export async function POST(request: Request) {
 
     const orderId = session.metadata?.orderId;
 
-    if (orderId && session.payment_status === "paid") {
+    if (!orderId) {
+      return NextResponse.json(
+          { error: "Missing orderId in metadata" },
+          { status: 400 }
+      );
+    }
+
+    if (session.payment_status === "paid") {
       const { error } = await supabase
           .from("orders")
           .update({
@@ -64,11 +75,15 @@ export async function POST(request: Request) {
                     : null,
             updated_at: new Date().toISOString(),
           })
-          .eq("id", orderId);
+          .eq("order_number", orderId);
 
       if (error) {
         console.error("Order payment update error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+
+        return NextResponse.json(
+            { error: error.message },
+            { status: 500 }
+        );
       }
     }
   }
