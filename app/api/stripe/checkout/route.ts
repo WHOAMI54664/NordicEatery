@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,6 +10,18 @@ type CheckoutItem = {
   name: string;
   quantity: number;
   price: number;
+};
+
+type CheckoutBody = {
+  orderId: string;
+  customerName: string;
+  customerPhone: string;
+  address: string;
+  deliveryType: "delivery" | "pickup";
+  comment?: string;
+  items: CheckoutItem[];
+  totalPrice: number;
+  locale?: string;
 };
 
 function getStripe() {
@@ -21,11 +34,20 @@ function getStripe() {
   return new Stripe(secretKey);
 }
 
+function getSafeLocale(locale?: string) {
+  if (!locale) return "sv";
+
+  const allowedLocales = ["sv", "en", "ru"];
+
+  return allowedLocales.includes(locale) ? locale : "sv";
+}
+
 export async function POST(request: Request) {
   try {
     const stripe = getStripe();
+    const supabase = createAdminClient();
 
-    const body = await request.json();
+    const body = (await request.json()) as CheckoutBody;
 
     const {
       orderId,
@@ -36,23 +58,42 @@ export async function POST(request: Request) {
       comment,
       items,
       totalPrice,
-    } = body as {
-      orderId: string;
-      customerName: string;
-      customerPhone: string;
-      address: string;
-      deliveryType: "delivery" | "pickup";
-      comment?: string;
-      items: CheckoutItem[];
-      totalPrice: number;
-    };
+      locale,
+    } = body;
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
+    if (totalPrice < 3) {
+      return NextResponse.json(
+          { error: "Minimum card payment is 3 kr" },
+          { status: 400 }
+      );
+    }
+
     const siteUrl =
         process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+    const safeLocale = getSafeLocale(locale);
+
+    const { error: orderError } = await supabase.from("orders").upsert({
+      id: orderId,
+      customer_name: customerName,
+      customer_phone: customerPhone,
+      address,
+      delivery_type: deliveryType,
+      comment: comment || null,
+      items,
+      total_price: totalPrice,
+      status: "new",
+      payment_method: "card",
+      payment_status: "awaiting_payment",
+    });
+
+    if (orderError) {
+      return NextResponse.json({ error: orderError.message }, { status: 500 });
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -70,25 +111,31 @@ export async function POST(request: Request) {
 
       metadata: {
         orderId,
-        customerName,
-        customerPhone,
-        address,
-        deliveryType,
-        comment: comment || "",
-        totalPrice: String(totalPrice),
       },
 
-      success_url: `${siteUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/checkout`,
+      success_url: `${siteUrl}/${safeLocale}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${siteUrl}/${safeLocale}/checkout`,
     });
+
+    const { error: updateError } = await supabase
+        .from("orders")
+        .update({
+          stripe_session_id: session.id,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", orderId);
+
+    if (updateError) {
+      return NextResponse.json({ error: updateError.message }, { status: 500 });
+    }
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
     console.error("Stripe checkout error:", error);
 
-    return NextResponse.json(
-        { error: "Stripe checkout failed" },
-        { status: 500 }
-    );
+    const message =
+        error instanceof Error ? error.message : "Stripe checkout failed";
+
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

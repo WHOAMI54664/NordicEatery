@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,13 +17,14 @@ function getStripe() {
 
 export async function POST(request: Request) {
   const stripe = getStripe();
+  const supabase = createAdminClient();
 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!webhookSecret) {
     return NextResponse.json(
-      { error: "STRIPE_WEBHOOK_SECRET is missing" },
-      { status: 500 }
+        { error: "STRIPE_WEBHOOK_SECRET is missing" },
+        { status: 500 }
     );
   }
 
@@ -31,8 +33,8 @@ export async function POST(request: Request) {
 
   if (!signature) {
     return NextResponse.json(
-      { error: "Missing stripe-signature header" },
-      { status: 400 }
+        { error: "Missing stripe-signature" },
+        { status: 400 }
     );
   }
 
@@ -41,26 +43,34 @@ export async function POST(request: Request) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (error) {
-    console.error("Webhook signature verification failed:", error);
-
-    return NextResponse.json(
-      { error: "Invalid webhook signature" },
-      { status: 400 }
-    );
+    console.error("Webhook signature error:", error);
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
 
-    console.log("Payment completed:", {
-      sessionId: session.id,
-      paymentStatus: session.payment_status,
-      metadata: session.metadata,
-    });
+    const orderId = session.metadata?.orderId;
 
-    // Здесь дальше будем создавать заказ в Supabase:
-    // paymentStatus: "paid"
-    // status: "new"
+    if (orderId && session.payment_status === "paid") {
+      const { error } = await supabase
+          .from("orders")
+          .update({
+            payment_status: "paid",
+            stripe_session_id: session.id,
+            stripe_payment_intent_id:
+                typeof session.payment_intent === "string"
+                    ? session.payment_intent
+                    : null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", orderId);
+
+      if (error) {
+        console.error("Order payment update error:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+    }
   }
 
   return NextResponse.json({ received: true });
