@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 type CheckoutItem = {
   id: string;
@@ -10,8 +11,20 @@ type CheckoutItem = {
   price: number;
 };
 
+function getStripe() {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+
+  if (!secretKey) {
+    throw new Error("STRIPE_SECRET_KEY is missing");
+  }
+
+  return new Stripe(secretKey);
+}
+
 export async function POST(request: Request) {
   try {
+    const stripe = getStripe();
+
     const body = await request.json();
 
     const {
@@ -35,14 +48,11 @@ export async function POST(request: Request) {
     };
 
     if (!items || items.length === 0) {
-      return NextResponse.json(
-        { error: "Cart is empty" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
     const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+        process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -54,7 +64,7 @@ export async function POST(request: Request) {
           product_data: {
             name: item.name,
           },
-          unit_amount: item.price * 100,
+          unit_amount: Math.round(item.price * 100),
         },
       })),
 
@@ -77,8 +87,8 @@ export async function POST(request: Request) {
     console.error("Stripe checkout error:", error);
 
     return NextResponse.json(
-      { error: "Stripe checkout failed" },
-      { status: 500 }
+        { error: "Stripe checkout failed" },
+        { status: 500 }
     );
   }
 }
