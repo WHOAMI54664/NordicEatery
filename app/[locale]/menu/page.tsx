@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 const categories = [
   { id: "maczanka", titleKey: "maczanka" },
   { id: "knysza", titleKey: "knysza" },
-  { id: "sides", titleKey: "sides" },
+  { id: "fries", titleKey: "fries" },
   { id: "drinks", titleKey: "drinks" },
 ] as const;
 
@@ -22,7 +22,7 @@ export default async function MenuPage() {
 
   return (
     <main className="container-page py-16">
-      <div className="max-w-3xl">
+      <div className="text-center sm:text-left max-w-3xl">
         <p className="font-black uppercase tracking-[0.25em] text-paprika">
           {t("eyebrow")}
         </p>
@@ -49,11 +49,11 @@ export default async function MenuPage() {
                 {t(`categories.${category.titleKey}`)}
               </h2>
 
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+                <div className="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-3">
+                    {products.map((product) => (
+                        <ProductCard key={product.id} product={product} compact />
+                    ))}
+                </div>
             </section>
           );
         })}

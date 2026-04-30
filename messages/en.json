@@ -44,7 +44,7 @@
       "categories": {
         "maczanka": "Maczanka",
         "knysza": "Knysza",
-        "sides": "Sides",
+        "fries": "Fries",
         "drinks": "Drinks"
       }
     },
@@ -55,8 +55,9 @@
       "categories": {
         "maczanka": "Maczanka",
         "knysza": "Knysza",
-        "sides": "Sides",
+        "fries": "Fries",
         "drinks": "Drinks"
+      }
       }
     },
     "about": {
@@ -203,8 +204,7 @@
       "rightsText": "You may contact us to request access, correction or deletion of your personal data where legally possible.",
       "contactTitle": "Contact",
       "contactText": "For privacy questions, contact us at kontakt@nordiceatery.se."
-    }
-  },
+    },
   "admin": {
     "common": {
       "admin": "Admin",
