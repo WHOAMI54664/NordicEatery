@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Truck, Store } from "lucide-react";
+import { Store, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCart } from "@/components/CartProvider";
 import { PaymentIcons } from "@/components/PaymentIcons";
@@ -112,7 +112,7 @@ export function CheckoutForm() {
   return (
       <form
           onSubmit={handleSubmit}
-          className="mx-auto grid w-full max-w-6xl gap-6 overflow-hidden lg:grid-cols-[minmax(0,1fr)_390px]"
+          className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1fr_390px]"
       >
         <div className="glass-card w-full min-w-0 p-5 sm:p-6">
           <div>
@@ -129,32 +129,32 @@ export function CheckoutForm() {
             </p>
           </div>
 
-          <div className="mt-8 grid min-w-0 gap-4 sm:grid-cols-2">
-            <label className="min-w-0">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <label>
             <span className="mb-2 block text-sm font-bold text-dark">
               {t("name")}
             </span>
               <input
                   required
                   name="customerName"
-                  className="input-field w-full"
+                  className="input-field"
                   placeholder={t("namePlaceholder")}
               />
             </label>
 
-            <label className="min-w-0">
+            <label>
             <span className="mb-2 block text-sm font-bold text-dark">
               {t("phone")}
             </span>
               <input
                   required
                   name="customerPhone"
-                  className="input-field w-full"
+                  className="input-field"
                   placeholder={t("phonePlaceholder")}
               />
             </label>
 
-            <div className="min-w-0 sm:col-span-2">
+            <div className="sm:col-span-2">
             <span className="mb-2 block text-sm font-bold text-dark">
               {t("deliveryType")}
             </span>
@@ -170,7 +170,7 @@ export function CheckoutForm() {
                     }`}
                 >
                   <Truck className="h-5 w-5" />
-                  <p className="mt-2 font-black">{t("delivery")}</p>
+                  <p className="mt-2 truncate font-black">{t("delivery")}</p>
                   <p className="mt-1 text-xs opacity-70">{t("deliveryTime")}</p>
                 </button>
 
@@ -184,21 +184,21 @@ export function CheckoutForm() {
                     }`}
                 >
                   <Store className="h-5 w-5" />
-                  <p className="mt-2 font-black">{t("pickup")}</p>
+                  <p className="mt-2 truncate font-black">{t("pickup")}</p>
                   <p className="mt-1 text-xs opacity-70">{t("pickupText")}</p>
                 </button>
               </div>
             </div>
 
             {deliveryType === "delivery" && (
-                <label className="min-w-0 sm:col-span-2">
+                <label className="sm:col-span-2">
               <span className="mb-2 block text-sm font-bold text-dark">
                 {t("address")}
               </span>
                   <input
                       required
                       name="address"
-                      className="input-field w-full"
+                      className="input-field"
                       placeholder={t("addressPlaceholder")}
                   />
                 </label>
@@ -208,49 +208,55 @@ export function CheckoutForm() {
                 <input type="hidden" name="address" value="Pickup" />
             )}
 
-            <div className="min-w-0 sm:col-span-2">
+            <div className="sm:col-span-2">
             <span className="mb-2 block text-sm font-bold text-dark">
               {t("paymentMethod")}
             </span>
 
-              <div className="flex w-full gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 <button
                     type="button"
                     onClick={() => setPaymentMethod("card")}
-                    className={`min-w-[135px] flex-1 rounded-3xl border p-4 text-left transition sm:min-w-0 ${
+                    className={`min-w-0 rounded-3xl border px-3 py-4 text-left transition sm:p-4 ${
                         paymentMethod === "card"
                             ? "border-paprika bg-paprika text-white"
                             : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
                     }`}
                 >
-                  <p className="mt-1 font-black">{t("card")}</p>
-                  <p className="mt-1 text-xs opacity-70">{t("cardText")}</p>
+                  <p className="truncate font-black">{t("card")}</p>
+                  <p className="mt-1 line-clamp-2 text-xs leading-4 opacity-70">
+                    {t("cardText")}
+                  </p>
                 </button>
 
                 <button
                     type="button"
                     onClick={() => setPaymentMethod("swish")}
-                    className={`min-w-[135px] flex-1 rounded-3xl border p-4 text-left transition sm:min-w-0 ${
+                    className={`min-w-0 rounded-3xl border px-3 py-4 text-left transition sm:p-4 ${
                         paymentMethod === "swish"
                             ? "border-paprika bg-paprika text-white"
                             : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
                     }`}
                 >
-                  <p className="mt-1 font-black">{t("swish")}</p>
-                  <p className="mt-1 text-xs opacity-70">{t("swishText")}</p>
+                  <p className="truncate font-black">{t("swish")}</p>
+                  <p className="mt-1 line-clamp-2 text-xs leading-4 opacity-70">
+                    {t("swishText")}
+                  </p>
                 </button>
 
                 <button
                     type="button"
                     onClick={() => setPaymentMethod("cash")}
-                    className={`min-w-[135px] flex-1 rounded-3xl border p-4 text-left transition sm:min-w-0 ${
+                    className={`min-w-0 rounded-3xl border px-3 py-4 text-left transition sm:p-4 ${
                         paymentMethod === "cash"
                             ? "border-paprika bg-paprika text-white"
                             : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
                     }`}
                 >
-                  <p className="mt-1 font-black">{t("cash")}</p>
-                  <p className="mt-1 text-xs opacity-70">{t("cashText")}</p>
+                  <p className="truncate font-black">{t("cash")}</p>
+                  <p className="mt-1 line-clamp-2 text-xs leading-4 opacity-70">
+                    {t("cashText")}
+                  </p>
                 </button>
               </div>
 
@@ -258,29 +264,29 @@ export function CheckoutForm() {
             </div>
 
             {paymentMethod === "swish" && (
-                <div className="min-w-0 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60 sm:col-span-2">
+                <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
                   {t("swishInfo")}
                 </div>
             )}
 
             {paymentMethod === "card" && (
-                <div className="min-w-0 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60 sm:col-span-2">
+                <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
                   {t("cardInfo")}
                 </div>
             )}
 
-            <label className="min-w-0 sm:col-span-2">
+            <label className="sm:col-span-2">
             <span className="mb-2 block text-sm font-bold text-dark">
               {t("comment")}
             </span>
               <textarea
                   name="comment"
-                  className="input-field min-h-28 w-full resize-none"
+                  className="input-field min-h-28 resize-none"
                   placeholder={t("commentPlaceholder")}
               />
             </label>
 
-            <div className="min-w-0 rounded-3xl bg-white/70 p-4 sm:col-span-2">
+            <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4">
               <p className="font-black text-dark">{t("securePayments")}</p>
 
               <div className="mt-3">
@@ -292,7 +298,7 @@ export function CheckoutForm() {
               </p>
             </div>
 
-            <label className="flex min-w-0 gap-3 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60 sm:col-span-2">
+            <label className="sm:col-span-2 flex gap-3 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
               <input required type="checkbox" className="mt-1 h-4 w-4 shrink-0" />
 
               <span>
@@ -323,7 +329,7 @@ export function CheckoutForm() {
             {items.map((item) => (
                 <div key={item.id} className="flex justify-between gap-4 text-sm">
                   <div className="min-w-0">
-                    <p className="font-black text-dark">{item.name}</p>
+                    <p className="truncate font-black text-dark">{item.name}</p>
                     <p className="text-dark/50">x{item.quantity}</p>
                   </div>
 
@@ -335,12 +341,14 @@ export function CheckoutForm() {
           </div>
 
           <div className="mt-6 border-t border-dark/10 pt-4">
-            <div className="flex justify-between text-lg">
+            <div className="flex justify-between gap-4 text-lg">
               <span className="font-black">{t("total")}</span>
               <span className="font-black text-paprika">{totalPrice} kr</span>
             </div>
 
-            <p className="mt-2 text-xs leading-5 text-dark/45">{t("taxInfo")}</p>
+            <p className="mt-2 text-xs leading-5 text-dark/45">
+              {t("taxInfo")}
+            </p>
           </div>
 
           <button
