@@ -112,9 +112,9 @@ export function CheckoutForm() {
   return (
       <form
           onSubmit={handleSubmit}
-          className="grid gap-6 lg:grid-cols-[1fr_390px]"
+          className="mx-auto grid w-full max-w-6xl gap-6 overflow-hidden lg:grid-cols-[minmax(0,1fr)_390px]"
       >
-        <div className="glass-card p-5 sm:p-6">
+        <div className="glass-card w-full min-w-0 p-5 sm:p-6">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.25em] text-paprika/70">
               {t("eyebrow")}
@@ -129,32 +129,32 @@ export function CheckoutForm() {
             </p>
           </div>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <label>
+          <div className="mt-8 grid min-w-0 gap-4 sm:grid-cols-2">
+            <label className="min-w-0">
             <span className="mb-2 block text-sm font-bold text-dark">
               {t("name")}
             </span>
               <input
                   required
                   name="customerName"
-                  className="input-field"
+                  className="input-field w-full"
                   placeholder={t("namePlaceholder")}
               />
             </label>
 
-            <label>
+            <label className="min-w-0">
             <span className="mb-2 block text-sm font-bold text-dark">
               {t("phone")}
             </span>
               <input
                   required
                   name="customerPhone"
-                  className="input-field"
+                  className="input-field w-full"
                   placeholder={t("phonePlaceholder")}
               />
             </label>
 
-            <div className="sm:col-span-2">
+            <div className="min-w-0 sm:col-span-2">
             <span className="mb-2 block text-sm font-bold text-dark">
               {t("deliveryType")}
             </span>
@@ -163,7 +163,7 @@ export function CheckoutForm() {
                 <button
                     type="button"
                     onClick={() => setDeliveryType("delivery")}
-                    className={`rounded-3xl border p-4 text-left transition ${
+                    className={`min-w-0 rounded-3xl border p-4 text-left transition ${
                         deliveryType === "delivery"
                             ? "border-paprika bg-paprika text-white"
                             : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
@@ -177,7 +177,7 @@ export function CheckoutForm() {
                 <button
                     type="button"
                     onClick={() => setDeliveryType("pickup")}
-                    className={`rounded-3xl border p-4 text-left transition ${
+                    className={`min-w-0 rounded-3xl border p-4 text-left transition ${
                         deliveryType === "pickup"
                             ? "border-paprika bg-paprika text-white"
                             : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
@@ -191,14 +191,14 @@ export function CheckoutForm() {
             </div>
 
             {deliveryType === "delivery" && (
-                <label className="sm:col-span-2">
+                <label className="min-w-0 sm:col-span-2">
               <span className="mb-2 block text-sm font-bold text-dark">
                 {t("address")}
               </span>
                   <input
                       required
                       name="address"
-                      className="input-field"
+                      className="input-field w-full"
                       placeholder={t("addressPlaceholder")}
                   />
                 </label>
@@ -208,16 +208,16 @@ export function CheckoutForm() {
                 <input type="hidden" name="address" value="Pickup" />
             )}
 
-            <div className="sm:col-span-2">
+            <div className="min-w-0 sm:col-span-2">
             <span className="mb-2 block text-sm font-bold text-dark">
               {t("paymentMethod")}
             </span>
 
-              <div className="flex gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible">
+              <div className="flex w-full gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible">
                 <button
                     type="button"
                     onClick={() => setPaymentMethod("card")}
-                    className={`min-w-[150px] rounded-3xl border p-4 text-left transition ${
+                    className={`min-w-[135px] flex-1 rounded-3xl border p-4 text-left transition sm:min-w-0 ${
                         paymentMethod === "card"
                             ? "border-paprika bg-paprika text-white"
                             : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
@@ -230,7 +230,7 @@ export function CheckoutForm() {
                 <button
                     type="button"
                     onClick={() => setPaymentMethod("swish")}
-                    className={`min-w-[150px] rounded-3xl border p-4 text-left transition ${
+                    className={`min-w-[135px] flex-1 rounded-3xl border p-4 text-left transition sm:min-w-0 ${
                         paymentMethod === "swish"
                             ? "border-paprika bg-paprika text-white"
                             : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
@@ -243,7 +243,7 @@ export function CheckoutForm() {
                 <button
                     type="button"
                     onClick={() => setPaymentMethod("cash")}
-                    className={`min-w-[150px] rounded-3xl border p-4 text-left transition ${
+                    className={`min-w-[135px] flex-1 rounded-3xl border p-4 text-left transition sm:min-w-0 ${
                         paymentMethod === "cash"
                             ? "border-paprika bg-paprika text-white"
                             : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
@@ -258,29 +258,29 @@ export function CheckoutForm() {
             </div>
 
             {paymentMethod === "swish" && (
-                <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
+                <div className="min-w-0 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60 sm:col-span-2">
                   {t("swishInfo")}
                 </div>
             )}
 
             {paymentMethod === "card" && (
-                <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
+                <div className="min-w-0 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60 sm:col-span-2">
                   {t("cardInfo")}
                 </div>
             )}
 
-            <label className="sm:col-span-2">
+            <label className="min-w-0 sm:col-span-2">
             <span className="mb-2 block text-sm font-bold text-dark">
               {t("comment")}
             </span>
               <textarea
                   name="comment"
-                  className="input-field min-h-28 resize-none"
+                  className="input-field min-h-28 w-full resize-none"
                   placeholder={t("commentPlaceholder")}
               />
             </label>
 
-            <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4">
+            <div className="min-w-0 rounded-3xl bg-white/70 p-4 sm:col-span-2">
               <p className="font-black text-dark">{t("securePayments")}</p>
 
               <div className="mt-3">
@@ -292,8 +292,8 @@ export function CheckoutForm() {
               </p>
             </div>
 
-            <label className="sm:col-span-2 flex gap-3 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
-              <input required type="checkbox" className="mt-1 h-4 w-4" />
+            <label className="flex min-w-0 gap-3 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60 sm:col-span-2">
+              <input required type="checkbox" className="mt-1 h-4 w-4 shrink-0" />
 
               <span>
               {t("accept")}{" "}
@@ -316,18 +316,20 @@ export function CheckoutForm() {
           </div>
         </div>
 
-        <aside className="glass-card h-fit p-5 sm:p-6 lg:sticky lg:top-24">
+        <aside className="glass-card h-fit w-full min-w-0 p-5 sm:p-6 lg:sticky lg:top-24">
           <h2 className="text-2xl font-black text-dark">{t("orderTitle")}</h2>
 
           <div className="mt-6 space-y-4">
             {items.map((item) => (
                 <div key={item.id} className="flex justify-between gap-4 text-sm">
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-black text-dark">{item.name}</p>
                     <p className="text-dark/50">x{item.quantity}</p>
                   </div>
 
-                  <p className="font-black">{item.price * item.quantity} kr</p>
+                  <p className="shrink-0 font-black">
+                    {item.price * item.quantity} kr
+                  </p>
                 </div>
             ))}
           </div>
@@ -338,9 +340,7 @@ export function CheckoutForm() {
               <span className="font-black text-paprika">{totalPrice} kr</span>
             </div>
 
-            <p className="mt-2 text-xs leading-5 text-dark/45">
-              {t("taxInfo")}
-            </p>
+            <p className="mt-2 text-xs leading-5 text-dark/45">{t("taxInfo")}</p>
           </div>
 
           <button
