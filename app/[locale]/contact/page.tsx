@@ -14,11 +14,7 @@ export default async function ContactPage({
       <main className="min-h-screen px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <section className="text-center">
-            <p className="text-sm font-black uppercase tracking-[0.3em] text-paprika">
-              {t("eyebrow")}
-            </p>
-
-            <h1 className="mt-4 text-5xl font-black text-dark">{t("title")}</h1>
+            <h1 className="mt-1 text-5xl font-black text-dark">{t("title")}</h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-dark/60">
               {t("subtitle")}
@@ -51,7 +47,7 @@ export default async function ContactPage({
               <h3 className="mt-5 text-xl font-black text-dark">
                 {t("location")}
               </h3>
-              <p className="mt-2 text-sm text-dark/60">Boden, Sweden</p>
+              <p className="mt-2 text-sm text-dark/60">Unbyn 7, 961 93, Boden Sweden</p>
             </div>
           </section>
 
@@ -72,7 +68,7 @@ export default async function ContactPage({
                 <span className="font-black text-dark">
                   {t("businessCountry")}:
                 </span>{" "}
-                  Sweden
+                  Unbyn 7, 961 93, Boden, Sweden
                 </p>
                 <p>
                 <span className="font-black text-dark">

@@ -15,11 +15,7 @@ export default function MikesPage({
       <div className="mx-auto max-w-6xl">
         <section className="grid items-center gap-10 lg:grid-cols-2">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.3em] text-paprika">
-              {t("eyebrow")}
-            </p>
-
-            <h1 className="mt-4 text-5xl font-black text-dark">
+            <h1 className="mt-1 text-5xl font-black text-dark">
               {t("title")}
             </h1>
 

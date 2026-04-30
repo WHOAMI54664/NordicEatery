@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-lufga)"]
+      },
       colors: {
         cream: "#FFF7EA",
         paprika: "#B51F26",

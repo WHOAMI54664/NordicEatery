@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { Truck, Store } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCart } from "@/components/CartProvider";
+import { PaymentIcons } from "@/components/PaymentIcons";
 import type { PaymentMethod } from "@/types/order";
 
 function createOrderId() {
@@ -11,13 +14,18 @@ function createOrderId() {
 }
 
 export function CheckoutForm() {
+  const t = useTranslations("pages.checkout");
+
   const router = useRouter();
   const params = useParams();
   const locale = String(params.locale || "sv");
 
   const { items, totalPrice, clearCart } = useCart();
 
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
+  const [deliveryType, setDeliveryType] = useState<"delivery" | "pickup">(
+      "delivery"
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -26,20 +34,9 @@ export function CheckoutForm() {
     if (isLoading) return;
 
     const formData = new FormData(event.currentTarget);
-
-    const selectedPaymentMethod = String(
-        formData.get("paymentMethod") || "cash"
-    ) as PaymentMethod;
-
-    setPaymentMethod(selectedPaymentMethod);
     setIsLoading(true);
 
     const orderId = createOrderId();
-
-    const deliveryType =
-        String(formData.get("deliveryType")) === "pickup"
-            ? "pickup"
-            : "delivery";
 
     const orderPayload = {
       orderId,
@@ -50,22 +47,22 @@ export function CheckoutForm() {
       comment: String(formData.get("comment") || ""),
       items,
       totalPrice,
-      paymentMethod: selectedPaymentMethod,
-      locale,
+      paymentMethod,
+      locale
     };
 
     try {
-      if (selectedPaymentMethod === "card") {
+      if (paymentMethod === "card") {
         const response = await fetch("/api/stripe/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(orderPayload),
+          body: JSON.stringify(orderPayload)
         });
 
         const data = await response.json();
 
         if (!response.ok || !data.url) {
-          alert(data.error || "Stripe payment could not be started.");
+          alert(data.error || t("stripeError"));
           setIsLoading(false);
           return;
         }
@@ -78,13 +75,13 @@ export function CheckoutForm() {
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderPayload),
+        body: JSON.stringify(orderPayload)
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || "Order could not be created.");
+        alert(data.error || t("orderError"));
         setIsLoading(false);
         return;
       }
@@ -93,7 +90,7 @@ export function CheckoutForm() {
       router.push(`/${locale}/order/${orderId}`);
     } catch (error) {
       console.error("Checkout error:", error);
-      alert("Something went wrong. Please try again.");
+      alert(t("generalError"));
       setIsLoading(false);
     }
   }
@@ -101,14 +98,12 @@ export function CheckoutForm() {
   if (items.length === 0) {
     return (
         <div className="glass-card mx-auto max-w-2xl p-8 text-center">
-          <h1 className="text-3xl font-black text-dark">Cart is empty</h1>
+          <h1 className="text-3xl font-black text-dark">{t("emptyTitle")}</h1>
 
-          <p className="mt-3 text-dark/60">
-            Add food to your cart before checkout.
-          </p>
+          <p className="mt-3 text-dark/60">{t("emptyText")}</p>
 
           <Link href={`/${locale}/menu`} className="btn-primary mt-6">
-            Go to menu
+            {t("goToMenu")}
           </Link>
         </div>
     );
@@ -117,124 +112,203 @@ export function CheckoutForm() {
   return (
       <form
           onSubmit={handleSubmit}
-          className="grid gap-6 lg:grid-cols-[1fr_380px]"
+          className="grid gap-6 lg:grid-cols-[1fr_390px]"
       >
-        <div className="glass-card p-6">
-          <h1 className="text-3xl font-black text-dark">Checkout</h1>
+        <div className="glass-card p-5 sm:p-6">
+          <div>
+            <p className="text-sm font-black uppercase tracking-[0.25em] text-paprika/70">
+              {t("eyebrow")}
+            </p>
 
-          <p className="mt-2 text-sm text-dark/60">
-            Customer information, delivery and payment details.
-          </p>
+            <h1 className="mt-2 text-3xl font-black text-dark sm:text-4xl">
+              {t("title")}
+            </h1>
+
+            <p className="mt-2 text-sm leading-6 text-dark/60">
+              {t("subtitle")}
+            </p>
+          </div>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             <label>
-              <span className="mb-2 block text-sm font-bold text-dark">Name</span>
+            <span className="mb-2 block text-sm font-bold text-dark">
+              {t("name")}
+            </span>
               <input
                   required
                   name="customerName"
                   className="input-field"
-                  placeholder="Your name"
+                  placeholder={t("namePlaceholder")}
               />
             </label>
 
             <label>
-              <span className="mb-2 block text-sm font-bold text-dark">Phone</span>
+            <span className="mb-2 block text-sm font-bold text-dark">
+              {t("phone")}
+            </span>
               <input
                   required
                   name="customerPhone"
                   className="input-field"
-                  placeholder="+46..."
+                  placeholder={t("phonePlaceholder")}
               />
             </label>
 
-            <label className="sm:col-span-2">
-              <span className="mb-2 block text-sm font-bold text-dark">Address</span>
-              <input
-                  required
-                  name="address"
-                  className="input-field"
-                  placeholder="Street, apartment, city"
-              />
-            </label>
-
-            <label className="sm:col-span-2">
+            <div className="sm:col-span-2">
             <span className="mb-2 block text-sm font-bold text-dark">
-              Delivery type
-            </span>
-              <select name="deliveryType" className="input-field" defaultValue="delivery">
-                <option value="delivery">Delivery</option>
-                <option value="pickup">Pickup</option>
-              </select>
-            </label>
-
-            <label className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-dark">
-              Payment method
+              {t("deliveryType")}
             </span>
 
-              <select
-                  name="paymentMethod"
-                  className="input-field"
-                  value={paymentMethod}
-                  onChange={(event) =>
-                      setPaymentMethod(event.target.value as PaymentMethod)
-                  }
-              >
-                <option value="cash">Pay on pickup / delivery</option>
-                <option value="swish">Swish</option>
-                <option value="card">Card / Apple Pay / Google Pay</option>
-              </select>
-            </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                    type="button"
+                    onClick={() => setDeliveryType("delivery")}
+                    className={`rounded-3xl border p-4 text-left transition ${
+                        deliveryType === "delivery"
+                            ? "border-paprika bg-paprika text-white"
+                            : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
+                    }`}
+                >
+                  <Truck className="h-5 w-5" />
+                  <p className="mt-2 font-black">{t("delivery")}</p>
+                  <p className="mt-1 text-xs opacity-70">{t("deliveryTime")}</p>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => setDeliveryType("pickup")}
+                    className={`rounded-3xl border p-4 text-left transition ${
+                        deliveryType === "pickup"
+                            ? "border-paprika bg-paprika text-white"
+                            : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
+                    }`}
+                >
+                  <Store className="h-5 w-5" />
+                  <p className="mt-2 font-black">{t("pickup")}</p>
+                  <p className="mt-1 text-xs opacity-70">{t("pickupText")}</p>
+                </button>
+              </div>
+            </div>
+
+            {deliveryType === "delivery" && (
+                <label className="sm:col-span-2">
+              <span className="mb-2 block text-sm font-bold text-dark">
+                {t("address")}
+              </span>
+                  <input
+                      required
+                      name="address"
+                      className="input-field"
+                      placeholder={t("addressPlaceholder")}
+                  />
+                </label>
+            )}
+
+            {deliveryType === "pickup" && (
+                <input type="hidden" name="address" value="Pickup" />
+            )}
+
+            <div className="sm:col-span-2">
+            <span className="mb-2 block text-sm font-bold text-dark">
+              {t("paymentMethod")}
+            </span>
+
+              <div className="flex gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-3 sm:overflow-visible">
+                <button
+                    type="button"
+                    onClick={() => setPaymentMethod("card")}
+                    className={`min-w-[150px] rounded-3xl border p-4 text-left transition ${
+                        paymentMethod === "card"
+                            ? "border-paprika bg-paprika text-white"
+                            : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
+                    }`}
+                >
+                  <p className="mt-1 font-black">{t("card")}</p>
+                  <p className="mt-1 text-xs opacity-70">{t("cardText")}</p>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => setPaymentMethod("swish")}
+                    className={`min-w-[150px] rounded-3xl border p-4 text-left transition ${
+                        paymentMethod === "swish"
+                            ? "border-paprika bg-paprika text-white"
+                            : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
+                    }`}
+                >
+                  <p className="mt-1 font-black">{t("swish")}</p>
+                  <p className="mt-1 text-xs opacity-70">{t("swishText")}</p>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => setPaymentMethod("cash")}
+                    className={`min-w-[150px] rounded-3xl border p-4 text-left transition ${
+                        paymentMethod === "cash"
+                            ? "border-paprika bg-paprika text-white"
+                            : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
+                    }`}
+                >
+                  <p className="mt-1 font-black">{t("cash")}</p>
+                  <p className="mt-1 text-xs opacity-70">{t("cashText")}</p>
+                </button>
+              </div>
+
+              <input type="hidden" name="paymentMethod" value={paymentMethod} />
+            </div>
 
             {paymentMethod === "swish" && (
                 <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
-                  Pay with Swish after placing the order. Your order will be marked
-                  as <span className="font-black">awaiting payment</span> until the
-                  payment is confirmed.
+                  {t("swishInfo")}
                 </div>
             )}
 
             {paymentMethod === "card" && (
                 <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
-                  You will be redirected to Stripe. Card, Apple Pay and Google Pay
-                  are processed securely. The order will appear in the kitchen only
-                  after payment is confirmed.
+                  {t("cardInfo")}
                 </div>
             )}
 
             <label className="sm:col-span-2">
-              <span className="mb-2 block text-sm font-bold text-dark">Comment</span>
+            <span className="mb-2 block text-sm font-bold text-dark">
+              {t("comment")}
+            </span>
               <textarea
                   name="comment"
                   className="input-field min-h-28 resize-none"
-                  placeholder="No onion, extra sauce..."
+                  placeholder={t("commentPlaceholder")}
               />
             </label>
 
-            <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
-              <p className="font-black text-dark">Secure payments</p>
-              <p className="mt-1">
-                Card, Apple Pay and Google Pay are handled through Stripe. Swish
-                will be available after bank approval.
+            <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4">
+              <p className="font-black text-dark">{t("securePayments")}</p>
+
+              <div className="mt-3">
+                <PaymentIcons />
+              </div>
+
+              <p className="mt-3 text-sm leading-6 text-dark/60">
+                {t("securePaymentsText")}
               </p>
             </div>
 
             <label className="sm:col-span-2 flex gap-3 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
               <input required type="checkbox" className="mt-1 h-4 w-4" />
+
               <span>
-              I accept the{" "}
+              {t("accept")}{" "}
                 <Link
                     href={`/${locale}/terms`}
                     className="font-black text-paprika underline"
                 >
-                Terms and Conditions
+                {t("terms")}
               </Link>{" "}
-                and{" "}
+                {t("and")}{" "}
                 <Link
                     href={`/${locale}/privacy`}
                     className="font-black text-paprika underline"
                 >
-                Privacy Policy
+                {t("privacy")}
               </Link>
               .
             </span>
@@ -242,8 +316,8 @@ export function CheckoutForm() {
           </div>
         </div>
 
-        <aside className="glass-card h-fit p-6">
-          <h2 className="text-2xl font-black text-dark">Your order</h2>
+        <aside className="glass-card h-fit p-5 sm:p-6 lg:sticky lg:top-24">
+          <h2 className="text-2xl font-black text-dark">{t("orderTitle")}</h2>
 
           <div className="mt-6 space-y-4">
             {items.map((item) => (
@@ -260,12 +334,12 @@ export function CheckoutForm() {
 
           <div className="mt-6 border-t border-dark/10 pt-4">
             <div className="flex justify-between text-lg">
-              <span className="font-black">Total</span>
+              <span className="font-black">{t("total")}</span>
               <span className="font-black text-paprika">{totalPrice} kr</span>
             </div>
 
             <p className="mt-2 text-xs leading-5 text-dark/45">
-              All prices are shown in SEK and include applicable taxes.
+              {t("taxInfo")}
             </p>
           </div>
 
@@ -275,15 +349,14 @@ export function CheckoutForm() {
               className="btn-primary mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isLoading
-                ? "Processing..."
+                ? t("processing")
                 : paymentMethod === "card"
-                    ? "Continue to payment"
-                    : "Place order"}
+                    ? t("continuePayment")
+                    : t("placeOrder")}
           </button>
 
           <p className="mt-4 text-center text-xs leading-5 text-dark/45">
-            Delivery estimate: 30–40 min. For complaints or refunds, contact
-            kontakt@nordiceatery.se.
+            {t("bottomInfo")}
           </p>
         </aside>
       </form>

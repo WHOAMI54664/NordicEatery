@@ -16,11 +16,7 @@ export default async function TermsPage() {
     return (
         <main className="min-h-screen px-6 py-24">
             <div className="mx-auto max-w-4xl">
-                <p className="text-sm font-black uppercase tracking-[0.3em] text-paprika">
-                    {t("eyebrow")}
-                </p>
-
-                <h1 className="mt-4 text-5xl font-black text-dark">{t("title")}</h1>
+                <h1 className="mt-1 text-5xl font-black text-dark">{t("title")}</h1>
 
                 <p className="mt-6 max-w-2xl text-lg leading-8 text-dark/60">
                     {t("subtitle")}

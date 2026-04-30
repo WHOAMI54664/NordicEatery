@@ -16,11 +16,7 @@ export default async function AboutPage({
       <div className="mx-auto max-w-6xl">
         <section className="grid min-h-[680px] items-center gap-12 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.3em] text-paprika">
-              About us
-            </p>
-
-            <h1 className="mt-5 max-w-xl text-5xl font-black leading-[1.05] tracking-[-0.05em] text-dark sm:text-6xl">
+            <h1 className="mt-2 max-w-xl text-5xl font-black leading-[1.05] tracking-[-0.05em] text-dark sm:text-6xl">
               {t("title")}
             </h1>
 

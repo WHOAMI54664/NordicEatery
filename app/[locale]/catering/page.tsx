@@ -22,11 +22,7 @@ export default async function CateringPage({
       <main className="min-h-screen px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <section className="text-center">
-            <p className="text-sm font-black uppercase tracking-[0.3em] text-paprika">
-              {t("eyebrow")}
-            </p>
-
-            <h1 className="mt-4 text-5xl font-black text-dark">
+            <h1 className="mt-1 text-5xl font-black text-dark">
               {t("title")}
             </h1>
 
