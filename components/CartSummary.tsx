@@ -48,6 +48,7 @@ export function CartSummary() {
                   fill
                   sizes="96px"
                   className="object-contain p-2"
+                  unoptimized
                 />
               ) : (
                 <div className="text-4xl">

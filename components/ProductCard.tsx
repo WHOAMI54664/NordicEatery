@@ -37,6 +37,7 @@ export function ProductCard({ product }: ProductCardProps) {
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-contain p-6 drop-shadow-xl"
+            unoptimized
           />
         ) : (
           <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-white/75 text-5xl shadow-xl">

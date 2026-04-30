@@ -58,9 +58,7 @@ export function CheckoutForm() {
       if (selectedPaymentMethod === "card") {
         const response = await fetch("/api/stripe/checkout", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(orderPayload),
         });
 
@@ -79,9 +77,7 @@ export function CheckoutForm() {
 
       const response = await fetch("/api/orders", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderPayload),
       });
 
@@ -165,11 +161,7 @@ export function CheckoutForm() {
             <span className="mb-2 block text-sm font-bold text-dark">
               Delivery type
             </span>
-              <select
-                  name="deliveryType"
-                  className="input-field"
-                  defaultValue="delivery"
-              >
+              <select name="deliveryType" className="input-field" defaultValue="delivery">
                 <option value="delivery">Delivery</option>
                 <option value="pickup">Pickup</option>
               </select>
@@ -196,15 +188,17 @@ export function CheckoutForm() {
 
             {paymentMethod === "swish" && (
                 <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
-                  Pay with Swish after placing the order. The kitchen will see this
-                  order as <span className="font-black">awaiting payment</span>.
+                  Pay with Swish after placing the order. Your order will be marked
+                  as <span className="font-black">awaiting payment</span> until the
+                  payment is confirmed.
                 </div>
             )}
 
             {paymentMethod === "card" && (
                 <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
-                  You will be redirected to Stripe. The order will appear in the
-                  kitchen only after payment is confirmed.
+                  You will be redirected to Stripe. Card, Apple Pay and Google Pay
+                  are processed securely. The order will appear in the kitchen only
+                  after payment is confirmed.
                 </div>
             )}
 
@@ -215,6 +209,35 @@ export function CheckoutForm() {
                   className="input-field min-h-28 resize-none"
                   placeholder="No onion, extra sauce..."
               />
+            </label>
+
+            <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
+              <p className="font-black text-dark">Secure payments</p>
+              <p className="mt-1">
+                Card, Apple Pay and Google Pay are handled through Stripe. Swish
+                will be available after bank approval.
+              </p>
+            </div>
+
+            <label className="sm:col-span-2 flex gap-3 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
+              <input required type="checkbox" className="mt-1 h-4 w-4" />
+              <span>
+              I accept the{" "}
+                <Link
+                    href={`/${locale}/terms`}
+                    className="font-black text-paprika underline"
+                >
+                Terms and Conditions
+              </Link>{" "}
+                and{" "}
+                <Link
+                    href={`/${locale}/privacy`}
+                    className="font-black text-paprika underline"
+                >
+                Privacy Policy
+              </Link>
+              .
+            </span>
             </label>
           </div>
         </div>
@@ -240,6 +263,10 @@ export function CheckoutForm() {
               <span className="font-black">Total</span>
               <span className="font-black text-paprika">{totalPrice} kr</span>
             </div>
+
+            <p className="mt-2 text-xs leading-5 text-dark/45">
+              All prices are shown in SEK and include applicable taxes.
+            </p>
           </div>
 
           <button
@@ -253,6 +280,11 @@ export function CheckoutForm() {
                     ? "Continue to payment"
                     : "Place order"}
           </button>
+
+          <p className="mt-4 text-center text-xs leading-5 text-dark/45">
+            Delivery estimate: 30–40 min. For complaints or refunds, contact
+            kontakt@nordiceatery.se.
+          </p>
         </aside>
       </form>
   );

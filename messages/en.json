@@ -10,7 +10,6 @@
     "cart": "Cart",
     "delivery": "Delivery in 30–40 min"
   },
-
   "footer": {
     "brand": "NordicEatery",
     "tagline": "Real food. Fast service. No compromise.",
@@ -23,10 +22,13 @@
     "catering": "Catering",
     "contact": "Contact",
     "support": "Support",
+    "terms": "Terms",
+    "privacy": "Privacy Policy",
+    "refunds": "Refunds & Complaints",
+    "businessInfo": "Business information",
     "location": "Boden, Sweden",
     "delivery": "Delivery: 30–40 min"
   },
-
   "pages": {
     "home": {
       "eyebrow": "Kitchen & Delivery",
@@ -46,7 +48,6 @@
         "drinks": "Drinks"
       }
     },
-
     "menu": {
       "eyebrow": "Menu",
       "title": "Choose your Polish food",
@@ -58,7 +59,6 @@
         "drinks": "Drinks"
       }
     },
-
     "about": {
       "title": "About Mike’s Food",
       "subtitle": "Real food. No compromises.",
@@ -75,7 +75,6 @@
       "finalTitle": "Built for people who value good food",
       "finalText": "No waiting. No overpricing. Just good food done right."
     },
-
     "booking": {
       "eyebrow": "Reserve your table",
       "title": "Booking",
@@ -94,7 +93,6 @@
       "successText": "We received your booking request and will contact you shortly.",
       "error": "Something went wrong. Please try again."
     },
-
     "mikes": {
       "eyebrow": "Mike's Food Truck",
       "title": "Book our food truck for your event",
@@ -111,7 +109,6 @@
       "ctaText": "Send us your date, location and expected number of guests — we’ll get back to you with the best option.",
       "ctaButton": "Send booking request"
     },
-
     "catering": {
       "eyebrow": "Catering",
       "title": "Food for events, teams and celebrations",
@@ -135,19 +132,25 @@
       "ctaText": "Tell us the date, location and number of guests — we’ll help you find the best food setup.",
       "ctaButton": "Send catering request"
     },
-
     "contact": {
       "eyebrow": "Contact",
       "title": "Get in touch",
-      "subtitle": "Questions, bookings, catering or events — contact Mike’s Food and we’ll get back to you.",
+      "subtitle": "Questions, bookings, catering or events — contact Nordic Eatery and we’ll get back to you.",
       "phone": "Phone",
       "email": "Email",
       "location": "Location",
-      "ctaTitle": "Want to book Mike’s Food?",
+      "businessTitle": "Business information",
+      "businessName": "Business name",
+      "businessCountry": "Country",
+      "businessWebsite": "Website",
+      "supportTitle": "Support, complaints and refunds",
+      "supportText": "For order issues, complaints, refunds or payment questions, contact us by email or phone. We handle all customer requests as quickly as possible.",
+      "termsLink": "Terms",
+      "privacyLink": "Privacy Policy",
+      "ctaTitle": "Want to book Nordic Eatery?",
       "ctaText": "Use the booking page to send us your date, time, location and number of guests.",
       "ctaButton": "Go to booking"
     },
-
     "support": {
       "eyebrow": "Support",
       "title": "Need help?",
@@ -164,9 +167,44 @@
       "ctaText": "Contact us directly and we’ll respond as quickly as possible.",
       "contact": "Contact us",
       "booking": "Booking"
+    },
+    "terms": {
+      "eyebrow": "Terms and Conditions",
+      "title": "Terms and Conditions",
+      "subtitle": "These terms apply to all orders made through Nordic Eatery.",
+      "orderingTitle": "Ordering",
+      "orderingText": "Customers can place orders through our website. All orders are subject to product availability and confirmation.",
+      "pricesTitle": "Prices",
+      "pricesText": "All prices are shown in SEK and include applicable taxes. The final order total is shown before payment.",
+      "paymentTitle": "Payment",
+      "paymentText": "We accept card payments, Apple Pay, Google Pay, Swish and cash when available. Card payments are processed securely through Stripe. Swish payments are processed through Swish.",
+      "deliveryTitle": "Delivery and pickup",
+      "deliveryText": "Orders can be delivered or picked up depending on availability. Delivery times are estimates and may vary depending on demand, weather and distance.",
+      "cancellationTitle": "Cancellation",
+      "cancellationText": "Orders can be cancelled before preparation has started. Once food preparation has started, cancellation may not be possible.",
+      "refundsTitle": "Refunds and complaints",
+      "refundsText": "If there is a problem with your order, contact us as soon as possible. Refunds may be issued for incorrect, missing or failed orders after review.",
+      "contactTitle": "Contact",
+      "contactText": "For questions, complaints, refunds or payment issues, contact us at kontakt@nordiceatery.se or by phone."
+    },
+    "privacy": {
+      "eyebrow": "Privacy Policy",
+      "title": "Privacy Policy",
+      "subtitle": "We respect your privacy and handle your personal data responsibly.",
+      "dataTitle": "Data we collect",
+      "dataText": "When you place an order, we may collect your name, phone number, address, order details and payment status.",
+      "usageTitle": "How we use your data",
+      "usageText": "We use your data to process orders, deliver food, handle payments, provide customer support and improve our service.",
+      "paymentsTitle": "Payments",
+      "paymentsText": "Payments may be processed through Stripe and Swish. We do not store full card details on our website.",
+      "storageTitle": "Data storage",
+      "storageText": "Order information may be stored securely in our systems for operational, accounting and support purposes.",
+      "rightsTitle": "Your rights",
+      "rightsText": "You may contact us to request access, correction or deletion of your personal data where legally possible.",
+      "contactTitle": "Contact",
+      "contactText": "For privacy questions, contact us at kontakt@nordiceatery.se."
     }
   },
-
   "admin": {
     "common": {
       "admin": "Admin",

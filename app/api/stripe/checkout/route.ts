@@ -38,7 +38,6 @@ function getSafeLocale(locale?: string) {
   if (!locale) return "sv";
 
   const allowedLocales = ["sv", "en", "ru"];
-
   return allowedLocales.includes(locale) ? locale : "sv";
 }
 
@@ -76,7 +75,6 @@ export async function POST(request: Request) {
         process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
     const safeLocale = getSafeLocale(locale);
-
     const { error: orderError } = await supabase.from("orders").upsert({
       order_number: orderId,
       customer_name: customerName,
@@ -94,7 +92,6 @@ export async function POST(request: Request) {
     if (orderError) {
       return NextResponse.json({ error: orderError.message }, { status: 500 });
     }
-
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
 
@@ -112,11 +109,9 @@ export async function POST(request: Request) {
       metadata: {
         orderId,
       },
-
-      success_url: `${siteUrl}/${safeLocale}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${siteUrl}/${safeLocale}/order/${orderId}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/${safeLocale}/checkout`,
     });
-
     const { error: updateError } = await supabase
         .from("orders")
         .update({

@@ -12,8 +12,10 @@
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.1",
+    "axios": "^1.15.2",
     "deepl-node": "^1.26.0",
     "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "lucide-react": "^0.468.0",
     "next": "^15.5.0",
     "next-intl": "^4.9.2",
@@ -23,13 +25,31 @@
     "stripe": "^22.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.19.17",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.21.0",
-    "typescript": "^5.7.0"
-  }
+    "typescript": "^5.9.3"
+  },
+  "description": "Starter website for ordering Polish street food: Maczanka Krakowska and Knysza.",
+  "main": "postcss.config.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WHOAMI54664/NordicEatery.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/WHOAMI54664/NordicEatery/issues"
+  },
+  "homepage": "https://github.com/WHOAMI54664/NordicEatery#readme"
 }
