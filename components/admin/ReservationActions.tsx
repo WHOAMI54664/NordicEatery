@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, Clock, Trash2, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, XCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/browser";
 
 type ReservationStatus = "pending" | "confirmed" | "cancelled" | "completed";
@@ -15,19 +16,26 @@ export function ReservationActions({
                                        reservationId,
                                        status
                                    }: ReservationActionsProps) {
+    const t = useTranslations("admin.reservationActions");
+
     const supabase = createClient();
     const [isLoading, setIsLoading] = useState(false);
 
     async function updateStatus(nextStatus: ReservationStatus) {
         setIsLoading(true);
 
-        await supabase
+        const { error } = await supabase
             .from("reservations")
             .update({
                 status: nextStatus,
                 updated_at: new Date().toISOString()
             })
             .eq("id", reservationId);
+
+        if (error) {
+            setIsLoading(false);
+            return;
+        }
 
         window.location.reload();
     }
@@ -39,10 +47,10 @@ export function ReservationActions({
                     type="button"
                     disabled={isLoading}
                     onClick={() => updateStatus("confirmed")}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-4 text-xs font-black text-white shadow-lg shadow-[#E51B23]/15 transition hover:bg-[#C7192E] disabled:opacity-60"
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-4 text-xs font-black text-white shadow-lg shadow-[#E51B23]/15 transition hover:bg-[#C7192E] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    Confirm
+                    {isLoading ? t("updating") : t("confirm")}
                 </button>
             ) : null}
 
@@ -51,10 +59,10 @@ export function ReservationActions({
                     type="button"
                     disabled={isLoading}
                     onClick={() => updateStatus("completed")}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 text-xs font-black text-white transition hover:bg-emerald-700 disabled:opacity-60"
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 text-xs font-black text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    Complete
+                    {isLoading ? t("updating") : t("complete")}
                 </button>
             ) : null}
 
@@ -63,10 +71,10 @@ export function ReservationActions({
                     type="button"
                     disabled={isLoading}
                     onClick={() => updateStatus("cancelled")}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 px-4 text-xs font-black text-[#C7192E] transition hover:bg-[#E51B23]/12 disabled:opacity-60"
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 px-4 text-xs font-black text-[#C7192E] transition hover:bg-[#E51B23]/12 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                     <XCircle className="h-3.5 w-3.5" />
-                    Cancel
+                    {isLoading ? t("updating") : t("cancel")}
                 </button>
             )}
 
@@ -75,10 +83,10 @@ export function ReservationActions({
                     type="button"
                     disabled={isLoading}
                     onClick={() => updateStatus("pending")}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white px-4 text-xs font-black text-[#7B6A61] transition hover:border-[#E51B23]/20 hover:text-[#C7192E] disabled:opacity-60"
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white px-4 text-xs font-black text-[#7B6A61] transition hover:border-[#E51B23]/20 hover:text-[#C7192E] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                     <Clock className="h-3.5 w-3.5" />
-                    Restore
+                    {isLoading ? t("updating") : t("restore")}
                 </button>
             ) : null}
         </div>

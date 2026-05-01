@@ -33,22 +33,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [hasLoaded, setHasLoaded] = useState(false);
 
   useEffect(() => {
-    const savedCart = window.localStorage.getItem(STORAGE_KEY);
+    try {
+      const savedCart = window.localStorage.getItem(STORAGE_KEY);
 
-    if (savedCart) {
-      try {
+      if (savedCart) {
         setItems(JSON.parse(savedCart) as CartItem[]);
-      } catch {
-        setItems([]);
       }
+    } catch {
+      setItems([]);
+    } finally {
+      setHasLoaded(true);
     }
-
-    setHasLoaded(true);
   }, []);
 
   useEffect(() => {
     if (!hasLoaded) return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      // Ignore localStorage write errors.
+    }
   }, [items, hasLoaded]);
 
   function addItem(product: Product) {
@@ -57,9 +62,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       if (existingItem) {
         return currentItems.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
+            item.id === product.id
+                ? { ...item, quantity: item.quantity + 1 }
+                : item
         );
       }
 
@@ -69,7 +74,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   function removeItem(productId: string) {
     setItems((currentItems) =>
-      currentItems.filter((item) => item.id !== productId)
+        currentItems.filter((item) => item.id !== productId)
     );
   }
 
@@ -80,9 +85,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
 
     setItems((currentItems) =>
-      currentItems.map((item) =>
-        item.id === productId ? { ...item, quantity } : item
-      )
+        currentItems.map((item) =>
+            item.id === productId ? { ...item, quantity } : item
+        )
     );
   }
 
@@ -92,10 +97,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<CartContextValue>(() => {
     const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-    const totalPrice = items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
+
+    const totalPriceRaw = items.reduce(
+        (sum, item) => sum + Number(item.price || 0) * item.quantity,
+        0
     );
+
+    const totalPrice = Math.round(totalPriceRaw * 100) / 100;
 
     return {
       items,

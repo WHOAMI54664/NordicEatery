@@ -11,6 +11,7 @@ import {
   TrendingUp,
   Truck
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { createClient } from "@/lib/supabase/server";
 import { canViewAnalytics } from "@/lib/auth/roles";
@@ -31,22 +32,22 @@ type OrderRow = {
   created_at: string;
 };
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("sv-SE", {
+function formatCurrency(value: number, locale: string) {
+  return new Intl.NumberFormat(locale === "en" ? "en-SE" : locale, {
     style: "currency",
     currency: "SEK",
     maximumFractionDigits: 0
   }).format(Number(value || 0));
 }
 
-function formatDate(date: string) {
-  return new Intl.DateTimeFormat("sv-SE", {
+function formatDate(date: string, locale: string) {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-SE" : locale, {
     month: "short",
     day: "numeric"
   }).format(new Date(date));
 }
 
-function getLast7Days() {
+function getLast7Days(locale: string) {
   const days: Array<{
     label: string;
     key: string;
@@ -59,7 +60,7 @@ function getLast7Days() {
     date.setHours(0, 0, 0, 0);
 
     days.push({
-      label: formatDate(date.toISOString()),
+      label: formatDate(date.toISOString(), locale),
       key: date.toISOString().slice(0, 10),
       date
     });
@@ -70,6 +71,20 @@ function getLast7Days() {
 
 function isSameDay(dateString: string, key: string) {
   return new Date(dateString).toISOString().slice(0, 10) === key;
+}
+
+function getStatusKey(status: string | null) {
+  if (!status) return "unknown";
+
+  const normalized = status.toLowerCase();
+
+  if (normalized === "new") return "new";
+  if (normalized === "preparing") return "preparing";
+  if (normalized === "ready") return "ready";
+  if (normalized === "completed") return "completed";
+  if (normalized === "cancelled") return "cancelled";
+
+  return "unknown";
 }
 
 function getStatusClass(status: string | null) {
@@ -139,6 +154,8 @@ function AnalyticsStatCard({
 
 export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
   const { locale } = await params;
+
+  const t = await getTranslations("admin");
 
   const supabase = await createClient();
 
@@ -219,7 +236,7 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
       (order) => order.payment_status === "paid"
   );
 
-  const last7Days = getLast7Days();
+  const last7Days = getLast7Days(locale);
 
   const dailyStats = last7Days.map((day) => {
     const dayOrders = orderList.filter((order) =>
@@ -261,22 +278,21 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
                   <BarChart3 className="h-3.5 w-3.5" />
-                  Business analytics
+                  {t("analytics.eyebrow")}
                 </div>
 
                 <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
-                  Analytics
+                  {t("analytics.title")}
                 </h1>
 
                 <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                  Track sales, orders, delivery flow, payment methods and kitchen
-                  activity from real Supabase data.
+                  {t("analytics.subtitle")}
                 </p>
               </div>
 
               <div className="flex h-12 items-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 text-sm font-black text-[#7B6A61]">
                 <CalendarClock className="h-4 w-4 text-[#C7192E]" />
-                Last 250 orders
+                {t("analytics.lastOrders", { count: 250 })}
               </div>
             </div>
           </section>
@@ -289,33 +305,33 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
 
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <AnalyticsStatCard
-                title="Revenue"
-                value={formatCurrency(revenue)}
-                description="Completed orders only"
+                title={t("analytics.revenue")}
+                value={formatCurrency(revenue, locale)}
+                description={t("analytics.completedOrdersOnly")}
                 icon={TrendingUp}
                 tone="red"
             />
 
             <AnalyticsStatCard
-                title="Total orders"
+                title={t("analytics.totalOrders")}
                 value={String(orderList.length)}
-                description="Orders loaded from Supabase"
+                description={t("analytics.ordersLoaded")}
                 icon={ClipboardList}
                 tone="dark"
             />
 
             <AnalyticsStatCard
-                title="Completed"
+                title={t("analytics.completed")}
                 value={String(completedOrders.length)}
-                description="Successfully finished orders"
+                description={t("analytics.completedDescription")}
                 icon={CheckCircle2}
                 tone="green"
             />
 
             <AnalyticsStatCard
-                title="Active now"
+                title={t("analytics.activeNow")}
                 value={String(activeOrders.length)}
-                description="New, preparing or ready"
+                description={t("analytics.activeNowDescription")}
                 icon={Activity}
                 tone="gold"
             />
@@ -323,33 +339,33 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
 
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <AnalyticsStatCard
-                title="Average order"
-                value={formatCurrency(averageOrderValue)}
-                description="Average completed order value"
+                title={t("analytics.averageOrder")}
+                value={formatCurrency(averageOrderValue, locale)}
+                description={t("analytics.averageOrderDescription")}
                 icon={Banknote}
                 tone="red"
             />
 
             <AnalyticsStatCard
-                title="Active revenue"
-                value={formatCurrency(activeRevenue)}
-                description="Value of active orders"
+                title={t("analytics.activeRevenue")}
+                value={formatCurrency(activeRevenue, locale)}
+                description={t("analytics.activeRevenueDescription")}
                 icon={CreditCard}
                 tone="gold"
             />
 
             <AnalyticsStatCard
-                title="Delivery"
+                title={t("analytics.delivery")}
                 value={String(deliveryOrders.length)}
-                description="Orders marked as delivery"
+                description={t("analytics.deliveryDescription")}
                 icon={Truck}
                 tone="red"
             />
 
             <AnalyticsStatCard
-                title="Cancelled"
+                title={t("analytics.cancelled")}
                 value={String(cancelledOrders.length)}
-                description="Cancelled or removed orders"
+                description={t("analytics.cancelledDescription")}
                 icon={PieChart}
                 tone="dark"
             />
@@ -360,15 +376,15 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
               <div className="mb-6 flex flex-col gap-3 border-b border-[#EADDCF] pb-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                    Revenue trend
+                    {t("analytics.revenueTrend")}
                   </h2>
                   <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                    Completed order revenue for the last 7 days.
+                    {t("analytics.revenueTrendDescription")}
                   </p>
                 </div>
 
                 <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-2 text-sm font-black text-[#7B6A61]">
-                  7 days
+                  {t("analytics.sevenDays")}
                 </div>
               </div>
 
@@ -393,7 +409,7 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
 
                         <div className="text-center">
                           <p className="text-xs font-black text-[#25120F]">
-                            {formatCurrency(day.revenue)}
+                            {formatCurrency(day.revenue, locale)}
                           </p>
                           <p className="mt-1 text-[11px] font-bold text-[#A39388]">
                             {day.label}
@@ -409,10 +425,10 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
               <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl lg:p-6">
                 <div className="mb-5 border-b border-[#EADDCF] pb-5">
                   <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                    Order volume
+                    {t("analytics.orderVolume")}
                   </h2>
                   <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                    Number of orders for the last 7 days.
+                    {t("analytics.orderVolumeDescription")}
                   </p>
                 </div>
 
@@ -449,17 +465,17 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
               <div className="rounded-[2rem] border border-[#EADDCF] bg-gradient-to-br from-[#FFFCF6]/95 via-[#FFF3E2]/90 to-[#FFE4D6]/75 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl lg:p-6">
                 <div className="mb-5 border-b border-[#EADDCF] pb-5">
                   <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                    Payment mix
+                    {t("analytics.paymentMix")}
                   </h2>
                   <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                    Payment methods used by customers.
+                    {t("analytics.paymentMixDescription")}
                   </p>
                 </div>
 
                 <div className="grid gap-3">
                   <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
                   <span className="text-sm font-black text-[#25120F]">
-                    Cash
+                    {t("analytics.cash")}
                   </span>
                     <span className="text-sm font-black text-[#C7192E]">
                     {cashOrders.length}
@@ -468,7 +484,7 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
 
                   <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
                   <span className="text-sm font-black text-[#25120F]">
-                    Card
+                    {t("analytics.card")}
                   </span>
                     <span className="text-sm font-black text-[#C7192E]">
                     {cardOrders.length}
@@ -477,7 +493,7 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
 
                   <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
                   <span className="text-sm font-black text-[#25120F]">
-                    Swish
+                    {t("analytics.swish")}
                   </span>
                     <span className="text-sm font-black text-[#C7192E]">
                     {swishOrders.length}
@@ -486,7 +502,7 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
 
                   <div className="flex items-center justify-between rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
                   <span className="text-sm font-black text-emerald-800">
-                    Paid orders
+                    {t("analytics.paidOrders")}
                   </span>
                     <span className="text-sm font-black text-emerald-700">
                     {paidOrders.length}
@@ -501,15 +517,15 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
             <div className="flex flex-col gap-3 border-b border-[#EADDCF] px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                  Recent orders
+                  {t("analytics.recentOrders")}
                 </h2>
                 <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                  Latest orders included in analytics.
+                  {t("analytics.recentOrdersDescription")}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-2 text-sm font-black text-[#7B6A61]">
-                {recentOrders.length} shown
+                {t("analytics.shown", { count: recentOrders.length })}
               </div>
             </div>
 
@@ -518,10 +534,10 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
                   <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
                     <ClipboardList className="mx-auto h-10 w-10 text-[#C7192E]" />
                     <p className="mt-4 text-sm font-black text-[#25120F]">
-                      No orders found
+                      {t("analytics.noOrdersFound")}
                     </p>
                     <p className="mt-2 text-sm font-medium text-[#7B6A61]">
-                      Analytics will appear when orders are created.
+                      {t("analytics.noOrdersDescription")}
                     </p>
                   </div>
                 </div>
@@ -530,51 +546,69 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
                   <table className="w-full min-w-[900px] border-separate border-spacing-y-2 px-5 py-3 text-left">
                     <thead>
                     <tr className="text-xs uppercase tracking-[0.16em] text-[#A39388]">
-                      <th className="px-4 py-2 font-black">Order</th>
-                      <th className="px-4 py-2 font-black">Status</th>
-                      <th className="px-4 py-2 font-black">Payment</th>
-                      <th className="px-4 py-2 font-black">Type</th>
-                      <th className="px-4 py-2 font-black">Total</th>
-                      <th className="px-4 py-2 font-black">Created</th>
+                      <th className="px-4 py-2 font-black">
+                        {t("table.order")}
+                      </th>
+                      <th className="px-4 py-2 font-black">
+                        {t("table.status")}
+                      </th>
+                      <th className="px-4 py-2 font-black">
+                        {t("analytics.payment")}
+                      </th>
+                      <th className="px-4 py-2 font-black">
+                        {t("analytics.type")}
+                      </th>
+                      <th className="px-4 py-2 font-black">
+                        {t("table.total")}
+                      </th>
+                      <th className="px-4 py-2 font-black">
+                        {t("analytics.created")}
+                      </th>
                     </tr>
                     </thead>
 
                     <tbody>
-                    {recentOrders.map((order) => (
-                        <tr key={order.id} className="group">
-                          <td className="rounded-l-2xl border-y border-l border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                            <p className="max-w-[160px] truncate text-sm font-black text-[#25120F]">
-                              {order.id}
-                            </p>
-                          </td>
+                    {recentOrders.map((order) => {
+                      const statusKey = getStatusKey(order.status);
 
-                          <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                        <span
-                            className={`rounded-full border px-3 py-1 text-xs font-black ${getStatusClass(
-                                order.status
-                            )}`}
-                        >
-                          {order.status || "unknown"}
-                        </span>
-                          </td>
+                      return (
+                          <tr key={order.id} className="group">
+                            <td className="rounded-l-2xl border-y border-l border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                              <p className="max-w-[160px] truncate text-sm font-black text-[#25120F]">
+                                {order.id}
+                              </p>
+                            </td>
 
-                          <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black capitalize text-[#25120F] group-hover:bg-[#FFF3E2]">
-                            {order.payment_method || "—"}
-                          </td>
+                            <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                          <span
+                              className={`rounded-full border px-3 py-1 text-xs font-black ${getStatusClass(
+                                  order.status
+                              )}`}
+                          >
+                            {statusKey === "unknown"
+                                ? t("analytics.unknown")
+                                : t(`statuses.${statusKey}`)}
+                          </span>
+                            </td>
 
-                          <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black capitalize text-[#7B6A61] group-hover:bg-[#FFF3E2]">
-                            {order.delivery_type || "—"}
-                          </td>
+                            <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black capitalize text-[#25120F] group-hover:bg-[#FFF3E2]">
+                              {order.payment_method || "—"}
+                            </td>
 
-                          <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#C7192E] group-hover:bg-[#FFF3E2]">
-                            {formatCurrency(Number(order.total_price || 0))}
-                          </td>
+                            <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black capitalize text-[#7B6A61] group-hover:bg-[#FFF3E2]">
+                              {order.delivery_type || "—"}
+                            </td>
 
-                          <td className="rounded-r-2xl border-y border-r border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-bold text-[#25120F] group-hover:bg-[#FFF3E2]">
-                            {formatDate(order.created_at)}
-                          </td>
-                        </tr>
-                    ))}
+                            <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#C7192E] group-hover:bg-[#FFF3E2]">
+                              {formatCurrency(Number(order.total_price || 0), locale)}
+                            </td>
+
+                            <td className="rounded-r-2xl border-y border-r border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-bold text-[#25120F] group-hover:bg-[#FFF3E2]">
+                              {formatDate(order.created_at, locale)}
+                            </td>
+                          </tr>
+                      );
+                    })}
                     </tbody>
                   </table>
                 </div>

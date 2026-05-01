@@ -10,6 +10,7 @@ import {
     UserCog,
     UserRound
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { createClient } from "@/lib/supabase/server";
 import { canAccessKitchen } from "@/lib/auth/roles";
@@ -31,10 +32,10 @@ type ProfileRow = {
     created_at?: string | null;
 };
 
-function formatDate(date?: string | null) {
-    if (!date) return "Not available";
+function formatDate(date: string | null | undefined, locale: string) {
+    if (!date) return null;
 
-    return new Intl.DateTimeFormat("sv-SE", {
+    return new Intl.DateTimeFormat(locale === "en" ? "en-SE" : locale, {
         dateStyle: "medium",
         timeStyle: "short"
     }).format(new Date(date));
@@ -90,6 +91,8 @@ function PermissionCard({
 export default async function AdminAccountPage({ params }: AccountPageProps) {
     const { locale } = await params;
 
+    const t = await getTranslations("admin");
+
     const supabase = await createClient();
 
     const {
@@ -125,6 +128,10 @@ export default async function AdminAccountPage({ params }: AccountPageProps) {
     const isAdmin = normalizedRole === "admin";
     const isCook = normalizedRole === "cook";
 
+    const createdLabel =
+        formatDate(account.created_at || user.created_at, locale) ||
+        t("account.notAvailable");
+
     return (
         <AdminShell>
             <div className="space-y-6">
@@ -135,15 +142,15 @@ export default async function AdminAccountPage({ params }: AccountPageProps) {
                         <div>
                             <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
                                 <UserCog className="h-3.5 w-3.5" />
-                                Account settings
+                                {t("account.eyebrow")}
                             </div>
 
                             <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
-                                My account
+                                {t("account.title")}
                             </h1>
 
                             <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                                View your staff profile, role permissions and account access.
+                                {t("account.subtitle")}
                             </p>
                         </div>
 
@@ -160,7 +167,7 @@ export default async function AdminAccountPage({ params }: AccountPageProps) {
                             {account.avatar_url ? (
                                 <Image
                                     src={account.avatar_url}
-                                    alt={account.full_name || "Profile photo"}
+                                    alt={account.full_name || t("account.profilePhoto")}
                                     fill
                                     sizes="80px"
                                     className="object-cover"
@@ -173,11 +180,11 @@ export default async function AdminAccountPage({ params }: AccountPageProps) {
                         </div>
 
                         <h2 className="mt-5 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
-                            {account.full_name || "Staff member"}
+                            {account.full_name || t("account.staffMember")}
                         </h2>
 
                         <p className="mt-2 text-sm font-medium text-[#7B6A61]">
-                            {account.email || user.email || "No email"}
+                            {account.email || user.email || t("account.noEmail")}
                         </p>
 
                         <div className="mt-5 inline-flex rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black capitalize text-[#C7192E]">
@@ -187,7 +194,7 @@ export default async function AdminAccountPage({ params }: AccountPageProps) {
                         <div className="mt-6 space-y-3">
                             <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
                                 <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
-                                    User ID
+                                    {t("account.userId")}
                                 </p>
                                 <p className="mt-2 break-all text-sm font-black text-[#25120F]">
                                     {account.id}
@@ -196,10 +203,10 @@ export default async function AdminAccountPage({ params }: AccountPageProps) {
 
                             <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
                                 <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
-                                    Created
+                                    {t("account.created")}
                                 </p>
                                 <p className="mt-2 text-sm font-black text-[#25120F]">
-                                    {formatDate(account.created_at || user.created_at)}
+                                    {createdLabel}
                                 </p>
                             </div>
                         </div>
@@ -212,53 +219,55 @@ export default async function AdminAccountPage({ params }: AccountPageProps) {
                     <section className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl lg:p-6">
                         <div className="mb-6 border-b border-[#EADDCF] pb-5">
                             <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                                Access permissions
+                                {t("account.accessPermissions")}
                             </h2>
                             <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                                Permissions are based on your current staff role.
+                                {t("account.permissionsDescription")}
                             </p>
                         </div>
 
                         <div className="grid gap-4 md:grid-cols-2">
                             <PermissionCard
                                 icon={LayoutDashboard}
-                                title="Dashboard"
-                                description="Access the main CRM overview."
+                                title={t("account.permissions.dashboardTitle")}
+                                description={t("account.permissions.dashboardDescription")}
                                 enabled={isOwner || isAdmin}
                             />
 
                             <PermissionCard
                                 icon={ClipboardList}
-                                title="Orders"
-                                description="View and manage customer orders."
+                                title={t("account.permissions.ordersTitle")}
+                                description={t("account.permissions.ordersDescription")}
                                 enabled={isOwner || isAdmin}
                             />
 
                             <PermissionCard
                                 icon={ChefHat}
-                                title="Kitchen display"
-                                description="Access the kitchen order board."
+                                title={t("account.permissions.kitchenTitle")}
+                                description={t("account.permissions.kitchenDescription")}
                                 enabled={isOwner || isAdmin || isCook}
                             />
 
                             <PermissionCard
                                 icon={BadgeCheck}
-                                title="Staff management"
-                                description="Invite staff and update roles."
+                                title={t("account.permissions.staffTitle")}
+                                description={t("account.permissions.staffDescription")}
                                 enabled={isOwner}
                             />
 
                             <PermissionCard
                                 icon={ShieldCheck}
-                                title="Settings"
-                                description="Manage business and restaurant settings."
+                                title={t("account.permissions.settingsTitle")}
+                                description={t("account.permissions.settingsDescription")}
                                 enabled={isOwner || isAdmin}
                             />
 
                             <PermissionCard
                                 icon={Mail}
-                                title="Account email"
-                                description={account.email || user.email || "No email available"}
+                                title={t("account.accountEmail")}
+                                description={
+                                    account.email || user.email || t("account.noEmailAvailable")
+                                }
                                 enabled={true}
                             />
                         </div>

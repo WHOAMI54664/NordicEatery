@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
     BarChart3,
     BookOpen,
@@ -27,19 +28,19 @@ type SidebarProfile = {
 };
 
 const mainNavItems = [
-    { label: "Dashboard", href: "/admin", icon: Home },
-    { label: "Orders", href: "/admin/orders", icon: ClipboardList },
-    { label: "Menu", href: "/admin/menu", icon: MenuSquare },
-    { label: "Products", href: "/admin/products", icon: ChefHat },
-    { label: "Kitchen", href: "/admin/kitchen", icon: ShoppingBag },
-    { label: "Reservations", href: "/admin/reservations", icon: CalendarDays }
+    { labelKey: "dashboard", href: "/admin", icon: Home },
+    { labelKey: "orders", href: "/admin/orders", icon: ClipboardList },
+    { labelKey: "menu", href: "/admin/menu", icon: MenuSquare },
+    { labelKey: "products", href: "/admin/products", icon: ChefHat },
+    { labelKey: "kitchen", href: "/admin/kitchen", icon: ShoppingBag },
+    { labelKey: "reservations", href: "/admin/reservations", icon: CalendarDays }
 ];
 
 const secondaryNavItems = [
-    { label: "Analytics", href: "/admin/analytics", icon: LineChart },
-    { label: "Staff", href: "/admin/staff", icon: Users },
-    { label: "Settings", href: "/admin/settings", icon: Settings },
-    { label: "Docs", href: "/admin/documentation", icon: BookOpen }
+    { labelKey: "analytics", href: "/admin/analytics", icon: LineChart },
+    { labelKey: "staff", href: "/admin/staff", icon: Users },
+    { labelKey: "settings", href: "/admin/settings", icon: Settings },
+    { labelKey: "docs", href: "/admin/documentation", icon: BookOpen }
 ];
 
 function cn(...classes: Array<string | false | null | undefined>) {
@@ -47,6 +48,8 @@ function cn(...classes: Array<string | false | null | undefined>) {
 }
 
 export function AdminSidebar() {
+    const t = useTranslations("admin");
+
     const params = useParams();
     const pathname = usePathname();
 
@@ -114,7 +117,7 @@ export function AdminSidebar() {
     const displayName =
         profile?.full_name?.trim() ||
         profile?.email?.split("@")[0] ||
-        "Admin user";
+        t("sidebar.adminUser");
 
     return (
         <aside className="hidden w-[290px] shrink-0 border-r border-[#EADDCF] bg-[#FFF4E3]/95 p-4 backdrop-blur-2xl lg:block">
@@ -145,14 +148,14 @@ export function AdminSidebar() {
                         </div>
 
                         <div className="mt-1 text-xs font-semibold text-[#7B6A61]">
-                            Admin CRM
+                            {t("sidebar.adminCrm")}
                         </div>
                     </div>
                 </Link>
 
                 <div className="mt-5">
                     <p className="px-3 text-[10px] font-black uppercase tracking-[0.24em] text-[#A39388]">
-                        Management
+                        {t("sidebar.management")}
                     </p>
 
                     <nav className="mt-2.5 space-y-1">
@@ -184,7 +187,7 @@ export function AdminSidebar() {
                                         )}
                                     />
 
-                                    <span>{item.label}</span>
+                                    <span>{t(`common.${item.labelKey}`)}</span>
                                 </Link>
                             );
                         })}
@@ -193,7 +196,7 @@ export function AdminSidebar() {
 
                 <div className="mt-5">
                     <p className="px-3 text-[10px] font-black uppercase tracking-[0.24em] text-[#A39388]">
-                        Business
+                        {t("sidebar.business")}
                     </p>
 
                     <nav className="mt-2.5 space-y-1">
@@ -225,7 +228,7 @@ export function AdminSidebar() {
                                         )}
                                     />
 
-                                    <span>{item.label}</span>
+                                    <span>{t(`common.${item.labelKey}`)}</span>
                                 </Link>
                             );
                         })}
@@ -242,11 +245,11 @@ export function AdminSidebar() {
 
                                 <div>
                                     <h3 className="text-sm font-black text-[#25120F]">
-                                        Need help?
+                                        {t("common.needHelp")}
                                     </h3>
 
                                     <p className="mt-0.5 text-xs font-medium leading-4 text-[#7B6A61]">
-                                        Docs & support
+                                        {t("common.docsSupport")}
                                     </p>
                                 </div>
                             </div>
@@ -255,7 +258,7 @@ export function AdminSidebar() {
                                 href={`/${locale}/admin/documentation`}
                                 className="mt-3 flex w-full items-center justify-center rounded-2xl bg-[#E51B23] px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-[#E51B23]/15 transition hover:bg-[#C7192E]"
                             >
-                                Documentation
+                                {t("common.documentation")}
                             </Link>
                         </div>
                     </div>

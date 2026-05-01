@@ -63,13 +63,7 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="hidden items-center gap-2 rounded-full bg-white/70 px-4 py-2 text-xs font-black text-dark/50 shadow-sm xl:flex">
-            <Clock size={15} className="text-paprika" />
-            {t("delivery")}
-          </div>
-
           <LanguageSwitcher />
-
           <StaffAccountMenu />
 
           <Link href={localePath("/cart")} className="btn-secondary gap-2 px-4 py-2.5">

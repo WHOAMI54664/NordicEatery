@@ -9,6 +9,7 @@ import {
     UsersRound,
     XCircle
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { ReservationActions } from "@/components/admin/ReservationActions";
 import { createClient } from "@/lib/supabase/server";
@@ -35,8 +36,8 @@ type ReservationRow = {
     created_at: string;
 };
 
-function formatDate(date: string) {
-    return new Intl.DateTimeFormat("sv-SE", {
+function formatDate(date: string, locale: string) {
+    return new Intl.DateTimeFormat(locale === "en" ? "en-SE" : locale, {
         dateStyle: "medium"
     }).format(new Date(date));
 }
@@ -113,6 +114,8 @@ export default async function ReservationsPage({
                                                }: ReservationsPageProps) {
     const { locale } = await params;
 
+    const t = await getTranslations("admin");
+
     const supabase = await createClient();
 
     const {
@@ -169,22 +172,21 @@ export default async function ReservationsPage({
                         <div>
                             <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
                                 <CalendarCheck className="h-3.5 w-3.5" />
-                                Booking management
+                                {t("reservations.eyebrow")}
                             </div>
 
                             <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
-                                Reservations
+                                {t("reservations.title")}
                             </h1>
 
                             <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                                Manage customer bookings, guest count, confirmation status and
-                                reservation notes.
+                                {t("reservations.subtitle")}
                             </p>
                         </div>
 
                         <div className="flex h-12 items-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 text-sm font-black text-[#7B6A61]">
                             <CalendarClock className="h-4 w-4 text-[#C7192E]" />
-                            Reservation flow
+                            {t("reservations.flow")}
                         </div>
                     </div>
                 </section>
@@ -197,33 +199,33 @@ export default async function ReservationsPage({
 
                 <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <StatCard
-                        title="Pending"
+                        title={t("reservations.pending")}
                         value={String(pendingCount)}
-                        description="Waiting for confirmation"
+                        description={t("reservations.pendingDescription")}
                         icon={Clock}
                         tone="gold"
                     />
 
                     <StatCard
-                        title="Confirmed"
+                        title={t("reservations.confirmed")}
                         value={String(confirmedCount)}
-                        description="Approved upcoming bookings"
+                        description={t("reservations.confirmedDescription")}
                         icon={CheckCircle2}
                         tone="green"
                     />
 
                     <StatCard
-                        title="Completed"
+                        title={t("reservations.completed")}
                         value={String(completedCount)}
-                        description="Finished reservations"
+                        description={t("reservations.completedDescription")}
                         icon={UsersRound}
                         tone="dark"
                     />
 
                     <StatCard
-                        title="Cancelled"
+                        title={t("reservations.cancelled")}
                         value={String(cancelledCount)}
-                        description="Cancelled bookings"
+                        description={t("reservations.cancelledDescription")}
                         icon={XCircle}
                         tone="red"
                     />
@@ -233,15 +235,17 @@ export default async function ReservationsPage({
                     <div className="flex flex-col gap-3 border-b border-[#EADDCF] px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                                All reservations
+                                {t("reservations.allReservations")}
                             </h2>
                             <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                                Bookings loaded from Supabase.
+                                {t("reservations.allReservationsDescription")}
                             </p>
                         </div>
 
                         <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-2 text-sm font-black text-[#7B6A61]">
-                            {reservationList.length} reservations
+                            {t("reservations.reservationsCount", {
+                                count: reservationList.length
+                            })}
                         </div>
                     </div>
 
@@ -250,10 +254,10 @@ export default async function ReservationsPage({
                             <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
                                 <CalendarCheck className="mx-auto h-10 w-10 text-[#C7192E]" />
                                 <p className="mt-4 text-sm font-black text-[#25120F]">
-                                    No reservations found
+                                    {t("reservations.noReservationsFound")}
                                 </p>
                                 <p className="mt-2 text-sm font-medium text-[#7B6A61]">
-                                    Customer bookings will appear here.
+                                    {t("reservations.noReservationsDescription")}
                                 </p>
                             </div>
                         </div>
@@ -262,14 +266,30 @@ export default async function ReservationsPage({
                             <table className="w-full min-w-[1080px] border-separate border-spacing-y-2 px-5 py-3 text-left">
                                 <thead>
                                 <tr className="text-xs uppercase tracking-[0.16em] text-[#A39388]">
-                                    <th className="px-4 py-2 font-black">Customer</th>
-                                    <th className="px-4 py-2 font-black">Contact</th>
-                                    <th className="px-4 py-2 font-black">Date</th>
-                                    <th className="px-4 py-2 font-black">Time</th>
-                                    <th className="px-4 py-2 font-black">Guests</th>
-                                    <th className="px-4 py-2 font-black">Status</th>
-                                    <th className="px-4 py-2 font-black">Note</th>
-                                    <th className="px-4 py-2 text-right font-black">Actions</th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("table.customer")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("reservations.contact")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("reservations.date")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("reservations.time")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("reservations.guests")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("table.status")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("reservations.note")}
+                                    </th>
+                                    <th className="px-4 py-2 text-right font-black">
+                                        {t("orders.actions")}
+                                    </th>
                                 </tr>
                                 </thead>
 
@@ -304,14 +324,14 @@ export default async function ReservationsPage({
                                                 {!reservation.customer_phone &&
                                                 !reservation.customer_email ? (
                                                     <span className="text-xs font-bold text-[#A39388]">
-                              No contact
+                              {t("reservations.noContact")}
                             </span>
                                                 ) : null}
                                             </div>
                                         </td>
 
                                         <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#25120F] group-hover:bg-[#FFF3E2]">
-                                            {formatDate(reservation.reservation_date)}
+                                            {formatDate(reservation.reservation_date, locale)}
                                         </td>
 
                                         <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#C7192E] group-hover:bg-[#FFF3E2]">
@@ -320,7 +340,9 @@ export default async function ReservationsPage({
 
                                         <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
                         <span className="rounded-full border border-[#EADDCF] bg-[#FFF3E2] px-3 py-1 text-xs font-black text-[#7B6A61]">
-                          {reservation.guests_count} guests
+                          {t("reservations.guestsCount", {
+                              count: reservation.guests_count
+                          })}
                         </span>
                                         </td>
 
@@ -330,7 +352,7 @@ export default async function ReservationsPage({
                                 reservation.status
                             )}`}
                         >
-                          {reservation.status}
+                          {t(`reservations.statuses.${reservation.status}`)}
                         </span>
                                         </td>
 

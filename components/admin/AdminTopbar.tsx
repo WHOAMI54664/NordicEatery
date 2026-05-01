@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
     Bell,
     ClipboardList,
@@ -26,13 +27,13 @@ type SearchResult = {
     href: string;
 };
 
-function getGreeting() {
+function getGreeting(t: ReturnType<typeof useTranslations>) {
     const hour = new Date().getHours();
 
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
+    if (hour < 12) return t("topbar.goodMorning");
+    if (hour < 18) return t("topbar.goodAfternoon");
 
-    return "Good evening";
+    return t("topbar.goodEvening");
 }
 
 function getResultIcon(type: SearchResult["type"]) {
@@ -49,6 +50,8 @@ function getResultIcon(type: SearchResult["type"]) {
 }
 
 export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
+    const t = useTranslations("admin");
+
     const params = useParams();
     const locale = String(params.locale || "en");
 
@@ -59,7 +62,7 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
     const [isSearching, setIsSearching] = useState(false);
     const [showGreeting, setShowGreeting] = useState(true);
 
-    const greeting = getGreeting();
+    const greeting = getGreeting(t);
 
     useEffect(() => {
         const timer = window.setTimeout(() => {
@@ -117,8 +120,8 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                 ordersRes.data?.map((order) => ({
                     id: order.id,
                     type: "order",
-                    title: order.order_number || `Order ${order.id.slice(0, 8)}`,
-                    subtitle: `${order.customer_name || "Customer"} · ${
+                    title: order.order_number || `${t("table.order")} ${order.id.slice(0, 8)}`,
+                    subtitle: `${order.customer_name || t("table.customer")} · ${
                         order.total_price || 0
                     } kr · ${order.status}`,
                     href: `/${locale}/admin/orders`
@@ -129,7 +132,7 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                     id: product.id,
                     type: "product",
                     title: product.name || product.id,
-                    subtitle: `${product.category || "Product"} · ${
+                    subtitle: `${product.category || t("common.products")} · ${
                         product.price || 0
                     } kr`,
                     href: `/${locale}/admin/products/${product.id}/edit`
@@ -139,8 +142,10 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                 staffRes.data?.map((staff) => ({
                     id: staff.id,
                     type: "staff",
-                    title: staff.full_name || staff.email || "Staff member",
-                    subtitle: `${staff.role || "staff"} · ${staff.email || "No email"}`,
+                    title: staff.full_name || staff.email || t("account.staffMember"),
+                    subtitle: `${staff.role || "staff"} · ${
+                        staff.email || t("account.noEmail")
+                    }`,
                     href: `/${locale}/admin/staff`
                 })) || [];
 
@@ -154,7 +159,7 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
             isActive = false;
             window.clearTimeout(timer);
         };
-    }, [query, locale, supabase]);
+    }, [query, locale, supabase, t]);
 
     return (
         <header
@@ -180,7 +185,7 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                 >
                     <div className="overflow-hidden">
                         <div className="inline-flex rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
-                            Restaurant Management System
+                            {t("topbar.system")}
                         </div>
 
                         <h1 className="mt-4 max-w-3xl text-3xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
@@ -191,7 +196,7 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                         </h1>
 
                         <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                            Here’s what’s happening in your restaurant today.
+                            {t("topbar.subtitle")}
                         </p>
                     </div>
                 </div>
@@ -217,7 +222,7 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                                 type="text"
                                 value={query}
                                 onChange={(event) => setQuery(event.target.value)}
-                                placeholder="Search orders, dishes, staff..."
+                                placeholder={t("common.searchPlaceholder")}
                                 className="min-w-0 flex-1 bg-transparent text-sm font-medium text-[#25120F] outline-none placeholder:text-[#A39388]"
                             />
                         </label>
@@ -226,7 +231,7 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                             <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-[999] overflow-hidden rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6] p-2 shadow-2xl shadow-[#4C2314]/20 backdrop-blur-2xl">
                                 {isSearching ? (
                                     <div className="px-4 py-4 text-sm font-black text-[#7B6A61]">
-                                        Searching...
+                                        {t("topbar.searching")}
                                     </div>
                                 ) : results.length > 0 ? (
                                     <div className="space-y-1">
@@ -258,7 +263,7 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                                     </div>
                                 ) : (
                                     <div className="px-4 py-4 text-sm font-black text-[#7B6A61]">
-                                        No results found.
+                                        {t("topbar.noResults")}
                                     </div>
                                 )}
                             </div>
@@ -270,6 +275,7 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                         className={`flex items-center justify-center rounded-2xl border border-[#EADDCF] bg-white/70 text-[#25120F] transition-all duration-700 hover:bg-white ${
                             showGreeting ? "h-12 w-12" : "h-11 w-11"
                         }`}
+                        aria-label={t("topbar.notifications")}
                     >
                         <Bell className="h-4 w-4" />
                     </button>
@@ -293,7 +299,7 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                         }`}
                     >
                         <Plus className="h-4 w-4" />
-                        Create new
+                        {t("common.createNew")}
                     </Link>
                 </div>
             </div>

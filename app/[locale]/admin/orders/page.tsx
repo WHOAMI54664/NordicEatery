@@ -8,6 +8,7 @@ import {
     Phone,
     Truck
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { OrderStatusActions } from "@/components/admin/OrderStatusActions";
 import { createClient } from "@/lib/supabase/server";
@@ -44,16 +45,16 @@ type AdminOrdersPageProps = {
     }>;
 };
 
-function formatCurrency(value: number) {
-    return new Intl.NumberFormat("sv-SE", {
+function formatCurrency(value: number, locale: string) {
+    return new Intl.NumberFormat(locale === "en" ? "en-SE" : locale, {
         style: "currency",
         currency: "SEK",
         maximumFractionDigits: 0
     }).format(Number(value || 0));
 }
 
-function formatDate(date: string) {
-    return new Intl.DateTimeFormat("sv-SE", {
+function formatDate(date: string, locale: string) {
+    return new Intl.DateTimeFormat(locale === "en" ? "en-SE" : locale, {
         dateStyle: "medium",
         timeStyle: "short"
     }).format(new Date(date));
@@ -64,6 +65,20 @@ function formatOrderNumber(order: DbOrder) {
 
     const cleanId = order.id.replace(/-/g, "").toUpperCase();
     return `MF-${cleanId.slice(-7)}`;
+}
+
+function getStatusKey(status: string | null | undefined) {
+    if (!status) return "unknown";
+
+    const normalized = status.toLowerCase();
+
+    if (normalized === "new") return "new";
+    if (normalized === "preparing") return "preparing";
+    if (normalized === "ready") return "ready";
+    if (normalized === "completed") return "completed";
+    if (normalized === "cancelled") return "cancelled";
+
+    return "unknown";
 }
 
 function getStatusClass(status: OrderStatus) {
@@ -101,6 +116,8 @@ export default async function AdminOrdersPage({
                                                   params
                                               }: AdminOrdersPageProps) {
     const { locale } = await params;
+
+    const t = await getTranslations("admin");
 
     const supabase = await createClient();
 
@@ -148,6 +165,14 @@ export default async function AdminOrdersPage({
         (order) => order.delivery_type === "delivery"
     ).length;
 
+    const cashOrders = orderList.filter(
+        (order) => order.payment_method === "cash"
+    ).length;
+
+    const cardOrSwishOrders = orderList.filter((order) =>
+        ["card", "swish"].includes(order.payment_method)
+    ).length;
+
     return (
         <AdminShell>
             <div className="space-y-6">
@@ -158,23 +183,22 @@ export default async function AdminOrdersPage({
                         <div>
                             <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
                                 <ClipboardList className="h-3.5 w-3.5" />
-                                Orders
+                                {t("orders.eyebrow")}
                             </div>
 
                             <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
-                                Order management
+                                {t("orders.title")}
                             </h1>
 
                             <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                                Manage customer orders, payment status, delivery flow and
-                                kitchen progress in one place.
+                                {t("orders.subtitle")}
                             </p>
                         </div>
 
                         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                             <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
                                 <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
-                                    Total
+                                    {t("orders.total")}
                                 </p>
                                 <p className="mt-1 text-2xl font-black text-[#25120F]">
                                     {orderList.length}
@@ -183,7 +207,7 @@ export default async function AdminOrdersPage({
 
                             <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
                                 <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
-                                    Active
+                                    {t("orders.active")}
                                 </p>
                                 <p className="mt-1 text-2xl font-black text-[#C7192E]">
                                     {activeOrders.length}
@@ -192,7 +216,7 @@ export default async function AdminOrdersPage({
 
                             <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
                                 <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
-                                    Paid
+                                    {t("orders.paid")}
                                 </p>
                                 <p className="mt-1 text-2xl font-black text-emerald-700">
                                     {paidOrders}
@@ -201,10 +225,10 @@ export default async function AdminOrdersPage({
 
                             <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
                                 <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
-                                    Revenue
+                                    {t("orders.revenue")}
                                 </p>
                                 <p className="mt-1 text-2xl font-black text-[#25120F]">
-                                    {formatCurrency(todayRevenue)}
+                                    {formatCurrency(todayRevenue, locale)}
                                 </p>
                             </div>
                         </div>
@@ -222,7 +246,7 @@ export default async function AdminOrdersPage({
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 <p className="text-sm font-black text-[#8A7A70]">
-                                    Delivery orders
+                                    {t("orders.deliveryOrders")}
                                 </p>
                                 <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
                                     {deliveryOrders}
@@ -239,13 +263,10 @@ export default async function AdminOrdersPage({
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 <p className="text-sm font-black text-[#8A7A70]">
-                                    Cash orders
+                                    {t("orders.cashOrders")}
                                 </p>
                                 <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
-                                    {
-                                        orderList.filter((order) => order.payment_method === "cash")
-                                            .length
-                                    }
+                                    {cashOrders}
                                 </h3>
                             </div>
 
@@ -259,14 +280,10 @@ export default async function AdminOrdersPage({
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 <p className="text-sm font-black text-[#8A7A70]">
-                                    Card / Swish
+                                    {t("orders.cardSwish")}
                                 </p>
                                 <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
-                                    {
-                                        orderList.filter((order) =>
-                                            ["card", "swish"].includes(order.payment_method)
-                                        ).length
-                                    }
+                                    {cardOrSwishOrders}
                                 </h3>
                             </div>
 
@@ -280,7 +297,7 @@ export default async function AdminOrdersPage({
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 <p className="text-sm font-black text-[#8A7A70]">
-                                    Latest order
+                                    {t("orders.latestOrder")}
                                 </p>
                                 <h3 className="mt-3 text-xl font-black tracking-[-0.04em] text-[#25120F]">
                                     {orderList[0] ? formatOrderNumber(orderList[0]) : "—"}
@@ -298,15 +315,15 @@ export default async function AdminOrdersPage({
                     <div className="flex flex-col gap-3 border-b border-[#EADDCF] px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                                All orders
+                                {t("orders.allOrders")}
                             </h2>
                             <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                                Latest customer orders from Supabase.
+                                {t("orders.allOrdersDescription")}
                             </p>
                         </div>
 
                         <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-2 text-sm font-black text-[#7B6A61]">
-                            {orderList.length} orders
+                            {t("orders.ordersCount", { count: orderList.length })}
                         </div>
                     </div>
 
@@ -315,10 +332,10 @@ export default async function AdminOrdersPage({
                             <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
                                 <PackageCheck className="mx-auto h-10 w-10 text-[#C7192E]" />
                                 <p className="mt-4 text-sm font-black text-[#25120F]">
-                                    No orders found
+                                    {t("orders.noOrdersFound")}
                                 </p>
                                 <p className="mt-2 text-sm font-medium text-[#7B6A61]">
-                                    New customer orders will appear here.
+                                    {t("orders.noOrdersDescription")}
                                 </p>
                             </div>
                         </div>
@@ -327,100 +344,128 @@ export default async function AdminOrdersPage({
                             <table className="w-full min-w-[1180px] border-separate border-spacing-y-2 px-5 py-3 text-left">
                                 <thead>
                                 <tr className="text-xs uppercase tracking-[0.16em] text-[#A39388]">
-                                    <th className="px-4 py-2 font-black">Order</th>
-                                    <th className="px-4 py-2 font-black">Customer</th>
-                                    <th className="px-4 py-2 font-black">Contact</th>
-                                    <th className="px-4 py-2 font-black">Type</th>
-                                    <th className="px-4 py-2 font-black">Payment</th>
-                                    <th className="px-4 py-2 font-black">Status</th>
-                                    <th className="px-4 py-2 font-black">Total</th>
-                                    <th className="px-4 py-2 font-black">Created</th>
-                                    <th className="px-4 py-2 text-right font-black">Actions</th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("table.order")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("table.customer")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("orders.contact")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("orders.type")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("orders.payment")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("table.status")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("table.total")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("orders.created")}
+                                    </th>
+                                    <th className="px-4 py-2 text-right font-black">
+                                        {t("orders.actions")}
+                                    </th>
                                 </tr>
                                 </thead>
 
                                 <tbody>
-                                {orderList.map((order) => (
-                                    <tr key={order.id} className="group">
-                                        <td className="rounded-l-2xl border-y border-l border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                                            <p className="text-sm font-black text-[#C7192E]">
-                                                {formatOrderNumber(order)}
-                                            </p>
-                                            <p className="mt-1 max-w-[120px] truncate text-xs font-medium text-[#A39388]">
-                                                {order.id}
-                                            </p>
-                                        </td>
+                                {orderList.map((order) => {
+                                    const statusKey = getStatusKey(order.status);
 
-                                        <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                                            <p className="text-sm font-black text-[#25120F]">
-                                                {order.customer_name}
-                                            </p>
-                                            <p className="mt-1 max-w-[240px] truncate text-xs font-medium text-[#7B6A61]">
-                                                {order.items?.length || 0} items
-                                            </p>
-                                        </td>
+                                    return (
+                                        <tr key={order.id} className="group">
+                                            <td className="rounded-l-2xl border-y border-l border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                                                <p className="text-sm font-black text-[#C7192E]">
+                                                    {formatOrderNumber(order)}
+                                                </p>
+                                                <p className="mt-1 max-w-[120px] truncate text-xs font-medium text-[#A39388]">
+                                                    {order.id}
+                                                </p>
+                                            </td>
 
-                                        <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                                            <div className="flex items-center gap-2 text-sm font-bold text-[#25120F]">
-                                                <Phone className="h-3.5 w-3.5 text-[#C7192E]" />
-                                                {order.customer_phone}
-                                            </div>
-                                            <p className="mt-1 max-w-[220px] truncate text-xs font-medium text-[#7B6A61]">
-                                                {order.delivery_type === "delivery"
-                                                    ? order.address || "No address"
-                                                    : "Pickup order"}
-                                            </p>
-                                        </td>
+                                            <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                                                <p className="text-sm font-black text-[#25120F]">
+                                                    {order.customer_name}
+                                                </p>
+                                                <p className="mt-1 max-w-[240px] truncate text-xs font-medium text-[#7B6A61]">
+                                                    {t("orders.itemsCount", {
+                                                        count: order.items?.length || 0
+                                                    })}
+                                                </p>
+                                            </td>
 
-                                        <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                        <span className="rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
-                          {order.delivery_type}
-                        </span>
-                                        </td>
+                                            <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                                                <div className="flex items-center gap-2 text-sm font-bold text-[#25120F]">
+                                                    <Phone className="h-3.5 w-3.5 text-[#C7192E]" />
+                                                    {order.customer_phone}
+                                                </div>
+                                                <p className="mt-1 max-w-[220px] truncate text-xs font-medium text-[#7B6A61]">
+                                                    {order.delivery_type === "delivery"
+                                                        ? order.address || t("orders.noAddress")
+                                                        : t("orders.pickupOrder")}
+                                                </p>
+                                            </td>
 
-                                        <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                                            <div className="flex flex-col gap-1">
-                          <span className="text-xs font-black uppercase text-[#25120F]">
-                            {order.payment_method}
+                                            <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                          <span className="rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
+                            {t(`orders.deliveryTypes.${order.delivery_type}`)}
                           </span>
-                                                <span
-                                                    className={`w-fit rounded-full border px-3 py-1 text-xs font-black ${getPaymentClass(
-                                                        order.payment_status
-                                                    )}`}
-                                                >
-                            {order.payment_status}
+                                            </td>
+
+                                            <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                                                <div className="flex flex-col gap-1">
+                            <span className="text-xs font-black uppercase text-[#25120F]">
+                              {t(`orders.paymentMethods.${order.payment_method}`)}
+                            </span>
+                                                    <span
+                                                        className={`w-fit rounded-full border px-3 py-1 text-xs font-black ${getPaymentClass(
+                                                            order.payment_status
+                                                        )}`}
+                                                    >
+                              {t(
+                                  `orders.paymentStatuses.${order.payment_status}`
+                              )}
+                            </span>
+                                                </div>
+                                            </td>
+
+                                            <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                          <span
+                              className={`rounded-full border px-3 py-1 text-xs font-black ${getStatusClass(
+                                  order.status
+                              )}`}
+                          >
+                            {statusKey === "unknown"
+                                ? t("orders.unknown")
+                                : t(`statuses.${statusKey}`)}
                           </span>
-                                            </div>
-                                        </td>
+                                            </td>
 
-                                        <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                        <span
-                            className={`rounded-full border px-3 py-1 text-xs font-black ${getStatusClass(
-                                order.status
-                            )}`}
-                        >
-                          {order.status}
-                        </span>
-                                        </td>
+                                            <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#25120F] group-hover:bg-[#FFF3E2]">
+                                                {formatCurrency(order.total_price, locale)}
+                                            </td>
 
-                                        <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#25120F] group-hover:bg-[#FFF3E2]">
-                                            {formatCurrency(order.total_price)}
-                                        </td>
+                                            <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                                                <p className="text-sm font-bold text-[#25120F]">
+                                                    {formatDate(order.created_at, locale)}
+                                                </p>
+                                            </td>
 
-                                        <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                                            <p className="text-sm font-bold text-[#25120F]">
-                                                {formatDate(order.created_at)}
-                                            </p>
-                                        </td>
-
-                                        <td className="rounded-r-2xl border-y border-r border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                                            <OrderStatusActions
-                                                orderId={order.id}
-                                                status={order.status}
-                                            />
-                                        </td>
-                                    </tr>
-                                ))}
+                                            <td className="rounded-r-2xl border-y border-r border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                                                <OrderStatusActions
+                                                    orderId={order.id}
+                                                    status={order.status}
+                                                />
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                                 </tbody>
                             </table>
                         </div>

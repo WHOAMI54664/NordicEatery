@@ -11,6 +11,7 @@ import {
     Truck,
     UsersRound
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { createClient } from "@/lib/supabase/server";
 import { canManageSettings } from "@/lib/auth/roles";
@@ -43,6 +44,7 @@ function DocumentationSection({
                     <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
                         {title}
                     </h2>
+
                     <p className="mt-1 text-sm font-medium leading-6 text-[#7B6A61]">
                         {description}
                     </p>
@@ -67,6 +69,8 @@ export default async function DocumentationPage({
                                                     params
                                                 }: DocumentationPageProps) {
     const { locale } = await params;
+
+    const t = await getTranslations("admin");
 
     const supabase = await createClient();
 
@@ -98,22 +102,21 @@ export default async function DocumentationPage({
                         <div>
                             <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
                                 <BookOpen className="h-3.5 w-3.5" />
-                                CRM documentation
+                                {t("documentation.eyebrow")}
                             </div>
 
                             <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
-                                Documentation
+                                {t("documentation.title")}
                             </h1>
 
                             <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                                Internal guide for managing orders, products, kitchen display,
-                                staff roles, settings and deployment.
+                                {t("documentation.subtitle")}
                             </p>
                         </div>
 
                         <div className="flex h-12 items-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 text-sm font-black text-[#7B6A61]">
                             <ShieldCheck className="h-4 w-4 text-[#C7192E]" />
-                            Owner / Admin guide
+                            {t("documentation.accessBadge")}
                         </div>
                     </div>
                 </section>
@@ -121,97 +124,97 @@ export default async function DocumentationPage({
                 <section className="grid gap-6 xl:grid-cols-2">
                     <DocumentationSection
                         icon={LayoutDashboard}
-                        title="Dashboard"
-                        description="Main overview of restaurant activity."
+                        title={t("documentation.dashboard.title")}
+                        description={t("documentation.dashboard.description")}
                         items={[
-                            "Shows today revenue, orders, active deliveries and low stock items.",
-                            "Recent orders are loaded from Supabase orders table.",
-                            "Menu snapshot is loaded from Supabase products table.",
-                            "Greeting is shown only on Dashboard and can later be animated."
+                            t("documentation.dashboard.item1"),
+                            t("documentation.dashboard.item2"),
+                            t("documentation.dashboard.item3"),
+                            t("documentation.dashboard.item4")
                         ]}
                     />
 
                     <DocumentationSection
                         icon={ClipboardList}
-                        title="Orders"
-                        description="Order management for owner and admin."
+                        title={t("documentation.orders.title")}
+                        description={t("documentation.orders.description")}
                         items={[
-                            "Orders page shows all latest orders from Supabase.",
-                            "Statuses: new, preparing, ready, completed, cancelled.",
-                            "Admin can move order through the kitchen flow.",
-                            "Cancelled orders are not removed from database, only marked as cancelled."
+                            t("documentation.orders.item1"),
+                            t("documentation.orders.item2"),
+                            t("documentation.orders.item3"),
+                            t("documentation.orders.item4")
                         ]}
                     />
 
                     <DocumentationSection
                         icon={ChefHat}
-                        title="Kitchen display"
-                        description="Dedicated screen for cooks."
+                        title={t("documentation.kitchen.title")}
+                        description={t("documentation.kitchen.description")}
                         items={[
-                            "Kitchen display should be opened at /kitchen-display.",
-                            "Cook role can access kitchen-display without seeing the full CRM.",
-                            "Kitchen board auto-refreshes orders every 3 seconds.",
-                            "Card payments are shown only after payment_status is paid."
+                            t("documentation.kitchen.item1"),
+                            t("documentation.kitchen.item2"),
+                            t("documentation.kitchen.item3"),
+                            t("documentation.kitchen.item4")
                         ]}
                     />
 
                     <DocumentationSection
                         icon={Package}
-                        title="Products & Menu"
-                        description="Product catalogue and menu category structure."
+                        title={t("documentation.products.title")}
+                        description={t("documentation.products.description")}
                         items={[
-                            "Products are managed at /admin/products.",
-                            "Create and edit products through CRM product form.",
-                            "Use matching categories: maczanka, knysza, fries, drinks.",
-                            "Public menu only shows available products with stock or untracked stock."
+                            t("documentation.products.item1"),
+                            t("documentation.products.item2"),
+                            t("documentation.products.item3"),
+                            t("documentation.products.item4")
                         ]}
                     />
 
                     <DocumentationSection
                         icon={UsersRound}
-                        title="Staff roles"
-                        description="Role-based access for CRM and kitchen."
+                        title={t("documentation.staff.title")}
+                        description={t("documentation.staff.description")}
                         items={[
-                            "Roles: owner, admin, cook.",
-                            "Owner can manage staff roles.",
-                            "Admin can manage products, orders, settings and analytics.",
-                            "Cook should only access kitchen-display."
+                            t("documentation.staff.item1"),
+                            t("documentation.staff.item2"),
+                            t("documentation.staff.item3"),
+                            t("documentation.staff.item4")
                         ]}
                     />
 
                     <DocumentationSection
                         icon={Settings}
-                        title="Settings"
-                        description="Business settings stored in Supabase."
+                        title={t("documentation.settingsSection.title")}
+                        description={t("documentation.settingsSection.description")}
                         items={[
-                            "Settings are stored in business_settings table.",
-                            "Owner/admin can update business information, delivery and payment options.",
-                            "Swish is currently marked as planned until integration is ready.",
-                            "These settings can later be connected to checkout, footer and contact pages."
+                            t("documentation.settingsSection.item1"),
+                            t("documentation.settingsSection.item2"),
+                            t("documentation.settingsSection.item3"),
+                            t("documentation.settingsSection.item4")
                         ]}
                     />
 
                     <DocumentationSection
                         icon={CreditCard}
-                        title="Payments"
-                        description="Payment logic for checkout and CRM."
+                        title={t("documentation.payments.title")}
+                        description={t("documentation.payments.description")}
                         items={[
-                            "Cash orders can appear immediately as unpaid.",
-                            "Card orders should become visible to kitchen only after paid status.",
-                            "Swish integration is planned as the next payment feature.",
-                            "Stripe can be used for card, Apple Pay and Google Pay."
+                            t("documentation.payments.item1"),
+                            t("documentation.payments.item2"),
+                            t("documentation.payments.item3"),
+                            t("documentation.payments.item4")
                         ]}
                     />
 
                     <DocumentationSection
                         icon={Truck}
-                        title="Deployment checklist"
-                        description="Before deploying to Vercel or production."
+                        title={t("documentation.deployment.title")}
+                        description={t("documentation.deployment.description")}
                         items={[
-                            "Check that Supabase environment variables are set in Vercel.",
-                            "Check Stripe keys and NEXT_PUBLIC_SITE_URL.",
-                            "Run npm run build locally before deployment.",
-                            "Verify admin routes, orders, products, kitchen-display and settings."
+                            t("documentation.deployment.item1"),
+                            t("documentation.deployment.item2"),
+                            t("documentation.deployment.item3"),
+                            t("documentation.deployment.item4")
                         ]}
                     />
                 </section>

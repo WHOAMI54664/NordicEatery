@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Settings, ShieldCheck } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { createClient } from "@/lib/supabase/server";
 import { canManageSettings } from "@/lib/auth/roles";
@@ -52,6 +53,8 @@ export default async function AdminSettingsPage({
                                                 }: SettingsPageProps) {
     const { locale } = await params;
 
+    const t = await getTranslations("admin");
+
     const supabase = await createClient();
 
     const {
@@ -90,22 +93,21 @@ export default async function AdminSettingsPage({
                         <div>
                             <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
                                 <Settings className="h-3.5 w-3.5" />
-                                Business settings
+                                {t("settings.eyebrow")}
                             </div>
 
                             <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
-                                Settings
+                                {t("settings.title")}
                             </h1>
 
                             <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                                Manage restaurant information, delivery options, payment
-                                settings and operational preferences.
+                                {t("settings.subtitle")}
                             </p>
                         </div>
 
                         <div className="flex h-12 items-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 text-sm font-black text-[#7B6A61]">
                             <ShieldCheck className="h-4 w-4 text-[#C7192E]" />
-                            Owner / Admin access
+                            {t("settings.accessBadge")}
                         </div>
                     </div>
                 </section>
@@ -114,8 +116,7 @@ export default async function AdminSettingsPage({
                     <BusinessSettingsForm settings={businessSettings} />
                 ) : (
                     <section className="rounded-[2rem] border border-[#E51B23]/15 bg-[#E51B23]/8 p-6 text-sm font-bold text-[#C7192E]">
-                        Business settings table is empty. Run the SQL seed query in
-                        Supabase first.
+                        {t("settings.emptyTable")}
                     </section>
                 )}
             </div>

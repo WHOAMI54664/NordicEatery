@@ -10,6 +10,7 @@ import {
     Plus,
     Utensils
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { createClient } from "@/lib/supabase/server";
 import { canManageProducts } from "@/lib/auth/roles";
@@ -32,35 +33,35 @@ type ProductRow = {
 
 type MenuCategory = {
     id: string;
-    title: string;
-    description: string;
+    titleKey: string;
+    descriptionKey: string;
 };
 
 const menuCategories: MenuCategory[] = [
     {
         id: "maczanka",
-        title: "Maczanka",
-        description: "Signature Polish street food and warm main dishes."
+        titleKey: "categories.maczanka.title",
+        descriptionKey: "categories.maczanka.description"
     },
     {
         id: "knysza",
-        title: "Knysza",
-        description: "Fresh filled bread with meat, vegetables and sauces."
+        titleKey: "categories.knysza.title",
+        descriptionKey: "categories.knysza.description"
     },
     {
         id: "fries",
-        title: "Fries",
-        description: "Fries, extras, sauces and smaller add-ons."
+        titleKey: "categories.fries.title",
+        descriptionKey: "categories.fries.description"
     },
     {
         id: "drinks",
-        title: "Drinks",
-        description: "Soft drinks and cold beverages."
+        titleKey: "categories.drinks.title",
+        descriptionKey: "categories.drinks.description"
     }
 ];
 
-function formatCurrency(value: number) {
-    return new Intl.NumberFormat("sv-SE", {
+function formatCurrency(value: number, locale: string) {
+    return new Intl.NumberFormat(locale === "en" ? "en-SE" : locale, {
         style: "currency",
         currency: "SEK",
         maximumFractionDigits: 0
@@ -106,6 +107,8 @@ function getCategoryStats(products: ProductRow[], categoryId: string) {
 export default async function AdminMenuPage({ params }: MenuPageProps) {
     const { locale } = await params;
 
+    const t = await getTranslations("admin");
+
     const supabase = await createClient();
 
     const {
@@ -134,12 +137,15 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
     const productList = (products || []) as ProductRow[];
 
     const totalProducts = productList.length;
+
     const activeProducts = productList.filter(
         (product) => product.is_available !== false
     ).length;
+
     const hiddenProducts = productList.filter(
         (product) => product.is_available === false
     ).length;
+
     const lowStockProducts = productList.filter((product) => {
         if (!product.track_stock) return false;
 
@@ -156,16 +162,15 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
                         <div>
                             <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
                                 <Layers3 className="h-3.5 w-3.5" />
-                                Menu management
+                                {t("menuAdmin.eyebrow")}
                             </div>
 
                             <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
-                                Menu
+                                {t("menuAdmin.title")}
                             </h1>
 
                             <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                                Organize your restaurant menu by categories, availability,
-                                stock and product performance.
+                                {t("menuAdmin.subtitle")}
                             </p>
                         </div>
 
@@ -175,7 +180,7 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
                                 className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/80 px-5 text-sm font-black text-[#25120F] shadow-sm shadow-[#4C2314]/5 transition hover:border-[#E51B23]/20 hover:text-[#C7192E]"
                             >
                                 <ChefHat className="h-4 w-4" />
-                                View products
+                                {t("menuAdmin.viewProducts")}
                             </Link>
 
                             <Link
@@ -183,7 +188,7 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
                                 className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-5 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E]"
                             >
                                 <Plus className="h-4 w-4" />
-                                Add product
+                                {t("products.addProduct")}
                             </Link>
                         </div>
                     </div>
@@ -194,7 +199,7 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 <p className="text-sm font-black text-[#8A7A70]">
-                                    Total products
+                                    {t("menuAdmin.totalProducts")}
                                 </p>
                                 <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
                                     {totalProducts}
@@ -211,7 +216,7 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 <p className="text-sm font-black text-[#8A7A70]">
-                                    Active products
+                                    {t("menuAdmin.activeProducts")}
                                 </p>
                                 <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-emerald-700">
                                     {activeProducts}
@@ -228,7 +233,7 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 <p className="text-sm font-black text-[#8A7A70]">
-                                    Hidden products
+                                    {t("menuAdmin.hiddenProducts")}
                                 </p>
                                 <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
                                     {hiddenProducts}
@@ -245,7 +250,7 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 <p className="text-sm font-black text-[#8A7A70]">
-                                    Low stock
+                                    {t("menuAdmin.lowStock")}
                                 </p>
                                 <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#C7192E]">
                                     {lowStockProducts}
@@ -277,11 +282,11 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
                                         </div>
 
                                         <h2 className="mt-5 text-3xl font-black tracking-[-0.05em] text-[#25120F]">
-                                            {category.title}
+                                            {t(`menuAdmin.${category.titleKey}`)}
                                         </h2>
 
                                         <p className="mt-2 max-w-md text-sm font-medium leading-6 text-[#7B6A61]">
-                                            {category.description}
+                                            {t(`menuAdmin.${category.descriptionKey}`)}
                                         </p>
                                     </div>
 
@@ -289,7 +294,7 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
                                         href={`/${locale}/admin/products`}
                                         className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/80 px-4 text-sm font-black text-[#25120F] shadow-sm shadow-[#4C2314]/5 transition hover:border-[#E51B23]/20 hover:text-[#C7192E]"
                                     >
-                                        Manage
+                                        {t("menuAdmin.manage")}
                                         <ArrowRight className="h-4 w-4" />
                                     </Link>
                                 </div>
@@ -297,7 +302,7 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
                                 <div className="relative mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                                     <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
                                         <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
-                                            Items
+                                            {t("menuAdmin.items")}
                                         </p>
                                         <p className="mt-2 text-2xl font-black text-[#25120F]">
                                             {stats.total}
@@ -306,7 +311,7 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
 
                                     <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
                                         <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
-                                            Active
+                                            {t("menuAdmin.active")}
                                         </p>
                                         <p className="mt-2 text-2xl font-black text-emerald-700">
                                             {stats.active}
@@ -315,7 +320,7 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
 
                                     <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
                                         <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
-                                            Low stock
+                                            {t("menuAdmin.lowStock")}
                                         </p>
                                         <p className="mt-2 text-2xl font-black text-[#C7192E]">
                                             {stats.lowStock}
@@ -324,10 +329,10 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
 
                                     <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
                                         <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
-                                            Avg price
+                                            {t("menuAdmin.avgPrice")}
                                         </p>
                                         <p className="mt-2 text-2xl font-black text-[#25120F]">
-                                            {formatCurrency(stats.averagePrice)}
+                                            {formatCurrency(stats.averagePrice, locale)}
                                         </p>
                                     </div>
                                 </div>

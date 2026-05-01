@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { AdminStatCard } from "@/components/admin/AdminStatCard";
 import { createClient } from "@/lib/supabase/server";
@@ -51,8 +52,8 @@ type OrderRow = {
   createdAt?: string | null;
 };
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("sv-SE", {
+function formatCurrency(value: number, locale: string) {
+  return new Intl.NumberFormat(locale === "en" ? "en-SE" : locale, {
     style: "currency",
     currency: "SEK",
     maximumFractionDigits: 0
@@ -88,47 +89,56 @@ function getOrderCustomer(order: OrderRow) {
   return order.customer_name || order.customerName || "Guest";
 }
 
-function getOrderStatus(status?: string | null) {
-  if (!status) return "New";
+function getOrderStatusKey(status?: string | null) {
+  if (!status) return "new";
 
   const normalized = status.toLowerCase();
 
-  if (normalized === "new") return "New";
-  if (normalized === "preparing") return "Preparing";
-  if (normalized === "ready") return "Ready";
-  if (normalized === "completed") return "Completed";
-  if (normalized === "cancelled") return "Cancelled";
+  if (normalized === "new") return "new";
+  if (normalized === "preparing") return "preparing";
+  if (normalized === "ready") return "ready";
+  if (normalized === "completed") return "completed";
+  if (normalized === "cancelled") return "cancelled";
 
-  return status;
+  return "new";
 }
 
-function getTimeAgo(dateString?: string | null) {
-  if (!dateString) return "Recently";
+function getTimeAgo(
+    dateString: string | null | undefined,
+    t: Awaited<ReturnType<typeof getTranslations>>
+) {
+  if (!dateString) return t("dashboard.recently");
 
   const date = new Date(dateString);
   const diffMs = Date.now() - date.getTime();
   const diffMinutes = Math.max(1, Math.floor(diffMs / 60000));
 
-  if (diffMinutes < 60) return `${diffMinutes} min ago`;
+  if (diffMinutes < 60) {
+    return t("dashboard.minutesAgo", { count: diffMinutes });
+  }
 
   const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) return `${diffHours} h ago`;
+
+  if (diffHours < 24) {
+    return t("dashboard.hoursAgo", { count: diffHours });
+  }
 
   const diffDays = Math.floor(diffHours / 24);
-  return `${diffDays} d ago`;
+
+  return t("dashboard.daysAgo", { count: diffDays });
 }
 
-function getStatusClass(status: string) {
-  switch (status) {
-    case "New":
+function getStatusClass(statusKey: string) {
+  switch (statusKey) {
+    case "new":
       return "border-[#F6A21A]/25 bg-[#F6A21A]/15 text-[#A96800]";
-    case "Preparing":
+    case "preparing":
       return "border-[#FF9F40]/25 bg-[#FF9F40]/15 text-[#B45309]";
-    case "Ready":
+    case "ready":
       return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700";
-    case "Completed":
+    case "completed":
       return "border-[#EADDCF] bg-[#FFF3E2] text-[#7B6A61]";
-    case "Cancelled":
+    case "cancelled":
       return "border-[#E51B23]/15 bg-[#E51B23]/8 text-[#C7192E]";
     default:
       return "border-[#EADDCF] bg-[#FFF3E2] text-[#7B6A61]";
@@ -191,6 +201,8 @@ async function getOrders(
 export default async function AdminPage({ params }: AdminPageProps) {
   const { locale } = await params;
 
+  const t = await getTranslations("admin");
+
   const supabase = await createClient();
 
   const {
@@ -211,7 +223,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
       currentProfile?.full_name?.trim() ||
       currentProfile?.email?.split("@")[0] ||
       user.email?.split("@")[0] ||
-      "Admin";
+      t("sidebar.adminUser");
 
   const [products, profiles, orders] = await Promise.all([
     getProducts(supabase),
@@ -257,24 +269,30 @@ export default async function AdminPage({ params }: AdminPageProps) {
   const staffCount = profiles.length;
 
   const recentOrders = orders.slice(0, 6).map((order) => {
-    const status = getOrderStatus(order.status);
+    const statusKey = getOrderStatusKey(order.status);
     const createdAt = getOrderCreatedAt(order);
 
     return {
       id: order.id,
       displayId: formatOrderNumber(order),
       customer: getOrderCustomer(order),
-      items: "Order items",
-      total: formatCurrency(getOrderTotal(order)),
-      status,
-      time: getTimeAgo(createdAt)
+      items: t("dashboard.orderItems"),
+      total: formatCurrency(getOrderTotal(order), locale),
+      statusKey,
+      statusLabel: t(`statuses.${statusKey}`),
+      time: getTimeAgo(createdAt, t)
     };
   });
 
   const topDishes = products.slice(0, 3).map((product) => ({
-    name: product.name || "Unnamed dish",
-    sold: product.is_available === false ? "Not available" : "Available now",
-    revenue: product.price ? formatCurrency(product.price) : "No price"
+    name: product.name || t("dashboard.unnamedDish"),
+    sold:
+        product.is_available === false
+            ? t("common.unavailable")
+            : t("dashboard.availableNow"),
+    revenue: product.price
+        ? formatCurrency(product.price, locale)
+        : t("dashboard.noPrice")
   }));
 
   return (
@@ -283,34 +301,36 @@ export default async function AdminPage({ params }: AdminPageProps) {
 
         <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <AdminStatCard
-              title="Today revenue"
-              value={formatCurrency(todayRevenue)}
-              description="Calculated from today's orders"
-              trend={orders.length > 0 ? "Live" : "No orders"}
+              title={t("dashboard.todayRevenue")}
+              value={formatCurrency(todayRevenue, locale)}
+              description={t("dashboard.todayRevenueDescription")}
+              trend={orders.length > 0 ? t("dashboard.live") : t("dashboard.noOrders")}
               icon={CreditCard}
           />
 
           <AdminStatCard
-              title="Orders today"
+              title={t("dashboard.ordersToday")}
               value={String(orders.length)}
-              description="Online and pickup orders"
-              trend="Today"
+              description={t("dashboard.ordersTodayDescription")}
+              trend={t("dashboard.today")}
               icon={ClipboardList}
           />
 
           <AdminStatCard
-              title="Active deliveries"
+              title={t("dashboard.activeDeliveries")}
               value={String(activeDeliveries)}
-              description="Currently on the road"
-              trend="Live"
+              description={t("dashboard.activeDeliveriesDescription")}
+              trend={t("dashboard.live")}
               icon={Truck}
           />
 
           <AdminStatCard
-              title="Low stock items"
+              title={t("dashboard.lowStockItems")}
               value={String(lowStockItems)}
-              description={`${availableProducts} products available`}
-              trend="Check"
+              description={t("dashboard.productsAvailable", {
+                count: availableProducts
+              })}
+              trend={t("dashboard.check")}
               icon={Package}
           />
         </section>
@@ -320,10 +340,10 @@ export default async function AdminPage({ params }: AdminPageProps) {
             <div className="flex flex-col gap-3 border-b border-[#EADDCF] pb-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                  Recent orders
+                  {t("dashboard.recentOrders")}
                 </h2>
                 <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                  Live overview of your restaurant orders.
+                  {t("dashboard.recentOrdersDescription")}
                 </p>
               </div>
 
@@ -331,7 +351,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
                   href={`/${locale}/admin/orders`}
                   className="rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 px-4 py-2 text-sm font-black text-[#C7192E] transition hover:bg-[#E51B23]/12"
               >
-                View all orders
+                {t("dashboard.viewAllOrders")}
               </Link>
             </div>
 
@@ -340,12 +360,24 @@ export default async function AdminPage({ params }: AdminPageProps) {
                   <table className="w-full min-w-[720px] border-separate border-spacing-y-2 text-left">
                     <thead>
                     <tr className="text-xs uppercase tracking-[0.16em] text-[#A39388]">
-                      <th className="px-4 py-2 font-black">Order</th>
-                      <th className="px-4 py-2 font-black">Customer</th>
-                      <th className="px-4 py-2 font-black">Items</th>
-                      <th className="px-4 py-2 font-black">Total</th>
-                      <th className="px-4 py-2 font-black">Status</th>
-                      <th className="px-4 py-2 font-black">Time</th>
+                      <th className="px-4 py-2 font-black">
+                        {t("table.order")}
+                      </th>
+                      <th className="px-4 py-2 font-black">
+                        {t("table.customer")}
+                      </th>
+                      <th className="px-4 py-2 font-black">
+                        {t("table.items")}
+                      </th>
+                      <th className="px-4 py-2 font-black">
+                        {t("table.total")}
+                      </th>
+                      <th className="px-4 py-2 font-black">
+                        {t("table.status")}
+                      </th>
+                      <th className="px-4 py-2 font-black">
+                        {t("table.time")}
+                      </th>
                     </tr>
                     </thead>
 
@@ -371,10 +403,10 @@ export default async function AdminPage({ params }: AdminPageProps) {
                           <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
                         <span
                             className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${getStatusClass(
-                                order.status
+                                order.statusKey
                             )}`}
                         >
-                          {order.status}
+                          {order.statusLabel}
                         </span>
                           </td>
 
@@ -388,10 +420,10 @@ export default async function AdminPage({ params }: AdminPageProps) {
               ) : (
                   <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
                     <p className="text-sm font-black text-[#25120F]">
-                      No orders found for today
+                      {t("dashboard.noOrdersToday")}
                     </p>
                     <p className="mt-2 text-sm font-medium text-[#7B6A61]">
-                      When Supabase orders are saved, they will appear here.
+                      {t("dashboard.noOrdersDescription")}
                     </p>
                   </div>
               )}
@@ -403,10 +435,10 @@ export default async function AdminPage({ params }: AdminPageProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                    Kitchen activity
+                    {t("dashboard.kitchenActivity")}
                   </h2>
                   <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                    Current operational status.
+                    {t("dashboard.kitchenActivityDescription")}
                   </p>
                 </div>
 
@@ -420,7 +452,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
                   <div className="flex items-center gap-3">
                     <ChefHat className="h-4 w-4 text-[#C7192E]" />
                     <span className="text-sm font-bold text-[#25120F]">
-                    Preparing
+                    {t("dashboard.preparing")}
                   </span>
                   </div>
                   <span className="text-sm font-black text-[#C7192E]">
@@ -432,7 +464,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
                   <div className="flex items-center gap-3">
                     <Truck className="h-4 w-4 text-emerald-700" />
                     <span className="text-sm font-bold text-[#25120F]">
-                    On delivery
+                    {t("dashboard.onDelivery")}
                   </span>
                   </div>
                   <span className="text-sm font-black text-emerald-700">
@@ -444,7 +476,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
                   <div className="flex items-center gap-3">
                     <Users className="h-4 w-4 text-[#A96800]" />
                     <span className="text-sm font-bold text-[#25120F]">
-                    Staff members
+                    {t("dashboard.staffMembers")}
                   </span>
                   </div>
                   <span className="text-sm font-black text-[#A96800]">
@@ -456,11 +488,11 @@ export default async function AdminPage({ params }: AdminPageProps) {
 
             <div className="rounded-[2rem] border border-[#EADDCF] bg-gradient-to-br from-[#FFFCF6]/95 via-[#FFF3E2]/90 to-[#FFE4D6]/75 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
               <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                Menu snapshot
+                {t("dashboard.menuSnapshot")}
               </h2>
 
               <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                Current products from Supabase.
+                {t("dashboard.menuSnapshotDescription")}
               </p>
 
               <div className="mt-5 space-y-3">
@@ -493,10 +525,10 @@ export default async function AdminPage({ params }: AdminPageProps) {
                 ) : (
                     <div className="rounded-2xl border border-dashed border-[#EADDCF] bg-white/60 p-5">
                       <p className="text-sm font-black text-[#25120F]">
-                        No products found
+                        {t("dashboard.noProducts")}
                       </p>
                       <p className="mt-1 text-xs font-medium text-[#7B6A61]">
-                        Add products in Supabase or admin products page.
+                        {t("dashboard.noProductsDescription")}
                       </p>
                     </div>
                 )}

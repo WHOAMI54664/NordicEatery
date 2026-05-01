@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Camera, Save, UserRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser";
 
@@ -17,6 +18,8 @@ export function AccountProfileForm({
                                        initialFullName,
                                        initialAvatarUrl
                                    }: AccountProfileFormProps) {
+    const t = useTranslations("admin.account");
+
     const router = useRouter();
     const supabase = useMemo(() => createClient(), []);
 
@@ -56,7 +59,7 @@ export function AccountProfileForm({
 
         setAvatarUrl(data.publicUrl);
         setIsUploading(false);
-        setSuccessMessage("Photo uploaded. Save changes to update your profile.");
+        setSuccessMessage(t("photoUploaded"));
     }
 
     async function saveProfile() {
@@ -79,7 +82,7 @@ export function AccountProfileForm({
             return;
         }
 
-        setSuccessMessage("Profile updated successfully.");
+        setSuccessMessage(t("profileUpdated"));
         router.refresh();
     }
 
@@ -87,10 +90,11 @@ export function AccountProfileForm({
         <section className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl lg:p-6">
             <div className="mb-6 border-b border-[#EADDCF] pb-5">
                 <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                    Profile settings
+                    {t("profileSettings")}
                 </h2>
+
                 <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                    Change your display name and profile photo.
+                    {t("profileSettingsDescription")}
                 </p>
             </div>
 
@@ -100,7 +104,7 @@ export function AccountProfileForm({
                         {avatarUrl ? (
                             <Image
                                 src={avatarUrl}
-                                alt={fullName || "Profile photo"}
+                                alt={fullName || t("profilePhoto")}
                                 fill
                                 sizes="160px"
                                 className="object-cover"
@@ -114,7 +118,7 @@ export function AccountProfileForm({
 
                     <label className="mt-5 flex h-12 cursor-pointer items-center justify-center gap-2 rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 px-4 text-sm font-black text-[#C7192E] transition hover:bg-[#E51B23]/12">
                         <Camera className="h-4 w-4" />
-                        {isUploading ? "Uploading..." : "Upload photo"}
+                        {isUploading ? t("uploading") : t("uploadPhoto")}
                         <input
                             type="file"
                             accept="image/png,image/jpeg,image/webp"
@@ -131,12 +135,13 @@ export function AccountProfileForm({
                 <div className="space-y-5">
                     <label className="block">
             <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
-              Full name
+              {t("fullName")}
             </span>
+
                         <input
                             value={fullName}
                             onChange={(event) => setFullName(event.target.value)}
-                            placeholder="Your name"
+                            placeholder={t("yourName")}
                             className="h-12 w-full rounded-2xl border border-[#EADDCF] bg-white/75 px-4 text-sm font-semibold text-[#25120F] outline-none shadow-inner shadow-[#4C2314]/5 transition placeholder:text-[#A39388] focus:border-[#E51B23]/25 focus:bg-white focus:ring-4 focus:ring-[#E51B23]/8"
                         />
                     </label>
@@ -160,7 +165,7 @@ export function AccountProfileForm({
                         className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-6 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         <Save className="h-4 w-4" />
-                        {isSaving ? "Saving..." : "Save profile"}
+                        {isSaving ? t("saving") : t("saveProfile")}
                     </button>
                 </div>
             </div>
