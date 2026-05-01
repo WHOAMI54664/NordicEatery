@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Clock, CheckCircle2, ChefHat, Trash2 } from "lucide-react";
+import {
+  CheckCircle2,
+  ChefHat,
+  Clock,
+  PackageCheck,
+  RefreshCw,
+  Trash2,
+  Truck
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/browser";
 import type { OrderStatus } from "@/types/order";
@@ -33,7 +41,7 @@ type DbOrder = {
 function formatTime(date: string) {
   return new Intl.DateTimeFormat("en-SE", {
     hour: "2-digit",
-    minute: "2-digit",
+    minute: "2-digit"
   }).format(new Date(date));
 }
 
@@ -42,12 +50,71 @@ function minutesAgo(date: string) {
   return Math.max(0, Math.floor(diff / 60000));
 }
 
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("sv-SE", {
+    style: "currency",
+    currency: "SEK",
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
+function formatOrderNumber(order: DbOrder) {
+  if (order.order_number) return order.order_number;
+
+  const cleanId = order.id.replace(/-/g, "").toUpperCase();
+  return `MF-${cleanId.slice(-7)}`;
+}
+
+function getPaymentClass(paymentStatus: DbOrder["payment_status"]) {
+  switch (paymentStatus) {
+    case "paid":
+      return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700";
+    case "awaiting_payment":
+      return "border-[#F6A21A]/25 bg-[#F6A21A]/15 text-[#A96800]";
+    case "failed":
+    case "refunded":
+      return "border-[#E51B23]/15 bg-[#E51B23]/8 text-[#C7192E]";
+    default:
+      return "border-[#EADDCF] bg-[#FFF3E2] text-[#7B6A61]";
+  }
+}
+
+function getColumnStyle(status: OrderStatus) {
+  switch (status) {
+    case "new":
+      return {
+        icon: Clock,
+        iconClass: "border-[#F6A21A]/25 bg-[#F6A21A]/15 text-[#A96800]",
+        badgeClass: "border-[#F6A21A]/25 bg-[#F6A21A]/15 text-[#A96800]"
+      };
+    case "preparing":
+      return {
+        icon: ChefHat,
+        iconClass: "border-[#E51B23]/15 bg-[#E51B23]/8 text-[#C7192E]",
+        badgeClass: "border-[#FF9F40]/25 bg-[#FF9F40]/15 text-[#B45309]"
+      };
+    case "ready":
+      return {
+        icon: PackageCheck,
+        iconClass: "border-emerald-500/20 bg-emerald-500/10 text-emerald-700",
+        badgeClass: "border-emerald-500/20 bg-emerald-500/10 text-emerald-700"
+      };
+    default:
+      return {
+        icon: ChefHat,
+        iconClass: "border-[#EADDCF] bg-[#FFF3E2] text-[#7B6A61]",
+        badgeClass: "border-[#EADDCF] bg-[#FFF3E2] text-[#7B6A61]"
+      };
+  }
+}
+
 export function KitchenBoard() {
   const t = useTranslations("admin.kitchen");
   const supabase = useMemo(() => createClient(), []);
 
   const [orders, setOrders] = useState<DbOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const statusLabels: Record<OrderStatus, string> = {
@@ -55,7 +122,7 @@ export function KitchenBoard() {
     preparing: t("statuses.preparing"),
     ready: t("statuses.ready"),
     completed: t("statuses.completed"),
-    cancelled: t("statuses.cancelled"),
+    cancelled: t("statuses.cancelled")
   };
 
   const statusColumns: Array<{
@@ -66,21 +133,23 @@ export function KitchenBoard() {
     {
       status: "new",
       title: t("columns.newTitle"),
-      description: t("columns.newDescription"),
+      description: t("columns.newDescription")
     },
     {
       status: "preparing",
       title: t("columns.preparingTitle"),
-      description: t("columns.preparingDescription"),
+      description: t("columns.preparingDescription")
     },
     {
       status: "ready",
       title: t("columns.readyTitle"),
-      description: t("columns.readyDescription"),
-    },
+      description: t("columns.readyDescription")
+    }
   ];
 
-  async function fetchOrders() {
+  async function fetchOrders(options?: { silent?: boolean }) {
+    if (!options?.silent) setIsRefreshing(true);
+
     const { data, error } = await supabase
         .from("orders")
         .select(
@@ -91,19 +160,21 @@ export function KitchenBoard() {
     if (error) {
       setErrorMessage(error.message);
       setIsLoading(false);
+      setIsRefreshing(false);
       return;
     }
 
     setOrders((data || []) as DbOrder[]);
     setErrorMessage("");
     setIsLoading(false);
+    setIsRefreshing(false);
   }
 
   useEffect(() => {
-    fetchOrders();
+    fetchOrders({ silent: true });
 
     const interval = window.setInterval(() => {
-      fetchOrders();
+      fetchOrders({ silent: true });
     }, 3000);
 
     return () => {
@@ -124,7 +195,8 @@ export function KitchenBoard() {
               })
               .sort(
                   (a, b) =>
-                      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                      new Date(a.created_at).getTime() -
+                      new Date(b.created_at).getTime()
               ),
       [orders]
   );
@@ -134,7 +206,7 @@ export function KitchenBoard() {
         .from("orders")
         .update({
           status,
-          updated_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         })
         .eq("id", orderId);
 
@@ -143,7 +215,7 @@ export function KitchenBoard() {
       return;
     }
 
-    await fetchOrders();
+    await fetchOrders({ silent: true });
   }
 
   async function deleteOrder(orderId: string) {
@@ -151,7 +223,7 @@ export function KitchenBoard() {
         .from("orders")
         .update({
           status: "cancelled",
-          updated_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         })
         .eq("id", orderId);
 
@@ -160,71 +232,169 @@ export function KitchenBoard() {
       return;
     }
 
-    await fetchOrders();
+    await fetchOrders({ silent: true });
   }
 
   const newOrdersCount = activeOrders.filter(
       (order) => order.status === "new"
   ).length;
 
+  const preparingOrdersCount = activeOrders.filter(
+      (order) => order.status === "preparing"
+  ).length;
+
+  const readyOrdersCount = activeOrders.filter(
+      (order) => order.status === "ready"
+  ).length;
+
+  const activeRevenue = activeOrders.reduce(
+      (sum, order) => sum + Number(order.total_price || 0),
+      0
+  );
+
   if (isLoading) {
     return (
-        <div className="glass-card p-10 text-center">
-          <p className="font-black text-dark">Loading kitchen orders...</p>
+        <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-10 text-center shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
+            <ChefHat className="h-7 w-7 animate-pulse text-[#C7192E]" />
+          </div>
+          <p className="mt-5 text-sm font-black text-[#25120F]">
+            Loading kitchen orders...
+          </p>
         </div>
     );
   }
 
   return (
-      <div>
-        <div className="mb-8 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-          <div>
-            <p className="font-black uppercase tracking-[0.25em] text-paprika">
-              {t("display")}
-            </p>
+      <div className="space-y-6">
+        <section className="relative overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:p-6">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
 
-            <h1 className="mt-3 text-4xl font-black tracking-tight text-dark sm:text-6xl">
-              {t("title")}
-            </h1>
-
-            <p className="mt-4 max-w-2xl text-lg leading-8 text-dark/60">
-              {t("subtitle")}
-            </p>
-          </div>
-
-          <div className="glass-card flex items-center gap-4 px-5 py-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-paprika text-white">
-              <ChefHat size={24} />
-            </div>
-
+          <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-dark/45">
-                {t("newNow")}
-              </p>
-              <p className="text-2xl font-black text-paprika">
-                {newOrdersCount}
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
+                <ChefHat className="h-3.5 w-3.5" />
+                {t("display")}
+              </div>
+
+              <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
+                {t("title")}
+              </h1>
+
+              <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
+                {t("subtitle")}
               </p>
             </div>
-          </div>
-        </div>
 
-        {errorMessage && (
-            <div className="mb-6 rounded-3xl bg-paprika/10 p-4 text-sm font-bold text-paprika">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
+                  {t("newNow")}
+                </p>
+                <p className="mt-1 text-2xl font-black text-[#C7192E]">
+                  {newOrdersCount}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
+                  Preparing
+                </p>
+                <p className="mt-1 text-2xl font-black text-[#B45309]">
+                  {preparingOrdersCount}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
+                  Ready
+                </p>
+                <p className="mt-1 text-2xl font-black text-emerald-700">
+                  {readyOrdersCount}
+                </p>
+              </div>
+
+              <button
+                  type="button"
+                  onClick={() => fetchOrders()}
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-4 py-3 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E]"
+              >
+                <RefreshCw
+                    className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+                />
+                Refresh
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {errorMessage ? (
+            <div className="rounded-[1.5rem] border border-[#E51B23]/15 bg-[#E51B23]/8 p-4 text-sm font-bold text-[#C7192E]">
               {errorMessage}
             </div>
-        )}
+        ) : null}
+
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+            <p className="text-sm font-black text-[#8A7A70]">Active orders</p>
+            <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
+              {activeOrders.length}
+            </h3>
+            <p className="mt-3 text-xs font-medium text-[#7B6A61]">
+              Orders currently in kitchen flow
+            </p>
+          </div>
+
+          <div className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+            <p className="text-sm font-black text-[#8A7A70]">Active revenue</p>
+            <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
+              {formatCurrency(activeRevenue)}
+            </h3>
+            <p className="mt-3 text-xs font-medium text-[#7B6A61]">
+              Value of current active orders
+            </p>
+          </div>
+
+          <div className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+            <p className="text-sm font-black text-[#8A7A70]">Delivery orders</p>
+            <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
+              {
+                activeOrders.filter((order) => order.delivery_type === "delivery")
+                    .length
+              }
+            </h3>
+            <p className="mt-3 text-xs font-medium text-[#7B6A61]">
+              Delivery flow only
+            </p>
+          </div>
+
+          <div className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+            <p className="text-sm font-black text-[#8A7A70]">Pickup orders</p>
+            <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
+              {
+                activeOrders.filter((order) => order.delivery_type === "pickup")
+                    .length
+              }
+            </h3>
+            <p className="mt-3 text-xs font-medium text-[#7B6A61]">
+              Pickup flow only
+            </p>
+          </div>
+        </section>
 
         {activeOrders.length === 0 ? (
-            <div className="glass-card p-10 text-center">
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-paprika/10 text-4xl">
+            <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-10 text-center shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 text-4xl">
                 👨‍🍳
               </div>
 
-              <h2 className="mt-6 text-2xl font-black text-dark">
+              <h2 className="mt-6 text-2xl font-black text-[#25120F]">
                 {t("noActiveOrders")}
               </h2>
 
-              <p className="mt-3 text-dark/55">{t("emptyText")}</p>
+              <p className="mt-3 text-sm font-medium text-[#7B6A61]">
+                {t("emptyText")}
+              </p>
             </div>
         ) : (
             <div className="grid gap-5 xl:grid-cols-3">
@@ -233,54 +403,80 @@ export function KitchenBoard() {
                     (order) => order.status === column.status
                 );
 
+                const style = getColumnStyle(column.status);
+                const ColumnIcon = style.icon;
+
                 return (
-                    <section key={column.status} className="glass-card p-4">
-                      <div className="mb-4 rounded-[1.4rem] bg-white/65 p-4">
-                        <h2 className="text-xl font-black text-dark">
-                          {column.title}
-                        </h2>
-                        <p className="mt-1 text-sm text-dark/55">
-                          {column.description}
-                        </p>
+                    <section
+                        key={column.status}
+                        className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl"
+                    >
+                      <div className="mb-4 rounded-[1.5rem] border border-[#EADDCF] bg-white/70 p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
+                              {column.title}
+                            </h2>
+                            <p className="mt-1 text-sm font-medium text-[#7B6A61]">
+                              {column.description}
+                            </p>
+                          </div>
+
+                          <div
+                              className={`flex h-11 w-11 items-center justify-center rounded-2xl border ${style.iconClass}`}
+                          >
+                            <ColumnIcon className="h-5 w-5" />
+                          </div>
+                        </div>
+
+                        <div className="mt-4 inline-flex rounded-full border border-[#EADDCF] bg-[#FFF7EA] px-3 py-1 text-xs font-black text-[#7B6A61]">
+                          {columnOrders.length} orders
+                        </div>
                       </div>
 
                       <div className="space-y-4">
                         {columnOrders.length === 0 ? (
-                            <div className="rounded-[1.4rem] border border-dashed border-dark/10 p-5 text-center text-sm font-bold text-dark/35">
+                            <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/50 p-5 text-center text-sm font-bold text-[#A39388]">
                               {t("empty")}
                             </div>
                         ) : (
                             columnOrders.map((order) => (
                                 <article
                                     key={order.id}
-                                    className="rounded-[1.6rem] border border-white/70 bg-white/80 p-4 shadow-sm"
+                                    className="rounded-[1.6rem] border border-[#EADDCF] bg-white/75 p-4 shadow-sm shadow-[#4C2314]/5 transition hover:bg-[#FFF3E2]"
                                 >
                                   <div className="flex items-start justify-between gap-3">
                                     <div>
-                                      <p className="text-xs font-black uppercase tracking-[0.18em] text-paprika">
-                                        #{order.order_number || order.id.slice(-5)}
+                                      <p className="text-xs font-black uppercase tracking-[0.18em] text-[#C7192E]">
+                                        #{formatOrderNumber(order)}
                                       </p>
 
-                                      <h3 className="mt-1 text-xl font-black text-dark">
+                                      <h3 className="mt-1 text-xl font-black tracking-[-0.03em] text-[#25120F]">
                                         {order.customer_name}
                                       </h3>
                                     </div>
 
-                                    <div className="rounded-full bg-dark px-3 py-1 text-xs font-black text-white">
+                                    <div
+                                        className={`rounded-full border px-3 py-1 text-xs font-black ${style.badgeClass}`}
+                                    >
                                       {statusLabels[order.status]}
                                     </div>
                                   </div>
 
                                   <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
-                          <span className="rounded-full bg-paprika/10 px-3 py-1 text-paprika">
+                          <span className="rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-[#C7192E]">
                             {order.delivery_type}
                           </span>
 
-                                    <span className="rounded-full bg-green-100 px-3 py-1 text-green-700">
+                                    <span
+                                        className={`rounded-full border px-3 py-1 ${getPaymentClass(
+                                            order.payment_status
+                                        )}`}
+                                    >
                             {order.payment_method} · {order.payment_status}
                           </span>
 
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-dark/5 px-3 py-1 text-dark/60">
+                                    <span className="inline-flex items-center gap-1 rounded-full border border-[#EADDCF] bg-[#FFF3E2] px-3 py-1 text-[#7B6A61]">
                             <Clock size={13} />
                                       {formatTime(order.created_at)} ·{" "}
                                       {minutesAgo(order.created_at)} {t("min")}
@@ -291,83 +487,98 @@ export function KitchenBoard() {
                                     {(order.items || []).map((item) => (
                                         <div
                                             key={item.id}
-                                            className="flex justify-between gap-3 rounded-2xl bg-cream/70 px-3 py-2"
+                                            className="flex justify-between gap-3 rounded-2xl border border-[#EADDCF] bg-[#FFF7EA]/85 px-3 py-2"
                                         >
                                           <div>
-                                            <p className="font-black text-dark">
+                                            <p className="font-black text-[#25120F]">
                                               {item.name}
                                             </p>
 
-                                            {item.subtitle && (
-                                                <p className="text-xs text-dark/45">
+                                            {item.subtitle ? (
+                                                <p className="text-xs font-medium text-[#7B6A61]">
                                                   {item.subtitle}
                                                 </p>
-                                            )}
+                                            ) : null}
                                           </div>
 
-                                          <p className="text-lg font-black text-paprika">
+                                          <p className="text-lg font-black text-[#C7192E]">
                                             x{item.quantity}
                                           </p>
                                         </div>
                                     ))}
                                   </div>
 
-                                  {order.comment && (
-                                      <div className="mt-4 rounded-2xl bg-honey/15 p-3">
-                                        <p className="text-xs font-black uppercase tracking-[0.15em] text-dark/40">
+                                  {order.comment ? (
+                                      <div className="mt-4 rounded-2xl border border-[#F6A21A]/20 bg-[#F6A21A]/12 p-3">
+                                        <p className="text-xs font-black uppercase tracking-[0.15em] text-[#A96800]">
                                           {t("comment")}
                                         </p>
-                                        <p className="mt-1 text-sm font-bold text-dark">
+                                        <p className="mt-1 text-sm font-bold text-[#25120F]">
                                           {order.comment}
                                         </p>
                                       </div>
-                                  )}
+                                  ) : null}
 
-                                  <div className="mt-4 text-sm text-dark/55">
-                                    <p className="font-bold">{order.customer_phone}</p>
-                                    <p>{order.address}</p>
+                                  <div className="mt-4 rounded-2xl border border-[#EADDCF] bg-white/70 p-3 text-sm text-[#7B6A61]">
+                                    <p className="font-black text-[#25120F]">
+                                      {order.customer_phone}
+                                    </p>
+                                    <p className="mt-1 font-medium">
+                                      {order.delivery_type === "delivery"
+                                          ? order.address
+                                          : "Pickup order"}
+                                    </p>
+                                  </div>
+
+                                  <div className="mt-4 flex items-center justify-between border-t border-[#EADDCF] pt-4">
+                                    <p className="text-sm font-black text-[#25120F]">
+                                      Total
+                                    </p>
+                                    <p className="text-xl font-black text-[#C7192E]">
+                                      {formatCurrency(order.total_price)}
+                                    </p>
                                   </div>
 
                                   <div className="mt-5 grid gap-2">
-                                    {order.status === "new" && (
+                                    {order.status === "new" ? (
                                         <button
                                             type="button"
                                             onClick={() =>
                                                 updateStatus(order.id, "preparing")
                                             }
-                                            className="rounded-2xl bg-paprika px-4 py-3 text-sm font-black text-white transition hover:bg-cherry"
+                                            className="rounded-2xl bg-[#E51B23] px-4 py-3 text-sm font-black text-white shadow-lg shadow-[#E51B23]/15 transition hover:bg-[#C7192E]"
                                         >
                                           {t("startPreparing")}
                                         </button>
-                                    )}
+                                    ) : null}
 
-                                    {order.status === "preparing" && (
+                                    {order.status === "preparing" ? (
                                         <button
                                             type="button"
                                             onClick={() => updateStatus(order.id, "ready")}
-                                            className="rounded-2xl bg-dark px-4 py-3 text-sm font-black text-white transition hover:opacity-90"
+                                            className="rounded-2xl bg-[#2A1712] px-4 py-3 text-sm font-black text-white transition hover:opacity-90"
                                         >
                                           {t("markReady")}
                                         </button>
-                                    )}
+                                    ) : null}
 
-                                    {order.status === "ready" && (
+                                    {order.status === "ready" ? (
                                         <button
                                             type="button"
                                             onClick={() =>
                                                 updateStatus(order.id, "completed")
                                             }
-                                            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-honey px-4 py-3 text-sm font-black text-dark transition hover:opacity-90"
+                                            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-black text-white transition hover:bg-emerald-700"
                                         >
                                           <CheckCircle2 size={18} />
                                           {t("completeOrder")}
                                         </button>
-                                    )}
+                                    ) : null}
 
                                     <button
                                         type="button"
                                         onClick={() => deleteOrder(order.id)}
-                                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-dark/5 px-4 py-3 text-sm font-black text-dark/55 transition hover:bg-paprika/10 hover:text-paprika"
+                                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3 text-sm font-black text-[#7B6A61] transition hover:border-[#E51B23]/20 hover:bg-[#E51B23]/8 hover:text-[#C7192E]"
                                     >
                                       <Trash2 size={16} />
                                       {t("remove")}

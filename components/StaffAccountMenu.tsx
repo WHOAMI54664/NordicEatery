@@ -3,24 +3,17 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  BarChart3,
-  Boxes,
   ChevronDown,
-  ChefHat,
+  LayoutDashboard,
   LogOut,
-  Package,
   Shield,
-  Users,
+  UserCog
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import {
   canAccessKitchen,
-  canManageProducts,
-  canManageInventory,
-  canViewAnalytics,
-  canManageStaff,
-  type StaffRole,
+  type StaffRole
 } from "@/lib/auth/roles";
 
 type StaffProfile = {
@@ -48,7 +41,7 @@ export function StaffAccountMenu() {
 
     async function loadProfile() {
       const {
-        data: { user },
+        data: { user }
       } = await supabase.auth.getUser();
 
       if (!user) {
@@ -57,17 +50,17 @@ export function StaffAccountMenu() {
       }
 
       const { data } = await supabase
-        .from("profiles")
-        .select("role, email")
-        .eq("id", user.id)
-        .single();
+          .from("profiles")
+          .select("role, email")
+          .eq("id", user.id)
+          .single();
 
       if (!isMounted) return;
 
       if (data?.role) {
         setProfile({
           role: data.role as StaffRole,
-          email: data.email || user.email || "Staff",
+          email: data.email || user.email || "Staff"
         });
       }
     }
@@ -75,7 +68,7 @@ export function StaffAccountMenu() {
     loadProfile();
 
     const {
-      data: { subscription },
+      data: { subscription }
     } = supabase.auth.onAuthStateChange(() => {
       loadProfile();
     });
@@ -107,118 +100,81 @@ export function StaffAccountMenu() {
 
   async function signOut() {
     await supabase.auth.signOut();
+
     setIsOpen(false);
-    router.push(`/${locale}`);
+    router.push(`/${locale}/login`);
     router.refresh();
   }
 
   if (!profile || !canAccessKitchen(profile.role)) return null;
 
   return (
-    <div ref={menuRef} className="relative">
-      <button
-        type="button"
-        onClick={() => setIsOpen((current) => !current)}
-        className="inline-flex items-center gap-2 rounded-full border border-dark/10 bg-white/75 px-4 py-2.5 text-sm font-black text-dark shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
-      >
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-dark text-white">
+      <div ref={menuRef} className="relative">
+        <button
+            type="button"
+            onClick={() => setIsOpen((current) => !current)}
+            className="inline-flex items-center gap-2 rounded-full border border-[#EADDCF] bg-white/80 px-4 py-2.5 text-sm font-black text-[#25120F] shadow-sm shadow-[#4C2314]/5 transition hover:-translate-y-0.5 hover:bg-white"
+        >
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#2A1712] text-white">
           <Shield size={15} />
         </span>
-        <span className="hidden sm:inline">Staff Area</span>
-        <ChevronDown
-          size={16}
-          className={`transition ${isOpen ? "rotate-180" : ""}`}
-        />
-      </button>
 
-      {isOpen && (
-        <div className="absolute right-0 top-full z-50 mt-3 w-72 overflow-hidden rounded-[1.5rem] border border-white/70 bg-white/90 p-2 shadow-soft backdrop-blur-2xl">
-          <div className="border-b border-dark/10 px-4 py-3">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-paprika">
-              {profile.role}
-            </p>
-            <p className="mt-1 truncate text-sm font-bold text-dark/60">
-              {profile.email}
-            </p>
-          </div>
+          <span className="hidden sm:inline">Staff Area</span>
 
-          <div className="py-2">
-            <Link
-              href={localePath("/admin/kitchen")}
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black text-dark transition hover:bg-cream"
-            >
-              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-paprika/10 text-paprika">
-                <ChefHat size={18} />
+          <ChevronDown
+              size={16}
+              className={`transition ${isOpen ? "rotate-180" : ""}`}
+          />
+        </button>
+
+        {isOpen ? (
+            <div className="absolute right-0 top-full z-50 mt-3 w-[320px] overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/95 p-4 shadow-2xl shadow-[#4C2314]/15 backdrop-blur-2xl">
+              <div className="border-b border-[#EADDCF] pb-4">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-[#C7192E]">
+                  {profile.role}
+                </p>
+
+                <p className="mt-1 truncate text-sm font-black text-[#25120F]">
+                  {profile.email}
+                </p>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                <Link
+                    href={localePath("/admin")}
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-[#25120F] transition hover:bg-[#E51B23]/8 hover:text-[#C7192E]"
+                >
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
+                <LayoutDashboard className="h-4 w-4 text-[#C7192E]" />
               </span>
-              Kitchen board
-            </Link>
+                  Dashboard
+                </Link>
 
-            {canManageProducts(profile.role) && (
-              <Link
-                href={localePath("/admin/products")}
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black text-dark transition hover:bg-cream"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-paprika/10 text-paprika">
-                  <Package size={18} />
-                </span>
-                Products
-              </Link>
-            )}
+                <Link
+                    href={localePath("/admin/account")}
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-black text-[#25120F] transition hover:bg-[#E51B23]/8 hover:text-[#C7192E]"
+                >
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#EADDCF] bg-white">
+                <UserCog className="h-4 w-4 text-[#7B6A61]" />
+              </span>
+                  Account settings
+                </Link>
 
-            {canManageInventory(profile.role) && (
-              <Link
-                href={localePath("/admin/inventory")}
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black text-dark transition hover:bg-cream"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-paprika/10 text-paprika">
-                  <Boxes size={18} />
-                </span>
-                Inventory
-              </Link>
-            )}
-
-            {canViewAnalytics(profile.role) && (
-              <Link
-                href={localePath("/admin/analytics")}
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black text-dark transition hover:bg-cream"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-paprika/10 text-paprika">
-                  <BarChart3 size={18} />
-                </span>
-                Analytics
-              </Link>
-            )}
-
-            {canManageStaff(profile.role) && (
-              <Link
-                href={localePath("/admin/staff")}
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black text-dark transition hover:bg-cream"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-honey/20 text-dark">
-                  <Users size={18} />
-                </span>
-                Staff management
-              </Link>
-            )}
-          </div>
-
-          <button
-            type="button"
-            onClick={signOut}
-            className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black text-dark/60 transition hover:bg-paprika/10 hover:text-paprika"
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-dark/5">
-              <LogOut size={18} />
-            </span>
-            Sign out
-          </button>
-        </div>
-      )}
-    </div>
+                <button
+                    type="button"
+                    onClick={signOut}
+                    className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-black text-[#7B6A61] transition hover:bg-[#E51B23]/8 hover:text-[#C7192E]"
+                >
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#EADDCF] bg-white">
+                <LogOut className="h-4 w-4" />
+              </span>
+                  Sign out
+                </button>
+              </div>
+            </div>
+        ) : null}
+      </div>
   );
 }

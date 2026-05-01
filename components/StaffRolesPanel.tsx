@@ -1,6 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import {
+  Mail,
+  Plus,
+  RefreshCw,
+  ShieldCheck,
+  Trash2,
+  UserRound,
+  UsersRound,
+  X
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/browser";
 import { STAFF_ROLES, type StaffRole } from "@/lib/auth/roles";
 
@@ -11,6 +21,26 @@ type StaffProfile = {
   role: StaffRole;
   created_at: string;
 };
+
+function getRoleClass(role: StaffRole) {
+  switch (role) {
+    case "owner":
+      return "border-[#E51B23]/15 bg-[#E51B23]/8 text-[#C7192E]";
+    case "admin":
+      return "border-[#F6A21A]/25 bg-[#F6A21A]/15 text-[#A96800]";
+    case "cook":
+      return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700";
+    default:
+      return "border-[#EADDCF] bg-[#FFF3E2] text-[#7B6A61]";
+  }
+}
+
+function formatDate(date: string) {
+  return new Intl.DateTimeFormat("sv-SE", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(new Date(date));
+}
 
 export function StaffRolesPanel() {
   const [profiles, setProfiles] = useState<StaffProfile[]>([]);
@@ -30,15 +60,15 @@ export function StaffRolesPanel() {
     setIsLoading(true);
 
     const {
-      data: { user },
+      data: { user }
     } = await supabase.auth.getUser();
 
     setCurrentUserId(user?.id || null);
 
     const { data, error } = await supabase
-      .from("profiles")
-      .select("id, email, full_name, role, created_at")
-      .order("created_at", { ascending: false });
+        .from("profiles")
+        .select("id, email, full_name, role, created_at")
+        .order("created_at", { ascending: false });
 
     if (error) {
       setErrorMessage(error.message);
@@ -55,10 +85,7 @@ export function StaffRolesPanel() {
     fetchProfiles();
   }, []);
 
-  async function callAdminApi(
-    url: string,
-    body: Record<string, string>
-  ) {
+  async function callAdminApi(url: string, body: Record<string, string>) {
     setIsWorking(true);
     setErrorMessage("");
     setSuccessMessage("");
@@ -66,9 +93,9 @@ export function StaffRolesPanel() {
     const response = await fetch(url, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(body)
     });
 
     const data = await response.json();
@@ -90,7 +117,7 @@ export function StaffRolesPanel() {
 
     const ok = await callAdminApi("/api/admin/staff/invite", {
       email,
-      role: inviteRole,
+      role: inviteRole
     });
 
     if (!ok) return;
@@ -106,7 +133,7 @@ export function StaffRolesPanel() {
   async function updateRole(profileId: string, role: StaffRole) {
     const ok = await callAdminApi("/api/admin/staff/update-role", {
       profileId,
-      role,
+      role
     });
 
     if (!ok) return;
@@ -117,7 +144,7 @@ export function StaffRolesPanel() {
 
   async function resetPassword(email: string) {
     const ok = await callAdminApi("/api/admin/staff/reset-password", {
-      email,
+      email
     });
 
     if (!ok) return;
@@ -127,13 +154,13 @@ export function StaffRolesPanel() {
 
   async function deleteUser(profileId: string) {
     const confirmed = window.confirm(
-      "Delete this user? This action cannot be undone."
+        "Delete this user? This action cannot be undone."
     );
 
     if (!confirmed) return;
 
     const ok = await callAdminApi("/api/admin/staff/delete", {
-      profileId,
+      profileId
     });
 
     if (!ok) return;
@@ -142,164 +169,288 @@ export function StaffRolesPanel() {
     await fetchProfiles();
   }
 
+  const ownersCount = profiles.filter((profile) => profile.role === "owner").length;
+  const adminsCount = profiles.filter((profile) => profile.role === "admin").length;
+  const cooksCount = profiles.filter((profile) => profile.role === "cook").length;
+
   if (isLoading) {
     return (
-      <div className="glass-card p-8 text-center">
-        <p className="font-black text-dark">Loading staff...</p>
-      </div>
+        <div className="rounded-[1.75rem] border border-[#EADDCF] bg-white/70 p-8 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
+            <UsersRound className="h-6 w-6 animate-pulse text-[#C7192E]" />
+          </div>
+          <p className="mt-4 text-sm font-black text-[#25120F]">
+            Loading staff...
+          </p>
+        </div>
     );
   }
 
   return (
-    <div>
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-2xl font-black text-dark">Staff members</h2>
-          <p className="mt-1 text-sm text-dark/50">
-            Invite staff, update roles, reset passwords and delete users.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="btn-primary"
-        >
-          Add staff member
-        </button>
-      </div>
-
-      {errorMessage && (
-        <div className="mb-6 rounded-3xl bg-paprika/10 p-4 text-sm font-bold text-paprika">
-          {errorMessage}
-        </div>
-      )}
-
-      {successMessage && (
-        <div className="mb-6 rounded-3xl bg-green-100 p-4 text-sm font-bold text-green-700">
-          {successMessage}
-        </div>
-      )}
-
-      <div className="grid gap-4">
-        {profiles.map((profile) => (
-          <div
-            key={profile.id}
-            className="glass-card flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between"
-          >
-            <div>
-              <p className="text-lg font-black text-dark">{profile.email}</p>
-              <p className="mt-1 text-sm text-dark/50">
-                {profile.full_name || "No name"}{" "}
-                {profile.id === currentUserId ? "· You" : ""}
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <select
-                className="input-field min-w-40 font-black capitalize"
-                value={profile.role}
-                disabled={isWorking}
-                onChange={(event) =>
-                  updateRole(profile.id, event.target.value as StaffRole)
-                }
-              >
-                {STAFF_ROLES.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
-                  </option>
-                ))}
-              </select>
-
-              <button
-                type="button"
-                disabled={isWorking}
-                onClick={() => resetPassword(profile.email)}
-                className="btn-secondary whitespace-nowrap disabled:opacity-60"
-              >
-                Reset password
-              </button>
-
-              <button
-                type="button"
-                disabled={isWorking || profile.id === currentUserId}
-                onClick={() => deleteUser(profile.id)}
-                className="rounded-full bg-paprika px-5 py-3 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Delete
-              </button>
-            </div>
+      <div className="space-y-6">
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-[1.75rem] border border-[#EADDCF] bg-white/70 p-5 shadow-sm shadow-[#4C2314]/5">
+            <p className="text-sm font-black text-[#8A7A70]">Total staff</p>
+            <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
+              {profiles.length}
+            </h3>
           </div>
-        ))}
-      </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-dark/40 px-4 backdrop-blur-sm">
-          <div className="glass-card w-full max-w-md p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-2xl font-black text-dark">
-                  Add staff member
-                </h3>
-                <p className="mt-1 text-sm text-dark/50">
-                  The user will receive an invite link by email.
-                </p>
-              </div>
+          <div className="rounded-[1.75rem] border border-[#EADDCF] bg-white/70 p-5 shadow-sm shadow-[#4C2314]/5">
+            <p className="text-sm font-black text-[#8A7A70]">Owners</p>
+            <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#C7192E]">
+              {ownersCount}
+            </h3>
+          </div>
 
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="rounded-full bg-white px-3 py-2 text-sm font-black text-dark shadow-sm"
-              >
-                ✕
-              </button>
+          <div className="rounded-[1.75rem] border border-[#EADDCF] bg-white/70 p-5 shadow-sm shadow-[#4C2314]/5">
+            <p className="text-sm font-black text-[#8A7A70]">Admins</p>
+            <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#A96800]">
+              {adminsCount}
+            </h3>
+          </div>
+
+          <div className="rounded-[1.75rem] border border-[#EADDCF] bg-white/70 p-5 shadow-sm shadow-[#4C2314]/5">
+            <p className="text-sm font-black text-[#8A7A70]">Cooks</p>
+            <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-emerald-700">
+              {cooksCount}
+            </h3>
+          </div>
+        </section>
+
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-2xl font-black tracking-[-0.04em] text-[#25120F]">
+              Staff members
+            </h2>
+            <p className="mt-1 text-sm font-medium text-[#7B6A61]">
+              Invite staff, update roles, reset passwords and delete users.
+            </p>
+          </div>
+
+          <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-5 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E]"
+          >
+            <Plus className="h-4 w-4" />
+            Add staff member
+          </button>
+        </div>
+
+        {errorMessage ? (
+            <div className="rounded-[1.5rem] border border-[#E51B23]/15 bg-[#E51B23]/8 p-4 text-sm font-bold text-[#C7192E]">
+              {errorMessage}
             </div>
+        ) : null}
 
-            <form onSubmit={inviteStaff} className="mt-6 space-y-4">
-              <label>
-                <span className="mb-2 block text-sm font-bold text-dark">
+        {successMessage ? (
+            <div className="rounded-[1.5rem] border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm font-bold text-emerald-700">
+              {successMessage}
+            </div>
+        ) : null}
+
+        <section className="overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-white/60 shadow-sm shadow-[#4C2314]/5">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[980px] border-separate border-spacing-y-2 px-5 py-3 text-left">
+              <thead>
+              <tr className="text-xs uppercase tracking-[0.16em] text-[#A39388]">
+                <th className="px-4 py-2 font-black">Member</th>
+                <th className="px-4 py-2 font-black">Role</th>
+                <th className="px-4 py-2 font-black">Created</th>
+                <th className="px-4 py-2 text-right font-black">Actions</th>
+              </tr>
+              </thead>
+
+              <tbody>
+              {profiles.map((profile) => (
+                  <tr key={profile.id} className="group">
+                    <td className="rounded-l-2xl border-y border-l border-[#EADDCF] bg-white/80 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
+                          <UserRound className="h-5 w-5 text-[#C7192E]" />
+                        </div>
+
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-black text-[#25120F]">
+                              {profile.email}
+                            </p>
+
+                            {profile.id === currentUserId ? (
+                                <span className="rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-2.5 py-1 text-[11px] font-black text-[#C7192E]">
+                              You
+                            </span>
+                            ) : null}
+                          </div>
+
+                          <p className="mt-1 text-xs font-medium text-[#7B6A61]">
+                            {profile.full_name || "No name"}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="border-y border-[#EADDCF] bg-white/80 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                      <div className="flex items-center gap-3">
+                      <span
+                          className={`rounded-full border px-3 py-1 text-xs font-black capitalize ${getRoleClass(
+                              profile.role
+                          )}`}
+                      >
+                        {profile.role}
+                      </span>
+
+                        <select
+                            className="h-10 min-w-36 rounded-2xl border border-[#EADDCF] bg-white px-3 text-sm font-black capitalize text-[#25120F] outline-none transition focus:border-[#E51B23]/25 focus:ring-4 focus:ring-[#E51B23]/8"
+                            value={profile.role}
+                            disabled={isWorking}
+                            onChange={(event) =>
+                                updateRole(profile.id, event.target.value as StaffRole)
+                            }
+                        >
+                          {STAFF_ROLES.map((role) => (
+                              <option key={role} value={role}>
+                                {role}
+                              </option>
+                          ))}
+                        </select>
+                      </div>
+                    </td>
+
+                    <td className="border-y border-[#EADDCF] bg-white/80 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                      <p className="text-sm font-bold text-[#25120F]">
+                        {formatDate(profile.created_at)}
+                      </p>
+                    </td>
+
+                    <td className="rounded-r-2xl border-y border-r border-[#EADDCF] bg-white/80 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                            type="button"
+                            disabled={isWorking}
+                            onClick={() => resetPassword(profile.email)}
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white px-4 text-xs font-black text-[#25120F] shadow-sm shadow-[#4C2314]/5 transition hover:border-[#E51B23]/20 hover:text-[#C7192E] disabled:opacity-60"
+                        >
+                          <Mail className="h-3.5 w-3.5" />
+                          Reset password
+                        </button>
+
+                        <button
+                            type="button"
+                            disabled={isWorking || profile.id === currentUserId}
+                            onClick={() => deleteUser(profile.id)}
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 px-4 text-xs font-black text-[#C7192E] transition hover:bg-[#E51B23]/12 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+              ))}
+              </tbody>
+            </table>
+
+            {profiles.length === 0 ? (
+                <div className="p-5">
+                  <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
+                    <UsersRound className="mx-auto h-10 w-10 text-[#C7192E]" />
+                    <p className="mt-4 text-sm font-black text-[#25120F]">
+                      No staff members found
+                    </p>
+                    <p className="mt-2 text-sm font-medium text-[#7B6A61]">
+                      Invite your first staff member to start managing roles.
+                    </p>
+                  </div>
+                </div>
+            ) : null}
+          </div>
+        </section>
+
+        {isModalOpen ? (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#25120F]/40 px-4 backdrop-blur-sm">
+              <div className="w-full max-w-md overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6] p-6 shadow-2xl shadow-[#4C2314]/20">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      Staff invite
+                    </div>
+
+                    <h3 className="mt-4 text-3xl font-black tracking-[-0.05em] text-[#25120F]">
+                      Add staff member
+                    </h3>
+
+                    <p className="mt-2 text-sm font-medium leading-6 text-[#7B6A61]">
+                      The user will receive an invite link by email.
+                    </p>
+                  </div>
+
+                  <button
+                      type="button"
+                      onClick={() => setIsModalOpen(false)}
+                      className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#EADDCF] bg-white text-[#25120F] transition hover:border-[#E51B23]/20 hover:text-[#C7192E]"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <form onSubmit={inviteStaff} className="mt-6 space-y-4">
+                  <label className="block">
+                <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
                   Email
                 </span>
-                <input
-                  required
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(event) => setInviteEmail(event.target.value)}
-                  className="input-field"
-                  placeholder="staff@email.com"
-                />
-              </label>
+                    <input
+                        required
+                        type="email"
+                        value={inviteEmail}
+                        onChange={(event) => setInviteEmail(event.target.value)}
+                        className="h-12 w-full rounded-2xl border border-[#EADDCF] bg-white/75 px-4 text-sm font-semibold text-[#25120F] outline-none shadow-inner shadow-[#4C2314]/5 transition placeholder:text-[#A39388] focus:border-[#E51B23]/25 focus:bg-white focus:ring-4 focus:ring-[#E51B23]/8"
+                        placeholder="staff@email.com"
+                    />
+                  </label>
 
-              <label>
-                <span className="mb-2 block text-sm font-bold text-dark">
+                  <label className="block">
+                <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
                   Role
                 </span>
-                <select
-                  value={inviteRole}
-                  onChange={(event) =>
-                    setInviteRole(event.target.value as StaffRole)
-                  }
-                  className="input-field capitalize"
-                >
-                  {STAFF_ROLES.map((role) => (
-                    <option key={role} value={role}>
-                      {role}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                    <select
+                        value={inviteRole}
+                        onChange={(event) =>
+                            setInviteRole(event.target.value as StaffRole)
+                        }
+                        className="h-12 w-full rounded-2xl border border-[#EADDCF] bg-white/75 px-4 text-sm font-black capitalize text-[#25120F] outline-none shadow-inner shadow-[#4C2314]/5 transition focus:border-[#E51B23]/25 focus:bg-white focus:ring-4 focus:ring-[#E51B23]/8"
+                    >
+                      {STAFF_ROLES.map((role) => (
+                          <option key={role} value={role}>
+                            {role}
+                          </option>
+                      ))}
+                    </select>
+                  </label>
 
-              <button
-                type="submit"
-                disabled={isWorking}
-                className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isWorking ? "Sending invite..." : "Send invite"}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+                  <button
+                      type="submit"
+                      disabled={isWorking}
+                      className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-5 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isWorking ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 animate-spin" />
+                          Sending invite...
+                        </>
+                    ) : (
+                        <>
+                          <Plus className="h-4 w-4" />
+                          Send invite
+                        </>
+                    )}
+                  </button>
+                </form>
+              </div>
+            </div>
+        ) : null}
+      </div>
   );
 }
