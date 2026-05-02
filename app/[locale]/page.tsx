@@ -36,8 +36,6 @@ export default async function HomePage({
         <section className="container-page pb-12 pt-14 sm:pb-20 sm:pt-20">
           <div className="grid items-center gap-8 lg:grid-cols-[0.95fr_1.05fr]">
             <div className="text-center sm:text-left">
-
-
               <h1 className="mx-auto mt-6 max-w-2xl text-5xl font-black leading-[0.95] tracking-[-0.06em] text-dark sm:mx-0 sm:text-6xl lg:text-7xl">
                 {t("titleLine1")}
                 <br />
@@ -73,11 +71,14 @@ export default async function HomePage({
                 <div className="absolute inset-x-8 top-1/2 h-24 -translate-y-1/2 rounded-full bg-white/20 blur-3xl sm:h-32" />
 
                 <Image
-                    src="/mikes_logo.PNG"
-                    alt="Mike"
-                    width={540}
-                    height={540}
+                    src="/mikes_logo.webp"
+                    alt="Nordic Eatery food delivery in Boden"
+                    width={520}
+                    height={520}
                     priority
+                    fetchPriority="high"
+                    quality={80}
+                    sizes="(max-width: 640px) 88vw, (max-width: 1024px) 50vw, 520px"
                     className="hero-image-in relative mx-auto h-auto w-[88%] max-w-[430px] object-contain drop-shadow-2xl sm:w-[82%] sm:max-w-[520px]"
                 />
               </div>
@@ -110,7 +111,7 @@ export default async function HomePage({
         </section>
 
         <section className="container-page pb-20 sm:pb-24">
-          <div className="text-center sm:text-left mb-8 flex flex-col justify-between gap-4 sm:mb-10 sm:flex-row sm:items-end">
+          <div className="mb-8 flex flex-col justify-between gap-4 text-center sm:mb-10 sm:flex-row sm:items-end sm:text-left">
             <div>
               <p className="font-black uppercase tracking-[0.25em] text-paprika">
                 {t("popular")}
@@ -119,10 +120,7 @@ export default async function HomePage({
               <h2 className="section-title mt-3">{t("bestSellers")}</h2>
             </div>
 
-            <Link
-                href={`/${locale}/menu`}
-                className="btn-secondary w-full sm:w-auto"
-            >
+            <Link href={`/${locale}/menu`} className="btn-secondary w-full sm:w-auto">
               {t("fullMenu")}
             </Link>
           </div>

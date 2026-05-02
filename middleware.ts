@@ -4,6 +4,8 @@ import { routing } from "./i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
 
+const supportedLocales = ["en", "sv", "pl", "ru"] as const;
+
 function getLocaleFromCountry(country: string | null) {
   if (country === "SE") return "sv";
   if (country === "PL") return "pl";
@@ -22,25 +24,39 @@ function getLocaleFromBrowser(request: NextRequest) {
   return "en";
 }
 
+function getPreferredLocale(request: NextRequest) {
+  const savedLocale = request.cookies.get("NEXT_LOCALE")?.value;
+
+  if (
+      savedLocale &&
+      supportedLocales.includes(savedLocale as (typeof supportedLocales)[number])
+  ) {
+    return savedLocale;
+  }
+
+  const country =
+      request.headers.get("x-vercel-ip-country") ||
+      request.headers.get("cf-ipcountry") ||
+      null;
+
+  const localeFromCountry = getLocaleFromCountry(country);
+
+  return localeFromCountry || getLocaleFromBrowser(request);
+}
+
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const hasLocale = /^\/(en|sv|pl|ru)(\/|$)/.test(pathname);
 
+  if (pathname === "/admin") {
+    const locale = getPreferredLocale(request);
+
+    return NextResponse.redirect(new URL(`/${locale}/admin`, request.url));
+  }
+
   if (!hasLocale && pathname === "/") {
-    const savedLocale = request.cookies.get("NEXT_LOCALE")?.value;
-
-    if (savedLocale && ["en", "sv", "pl", "ru"].includes(savedLocale)) {
-      return NextResponse.redirect(new URL(`/${savedLocale}`, request.url));
-    }
-
-    const country =
-      request.headers.get("x-vercel-ip-country") ||
-      request.headers.get("cf-ipcountry") ||
-      null;
-
-    const localeFromCountry = getLocaleFromCountry(country);
-    const locale = localeFromCountry || getLocaleFromBrowser(request);
+    const locale = getPreferredLocale(request);
 
     return NextResponse.redirect(new URL(`/${locale}`, request.url));
   }
@@ -49,5 +65,5 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/(en|sv|pl|ru)/:path*"],
+  matcher: ["/", "/admin", "/(en|sv|pl|ru)/:path*"],
 };
