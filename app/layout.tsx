@@ -36,6 +36,9 @@ export const metadata: Metadata = {
         title: "Food delivery in Boden | Nordic Eatery",
         description:
             "Order fresh Polish comfort food, burgers, fries and street food in Boden.",
+        icons: {
+            icon:"/favicon_192x192.ico"
+        }
     },
     robots: {
         index: true,
