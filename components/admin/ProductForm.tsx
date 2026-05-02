@@ -415,13 +415,25 @@ export function ProductForm({
                   />
                 </div>
             ) : (
-                <div className="flex h-72 w-full flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 text-center">
+                <div className="flex h-72 w-full flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 px-5 text-center">
                   <ImagePlus className="h-9 w-9 text-[#C7192E]" />
+
                   <p className="mt-3 text-sm font-black text-[#25120F]">
                     No image selected
                   </p>
-                  <p className="mt-1 max-w-56 text-xs font-medium leading-5 text-[#7B6A61]">
-                    PNG, JPG or WEBP works best for product photos.
+
+                  <p className="mt-2 max-w-72 text-xs font-bold leading-5 text-[#7B6A61]">
+                    JPG or WEBP recommended.
+                    <br />
+                    Size: 800×800 px or 900×700 px.
+                    <br />
+                    Best weight: 100–300 KB.
+                    <br />
+                    Max file size: 500 KB.
+                  </p>
+
+                  <p className="mt-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#C7192E]">
+                    Avoid heavy PNG files
                   </p>
                 </div>
             )}
