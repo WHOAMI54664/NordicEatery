@@ -71,7 +71,7 @@ export default async function HomePage({
                 <div className="absolute inset-x-8 top-1/2 h-24 -translate-y-1/2 rounded-full bg-white/20 blur-3xl sm:h-32" />
 
                 <Image
-                    src="/mikes_logo.webp"
+                    src="/mikes_logo.png"
                     alt="Nordic Eatery food delivery in Boden"
                     width={520}
                     height={520}
