@@ -310,6 +310,11 @@
       }
     },
     "about": {
+      "foodSection": {
+        "eyebrow": "Our food",
+        "title": "Built around flavour, texture and speed.",
+        "subtitle": "We keep the menu focused, the portions generous and the service fast. Every dish is made to feel simple, honest and satisfying."
+      },
       "title": "About Mike’s Food",
       "subtitle": "Real food. No compromises.",
       "whoTitle": "Who we are",

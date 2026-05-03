@@ -308,6 +308,11 @@
       }
     },
     "about": {
+      "foodSection": {
+        "eyebrow": "Nasza żywność",
+        "title": "Zbudowany wokół smaku, tekstury i szybkości.",
+        "subtitle": "Menu jest skoncentrowane, porcje obfite, a obsługa szybka. Każde danie jest proste, uczciwe i satysfakcjonujące."
+      },
       "title": "O Mike's Food",
       "subtitle": "Prawdziwe jedzenie. Bez kompromisów.",
       "whoTitle": "Kim jesteśmy",
@@ -327,7 +332,7 @@
       "eyebrow": "Zarezerwuj stolik",
       "title": "Rezerwacja",
       "subtitle": "Zarezerwuj stolik, catering lub Mike's Food Truck, a my potwierdzimy Twoją prośbę tak szybko, jak to możliwe.",
-      "name": "Pełna nazwa",
+      "name": "Imię i nazwisko",
       "namePlaceholder": "Imię i nazwisko",
       "phone": "Numer telefonu",
       "date": "Data",

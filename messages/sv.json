@@ -308,6 +308,11 @@
       }
     },
     "about": {
+      "foodSection": {
+        "eyebrow": "Vår mat",
+        "title": "Uppbyggd kring smak, textur och hastighet.",
+        "subtitle": "Vi håller menyn fokuserad, portionerna generösa och servicen snabb. Varje rätt ska kännas enkel, ärlig och mättande."
+      },
       "title": "Om Mike's Food",
       "subtitle": "Riktig mat. Inga kompromisser.",
       "whoTitle": "Vilka vi är",
@@ -364,7 +369,7 @@
       "button": "Begär catering",
       "contactButton": "Kontakta oss",
       "smallTitle": "Små evenemang",
-      "smallText": "Perfekt för födelsedagar, familjesammankomster och privata tillfällen.",
+      "smallText": "Perfekt för födelsedagar, familjesammankomster och privata tillställningar.",
       "companyTitle": "Företagets mat",
       "companyText": "Luncher, teamevents, kontorsmat och affärsmöten.",
       "largeTitle": "Stora grupper",
@@ -425,7 +430,7 @@
       "pricesTitle": "Priser",
       "pricesText": "Alla priser visas i SEK och inkluderar gällande skatter. Den slutliga ordersumman visas före betalning.",
       "paymentTitle": "Betalning",
-      "paymentText": "Vi tar emot kortbetalningar, Apple Pay, Google Pay, Swish och kontanter i mån av tillgång. Kortbetalningar behandlas säkert genom Stripe. Swish-betalningar behandlas via Swish.",
+      "paymentText": "Vi accepterar kortbetalningar, Apple Pay, Google Pay, Swish och kontanter när det finns tillgängligt. Kortbetalningar behandlas säkert genom Stripe. Swish-betalningar behandlas via Swish.",
       "deliveryTitle": "Leverans och upphämtning",
       "deliveryText": "Beställningar kan levereras eller hämtas upp beroende på tillgänglighet. Leveranstiderna är uppskattningar och kan variera beroende på efterfrågan, väder och avstånd.",
       "cancellationTitle": "Avbokning",

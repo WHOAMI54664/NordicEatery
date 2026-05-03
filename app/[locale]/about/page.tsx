@@ -91,16 +91,15 @@ export default async function AboutPage({
 
           <div>
             <p className="text-sm font-black uppercase tracking-[0.3em] text-paprika">
-              Our food
+              {t("eyebrow")}
             </p>
 
             <h2 className="mt-4 text-4xl font-black tracking-[-0.04em] text-dark">
-              Built around flavour, texture and speed.
+              {t("title")}
             </h2>
 
             <p className="mt-6 text-lg leading-8 text-dark/60">
-              We keep the menu focused, the portions generous and the service
-              fast. Every dish is made to feel simple, honest and satisfying.
+              {t("subtitle")}
             </p>
           </div>
         </section>
