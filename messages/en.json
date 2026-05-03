@@ -362,7 +362,8 @@
       "festivalsText": "A strong street food setup for markets, festivals and outdoor events.",
       "ctaTitle": "Want Mike's at your event?",
       "ctaText": "Send us your date, location and expected number of guests — we’ll get back to you with the best option.",
-      "ctaButton": "Send booking request"
+      "ctaButton": "Send booking request",
+      "heroImage": ""
     },
     "catering": {
       "eyebrow": "Catering",

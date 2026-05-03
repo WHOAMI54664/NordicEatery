@@ -307,38 +307,38 @@
         "drinks": "Drycker"
       }
     },
-  "about": {
-    "title": "Om Mike's Streetfood",
-    "subtitle": "Riktig mat. Inga kompromisser.",
-    "whoTitle": "Vilka vi är",
-    "whoText": {
-      "title": "Från Norrland, med passion för matlagning.",
-      "paragraphs": [
-        "Det som började som en dröm om en foodtruck har idag vuxit till Nordic Eatery – ett matföretag där kvalitet och mathantverk står i fokus.",
-        "Bakom står två drivna entreprenörer med rötter i Sverige och Polen, med gedigen erfarenhet från både hotell- och restaurangbranschen.",
-        "Tillsammans skapar vi mat med inspiration från olika kulturer, alltid med smak, kvalitet och kreativitet i centrum."
-      ]
+    "about": {
+      "title": "Om Mike's Streetfood",
+      "subtitle": "Riktig mat. Inga kompromisser.",
+      "whoTitle": "Vilka vi är",
+      "whoText": {
+        "title": "Från Norrland, med passion för matlagning.",
+        "paragraphs": [
+          "Det som började som en dröm om en foodtruck har idag vuxit till Nordic Eatery – ett matföretag där kvalitet och mathantverk står i fokus.",
+          "Bakom står två drivna entreprenörer med rötter i Sverige och Polen, med gedigen erfarenhet från både hotell- och restaurangbranschen.",
+          "Tillsammans skapar vi mat med inspiration från olika kulturer, alltid med smak, kvalitet och kreativitet i centrum."
+        ]
+      },
+      "freshTitle": "Färska ingredienser",
+      "freshText": "Vi använder oss främst av färska ingredienser.",
+      "fastTitle": "Snabb service",
+      "fastText": "Maten blir snabbt klar utan att vi tummar på kvalitén.",
+      "simpleTitle": "Enkel meny",
+      "simpleText": "Bara det som verkligen fungerar. Inga onödiga saker.",
+      "tasteTitle": "Unik smak",
+      "tasteText": "Streetfood utöver det vanliga.",
+      "finalTitle": "Byggd för människor som värdesätter god mat",
+      "finalText": "Ingen väntan. Inga överpriser. Bara god mat gjord på rätt sätt.",
+      "badge": "Polsk streetfood med en svensk twist",
+      "foodEyebrow": "Vår mat",
+      "foodTitle": "Polska smaker med svenska nyanser",
+      "foodText": "Vi tillagar vår mat från grunden så långt det är möjligt och strävar efter att endast använda oss av färska och svenska råvaror. Mike's maträtter är tillagade med inspiration från klassisk polsk streetfood och ingredienser från Sverige.",
+      "ctaEyebrow": "Catering & event",
+      "ctaTitle": "Behöver du mat till ditt event?",
+      "ctaText": "Boka catering, foodtruck eller en kock till din privata fest, företagsevent, festival eller speciella tillfälle. Vill ni ha en specialanpassad meny, kontakta oss så ska vi göra vårt bästa för att möta era önskemål.",
+      "ctaBook": "Boka oss",
+      "ctaContact": "Kontakta oss"
     },
-    "freshTitle": "Färska ingredienser",
-    "freshText": "Vi använder oss främst av färska ingredienser.",
-    "fastTitle": "Snabb service",
-    "fastText": "Maten blir snabbt klar utan att vi tummar på kvalitén.",
-    "simpleTitle": "Enkel meny",
-    "simpleText": "Bara det som verkligen fungerar. Inga onödiga saker.",
-    "tasteTitle": "Unik smak",
-    "tasteText": "Streetfood utöver det vanliga.",
-    "finalTitle": "Byggd för människor som värdesätter god mat",
-    "finalText": "Ingen väntan. Inga överpriser. Bara god mat gjord på rätt sätt.",
-    "badge": "Polsk streetfood med en svensk twist",
-    "foodEyebrow": "Vår mat",
-    "foodTitle": "Polska smaker med svenska nyanser",
-    "foodText": "Vi tillagar vår mat från grunden så långt det är möjligt och strävar efter att endast använda oss av färska och svenska råvaror. Mike's maträtter är tillagade med inspiration från klassisk polsk streetfood och ingredienser från Sverige.",
-    "ctaEyebrow": "Catering & event",
-    "ctaTitle": "Behöver du mat till ditt event?",
-    "ctaText": "Boka catering, foodtruck eller en kock till din privata fest, företagsevent, festival eller speciella tillfälle. Vill ni ha en specialanpassad meny, kontakta oss så ska vi göra vårt bästa för att möta era önskemål.",
-    "ctaBook": "Boka oss",
-    "ctaContact": "Kontakta oss"
-  },
     "booking": {
       "eyebrow": "Boka ditt bord",
       "title": "Bokning",
@@ -369,10 +369,10 @@
       "businessText": "Servera ditt team, dina gäster eller kunder med färsk mat på plats.",
       "festivalsTitle": "Festivaler",
       "festivalsText": "Ett starkt streetfood-koncept för marknader, festivaler och utomhusevenemang.",
-      "bokaTitle": "Lyft ditt event med polsk streetfood, boka Mike's Bite till festen, företagseventet, festivalen eller ett speciellt tillfälle. Vill ni ha en specialanpassad meny, kontakta oss så ska vi göra vårt bästa för att möta era önskemål.",
       "ctaTitle": "Boka Mike's foodtruck till ditt event",
       "ctaText": "Lyft ditt event med polsk streetfood, boka Mike's Bite till festen, företagseventet, festivalen eller ett speciellt tillfälle. Vill ni ha en specialanpassad meny, kontakta oss så ska vi göra vårt bästa för att möta era önskemål.",
-      "ctaButton": "Skicka bokningsförfrågan"
+      "ctaButton": "Skicka bokningsförfrågan",
+      "heroImage": ""
     },
     "catering": {
       "eyebrow": "Catering",
@@ -514,9 +514,9 @@
       "stripeError": "Stripe-betalningen kunde inte startas.",
       "orderError": "Order kunde inte skapas.",
       "generalError": "Något gick fel. Vänligen försök igen."
-},
-
-  "admin": {
+    }
+  },
+    "admin": {
     "documentation": {
       "eyebrow": "CRM-dokumentation",
       "title": "Dokumentation",
@@ -616,7 +616,7 @@
       "cancelledDescription": "Avbokade bokningar",
       "allReservations": "Alla reservationer",
       "allReservationsDescription": "Bokningar hämtade från Supabase.",
-      "reservationsCount": "{antal} reservationer",
+      "reservationsCount": "reservationer",
       "noReservationsFound": "Inga reservationer hittades",
       "noReservationsDescription": "Här visas kundernas bokningar.",
       "contact": "Kontakt",
@@ -719,7 +719,7 @@
       "activeDeliveries": "Aktiva leveranser",
       "activeDeliveriesDescription": "För närvarande på väg",
       "lowStockItems": "Artiklar med lågt lager",
-      "productsAvailable": "{antal} produkter tillgängliga",
+      "productsAvailable": "produkter tillgängliga",
       "recentOrders": "Nya beställningar",
       "recentOrdersDescription": "Liveöversikt över dina restaurangbeställningar.",
       "viewAllOrders": "Visa alla beställningar",
@@ -744,8 +744,8 @@
       "noPrice": "Inget pris",
       "recently": "Nyligen",
       "minutesAgo": "{count} min sedan",
-      "hoursAgo": "{antal} h sedan",
-      "daysAgo": "{antal} d sedan"
+      "hoursAgo": "h sedan",
+      "daysAgo": "d sedan"
     },
     "analytics": {
       "eyebrow": "Analys av verksamheten",
@@ -781,7 +781,7 @@
       "paidOrders": "Betalda order",
       "recentOrders": "Nya beställningar",
       "recentOrdersDescription": "De senaste beställningarna ingår i analyserna.",
-      "shown": "{antal} visas",
+      "shown": "visas",
       "noOrdersFound": "Inga beställningar hittades",
       "noOrdersDescription": "Analytics visas när order skapas.",
       "payment": "Betalning",
@@ -875,7 +875,7 @@
       "eyebrow": "Lagerstyrning",
       "title": "Inventarieförteckning",
       "subtitle": "Hantera produktlager. Om det spårade lagret är 0 döljs produkten från kundmenyn.",
-      "productsCount": "{antal} produkter",
+      "productsCount": "produkter",
       "searchPlaceholder": "Sök produkter...",
       "products": "Produkter",
       "quantityGreaterThanZero": "Kvantiteten måste vara större än 0.",
@@ -915,7 +915,7 @@
       "latestOrder": "Senaste beställning",
       "allOrders": "Alla beställningar",
       "allOrdersDescription": "Senaste kundorder från Supabase.",
-      "ordersCount": "{antal} order",
+      "ordersCount": "order",
       "noOrdersFound": "Inga beställningar hittades",
       "noOrdersDescription": "Nya kundorder kommer att visas här.",
       "contact": "Kontakt",
@@ -923,7 +923,7 @@
       "payment": "Betalning",
       "created": "Skapad",
       "actions": "Åtgärder",
-      "itemsCount": "{antal} artiklar",
+      "itemsCount": "artiklar",
       "noAddress": "Ingen adress",
       "pickupOrder": "Upphämtningsorder",
       "unknown": "Okänd",
@@ -975,5 +975,4 @@
       }
     }
   }
-}
 }
