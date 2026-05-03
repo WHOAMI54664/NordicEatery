@@ -20,9 +20,17 @@ export default async function AboutPage({
                 {t("title")}
               </h1>
 
-              <p className="mt-6 max-w-xl text-lg leading-8 text-dark/60">
-                {t("whoText")}
-              </p>
+              <div className="mt-8 max-w-xl">
+                <h3 className="text-2xl font-black tracking-[-0.03em] text-dark/70 sm:text-3xl">
+                  {t("whoText.title")}
+                </h3>
+
+                <div className="mt-5 space-y-4 text-lg leading-8 text-dark/70">
+                  {t.raw("whoText.paragraphs").map((paragraph: string) => (
+                      <p key={paragraph}>{paragraph}</p>
+                  ))}
+                </div>
+              </div>
 
               <p className="mt-7 inline-flex rounded-full bg-paprika/10 px-5 py-3 text-sm font-black uppercase tracking-[0.16em] text-paprika">
                 {t("badge")}
