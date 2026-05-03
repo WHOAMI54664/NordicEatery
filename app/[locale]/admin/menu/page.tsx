@@ -15,6 +15,7 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { createClient } from "@/lib/supabase/server";
 import { canManageProducts } from "@/lib/auth/roles";
 
+
 type MenuPageProps = {
     params: Promise<{
         locale: string;
