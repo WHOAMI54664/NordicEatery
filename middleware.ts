@@ -47,6 +47,20 @@ function getPreferredLocale(request: NextRequest) {
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Очень важно: API вообще не трогаем.
+  if (
+      pathname.startsWith("/api/") ||
+      pathname === "/api" ||
+      pathname.startsWith("/_next") ||
+      pathname.startsWith("/_vercel") ||
+      pathname.includes(".") ||
+      pathname === "/favicon.ico" ||
+      pathname === "/robots.txt" ||
+      pathname === "/sitemap.xml"
+  ) {
+    return NextResponse.next();
+  }
+
   const hasLocale = /^\/(en|sv|pl|ru)(\/|$)/.test(pathname);
 
   if (pathname === "/admin") {
@@ -65,5 +79,7 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/admin", "/(en|sv|pl|ru)/:path*"],
+  matcher: [
+    "/((?!api/|api|_next/|_vercel/|.*\\..*).*)",
+  ],
 };
