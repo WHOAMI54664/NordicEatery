@@ -308,7 +308,6 @@
       }
     },
     "about": {
-      "foodSection": {
         "eyebrow": "Vår mat",
         "title": "Uppbyggd kring smak, textur och hastighet.",
         "subtitle": "Vi håller menyn fokuserad, portionerna generösa och servicen snabb. Varje rätt ska kännas enkel, ärlig och mättande."
@@ -502,8 +501,7 @@
       "stripeError": "Stripe-betalningen kunde inte startas.",
       "orderError": "Order kunde inte skapas.",
       "generalError": "Något gick fel. Vänligen försök igen."
-    }
-  },
+    },
   "admin": {
     "documentation": {
       "eyebrow": "CRM-dokumentation",
