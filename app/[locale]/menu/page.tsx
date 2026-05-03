@@ -1,7 +1,16 @@
+import type { Metadata } from "next";
 import { ProductCard } from "@/components/ProductCard";
 import { MenuJsonLd } from "@/components/seo/MenuJsonLd";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
+
+type MenuPageProps = {
+    params: Promise<{
+        locale: string;
+    }>;
+};
+
+const baseUrl = "https://www.nordiceatery.se";
 
 const categories = [
     { id: "maczanka", titleKey: "maczanka" },
@@ -10,11 +19,59 @@ const categories = [
     { id: "drinks", titleKey: "drinks" },
 ] as const;
 
-export default async function MenuPage({
+export async function generateMetadata({
                                            params,
-                                       }: {
-    params: Promise<{ locale: string }>;
-}) {
+                                       }: MenuPageProps): Promise<Metadata> {
+    const { locale } = await params;
+
+    const t = await getTranslations({
+        locale,
+        namespace: "seo.menu",
+    });
+
+    const canonical = `${baseUrl}/${locale}/menu`;
+
+    return {
+        title: t("title"),
+        description: t("description"),
+
+        alternates: {
+            canonical,
+            languages: {
+                en: `${baseUrl}/en/menu`,
+                sv: `${baseUrl}/sv/menu`,
+                pl: `${baseUrl}/pl/menu`,
+                ru: `${baseUrl}/ru/menu`,
+                "x-default": `${baseUrl}/en/menu`,
+            },
+        },
+
+        openGraph: {
+            title: t("ogTitle"),
+            description: t("ogDescription"),
+            url: canonical,
+            siteName: "Nordic Eatery",
+            type: "website",
+            images: [
+                {
+                    url: `${baseUrl}/og-image.jpg`,
+                    width: 1200,
+                    height: 630,
+                    alt: t("ogTitle"),
+                },
+            ],
+        },
+
+        twitter: {
+            card: "summary_large_image",
+            title: t("ogTitle"),
+            description: t("ogDescription"),
+            images: [`${baseUrl}/og-image.jpg`],
+        },
+    };
+}
+
+export default async function MenuPage({ params }: MenuPageProps) {
     const { locale } = await params;
 
     const supabase = await createClient();
@@ -59,11 +116,7 @@ export default async function MenuPage({
 
                                 <div className="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-3">
                                     {products.map((product) => (
-                                        <ProductCard
-                                            key={product.id}
-                                            product={product}
-                                            compact
-                                        />
+                                        <ProductCard key={product.id} product={product} compact />
                                     ))}
                                 </div>
                             </section>

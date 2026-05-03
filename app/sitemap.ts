@@ -26,9 +26,9 @@ const pages = [
         priority: 0.85,
     },
     {
-        path: "burgers-boden",
+        path: "polish-food-boden",
         changeFrequency: "weekly",
-        priority: 0.85,
+        priority: 0.9,
     },
     {
         path: "catering-boden",

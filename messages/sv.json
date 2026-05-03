@@ -1,4 +1,30 @@
 {
+  "seo": {
+    "menu": {
+      "title": "Meny | Matleverans & Takeaway i Boden | Nordic Eatery",
+      "description": "Utforska Nordic Eaterys meny i Boden. Beställ polsk comfort food, hamburgare, krispiga pommes frites, drinkar och street food för leverans eller takeaway.",
+      "ogTitle": "Nordic Eatery Meny | Matleverans i Boden",
+      "ogDescription": "Beställ polsk comfort food, hamburgare, pommes frites och street food från Nordic Eatery i Boden."
+    },
+    "takeawayBoden": {
+      "title": "Takeaway i Boden | Beställ online | Nordic Eatery",
+      "description": "Beställ takeaway i Boden från Nordic Eatery. Färsk polsk comfort food, hamburgare, krispiga pommes frites, drinkar och street food redo för avhämtning.",
+      "ogTitle": "Takeaway i Boden | Nordic Eatery",
+      "ogDescription": "Beställ polsk comfort food, hamburgare, krispiga pommes frites och street food för takeaway i Boden."
+    },
+    "cateringBoden": {
+      "title": "Catering i Boden | Mat för event | Nordic Eatery",
+      "description": "Boka catering i Boden från Nordic Eatery. Polsk comfort food, hamburgare, street food och skräddarsydda menyer för privata tillställningar, företag och lokala sammankomster.",
+      "ogTitle": "Catering i Boden | Nordic Eatery",
+      "ogDescription": "Färsk catering i Boden för privata tillställningar, företag och lokala sammankomster."
+    },
+    "polishFoodBoden": {
+      "title": "Polsk mat i Boden | Maczanka & Street Food | Nordic Eatery",
+      "description": "Beställ polsk mat i Boden från Nordic Eatery. Prova Maczanka, Knysza, krispiga pommes frites och polskinspirerad street food för leverans eller takeaway.",
+      "ogTitle": "Polsk mat i Boden | Nordic Eatery",
+      "ogDescription": "Maczanka, Knysza, krispiga pommes frites och polskinspirerad street food i Boden."
+    }
+  },
   "nav": {
     "menu": "Meny",
     "about": "Om oss",
@@ -8,7 +34,7 @@
     "contact": "Kontakt",
     "support": "Stöd",
     "cart": "Vagn",
-    "delivery": "Leverans inom 30–40 min"
+    "delivery": "Leverans inom 30-40 min"
   },
   "footer": {
     "brand": "NordicEatery",
@@ -25,38 +51,227 @@
     "terms": "Villkor",
     "privacy": "Integritetspolicy",
     "refunds": "Återbetalningar & reklamationer",
-    "businessInfo": "Företagsinformation",
+    "businessInfo": "Information om företag",
     "location": "Boden, Sverige",
-    "delivery": "Leverans: 30–40 min",
+    "delivery": "Leverans: 30-40 minuter",
     "payments": "Säkra betalningar",
     "address": "Adress"
   },
   "pages": {
+    "polishFoodBoden": {
+      "hero": {
+        "eyebrow": "Polsk mat i Boden",
+        "title": "Polsk comfort food i Boden",
+        "description": "Nordic Eatery tar polskinspirerad comfort food och street food till Boden. Prova Maczanka, Knysza, krispiga pommes frites och varma rätter som tillagas färska för takeaway och leverans.",
+        "primaryCta": "Visa meny",
+        "secondaryCta": "Leverans av mat"
+      },
+      "cards": {
+        "maczanka": {
+          "title": "Maczanka",
+          "description": "En polskinspirerad street food-favorit med rik smak och mättande ingredienser."
+        },
+        "streetFood": {
+          "title": "Gatumat",
+          "description": "Varma, mättande rätter som passar för takeaway, leverans och vardagliga måltider."
+        },
+        "takeaway": {
+          "title": "Takeaway & leverans",
+          "description": "Beställ online för avhämtning eller matleverans i Boden."
+        }
+      },
+      "content": {
+        "eyebrow": "Lokal polsk mat",
+        "title": "En polsk matupplevelse i Boden",
+        "paragraph1": "Nordic Eatery fokuserar på polskinspirerad comfort food, street food och enkel onlinebeställning. Vår meny är uppbyggd kring varma, mättande rätter som fungerar bra för leverans, takeaway och vardagsmåltider.",
+        "paragraph2": "Istället för att vara en klassisk hamburgerrestaurang ligger Nordic Eatery närmare polsk street food med rätter som Maczanka, Knysza, krispiga pommes frites och utvalda comfort food-favoriter.",
+        "paragraph3": "Om du letar efter polsk mat i Boden, takeaway nära dig eller något annat än vanlig snabbmat, ger Nordic Eatery dig ett fräscht lokalt alternativ.",
+        "menuCta": "Visa hela menyn",
+        "takeawayCta": "Takeaway i Boden",
+        "deliveryCta": "Leverans av mat i Boden"
+      },
+      "benefits": {
+        "title": "Varför prova Nordic Eatery?",
+        "items": {
+          "0": "Polskinspirerad mat i Boden",
+          "1": "Maczanka, Knysza och gatumat",
+          "2": "Färskt tillagade rätter",
+          "3": "Passar bra för lunch, middag och andra måltider",
+          "4": "Finns för takeaway och leverans",
+          "5": "Enkel onlinebeställning"
+        }
+      }
+    },
+    "cateringBoden": {
+      "hero": {
+        "eyebrow": "Catering i Boden",
+        "title": "Catering för evenemang i Boden",
+        "description": "Planerar du ett privat event, en företagslunch eller en lokal sammankomst i Boden? Nordic Eatery erbjuder catering med polsk comfort food, hamburgare, street food och flexibla menyalternativ som tillagas färskt för dina gäster.",
+        "primaryCta": "Begär catering",
+        "secondaryCta": "Kontakta oss"
+      },
+      "cards": {
+        "private": {
+          "title": "Privata evenemang",
+          "description": "Mat för födelsedagar, familjesammankomster och andra festliga tillfällen."
+        },
+        "company": {
+          "title": "Måltider för företag",
+          "description": "Catering för kontor, team, personalmåltider och företagsevenemang."
+        },
+        "delivery": {
+          "title": "Upphämtning eller leverans",
+          "description": "Välj upphämtning eller diskutera leveransalternativ i Boden."
+        },
+        "planning": {
+          "title": "Enkel planering",
+          "description": "Berätta om storleken på ditt evenemang så hjälper vi dig att planera maten."
+        }
+      },
+      "content": {
+        "eyebrow": "Evenemang mat",
+        "title": "Färsk cateringmat till Boden",
+        "paragraph1": "Nordic Eatery hjälper till att göra evenemang enklare med varm, mättande mat som tillagas för grupper. Vår catering är lämplig för privata fester, kontorsluncher, personalmåltider, små evenemang och lokala sammankomster i Boden.",
+        "paragraph2": "Menyn kan innehålla polsk comfort food, hamburgare, krispiga pommes frites, street food och utvalda rätter beroende på evenemangets storlek och dina behov. Vi fokuserar på mat som är lätt att servera, mättande och njutbar för gästerna.",
+        "paragraph3": "Oavsett om du behöver en enkel catering i takeaway-stil eller en mer planerad matuppsättning, kontakta Nordic Eatery så hjälper vi dig att hitta en lämplig lösning.",
+        "bookingCta": "Boka catering",
+        "menuCta": "Visa meny",
+        "deliveryCta": "Leverans av mat"
+      },
+      "benefits": {
+        "title": "Varför välja Nordic Eatery catering?",
+        "items": {
+          "0": "Catering i Boden för privat- och företagsevenemang",
+          "1": "Färsk polsk comfort food och street food",
+          "2": "Flexibla menyalternativ för grupper",
+          "3": "Upphämtning eller möjliga leveransalternativ",
+          "4": "Passar bra för lunch, middag och vardagliga sammankomster",
+          "5": "Snabb kommunikation och enkel planering"
+        }
+      },
+      "cta": {
+        "title": "Behöver du catering i Boden?",
+        "description": "Skicka oss en förfrågan med datum för ditt evenemang, antal gäster och matpreferenser. Vi hjälper dig att planera ett lämpligt cateringalternativ.",
+        "button": "Skicka cateringförfrågan"
+      },
+      "faq": {
+        "eyebrow": "VANLIGA FRÅGOR",
+        "title": "Frågor om catering",
+        "items": {
+          "0": {
+            "question": "Erbjuder ni catering i Boden?",
+            "answer": "Ja, det gör vi. Nordic Eatery erbjuder catering i Boden för privata tillställningar, företagsmåltider och lokala sammankomster."
+          },
+          "1": {
+            "question": "Vilken mat kan jag beställa för catering?",
+            "answer": "Du kan begära polsk comfort food, hamburgare, krispiga pommes frites, street food och utvalda menyalternativ beroende på ditt evenemang."
+          },
+          "2": {
+            "question": "Kan du hjälpa till med företagscatering?",
+            "answer": "Ja, det gör vi. Vi kan erbjuda catering för kontorsluncher, personalmåltider och företagsevenemang i Boden."
+          },
+          "3": {
+            "question": "Hur beställer jag catering?",
+            "answer": "Använd boknings- eller kontaktsidan och skicka in datum, antal gäster och matpreferenser för ditt evenemang."
+          }
+        }
+      }
+    },
+    "takeawayBoden": {
+      "hero": {
+        "eyebrow": "Takeaway i Boden",
+        "title": "Beställ takeaway i Boden",
+        "description": "Vill du ha färsk mat utan att vänta? Beställ takeaway från Nordic Eatery i Boden. Välj polsk comfort food, hamburgare, krispiga pommes frites, drinkar och street food, och hämta sedan din beställning när den är klar.",
+        "primaryCta": "Beställ takeaway",
+        "secondaryCta": "Leverans av mat"
+      },
+      "cards": {
+        "order": {
+          "title": "Beställ online",
+          "description": "Välj din mat från vår online-meny."
+        },
+        "fresh": {
+          "title": "Färskt tillagad",
+          "description": "Din beställning tillagas färskt efter utcheckning."
+        },
+        "pickup": {
+          "title": "Pickup",
+          "description": "Hämta din mat när den är klar."
+        },
+        "simple": {
+          "title": "Enkel process",
+          "description": "Beställ online, undvik telefonsamtal och hämta din mat."
+        }
+      },
+      "content": {
+        "eyebrow": "Mat för avhämtning",
+        "title": "Färsk takeaway-mat i Boden",
+        "paragraph1": "Nordic Eatery gör takeaway enkelt för dig i Boden som vill ha varm och mättande mat utan att lägga tid på matlagning. På vår meny finns polsk comfort food, hamburgare, krispiga pommes frites, drinkar och street food.",
+        "paragraph2": "Takeaway är ett bra val för lunch, middag, raster på jobbet eller avslappnade måltider hemma. Beställ online, skippa telefonsamtalet och hämta din mat när den är klar.",
+        "paragraph3": "Vår mat tillagas direkt efter beställning, så att du får varma och jämna måltider som är lätta att hämta och njuta av.",
+        "menuCta": "Visa meny",
+        "burgersCta": "Burgare i Boden",
+        "cateringCta": "Catering i Boden"
+      },
+      "benefits": {
+        "title": "Varför beställa takeaway från Nordic Eatery?",
+        "items": {
+          "0": "Enkel onlinebeställning",
+          "1": "Färsk polsk comfort food",
+          "2": "Hamburgare, pommes frites och drycker",
+          "3": "Gatumat förberedd för upphämtning",
+          "4": "Bra alternativ för lunch eller middag",
+          "5": "Takeaway och leverans finns i Boden"
+        }
+      },
+      "faq": {
+        "eyebrow": "VANLIGA FRÅGOR",
+        "title": "Frågor att ta med sig",
+        "items": {
+          "0": {
+            "question": "Kan jag beställa hämtmat i Boden?",
+            "answer": "Ja, du kan beställa takeaway online från Nordic Eatery och hämta din mat när den är klar."
+          },
+          "1": {
+            "question": "Vilken mat kan jag beställa för avhämtning?",
+            "answer": "Du kan beställa polsk comfort food, hamburgare, krispiga pommes frites, drinkar och street food."
+          },
+          "2": {
+            "question": "Erbjuder ni även leverans?",
+            "answer": "Ja, det gör vi. Nordic Eatery erbjuder både takeaway och matleverans i Boden."
+          },
+          "3": {
+            "question": "Hur beställer jag takeaway?",
+            "answer": "Öppna online-menyn, välj dina artiklar och gör din beställning. Din mat kommer att förberedas för upphämtning."
+          }
+        }
+      }
+    },
     "cart": {
       "eyebrow": "Vagn",
       "title": "Din beställning",
       "emptyTitle": "Din varukorg är tom",
       "emptyText": "Välj Maczanka eller Knysza från menyn och lägg din favoritmat i varukorgen.",
       "goToMenu": "Gå till menyn",
-      "summaryTitle": "Ordersammanfattning",
+      "summaryTitle": "Sammanfattning av ordern",
       "subtotal": "Delsumma",
       "delivery": "Leverans",
       "calculatedLater": "Beräknas senare",
       "total": "Totalt",
       "checkout": "Fortsätt till kassan",
-      "decreaseQuantity": "Minska antal",
-      "increaseQuantity": "Öka antal",
+      "decreaseQuantity": "Minska kvantiteten",
+      "increaseQuantity": "Öka kvantiteten",
       "removeItem": "Ta bort artikel"
     },
     "home": {
       "eyebrow": "Kök & leverans",
       "titleLine1": "Polsk mat.",
       "titleLine2": "Levereras varm.",
-      "subtitle": "Maczanka, Knysza och hemlagad comfort food från Mikes kök.",
+      "subtitle": "Maczanka, Knysza och hemlagad tröstmat från Mikes kök.",
       "orderNow": "Beställ nu",
       "viewCart": "Visa varukorg",
       "exploreMenu": "Utforska menyn",
-      "popular": "Populärt",
+      "popular": "Populär",
       "bestSellers": "Bästsäljare",
       "fullMenu": "Hela menyn",
       "categories": {
@@ -64,6 +279,21 @@
         "knysza": "Knysza",
         "fries": "Pommes frites",
         "drinks": "Drycker"
+      },
+      "seoLinks": {
+        "eyebrow": "Lokal mat i Boden",
+        "title": "Beställ matleverans, takeaway och catering i Boden",
+        "description": "Nordic Eatery erbjuder färsk polsk comfort food, hamburgare, krispiga pommes frites, street food, takeaway och catering i Boden.",
+        "delivery": "Leverans av mat i Boden",
+        "takeaway": "Takeaway i Boden",
+        "burgers": "Burgare i Boden",
+        "catering": "Catering i Boden",
+        "menu": "Visa hela menyn",
+        "deliveryShort": "Leverans",
+        "takeawayShort": "Takeaway",
+        "burgersShort": "Hamburgare",
+        "cateringShort": "Catering",
+        "menuShort": "Meny"
       }
     },
     "menu": {
@@ -83,14 +313,14 @@
       "whoTitle": "Vilka vi är",
       "whoText": "Mike's Food är ett modernt gatukök med fokus på snabb service, kvalitetsråvaror och ärliga priser.",
       "freshTitle": "Färska ingredienser",
-      "freshText": "Vi lagar allt färskt. Inga genvägar.",
+      "freshText": "Vi lagar allting färskt. Inga genvägar.",
       "fastTitle": "Snabb service",
-      "fastText": "Du får din mat snabbt utan att förlora kvalitet.",
+      "fastText": "Du får din mat snabbt utan att förlora i kvalitet.",
       "simpleTitle": "Enkel meny",
       "simpleText": "Bara det som verkligen fungerar. Inga onödiga saker.",
       "tasteTitle": "Riktig smak",
       "tasteText": "Street food-energi med restaurangkvalitet.",
-      "finalTitle": "Byggt för människor som värdesätter god mat",
+      "finalTitle": "Byggd för människor som värdesätter god mat",
       "finalText": "Ingen väntan. Inga överpriser. Bara god mat gjord på rätt sätt."
     },
     "booking": {
@@ -107,35 +337,35 @@
       "messagePlaceholder": "Några särskilda önskemål?",
       "button": "Skicka bokningsförfrågan",
       "successEyebrow": "Bokning skickad",
-      "successTitle": "Tack!",
+      "successTitle": "Tack så mycket!",
       "successText": "Vi har mottagit din bokningsförfrågan och kommer att kontakta dig inom kort.",
-      "error": "Något gick fel. Försök igen."
+      "error": "Något gick fel. Vänligen försök igen."
     },
     "mikes": {
       "eyebrow": "Mike's Food Truck",
       "title": "Boka vår food truck för ditt evenemang",
-      "subtitle": "Ta med Mike's Food till din fest, ditt företagsevent, festival, privata firande eller speciella tillfälle.",
-      "button": "Boka food truck",
+      "subtitle": "Ta med Mike's Food till din fest, ditt företagsevent, din festival, din privata fest eller ditt speciella tillfälle.",
+      "button": "Bok food truck",
       "contact": "Kontakta oss",
       "privateTitle": "Privata evenemang",
       "privateText": "Perfekt för födelsedagar, fester, bröllop och privata tillställningar.",
-      "businessTitle": "Företagsevenemang",
+      "businessTitle": "Affärsevenemang",
       "businessText": "Servera ditt team, dina gäster eller kunder med färsk mat på plats.",
       "festivalsTitle": "Festivaler",
       "festivalsText": "Ett starkt street food-upplägg för marknader, festivaler och utomhusevenemang.",
       "ctaTitle": "Vill du ha Mike's på ditt evenemang?",
-      "ctaText": "Skicka datum, plats och förväntat antal gäster — så återkommer vi med det bästa alternativet.",
+      "ctaText": "Skicka oss ditt datum, plats och förväntat antal gäster - så återkommer vi med det bästa alternativet.",
       "ctaButton": "Skicka bokningsförfrågan"
     },
     "catering": {
       "eyebrow": "Catering",
-      "title": "Mat för evenemang, team och firanden",
+      "title": "Mat för evenemang, team och firande",
       "subtitle": "Färsk mat för privata fester, affärsluncher, företagsevenemang, festivaler och större grupper.",
       "button": "Begär catering",
       "contactButton": "Kontakta oss",
       "smallTitle": "Små evenemang",
       "smallText": "Perfekt för födelsedagar, familjesammankomster och privata tillfällen.",
-      "companyTitle": "Företagsmat",
+      "companyTitle": "Företagets mat",
       "companyText": "Luncher, teamevents, kontorsmat och affärsmöten.",
       "largeTitle": "Stora grupper",
       "largeText": "Matlösningar för större grupper, festivaler och utomhusevenemang.",
@@ -144,21 +374,21 @@
       "provideGroups": "Mat för små och stora grupper",
       "providePickup": "Alternativ för upphämtning eller leverans",
       "provideFoodTruck": "Food truck på plats",
-      "providePlanning": "Enkel evenemangsplanering",
+      "providePlanning": "Enkel planering av evenemang",
       "provideFastCommunication": "Snabb kommunikation",
       "ctaTitle": "Planerar du ett evenemang?",
-      "ctaText": "Berätta datum, plats och antal gäster — så hjälper vi dig att hitta det bästa matupplägget.",
+      "ctaText": "Berätta om datum, plats och antal gäster - så hjälper vi dig att hitta det bästa matupplägget.",
       "ctaButton": "Skicka cateringförfrågan"
     },
     "contact": {
       "eyebrow": "Kontakt",
-      "title": "Kontakta oss",
-      "subtitle": "Frågor, bokningar, catering eller evenemang — kontakta Nordic Eatery så återkommer vi till dig.",
+      "title": "Ta kontakt med oss",
+      "subtitle": "Frågor, bokningar, catering eller evenemang - kontakta Nordic Eatery så återkommer vi till dig.",
       "phone": "Telefon",
       "email": "E-post",
       "location": "Plats",
-      "businessTitle": "Företagsinformation",
-      "businessName": "Företagsnamn",
+      "businessTitle": "Information om företag",
+      "businessName": "Företagets namn",
       "businessCountry": "Adress",
       "businessWebsite": "Webbplats",
       "supportTitle": "Support, reklamationer och återbetalningar",
@@ -166,20 +396,20 @@
       "termsLink": "Villkor",
       "privacyLink": "Integritetspolicy",
       "ctaTitle": "Vill du boka Nordic Eatery?",
-      "ctaText": "Använd bokningssidan för att skicka datum, tid, plats och antal gäster.",
+      "ctaText": "Använd bokningssidan för att skicka oss datum, tid, plats och antal gäster.",
       "ctaButton": "Gå till bokning"
     },
     "support": {
       "eyebrow": "Stöd",
       "title": "Behöver du hjälp?",
-      "subtitle": "Om du har frågor om din beställning, bokning eller catering — vi finns här för att hjälpa dig.",
+      "subtitle": "Om du har frågor om din beställning, bokning eller catering - vi finns här för att hjälpa dig.",
       "q1": "Hur lång tid tar leveransen?",
-      "a1": "Vanligtvis mellan 30–40 minuter beroende på efterfrågan.",
+      "a1": "Vanligtvis mellan 30-40 minuter beroende på efterfrågan.",
       "q2": "Kan jag boka foodtrucken?",
-      "a2": "Ja, gå till Mike's-sidan eller bokningssidan och skicka en förfrågan.",
-      "q3": "Erbjuder ni catering?",
+      "a2": "Ja, gå till Mikes sida eller bokningssidan och skicka en förfrågan.",
+      "q3": "Erbjuder du catering?",
       "a3": "Ja, vi erbjuder catering för evenemang, företag och privata grupper.",
-      "q4": "Hur kan jag kontakta er?",
+      "q4": "Hur kan jag kontakta dig?",
       "a4": "Du kan skicka e-post direkt till oss eller använda kontaktsidan.",
       "ctaTitle": "Behöver du fortfarande hjälp?",
       "ctaText": "Kontakta oss direkt så svarar vi så snabbt som möjligt.",
@@ -187,19 +417,19 @@
       "booking": "Bokning"
     },
     "terms": {
-      "eyebrow": "Villkor",
-      "title": "Villkor",
+      "eyebrow": "Villkor och anvisningar",
+      "title": "Villkor och anvisningar",
       "subtitle": "Dessa villkor gäller för alla beställningar som görs genom Nordic Eatery.",
       "orderingTitle": "Beställning",
-      "orderingText": "Kunder kan göra beställningar via vår webbplats. Alla beställningar beror på produkttillgänglighet och bekräftelse.",
+      "orderingText": "Kunderna kan göra beställningar via vår webbplats. Alla beställningar är föremål för produkttillgänglighet och bekräftelse.",
       "pricesTitle": "Priser",
       "pricesText": "Alla priser visas i SEK och inkluderar gällande skatter. Den slutliga ordersumman visas före betalning.",
       "paymentTitle": "Betalning",
-      "paymentText": "Vi tar emot kortbetalningar, Apple Pay, Google Pay, Swish och kontanter när det är tillgängligt. Kortbetalningar behandlas säkert genom Stripe. Swish-betalningar behandlas via Swish.",
+      "paymentText": "Vi tar emot kortbetalningar, Apple Pay, Google Pay, Swish och kontanter i mån av tillgång. Kortbetalningar behandlas säkert genom Stripe. Swish-betalningar behandlas via Swish.",
       "deliveryTitle": "Leverans och upphämtning",
-      "deliveryText": "Beställningar kan levereras eller hämtas upp beroende på tillgänglighet. Leveranstider är uppskattningar och kan variera beroende på efterfrågan, väder och avstånd.",
+      "deliveryText": "Beställningar kan levereras eller hämtas upp beroende på tillgänglighet. Leveranstiderna är uppskattningar och kan variera beroende på efterfrågan, väder och avstånd.",
       "cancellationTitle": "Avbokning",
-      "cancellationText": "Beställningar kan avbokas innan tillagningen har påbörjats. När matlagningen har påbörjats kan avbokning vara omöjlig.",
+      "cancellationText": "Beställningar kan avbeställas innan tillagningen har påbörjats. När matlagningen har påbörjats kan det hända att avbeställning inte är möjlig.",
       "refundsTitle": "Återbetalningar och reklamationer",
       "refundsText": "Om det uppstår problem med din beställning, kontakta oss så snart som möjligt. Återbetalningar kan utfärdas för felaktiga, saknade eller misslyckade beställningar efter granskning.",
       "contactTitle": "Kontakt",
@@ -208,35 +438,35 @@
     "privacy": {
       "eyebrow": "Integritetspolicy",
       "title": "Integritetspolicy",
-      "subtitle": "Vi respekterar din integritet och hanterar dina personuppgifter ansvarsfullt.",
-      "dataTitle": "Uppgifter vi samlar in",
+      "subtitle": "Vi respekterar din integritet och hanterar dina personuppgifter på ett ansvarsfullt sätt.",
+      "dataTitle": "Uppgifter som vi samlar in",
       "dataText": "När du gör en beställning kan vi samla in ditt namn, telefonnummer, adress, orderinformation och betalningsstatus.",
       "usageTitle": "Hur vi använder dina uppgifter",
-      "usageText": "Vi använder dina uppgifter för att behandla beställningar, leverera mat, hantera betalningar, ge kundsupport och förbättra vår service.",
+      "usageText": "Vi använder dina uppgifter för att behandla beställningar, leverera mat, hantera betalningar, tillhandahålla kundsupport och förbättra vår service.",
       "paymentsTitle": "Betalningar",
       "paymentsText": "Betalningar kan behandlas via Stripe och Swish. Vi lagrar inte fullständiga kortuppgifter på vår webbplats.",
       "storageTitle": "Datalagring",
-      "storageText": "Orderinformation kan lagras säkert i våra system för drift, redovisning och support.",
+      "storageText": "Orderinformation kan lagras på ett säkert sätt i våra system för drifts-, redovisnings- och supportändamål.",
       "rightsTitle": "Dina rättigheter",
-      "rightsText": "Du kan kontakta oss för att begära tillgång till, korrigering eller radering av dina personuppgifter där det är juridiskt möjligt.",
+      "rightsText": "Du kan kontakta oss för att begära tillgång till, korrigering eller radering av dina personuppgifter om det är juridiskt möjligt.",
       "contactTitle": "Kontakt",
       "contactText": "Om du har frågor om integritet kan du kontakta oss på kontakt@nordiceatery.se."
     },
     "checkout": {
       "emptyTitle": "Vagnen är tom",
-      "emptyText": "Lägg till mat i din kundvagn före kassan.",
+      "emptyText": "Lägg till livsmedel i din kundvagn före kassan.",
       "goToMenu": "Gå till menyn",
-      "eyebrow": "Säker kassa",
-      "title": "Kassa",
+      "eyebrow": "Säker utcheckning",
+      "title": "Checka ut",
       "subtitle": "Lägg till dina leveransuppgifter och välj hur du vill betala.",
       "name": "Namn",
       "namePlaceholder": "Ditt namn",
       "phone": "Telefon",
       "phonePlaceholder": "+46...",
-      "deliveryType": "Leveranssätt",
+      "deliveryType": "Typ av leverans",
       "delivery": "Leverans",
-      "deliveryTime": "30–40 min",
-      "pickup": "Upphämtning",
+      "deliveryTime": "30-40 minuter",
+      "pickup": "Pickup",
       "pickupText": "På restaurang",
       "address": "Adress",
       "addressPlaceholder": "Gata, lägenhet, stad",
@@ -248,25 +478,25 @@
       "cash": "Kontanter",
       "cashText": "Vid leverans",
       "swishInfo": "Betala med Swish efter att du lagt beställningen. Din order kommer att vara markerad som väntande på betalning tills betalningen är bekräftad.",
-      "cardInfo": "Du kommer att omdirigeras till Stripe. Kort, Apple Pay och Google Pay behandlas säkert.",
+      "cardInfo": "Du kommer att omdirigeras till Stripe. Kort, Apple Pay och Google Pay behandlas på ett säkert sätt.",
       "comment": "Kommentar",
       "commentPlaceholder": "Ingen lök, extra sås...",
       "securePayments": "Säkra betalningar",
       "securePaymentsText": "Kort och Apple Pay hanteras säkert via Stripe. Swish kommer att vara tillgängligt efter bankgodkännande.",
       "accept": "Jag accepterar",
-      "terms": "Villkor",
+      "terms": "Villkor och anvisningar",
       "and": "och",
       "privacy": "Integritetspolicy",
       "orderTitle": "Din beställning",
       "total": "Totalt",
-      "taxInfo": "Alla priser visas i SEK och inkluderar gällande skatter.",
-      "processing": "Bearbetar...",
+      "taxInfo": "Alla priser är angivna i SEK och inkluderar gällande skatter.",
+      "processing": "Bearbetning...",
       "continuePayment": "Fortsätt till betalning",
-      "placeOrder": "Lägg beställning",
-      "bottomInfo": "Beräknad leveranstid: 30–40 min. För reklamation eller återbetalning, kontakta kontakt@nordiceatery.se.",
+      "placeOrder": "Gör en beställning",
+      "bottomInfo": "Beräknad leveranstid: 30-40 min. För reklamation eller återbetalning, kontakta kontakt@nordiceatery.se.",
       "stripeError": "Stripe-betalningen kunde inte startas.",
       "orderError": "Order kunde inte skapas.",
-      "generalError": "Något gick fel. Försök igen."
+      "generalError": "Något gick fel. Vänligen försök igen."
     }
   },
   "admin": {
@@ -280,16 +510,16 @@
         "description": "Huvudöversikt över restaurangverksamheten.",
         "item1": "Visar dagens intäkter, order, aktiva leveranser och artiklar med lågt lager.",
         "item2": "Nya order hämtas från Supabases ordertabell.",
-        "item3": "Menyöversikten laddas från Supabases produkttabell.",
+        "item3": "Menyns ögonblicksbild laddas från Supabases produkttabell.",
         "item4": "Hälsningen visas endast på Dashboard och kan senare animeras."
       },
       "orders": {
         "title": "Beställningar",
         "description": "Orderhantering för ägare och administratör.",
         "item1": "Ordersidan visar alla senaste beställningar från Supabase.",
-        "item2": "Statusar: ny, förbereds, klar, slutförd, avbruten.",
+        "item2": "Status: ny, förberedande, klar, avslutad, annullerad.",
         "item3": "Admin kan flytta order genom köksflödet.",
-        "item4": "Avbrutna order tas inte bort från databasen, utan markeras endast som avbrutna."
+        "item4": "Avbeställda order tas inte bort från databasen, utan markeras endast som avbeställda."
       },
       "kitchen": {
         "title": "Köksdisplay",
@@ -304,29 +534,29 @@
         "description": "Produktkatalog och menykategoristruktur.",
         "item1": "Produkter hanteras på /admin/products.",
         "item2": "Skapa och redigera produkter via CRM:s produktformulär.",
-        "item3": "Använd matchande kategorier: maczanka, knysza, fries, drinks.",
+        "item3": "Använd matchande kategorier: maczanka, knysza, pommes frites, drycker.",
         "item4": "Den offentliga menyn visar endast tillgängliga produkter med lager eller ospårat lager."
       },
       "staff": {
-        "title": "Personalroller",
+        "title": "Personalens roller",
         "description": "Rollbaserad åtkomst för CRM och kök.",
-        "item1": "Roller: owner, admin, cook.",
-        "item2": "Ägaren kan hantera personalroller.",
+        "item1": "Roller: ägare, administratör, kock.",
+        "item2": "Ägaren kan hantera personalens roller.",
         "item3": "Administratören kan hantera produkter, beställningar, inställningar och analyser.",
-        "item4": "Cook ska bara ha tillgång till kitchen-display."
+        "item4": "Kocken ska bara ha tillgång till köksdisplayen."
       },
       "settingsSection": {
         "title": "Inställningar",
         "description": "Affärsinställningar lagrade i Supabase.",
         "item1": "Inställningarna lagras i tabellen business_settings.",
-        "item2": "Ägare/admin kan uppdatera företagsinformation, leverans- och betalningsalternativ.",
+        "item2": "Ägaren/administratören kan uppdatera företagsinformation, leverans- och betalningsalternativ.",
         "item3": "Swish är för närvarande markerat som planerat tills integrationen är klar.",
         "item4": "Dessa inställningar kan senare kopplas till kassa-, sidfot- och kontaktsidor."
       },
       "payments": {
         "title": "Betalningar",
         "description": "Betalningslogik för kassan och CRM.",
-        "item1": "Kontantorder kan omedelbart visas som obetalda.",
+        "item1": "Kontantorder kan omedelbart framstå som obetalda.",
         "item2": "Kortorder ska bli synliga för köket först efter betald status.",
         "item3": "Swish-integration är planerad som nästa betalningsfunktion.",
         "item4": "Stripe kan användas för kort, Apple Pay och Google Pay."
@@ -344,46 +574,46 @@
       "eyebrow": "Affärsinställningar",
       "title": "Inställningar",
       "subtitle": "Hantera restauranginformation, leveransalternativ, betalningsinställningar och operativa preferenser.",
-      "accessBadge": "Åtkomst för ägare/admin",
-      "emptyTable": "Tabellen business_settings är tom. Kör SQL seed-frågan i Supabase först."
+      "accessBadge": "Åtkomst för ägare/administratör",
+      "emptyTable": "Tabellen Business settings är tom. Kör SQL seed-frågan i Supabase först."
     },
     "reservationActions": {
       "confirm": "Bekräfta",
-      "complete": "Slutför",
+      "complete": "Komplett",
       "cancel": "Avbryt",
       "restore": "Återställ",
       "updating": "Uppdaterar..."
     },
     "reservations": {
-      "eyebrow": "Bokningshantering",
+      "eyebrow": "Hantering av bokningar",
       "title": "Bokningar",
       "subtitle": "Hantera kundbokningar, gästantal, bekräftelsestatus och bokningsanteckningar.",
-      "flow": "Bokningsflöde",
-      "pending": "Väntande",
+      "flow": "Reservationsflöde",
+      "pending": "Avvaktande",
       "pendingDescription": "Väntar på bekräftelse",
-      "confirmed": "Bekräftade",
+      "confirmed": "Bekräftad",
       "confirmedDescription": "Godkända kommande bokningar",
-      "completed": "Slutförda",
-      "completedDescription": "Slutförda bokningar",
-      "cancelled": "Avbrutna",
-      "cancelledDescription": "Avbrutna bokningar",
-      "allReservations": "Alla bokningar",
+      "completed": "Färdigställd",
+      "completedDescription": "Färdiga reservationer",
+      "cancelled": "Avbruten",
+      "cancelledDescription": "Avbokade bokningar",
+      "allReservations": "Alla reservationer",
       "allReservationsDescription": "Bokningar hämtade från Supabase.",
-      "reservationsCount": "{count} bokningar",
-      "noReservationsFound": "Inga bokningar hittades",
+      "reservationsCount": "{antal} reservationer",
+      "noReservationsFound": "Inga reservationer hittades",
       "noReservationsDescription": "Här visas kundernas bokningar.",
       "contact": "Kontakt",
       "date": "Datum",
       "time": "Tid",
       "guests": "Gäster",
-      "note": "Anteckning",
+      "note": "Notera",
       "noContact": "Ingen kontakt",
-      "guestsCount": "{count} gäster",
+      "guestsCount": "{antal} gäster",
       "statuses": {
-        "pending": "Väntande",
+        "pending": "Avvaktande",
         "confirmed": "Bekräftad",
         "cancelled": "Avbruten",
-        "completed": "Slutförd"
+        "completed": "Färdigställd"
       }
     },
     "menuAdmin": {
@@ -391,13 +621,13 @@
       "title": "Meny",
       "subtitle": "Organisera din restaurangmeny efter kategorier, tillgänglighet, lager och produktprestanda.",
       "viewProducts": "Visa produkter",
-      "totalProducts": "Totalt antal produkter",
+      "totalProducts": "Totala produkter",
       "activeProducts": "Aktiva produkter",
       "hiddenProducts": "Dolda produkter",
-      "lowStock": "Lågt lager",
+      "lowStock": "Låg lagerhållning",
       "manage": "Hantera",
-      "items": "Artiklar",
-      "active": "Aktiva",
+      "items": "Föremål",
+      "active": "Aktiv",
       "avgPrice": "Genomsnittligt pris",
       "categories": {
         "maczanka": {
@@ -437,13 +667,13 @@
       "searchPlaceholder": "Sök efter beställningar, rätter, personal...",
       "edit": "Redigera",
       "active": "Aktiv",
-      "hidden": "Dold",
+      "hidden": "Dolda",
       "available": "Tillgänglig",
       "unavailable": "Ej tillgänglig",
       "saveChanges": "Spara ändringar",
       "saving": "Sparar...",
       "createProduct": "Skapa produkt",
-      "creatingAndTranslating": "Skapar och översätter...",
+      "creatingAndTranslating": "Skapa och översätta...",
       "cancel": "Avbryt",
       "delete": "Radera",
       "save": "Spara"
@@ -456,7 +686,7 @@
     },
     "topbar": {
       "system": "System för restauranghantering",
-      "goodMorning": "God morgon",
+      "goodMorning": "God morgon.",
       "goodAfternoon": "God eftermiddag",
       "goodEvening": "God kväll",
       "subtitle": "Här är vad som händer i din restaurang idag.",
@@ -472,57 +702,57 @@
       "activeDeliveries": "Aktiva leveranser",
       "activeDeliveriesDescription": "För närvarande på väg",
       "lowStockItems": "Artiklar med lågt lager",
-      "productsAvailable": "{count} produkter tillgängliga",
+      "productsAvailable": "{antal} produkter tillgängliga",
       "recentOrders": "Nya beställningar",
       "recentOrdersDescription": "Liveöversikt över dina restaurangbeställningar.",
       "viewAllOrders": "Visa alla beställningar",
       "noOrdersToday": "Inga order funna för idag",
       "noOrdersDescription": "När Supabase-order sparas kommer de att visas här.",
-      "kitchenActivity": "Köksaktivitet",
+      "kitchenActivity": "Aktivitet i köket",
       "kitchenActivityDescription": "Nuvarande operativ status.",
-      "preparing": "Förbereds",
-      "onDelivery": "Ute för leverans",
+      "preparing": "Förberedelser",
+      "onDelivery": "Vid leverans",
       "staffMembers": "Anställda",
-      "menuSnapshot": "Menyöversikt",
+      "menuSnapshot": "Meny ögonblicksbild",
       "menuSnapshotDescription": "Aktuella produkter från Supabase.",
       "noProducts": "Inga produkter hittades",
       "noProductsDescription": "Lägg till produkter i Supabase eller på admins produktsida.",
-      "live": "Live",
-      "today": "Idag",
+      "live": "Lev",
+      "today": "I dag",
       "check": "Kontrollera",
       "noOrders": "Inga beställningar",
-      "orderItems": "Orderartiklar",
-      "unnamedDish": "Namnlös maträtt",
+      "orderItems": "Beställ artiklar",
+      "unnamedDish": "Icke namngiven maträtt",
       "availableNow": "Tillgänglig nu",
       "noPrice": "Inget pris",
       "recently": "Nyligen",
       "minutesAgo": "{count} min sedan",
-      "hoursAgo": "{count} h sedan",
-      "daysAgo": "{count} d sedan"
+      "hoursAgo": "{antal} h sedan",
+      "daysAgo": "{antal} d sedan"
     },
     "analytics": {
-      "eyebrow": "Affärsanalys",
+      "eyebrow": "Analys av verksamheten",
       "title": "Analys",
-      "subtitle": "Spåra försäljning, order, leveransflöde, betalningsmetoder och köksaktiviteter från riktig Supabase-data.",
-      "lastOrders": "Senaste {count} beställningar",
+      "subtitle": "Spåra försäljning, order, leveransflöde, betalningsmetoder och köksaktiviteter från riktiga Supabase-data.",
+      "lastOrders": "Senaste {antal} beställningar",
       "revenue": "Intäkter",
       "completedOrdersOnly": "Endast slutförda order",
       "totalOrders": "Totalt antal order",
       "ordersLoaded": "Beställningar hämtade från Supabase",
-      "completed": "Slutförda",
+      "completed": "Färdigställd",
       "completedDescription": "Framgångsrikt avslutade order",
-      "activeNow": "Aktiva nu",
-      "activeNowDescription": "Nya, förbereds eller klara",
+      "activeNow": "Aktiv nu",
+      "activeNowDescription": "Ny, förberedd eller klar",
       "averageOrder": "Genomsnittlig order",
       "averageOrderDescription": "Genomsnittligt ordervärde",
       "activeRevenue": "Aktiva intäkter",
       "activeRevenueDescription": "Värde av aktiva order",
       "delivery": "Leverans",
       "deliveryDescription": "Beställningar markerade som leverans",
-      "cancelled": "Avbrutna",
-      "cancelledDescription": "Avbrutna eller borttagna order",
+      "cancelled": "Avbruten",
+      "cancelledDescription": "Annullerade eller borttagna order",
       "revenueTrend": "Intäktsutveckling",
-      "revenueTrendDescription": "Intäkter från slutförda order de senaste 7 dagarna.",
+      "revenueTrendDescription": "Färdigställda orderintäkter för de senaste 7 dagarna.",
       "sevenDays": "7 dagar",
       "orderVolume": "Ordervolym",
       "orderVolumeDescription": "Antal order under de senaste 7 dagarna.",
@@ -533,10 +763,10 @@
       "swish": "Swish",
       "paidOrders": "Betalda order",
       "recentOrders": "Nya beställningar",
-      "recentOrdersDescription": "De senaste beställningarna ingår i analysen.",
-      "shown": "{count} visas",
+      "recentOrdersDescription": "De senaste beställningarna ingår i analyserna.",
+      "shown": "{antal} visas",
       "noOrdersFound": "Inga beställningar hittades",
-      "noOrdersDescription": "Analys visas när order skapas.",
+      "noOrdersDescription": "Analytics visas när order skapas.",
       "payment": "Betalning",
       "type": "Typ",
       "created": "Skapad",
@@ -545,21 +775,21 @@
     "table": {
       "order": "Beställning",
       "customer": "Kund",
-      "items": "Artiklar",
+      "items": "Föremål",
       "total": "Totalt",
       "status": "Status",
       "time": "Tid"
     },
     "statuses": {
       "new": "Ny",
-      "preparing": "Förbereds",
-      "ready": "Klar",
-      "completed": "Slutförd",
+      "preparing": "Förberedelser",
+      "ready": "Redo",
+      "completed": "Färdigställd",
       "cancelled": "Avbruten"
     },
     "account": {
       "title": "Mitt konto",
-      "eyebrow": "Kontoinställningar",
+      "eyebrow": "Inställningar för konto",
       "subtitle": "Visa din personalprofil, rollbehörigheter och kontoåtkomst.",
       "staffMember": "Anställd",
       "noEmail": "Ingen e-post",
@@ -569,29 +799,29 @@
       "yourName": "Ditt namn",
       "profilePhoto": "Profilbild",
       "uploadPhoto": "Ladda upp foto",
-      "uploading": "Laddar upp...",
+      "uploading": "Uppladdning...",
       "saveProfile": "Spara profil",
       "saving": "Sparar...",
-      "profileUpdated": "Profilen uppdaterades.",
+      "profileUpdated": "Profilen uppdaterades framgångsrikt.",
       "photoUploaded": "Foto uppladdat. Spara ändringarna för att uppdatera din profil.",
       "userId": "Användar-ID",
       "created": "Skapad",
-      "accessPermissions": "Åtkomstbehörigheter",
+      "accessPermissions": "Tillgång till behörigheter",
       "permissionsDescription": "Behörigheterna baseras på din nuvarande personalroll.",
-      "accountEmail": "Konto-e-post",
+      "accountEmail": "E-postkonto",
       "notAvailable": "Ej tillgänglig",
       "noEmailAvailable": "Ingen e-post tillgänglig",
       "permissions": {
         "dashboardTitle": "Instrumentpanel",
-        "dashboardDescription": "Åtkomst till CRM:s huvudöversikt.",
+        "dashboardDescription": "Gå till CRM:s huvudöversikt.",
         "ordersTitle": "Beställningar",
         "ordersDescription": "Visa och hantera kundorder.",
         "kitchenTitle": "Köksdisplay",
-        "kitchenDescription": "Åtkomst till kökets beställningstavla.",
+        "kitchenDescription": "Gå till kökets beställningstavla.",
         "staffTitle": "Personaladministration",
-        "staffDescription": "Bjud in personal och uppdatera roller.",
+        "staffDescription": "Bjud in personalen och uppdatera rollerna.",
         "settingsTitle": "Inställningar",
-        "settingsDescription": "Hantera företags- och restauranginställningar."
+        "settingsDescription": "Hantera affärs- och restaurangmiljöer."
       }
     },
     "products": {
@@ -603,7 +833,7 @@
       "status": "Status",
       "formTitleCreate": "Lägg till produkt",
       "formTitleEdit": "Redigera produkt",
-      "productName": "Produktnamn",
+      "productName": "Produktens namn",
       "subtitle": "Undertitel",
       "category": "Kategori",
       "priceKr": "Pris, kr",
@@ -613,42 +843,42 @@
       "description": "Beskrivning",
       "popular": "Populär",
       "available": "Tillgänglig",
-      "trackStock": "Spåra lager",
+      "trackStock": "Track stock",
       "stockOn": "Lagerspårning är PÅ. Denna artikel kommer att döljas från kundmenyn när lagret är 0.",
       "stockOff": "Lagerspårning är AV. Använd detta för rätter som tillagas på beställning, som Maczanka eller Knysza.",
-      "stockZero": "Lagret är 0. Denna produkt kommer att döljas från kundmenyn.",
+      "stockZero": "Lagervärdet är 0. Denna produkt kommer att döljas från kundmenyn.",
       "productPhoto": "Produktfoto",
       "noImage": "Ingen bild",
       "uploadPhoto": "Ladda upp foto",
-      "uploading": "Laddar upp...",
+      "uploading": "Uppladdning...",
       "nameRequired": "Produktnamn är obligatoriskt.",
       "saveError": "Något gick fel"
     },
     "inventory": {
       "eyebrow": "Lagerstyrning",
-      "title": "Inventering",
+      "title": "Inventarieförteckning",
       "subtitle": "Hantera produktlager. Om det spårade lagret är 0 döljs produkten från kundmenyn.",
-      "productsCount": "{count} produkter",
+      "productsCount": "{antal} produkter",
       "searchPlaceholder": "Sök produkter...",
       "products": "Produkter",
       "quantityGreaterThanZero": "Kvantiteten måste vara större än 0.",
       "available": "Tillgänglig",
-      "hidden": "Dold",
-      "stockTracked": "Lager spåras",
+      "hidden": "Dolda",
+      "stockTracked": "Aktie spårad",
       "noStockTracking": "Ingen lagerspårning",
-      "outOfStock": "Slut i lager",
-      "lowStock": "Lågt lager",
+      "outOfStock": "Finns inte i lager",
+      "lowStock": "Låg lagerhållning",
       "currentStock": "Aktuellt lager",
-      "in": "Lager in",
-      "out": "Lager ut",
+      "in": "Aktie i",
+      "out": "Lageruttag",
       "adjustment": "Justering",
-      "noTrack": "Spåra inte",
-      "track": "Spåra",
+      "noTrack": "Inget spår",
+      "track": "Spår",
       "hideProduct": "Dölj produkt",
       "showProduct": "Visa produkt",
       "newStockQuantity": "Ny lagerkvantitet",
       "quantity": "Kvantitet",
-      "note": "Anteckning",
+      "note": "Notera",
       "notePlaceholder": "Leverantör, anledning, korrigering av misstag...",
       "saving": "Sparar...",
       "apply": "Tillämpa",
@@ -657,74 +887,74 @@
     "orders": {
       "eyebrow": "Beställningar",
       "title": "Orderhantering",
-      "subtitle": "Hantera kundbeställningar, betalningsstatus, leveransflöde och köksprocess på ett ställe.",
+      "subtitle": "Hantera kundorder, betalningsstatus, leveransflöde och köksförlopp på ett och samma ställe.",
       "total": "Totalt",
-      "active": "Aktiva",
-      "paid": "Betalda",
+      "active": "Aktiv",
+      "paid": "Betalade",
       "revenue": "Intäkter",
-      "deliveryOrders": "Leveransbeställningar",
-      "cashOrders": "Kontantbeställningar",
+      "deliveryOrders": "Leveransorder",
+      "cashOrders": "Kontantorder",
       "cardSwish": "Kort / Swish",
-      "latestOrder": "Senaste order",
+      "latestOrder": "Senaste beställning",
       "allOrders": "Alla beställningar",
-      "allOrdersDescription": "Senaste kundbeställningar från Supabase.",
-      "ordersCount": "{count} order",
+      "allOrdersDescription": "Senaste kundorder från Supabase.",
+      "ordersCount": "{antal} order",
       "noOrdersFound": "Inga beställningar hittades",
-      "noOrdersDescription": "Nya kundbeställningar visas här.",
+      "noOrdersDescription": "Nya kundorder kommer att visas här.",
       "contact": "Kontakt",
       "type": "Typ",
       "payment": "Betalning",
       "created": "Skapad",
       "actions": "Åtgärder",
-      "itemsCount": "{count} artiklar",
+      "itemsCount": "{antal} artiklar",
       "noAddress": "Ingen adress",
-      "pickupOrder": "Avhämtning",
-      "unknown": "Okänt",
+      "pickupOrder": "Upphämtningsorder",
+      "unknown": "Okänd",
       "deliveryTypes": {
         "delivery": "Leverans",
-        "pickup": "Avhämtning"
+        "pickup": "Pickup"
       },
       "paymentMethods": {
-        "cash": "Kontant",
+        "cash": "Kontanter",
         "swish": "Swish",
         "card": "Kort"
       },
       "paymentStatuses": {
         "unpaid": "Obetald",
-        "awaiting_payment": "Väntar på betalning",
-        "paid": "Betald",
-        "failed": "Misslyckad",
-        "refunded": "Återbetald"
+        "awaiting_payment": "Avvaktar betalning",
+        "paid": "Betalade",
+        "failed": "Misslyckades",
+        "refunded": "Återbetalade"
       }
     },
     "kitchen": {
       "display": "Köksdisplay",
-      "title": "Beställningstavla",
+      "title": "Beställningar styrelse",
       "subtitle": "Håll den här sidan öppen på kökets surfplatta. Nya beställningar kommer att visas här och kan flyttas genom kökets arbetsflöde.",
-      "newNow": "Nya nu",
+      "newNow": "Ny nu",
       "noActiveOrders": "Inga aktiva order",
       "emptyText": "Beställningar från kassan kommer att visas här.",
       "empty": "Tomt",
       "comment": "Kommentar",
       "startPreparing": "Börja förbereda",
       "markReady": "Markera som klar",
-      "completeOrder": "Slutför order",
+      "completeOrder": "Komplett order",
       "remove": "Ta bort",
       "min": "min",
       "statuses": {
         "new": "Ny",
-        "preparing": "Förbereds",
-        "ready": "Klar",
-        "completed": "Slutförd",
+        "preparing": "Förberedelser",
+        "ready": "Redo",
+        "completed": "Färdigställd",
         "cancelled": "Avbruten"
       },
       "columns": {
         "newTitle": "Nya order",
         "newDescription": "Acceptera och börja laga mat.",
-        "preparingTitle": "Förbereds",
-        "preparingDescription": "Beställningar som för närvarande finns i köket.",
-        "readyTitle": "Klara",
-        "readyDescription": "Klara för upphämtning eller leverans."
+        "preparingTitle": "Förberedelser",
+        "preparingDescription": "Beställningar för närvarande i köket.",
+        "readyTitle": "Redo",
+        "readyDescription": "Redo för upphämtning eller leverans."
       }
     }
   }

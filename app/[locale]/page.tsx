@@ -131,6 +131,71 @@ export default async function HomePage({
             ))}
           </div>
         </section>
+
+        <section className="container-page pb-14 sm:pb-16">
+          <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 sm:p-6">
+            <div className="max-w-2xl">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-paprika">
+                {t("seoLinks.eyebrow")}
+              </p>
+
+              <h2 className="mt-2 text-3xl font-black leading-[1] tracking-[-0.05em] text-dark sm:text-4xl">
+                {t("seoLinks.title")}
+              </h2>
+
+              <p className="mt-3 text-sm leading-7 text-dark/60 sm:text-base">
+                {t("seoLinks.description")}
+              </p>
+            </div>
+
+            <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+              <Link
+                  href={`/${locale}/delivery-boden`}
+                  title={t("seoLinks.delivery")}
+                  aria-label={t("seoLinks.delivery")}
+                  className="rounded-xl border border-[#EADDCF] bg-white/70 px-4 py-3 text-center text-sm font-black text-dark transition hover:border-paprika/30 hover:text-paprika"
+              >
+                {t("seoLinks.deliveryShort")}
+              </Link>
+
+              <Link
+                  href={`/${locale}/takeaway-boden`}
+                  title={t("seoLinks.takeaway")}
+                  aria-label={t("seoLinks.takeaway")}
+                  className="rounded-xl border border-[#EADDCF] bg-white/70 px-4 py-3 text-center text-sm font-black text-dark transition hover:border-paprika/30 hover:text-paprika"
+              >
+                {t("seoLinks.takeawayShort")}
+              </Link>
+
+              <Link
+                  href={`/${locale}/burgers-boden`}
+                  title={t("seoLinks.burgers")}
+                  aria-label={t("seoLinks.burgers")}
+                  className="rounded-xl border border-[#EADDCF] bg-white/70 px-4 py-3 text-center text-sm font-black text-dark transition hover:border-paprika/30 hover:text-paprika"
+              >
+                {t("seoLinks.burgersShort")}
+              </Link>
+
+              <Link
+                  href={`/${locale}/catering-boden`}
+                  title={t("seoLinks.catering")}
+                  aria-label={t("seoLinks.catering")}
+                  className="rounded-xl border border-[#EADDCF] bg-white/70 px-4 py-3 text-center text-sm font-black text-dark transition hover:border-paprika/30 hover:text-paprika"
+              >
+                {t("seoLinks.cateringShort")}
+              </Link>
+
+              <Link
+                  href={`/${locale}/menu`}
+                  title={t("seoLinks.menu")}
+                  aria-label={t("seoLinks.menu")}
+                  className="rounded-xl border border-[#EADDCF] bg-white/70 px-4 py-3 text-center text-sm font-black text-dark transition hover:border-paprika/30 hover:text-paprika"
+              >
+                {t("seoLinks.menuShort")}
+              </Link>
+            </div>
+          </div>
+        </section>
       </main>
   );
 }

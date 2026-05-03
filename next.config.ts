@@ -15,6 +15,21 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  async redirects() {
+    return [
+      {
+        source: "/burgers-boden",
+        destination: "/en/polish-food-boden",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|sv|pl|ru)/burgers-boden",
+        destination: "/:locale/polish-food-boden",
+        permanent: true,
+      },
+    ];
+  },
+
   eslint: {
     ignoreDuringBuilds: true,
   },

@@ -1,4 +1,30 @@
 {
+  "seo": {
+    "menu": {
+      "title": "Menu | Dostawa jedzenia i dania na wynos w Boden | Nordic Eatery",
+      "description": "Poznaj menu Nordic Eatery w Boden. Zamów polskie jedzenie typu comfort food, burgery, chrupiące frytki, napoje i street food z dostawą lub na wynos.",
+      "ogTitle": "Nordic Eatery Menu | Dostawa jedzenia do Boden",
+      "ogDescription": "Nordic Eatery w Boden oferuje polskie dania typu comfort food, burgery, frytki i street food."
+    },
+    "takeawayBoden": {
+      "title": "Dania na wynos w Boden | Zamów online | Nordic Eatery",
+      "description": "Zamów jedzenie na wynos w Boden z Nordic Eatery. Świeże polskie jedzenie typu comfort food, burgery, chrupiące frytki, napoje i street food gotowe do odbioru.",
+      "ogTitle": "Dania na wynos w Boden | Nordic Eatery",
+      "ogDescription": "Zamów polskie jedzenie typu comfort food, burgery, chrupiące frytki i street food na wynos w Boden."
+    },
+    "cateringBoden": {
+      "title": "Catering w Boden | Jedzenie na imprezy | Nordic Eatery",
+      "description": "Zarezerwuj catering w Boden z Nordic Eatery. Polski comfort food, burgery, street food i niestandardowe menu na imprezy prywatne, firmowe i lokalne.",
+      "ogTitle": "Catering w Boden | Nordic Eatery",
+      "ogDescription": "Świeży catering w Boden na imprezy prywatne, firmowe i lokalne."
+    },
+    "polishFoodBoden": {
+      "title": "Polskie jedzenie w Boden | Maczanka & Street Food | Nordic Eatery",
+      "description": "Zamów polskie jedzenie w Boden z Nordic Eatery. Spróbuj Maczanka, Knysza, chrupiące frytki i inspirowane kuchnią polską street food z dostawą lub na wynos.",
+      "ogTitle": "Polskie jedzenie w Boden | Nordic Eatery",
+      "ogDescription": "Maczanka, Knysza, chrupiące frytki i polski street food w Boden."
+    }
+  },
   "nav": {
     "menu": "Menu",
     "about": "O nas",
@@ -32,6 +58,195 @@
     "address": "Adres"
   },
   "pages": {
+    "polishFoodBoden": {
+      "hero": {
+        "eyebrow": "Polskie jedzenie w Boden",
+        "title": "Polskie komfortowe jedzenie w Boden",
+        "description": "Nordic Eatery wprowadza do Boden inspirowane polską kuchnią dania typu comfort food i street food. Spróbuj Maczanki, Knyszy, chrupiących frytek i ciepłych dań przygotowywanych na świeżo na wynos i z dostawą.",
+        "primaryCta": "Wyświetl menu",
+        "secondaryCta": "Dostawa żywności"
+      },
+      "cards": {
+        "maczanka": {
+          "title": "Maczanka",
+          "description": "Inspirowany polską kuchnią uliczną faworyt o bogatym smaku i satysfakcjonujących składnikach."
+        },
+        "streetFood": {
+          "title": "Jedzenie uliczne",
+          "description": "Ciepłe, sycące dania na wynos, z dostawą i na co dzień."
+        },
+        "takeaway": {
+          "title": "Na wynos i z dostawą",
+          "description": "Zamów online z odbiorem lub dostawą jedzenia w Boden."
+        }
+      },
+      "content": {
+        "eyebrow": "Lokalne polskie jedzenie",
+        "title": "Polskie doświadczenie kulinarne w Boden",
+        "paragraph1": "Nordic Eatery koncentruje się na inspirowanym polską kuchnią comfort food, street food i prostych zamówieniach online. Nasze menu opiera się na ciepłych, sycących daniach, które sprawdzają się w dostawie, na wynos i jako codzienne posiłki.",
+        "paragraph2": "Zamiast być klasyczną restauracją z burgerami, Nordic Eatery jest bliższa polskiemu street foodowi z daniami takimi jak Maczanka, Knysza, chrupiące frytki i wybrane ulubione dania typu comfort food.",
+        "paragraph3": "Jeśli szukasz polskiego jedzenia w Boden, dań na wynos w pobliżu lub czegoś innego niż standardowy fast food, Nordic Eatery oferuje świeżą lokalną opcję.",
+        "menuCta": "Zobacz pełne menu",
+        "takeawayCta": "Dania na wynos w Boden",
+        "deliveryCta": "Dostawa jedzenia w Boden"
+      },
+      "benefits": {
+        "title": "Dlaczego warto spróbować Nordic Eatery?",
+        "items": {
+          "0": "Jedzenie inspirowane kuchnią polską w Boden",
+          "1": "Maczanka, Knysza i uliczne jedzenie",
+          "2": "Świeżo przygotowane dania",
+          "3": "Dobre na lunch, kolację i posiłki codzienne",
+          "4": "Dostępne na wynos i z dostawą",
+          "5": "Łatwe zamawianie online"
+        }
+      }
+    },
+    "cateringBoden": {
+      "hero": {
+        "eyebrow": "Catering w Boden",
+        "title": "Catering na imprezy w Boden",
+        "description": "Planujesz prywatne wydarzenie, firmowy lunch lub lokalne spotkanie w Boden? Nordic Eatery oferuje catering z polskim komfortowym jedzeniem, burgerami, street foodem i elastycznymi opcjami menu przygotowywanymi na świeżo dla Twoich gości.",
+        "primaryCta": "Zamów catering",
+        "secondaryCta": "Skontaktuj się z nami"
+      },
+      "cards": {
+        "private": {
+          "title": "Wydarzenia prywatne",
+          "description": "Jedzenie na urodziny, spotkania rodzinne i zwykłe uroczystości."
+        },
+        "company": {
+          "title": "Posiłki firmowe",
+          "description": "Catering dla biur, zespołów, posiłki dla pracowników i imprezy biznesowe."
+        },
+        "delivery": {
+          "title": "Odbiór lub dostawa",
+          "description": "Wybierz opcję odbioru lub omów opcje dostawy w Boden."
+        },
+        "planning": {
+          "title": "Łatwe planowanie",
+          "description": "Poinformuj nas o wielkości wydarzenia, a my pomożemy zaplanować jedzenie."
+        }
+      },
+      "content": {
+        "eyebrow": "Jedzenie na imprezę",
+        "title": "Świeża żywność cateringowa dla Boden",
+        "paragraph1": "Nordic Eatery ułatwia organizację imprez dzięki ciepłemu, satysfakcjonującemu jedzeniu przygotowanemu dla grup. Nasz catering nadaje się na prywatne przyjęcia, lunche biurowe, posiłki dla pracowników, małe imprezy i lokalne spotkania w Boden.",
+        "paragraph2": "Menu może obejmować polski comfort food, burgery, chrupiące frytki, street food i wybrane dania w zależności od wielkości imprezy i Twoich potrzeb. Skupiamy się na jedzeniu, które jest łatwe do podania, sycące i przyjemne dla gości.",
+        "paragraph3": "Niezależnie od tego, czy potrzebujesz prostego cateringu na wynos, czy bardziej zaplanowanej konfiguracji, skontaktuj się z Nordic Eatery, a pomożemy Ci znaleźć odpowiednie rozwiązanie.",
+        "bookingCta": "Catering książkowy",
+        "menuCta": "Wyświetl menu",
+        "deliveryCta": "Dostawa żywności"
+      },
+      "benefits": {
+        "title": "Dlaczego warto wybrać catering Nordic Eatery?",
+        "items": {
+          "0": "Catering w Boden na imprezy prywatne i firmowe",
+          "1": "Świeży polski comfort food i street food",
+          "2": "Elastyczne opcje menu dla grup",
+          "3": "Opcje odbioru lub ewentualnej dostawy",
+          "4": "Dobry na lunch, kolację i niezobowiązujące spotkania",
+          "5": "Szybka komunikacja i proste planowanie"
+        }
+      },
+      "cta": {
+        "title": "Potrzebujesz cateringu w Boden?",
+        "description": "Wyślij nam zapytanie z datą wydarzenia, liczbą gości i preferencjami żywieniowymi. Pomożemy Ci zaplanować odpowiednią opcję cateringu.",
+        "button": "Wyślij zapytanie dotyczące cateringu"
+      },
+      "faq": {
+        "eyebrow": "FAQ",
+        "title": "Pytania dotyczące cateringu",
+        "items": {
+          "0": {
+            "question": "Czy oferujecie catering w Boden?",
+            "answer": "Tak. Nordic Eatery oferuje catering w Boden na prywatne imprezy, posiłki firmowe i lokalne spotkania."
+          },
+          "1": {
+            "question": "Jakie jedzenie mogę zamówić w ramach cateringu?",
+            "answer": "Możesz zamówić polski comfort food, burgery, chrupiące frytki, street food i wybrane pozycje menu w zależności od wydarzenia."
+          },
+          "2": {
+            "question": "Czy możesz pomóc z cateringiem firmowym?",
+            "answer": "Tak. Możemy dostarczyć catering na lunche biurowe, posiłki dla pracowników i imprezy biznesowe w Boden."
+          },
+          "3": {
+            "question": "Jak zamówić catering?",
+            "answer": "Skorzystaj ze strony rezerwacji lub kontaktu i prześlij datę wydarzenia, liczbę gości oraz preferencje dotyczące jedzenia."
+          }
+        }
+      }
+    },
+    "takeawayBoden": {
+      "hero": {
+        "eyebrow": "Dania na wynos w Boden",
+        "title": "Zamów jedzenie na wynos w Boden",
+        "description": "Masz ochotę na świeże jedzenie bez czekania? Zamów jedzenie na wynos z Nordic Eatery w Boden. Wybierz Polish comfort food, burgery, chrupiące frytki, napoje i street food, a następnie odbierz zamówienie, gdy będzie gotowe.",
+        "primaryCta": "Zamówienie na wynos",
+        "secondaryCta": "Dostawa żywności"
+      },
+      "cards": {
+        "order": {
+          "title": "Zamów online",
+          "description": "Wybierz jedzenie z naszego menu online."
+        },
+        "fresh": {
+          "title": "Świeżo przygotowane",
+          "description": "Zamówienie jest przygotowywane na świeżo po dokonaniu płatności."
+        },
+        "pickup": {
+          "title": "Odbiór",
+          "description": "Odbierz jedzenie, gdy będzie gotowe."
+        },
+        "simple": {
+          "title": "Prosty proces",
+          "description": "Zamawiaj online, unikaj telefonów i odbieraj jedzenie."
+        }
+      },
+      "content": {
+        "eyebrow": "Jedzenie na wynos",
+        "title": "Świeże jedzenie na wynos w Boden",
+        "paragraph1": "Nordic Eatery sprawia, że jedzenie na wynos jest proste dla osób w Boden, które chcą ciepłego, sycącego jedzenia bez poświęcania czasu na gotowanie. Nasze menu obejmuje polskie dania typu comfort food, burgery, chrupiące frytki, napoje i street food.",
+        "paragraph2": "Jedzenie na wynos to dobry wybór na lunch, kolację, przerwę w pracy lub zwykły posiłek w domu. Zamów online, pomiń telefon i odbierz jedzenie, gdy będzie gotowe.",
+        "paragraph3": "Nasze jedzenie jest przygotowywane na świeżo po złożeniu zamówienia, dzięki czemu otrzymujesz ciepłe i spójne posiłki, które można łatwo odebrać i cieszyć się nimi.",
+        "menuCta": "Wyświetl menu",
+        "burgersCta": "Burgery w Boden",
+        "cateringCta": "Catering w Boden"
+      },
+      "benefits": {
+        "title": "Dlaczego warto zamówić jedzenie na wynos w Nordic Eatery?",
+        "items": {
+          "0": "Łatwe zamawianie online",
+          "1": "Świeże polskie comfort food",
+          "2": "Burgery, frytki i napoje",
+          "3": "Uliczne jedzenie przygotowane do odbioru",
+          "4": "Dobra opcja na lunch lub kolację",
+          "5": "Dania na wynos i dostawa dostępne w Boden"
+        }
+      },
+      "faq": {
+        "eyebrow": "FAQ",
+        "title": "Pytania na wynos",
+        "items": {
+          "0": {
+            "question": "Czy mogę zamówić jedzenie na wynos w Boden?",
+            "answer": "Tak, możesz zamówić jedzenie na wynos online w Nordic Eatery i odebrać je, gdy będzie gotowe."
+          },
+          "1": {
+            "question": "Jakie jedzenie mogę zamówić na wynos?",
+            "answer": "Można tu zamówić polski comfort food, burgery, chrupiące frytki, napoje i street food."
+          },
+          "2": {
+            "question": "Czy oferujecie również dostawę?",
+            "answer": "Tak. Nordic Eatery oferuje zarówno jedzenie na wynos, jak i jedzenie z dostawą w Boden."
+          },
+          "3": {
+            "question": "Jak zamówić jedzenie na wynos?",
+            "answer": "Otwórz menu online, wybierz pozycje i złóż zamówienie. Jedzenie zostanie przygotowane do odbioru."
+          }
+        }
+      }
+    },
     "cart": {
       "eyebrow": "Wózek",
       "title": "Twoje zamówienie",
@@ -64,6 +279,21 @@
         "knysza": "Knysza",
         "fries": "Frytki",
         "drinks": "Napoje"
+      },
+      "seoLinks": {
+        "eyebrow": "Lokalne jedzenie w Boden",
+        "title": "Dostawa jedzenia, jedzenie na wynos i catering w Boden",
+        "description": "Nordic Eatery oferuje świeże polskie jedzenie typu comfort food, burgery, chrupiące frytki, street food, dania na wynos i catering w Boden.",
+        "delivery": "Dostawa jedzenia w Boden",
+        "takeaway": "Dania na wynos w Boden",
+        "burgers": "Burgery w Boden",
+        "catering": "Catering w Boden",
+        "menu": "Zobacz pełne menu",
+        "deliveryShort": "Dostawa",
+        "takeawayShort": "Na wynos",
+        "burgersShort": "Burgery",
+        "cateringShort": "Catering",
+        "menuShort": "Menu"
       }
     },
     "menu": {

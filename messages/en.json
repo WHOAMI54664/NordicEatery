@@ -1,4 +1,30 @@
 {
+  "seo": {
+    "menu": {
+      "title": "Menu | Food Delivery & Takeaway in Boden | Nordic Eatery",
+      "description": "Explore the Nordic Eatery menu in Boden. Order Polish comfort food, burgers, crispy fries, drinks and street food for delivery or takeaway.",
+      "ogTitle": "Nordic Eatery Menu | Food Delivery in Boden",
+      "ogDescription": "Order Polish comfort food, burgers, fries and street food from Nordic Eatery in Boden."
+    },
+    "takeawayBoden": {
+      "title": "Takeaway in Boden | Order Online | Nordic Eatery",
+      "description": "Order takeaway in Boden from Nordic Eatery. Fresh Polish comfort food, burgers, crispy fries, drinks and street food ready for pickup.",
+      "ogTitle": "Takeaway in Boden | Nordic Eatery",
+      "ogDescription": "Order Polish comfort food, burgers, crispy fries and street food for takeaway in Boden."
+    },
+    "cateringBoden": {
+      "title": "Catering in Boden | Food for Events | Nordic Eatery",
+      "description": "Book catering in Boden from Nordic Eatery. Polish comfort food, burgers, street food and custom menus for private events, companies and local gatherings.",
+      "ogTitle": "Catering in Boden | Nordic Eatery",
+      "ogDescription": "Fresh catering in Boden for private events, companies and local gatherings."
+    },
+    "polishFoodBoden": {
+      "title": "Polish Food in Boden | Maczanka & Street Food | Nordic Eatery",
+      "description": "Order Polish food in Boden from Nordic Eatery. Try Maczanka, Knysza, crispy fries and Polish-inspired street food for delivery or takeaway.",
+      "ogTitle": "Polish Food in Boden | Nordic Eatery",
+      "ogDescription": "Maczanka, Knysza, crispy fries and Polish-inspired street food in Boden."
+    }
+  },
   "nav": {
     "menu": "Menu",
     "about": "About us",
@@ -32,6 +58,195 @@
     "address": "Address"
   },
   "pages": {
+    "polishFoodBoden": {
+      "hero": {
+        "eyebrow": "Polish food in Boden",
+        "title": "Polish comfort food in Boden",
+        "description": "Nordic Eatery brings Polish-inspired comfort food and street food to Boden. Try Maczanka, Knysza, crispy fries and warm dishes prepared fresh for takeaway and delivery.",
+        "primaryCta": "View menu",
+        "secondaryCta": "Food delivery"
+      },
+      "cards": {
+        "maczanka": {
+          "title": "Maczanka",
+          "description": "A Polish-inspired street food favourite with rich flavour and satisfying ingredients."
+        },
+        "streetFood": {
+          "title": "Street food",
+          "description": "Warm, filling dishes made for takeaway, delivery and casual meals."
+        },
+        "takeaway": {
+          "title": "Takeaway & delivery",
+          "description": "Order online for pickup or food delivery in Boden."
+        }
+      },
+      "content": {
+        "eyebrow": "Local Polish food",
+        "title": "A Polish food experience in Boden",
+        "paragraph1": "Nordic Eatery focuses on Polish-inspired comfort food, street food and simple online ordering. Our menu is built around warm, filling dishes that work well for delivery, takeaway and everyday meals.",
+        "paragraph2": "Instead of being a classic burger restaurant, Nordic Eatery is closer to Polish street food with dishes like Maczanka, Knysza, crispy fries and selected comfort food favourites.",
+        "paragraph3": "If you are looking for Polish food in Boden, takeaway near you or something different from standard fast food, Nordic Eatery gives you a fresh local option.",
+        "menuCta": "View full menu",
+        "takeawayCta": "Takeaway in Boden",
+        "deliveryCta": "Food delivery in Boden"
+      },
+      "benefits": {
+        "title": "Why try Nordic Eatery?",
+        "items": [
+          "Polish-inspired food in Boden",
+          "Maczanka, Knysza and street food",
+          "Freshly prepared dishes",
+          "Good for lunch, dinner and casual meals",
+          "Available for takeaway and delivery",
+          "Easy online ordering"
+        ]
+      }
+    },
+    "cateringBoden": {
+      "hero": {
+        "eyebrow": "Catering in Boden",
+        "title": "Catering for events in Boden",
+        "description": "Planning a private event, company lunch or local gathering in Boden? Nordic Eatery offers catering with Polish comfort food, burgers, street food and flexible menu options prepared fresh for your guests.",
+        "primaryCta": "Request catering",
+        "secondaryCta": "Contact us"
+      },
+      "cards": {
+        "private": {
+          "title": "Private events",
+          "description": "Food for birthdays, family gatherings and casual celebrations."
+        },
+        "company": {
+          "title": "Company meals",
+          "description": "Catering for offices, teams, staff meals and business events."
+        },
+        "delivery": {
+          "title": "Pickup or delivery",
+          "description": "Choose pickup or discuss delivery options in Boden."
+        },
+        "planning": {
+          "title": "Easy planning",
+          "description": "Tell us your event size and we help plan the food."
+        }
+      },
+      "content": {
+        "eyebrow": "Event food",
+        "title": "Fresh catering food for Boden",
+        "paragraph1": "Nordic Eatery helps make events easier with warm, satisfying food prepared for groups. Our catering is suitable for private parties, office lunches, staff meals, small events and local gatherings in Boden.",
+        "paragraph2": "The menu can include Polish comfort food, burgers, crispy fries, street food and selected dishes depending on the event size and your needs. We focus on food that is easy to serve, filling and enjoyable for guests.",
+        "paragraph3": "Whether you need simple takeaway-style catering or a more planned food setup, contact Nordic Eatery and we will help you find a suitable solution.",
+        "bookingCta": "Book catering",
+        "menuCta": "View menu",
+        "deliveryCta": "Food delivery"
+      },
+      "benefits": {
+        "title": "Why choose Nordic Eatery catering?",
+        "items": [
+          "Catering in Boden for private and company events",
+          "Fresh Polish comfort food and street food",
+          "Flexible menu options for groups",
+          "Pickup or possible delivery options",
+          "Good for lunch, dinner and casual gatherings",
+          "Fast communication and simple planning"
+        ]
+      },
+      "cta": {
+        "title": "Need catering in Boden?",
+        "description": "Send us a request with your event date, number of guests and food preferences. We will help you plan a suitable catering option.",
+        "button": "Send catering request"
+      },
+      "faq": {
+        "eyebrow": "FAQ",
+        "title": "Catering questions",
+        "items": [
+          {
+            "question": "Do you offer catering in Boden?",
+            "answer": "Yes. Nordic Eatery offers catering in Boden for private events, company meals and local gatherings."
+          },
+          {
+            "question": "What food can I order for catering?",
+            "answer": "You can request Polish comfort food, burgers, crispy fries, street food and selected menu items depending on your event."
+          },
+          {
+            "question": "Can you help with company catering?",
+            "answer": "Yes. We can provide catering for office lunches, staff meals and business events in Boden."
+          },
+          {
+            "question": "How do I request catering?",
+            "answer": "Use the booking or contact page and send your event date, number of guests and food preferences."
+          }
+        ]
+      }
+    },
+    "takeawayBoden": {
+      "hero": {
+        "eyebrow": "Takeaway in Boden",
+        "title": "Order takeaway in Boden",
+        "description": "Want fresh food without waiting? Order takeaway from Nordic Eatery in Boden. Choose Polish comfort food, burgers, crispy fries, drinks and street food, then pick up your order when it is ready.",
+        "primaryCta": "Order takeaway",
+        "secondaryCta": "Food delivery"
+      },
+      "cards": {
+        "order": {
+          "title": "Order online",
+          "description": "Choose your food from our online menu."
+        },
+        "fresh": {
+          "title": "Freshly prepared",
+          "description": "Your order is prepared fresh after checkout."
+        },
+        "pickup": {
+          "title": "Pickup",
+          "description": "Collect your food when it is ready."
+        },
+        "simple": {
+          "title": "Simple process",
+          "description": "Order online, avoid phone calls and pick up your food."
+        }
+      },
+      "content": {
+        "eyebrow": "Takeaway food",
+        "title": "Fresh takeaway food in Boden",
+        "paragraph1": "Nordic Eatery makes takeaway simple for people in Boden who want warm, filling food without spending time cooking. Our menu includes Polish comfort food, burgers, crispy fries, drinks and street food.",
+        "paragraph2": "Takeaway is a good choice for lunch, dinner, work breaks or casual meals at home. Order online, skip the phone call and pick up your food when it is ready.",
+        "paragraph3": "Our food is prepared fresh after you order, so you get warm and consistent meals that are easy to collect and enjoy.",
+        "menuCta": "View menu",
+        "burgersCta": "Burgers in Boden",
+        "cateringCta": "Catering in Boden"
+      },
+      "benefits": {
+        "title": "Why order takeaway from Nordic Eatery?",
+        "items": [
+          "Easy online ordering",
+          "Fresh Polish comfort food",
+          "Burgers, fries and drinks",
+          "Street food prepared for pickup",
+          "Good option for lunch or dinner",
+          "Takeaway and delivery available in Boden"
+        ]
+      },
+      "faq": {
+        "eyebrow": "FAQ",
+        "title": "Takeaway questions",
+        "items": [
+          {
+            "question": "Can I order takeaway in Boden?",
+            "answer": "Yes. You can order takeaway online from Nordic Eatery and pick up your food when it is ready."
+          },
+          {
+            "question": "What food can I order for takeaway?",
+            "answer": "You can order Polish comfort food, burgers, crispy fries, drinks and street food."
+          },
+          {
+            "question": "Do you also offer delivery?",
+            "answer": "Yes. Nordic Eatery offers both takeaway and food delivery in Boden."
+          },
+          {
+            "question": "How do I order takeaway?",
+            "answer": "Open the online menu, choose your items and place your order. Your food will be prepared for pickup."
+          }
+        ]
+      }
+    },
     "cart": {
       "eyebrow": "Cart",
       "title": "Your order",
@@ -64,6 +279,23 @@
         "knysza": "Knysza",
         "fries": "Fries",
         "drinks": "Drinks"
+      },
+      "seoLinks": {
+        "eyebrow": "Local food in Boden",
+        "title": "Order food delivery, takeaway and catering in Boden",
+        "description": "Nordic Eatery offers fresh Polish comfort food, burgers, crispy fries, street food, takeaway and catering in Boden.",
+
+        "delivery": "Food delivery in Boden",
+        "takeaway": "Takeaway in Boden",
+        "burgers": "Burgers in Boden",
+        "catering": "Catering in Boden",
+        "menu": "View full menu",
+
+        "deliveryShort": "Delivery",
+        "takeawayShort": "Takeaway",
+        "burgersShort": "Burgers",
+        "cateringShort": "Catering",
+        "menuShort": "Menu"
       }
     },
     "menu": {
