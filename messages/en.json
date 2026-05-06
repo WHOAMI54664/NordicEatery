@@ -331,6 +331,7 @@
       "finalText": "No waiting. No overpricing. Just good food done right."
     },
     "booking": {
+      "sending": "Sending...",
       "eyebrow": "Book your table",
       "title": "Booking",
       "subtitle": "Book a table, catering or Mike's Food Truck and we will confirm your request as soon as possible.",
