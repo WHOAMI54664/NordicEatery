@@ -310,25 +310,44 @@
       }
     },
     "about": {
-      "foodSection": {
-        "eyebrow": "Our food",
-        "title": "Built around flavour, texture and speed.",
-        "subtitle": "We keep the menu focused, the portions generous and the service fast. Every dish is made to feel simple, honest and satisfying."
-      },
-      "title": "About Mike’s Food",
+      "title": "About Nordic Eatery",
       "subtitle": "Real food. No compromises.",
+
       "whoTitle": "Who we are",
-      "whoText": "Mike’s Food is a modern street kitchen focused on fast service, quality ingredients, and honest prices.",
+      "whoText": {
+        "title": "From Norrland, with a passion for cooking.",
+        "paragraphs": [
+          "What started as a dream about a food truck has grown into Nordic Eatery — a food business where quality and craftsmanship are at the center.",
+          "Behind it are two driven entrepreneurs with roots in Sweden and Poland, with solid experience from both the hotel and restaurant industry.",
+          "Together we create food inspired by different cultures, always with taste, quality and creativity at the center."
+        ]
+      },
+
       "freshTitle": "Fresh ingredients",
-      "freshText": "We cook everything fresh. No shortcuts.",
+      "freshText": "We mainly use fresh ingredients.",
       "fastTitle": "Fast service",
-      "fastText": "You get your food quickly without losing quality.",
+      "fastText": "The food is prepared quickly without compromising on quality.",
       "simpleTitle": "Simple menu",
       "simpleText": "Only what really works. No unnecessary items.",
-      "tasteTitle": "Real taste",
-      "tasteText": "Street food energy with restaurant quality.",
+      "tasteTitle": "Unique taste",
+      "tasteText": "Street food beyond the ordinary.",
+
       "finalTitle": "Built for people who value good food",
-      "finalText": "No waiting. No overpricing. Just good food done right."
+      "finalText": "No waiting. No overpricing. Just good food made the right way.",
+
+      "badge": "Polish street food with a Swedish twist",
+
+      "foodEyebrow": "Our food",
+      "foodTitle": "Polish flavours with Swedish notes",
+      "foodText": "We prepare our food from scratch as much as possible and aim to use fresh and Swedish ingredients. Mike’s dishes are inspired by classic Polish street food and ingredients from Sweden.",
+
+      "ctaEyebrow": "Catering & events",
+      "ctaTitle": "Need food for your event?",
+      "ctaText": "Book catering, a food truck or a chef for your private party, company event, festival or special occasion. If you want a custom menu, contact us and we will do our best to meet your wishes.",
+      "ctaBook": "Book us",
+      "ctaContact": "Contact us",
+
+      "menuCta": "View menu"
     },
     "booking": {
       "sending": "Sending...",

@@ -308,25 +308,44 @@
       }
     },
     "about": {
-      "foodSection": {
-        "eyebrow": "Nasza żywność",
-        "title": "Zbudowany wokół smaku, tekstury i szybkości.",
-        "subtitle": "Menu jest skoncentrowane, porcje obfite, a obsługa szybka. Każde danie jest proste, uczciwe i satysfakcjonujące."
-      },
-      "title": "O Mike's Food",
+      "title": "O Nordic Eatery",
       "subtitle": "Prawdziwe jedzenie. Bez kompromisów.",
+
       "whoTitle": "Kim jesteśmy",
-      "whoText": "Mike's Food to nowoczesna kuchnia uliczna skupiająca się na szybkiej obsłudze, wysokiej jakości składnikach i uczciwych cenach.",
+      "whoText": {
+        "title": "Z Norrland, z pasją do gotowania.",
+        "paragraphs": [
+          "To, co zaczęło się jako marzenie o food trucku, dziś rozwinęło się w Nordic Eatery — firmę gastronomiczną, w której jakość i rzemiosło kulinarne są na pierwszym miejscu.",
+          "Za projektem stoją dwaj ambitni przedsiębiorcy z korzeniami w Szwecji i Polsce, z solidnym doświadczeniem w branży hotelarskiej i restauracyjnej.",
+          "Razem tworzymy jedzenie inspirowane różnymi kulturami, zawsze stawiając smak, jakość i kreatywność w centrum."
+        ]
+      },
+
       "freshTitle": "Świeże składniki",
-      "freshText": "Gotujemy wszystko na świeżo. Żadnych skrótów.",
+      "freshText": "Korzystamy przede wszystkim ze świeżych składników.",
       "fastTitle": "Szybka obsługa",
-      "fastText": "Szybko otrzymujesz jedzenie bez utraty jakości.",
+      "fastText": "Jedzenie przygotowujemy szybko, nie rezygnując z jakości.",
       "simpleTitle": "Proste menu",
-      "simpleText": "Tylko to, co naprawdę działa. Żadnych zbędnych elementów.",
-      "tasteTitle": "Prawdziwy smak",
-      "tasteText": "Energia ulicznego jedzenia z restauracyjną jakością.",
-      "finalTitle": "Stworzony dla ludzi ceniących dobre jedzenie",
-      "finalText": "Bez czekania. Żadnych zawyżonych cen. Po prostu dobre jedzenie."
+      "simpleText": "Tylko to, co naprawdę działa. Bez zbędnych rzeczy.",
+      "tasteTitle": "Wyjątkowy smak",
+      "tasteText": "Street food inny niż wszystkie.",
+
+      "finalTitle": "Stworzone dla ludzi, którzy cenią dobre jedzenie",
+      "finalText": "Bez czekania. Bez zawyżonych cen. Po prostu dobre jedzenie przygotowane we właściwy sposób.",
+
+      "badge": "Polski street food ze szwedzkim akcentem",
+
+      "foodEyebrow": "Nasze jedzenie",
+      "foodTitle": "Polskie smaki ze szwedzkimi akcentami",
+      "foodText": "Przygotowujemy nasze jedzenie od podstaw tak często, jak to możliwe, i staramy się korzystać ze świeżych oraz szwedzkich składników. Dania Mike’s inspirowane są klasycznym polskim street foodem i składnikami ze Szwecji.",
+
+      "ctaEyebrow": "Catering i wydarzenia",
+      "ctaTitle": "Potrzebujesz jedzenia na swoje wydarzenie?",
+      "ctaText": "Zarezerwuj catering, food trucka lub kucharza na prywatną imprezę, wydarzenie firmowe, festiwal albo specjalną okazję. Jeśli chcesz indywidualnie dopasowane menu, skontaktuj się z nami, a zrobimy wszystko, aby spełnić Twoje oczekiwania.",
+      "ctaBook": "Zarezerwuj nas",
+      "ctaContact": "Skontaktuj się",
+
+      "menuCta": "Zobacz menu"
     },
     "booking": {
       "sending": "Wysyłanie...",
