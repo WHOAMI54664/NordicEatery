@@ -331,21 +331,67 @@
       "finalText": "No waiting. No overpricing. Just good food done right."
     },
     "booking": {
-      "eyebrow": "Reserve your table",
+      "eyebrow": "Book your table",
       "title": "Booking",
-      "subtitle": "Book a table, catering or Mike’s Food Truck and we’ll confirm your request as soon as possible.",
+      "subtitle": "Book a table, catering or Mike's Food Truck and we will confirm your request as soon as possible.",
+
+      "bookingType": "Type of booking",
+
+      "bookingTypes": {
+        "breakfast": {
+          "title": "Breakfast",
+          "description": "Perfect for morning meetings, team breakfasts and company events."
+        },
+        "brunch": {
+          "title": "Brunch",
+          "description": "A relaxed option for groups, weekends and private bookings."
+        },
+        "lunch": {
+          "title": "Lunch",
+          "description": "Our most popular choice for companies, meetings and larger groups."
+        },
+        "conference": {
+          "title": "Conference",
+          "description": "Food and setup for conferences, workshops and business events."
+        },
+        "dinner": {
+          "title": "Dinner",
+          "description": "Perfect for evening events, private dinners and company gatherings."
+        },
+        "other": {
+          "title": "Other",
+          "description": "Have something else in mind? Let us know and we’ll get back to you."
+        }
+      },
+
+      "guestsNote": "Minimum booking is 10 people.",
+      "guestsMinimumError": "Minimum booking is 10 people.",
+
       "name": "Full name",
       "namePlaceholder": "Your name",
+
       "phone": "Phone number",
+
+      "email": "Email",
+
       "date": "Date",
       "time": "Time",
       "guests": "Guests",
+
+      "eventDetails": "Event details",
+      "eventDetailsPlaceholder": "Tell us about the location, schedule or any special requests",
+
       "message": "Message",
       "messagePlaceholder": "Any special requests?",
+
+      "consent": "I agree that my personal data is processed for this booking request.",
+
       "button": "Send booking request",
+
       "successEyebrow": "Booking sent",
       "successTitle": "Thank you!",
-      "successText": "We received your booking request and will contact you shortly.",
+      "successText": "We have received your booking request and will contact you shortly.",
+
       "error": "Something went wrong. Please try again."
     },
     "mikes": {

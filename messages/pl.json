@@ -329,21 +329,67 @@
       "finalText": "Bez czekania. Żadnych zawyżonych cen. Po prostu dobre jedzenie."
     },
     "booking": {
-      "eyebrow": "Zarezerwuj stolik",
+      "eyebrow": "Zarezerwuj",
       "title": "Rezerwacja",
-      "subtitle": "Zarezerwuj stolik, catering lub Mike's Food Truck, a my potwierdzimy Twoją prośbę tak szybko, jak to możliwe.",
+      "subtitle": "Zarezerwuj stolik, catering lub Mike's Food Truck, a my potwierdzimy Twoje zgłoszenie tak szybko, jak to możliwe.",
+
+      "bookingType": "Rodzaj rezerwacji",
+
+      "bookingTypes": {
+        "breakfast": {
+          "title": "Śniadanie",
+          "description": "Idealne na poranne spotkania, śniadania zespołowe i wydarzenia firmowe."
+        },
+        "brunch": {
+          "title": "Brunch",
+          "description": "Luźna opcja dla grup, weekendów i prywatnych rezerwacji."
+        },
+        "lunch": {
+          "title": "Lunch",
+          "description": "Nasz najpopularniejszy wybór dla firm, spotkań i większych grup."
+        },
+        "conference": {
+          "title": "Konferencja",
+          "description": "Jedzenie i organizacja dla konferencji, warsztatów i wydarzeń biznesowych."
+        },
+        "dinner": {
+          "title": "Kolacja",
+          "description": "Idealne na wieczorne wydarzenia, prywatne kolacje i spotkania firmowe."
+        },
+        "other": {
+          "title": "Inne",
+          "description": "Masz coś innego na myśli? Opisz to, a skontaktujemy się z Tobą."
+        }
+      },
+
+      "guestsNote": "Minimalna liczba to 10 osób.",
+      "guestsMinimumError": "Minimalna liczba to 10 osób.",
+
       "name": "Imię i nazwisko",
-      "namePlaceholder": "Imię i nazwisko",
+      "namePlaceholder": "Twoje imię",
+
       "phone": "Numer telefonu",
+
+      "email": "E-mail",
+
       "date": "Data",
-      "time": "Czas",
+      "time": "Godzina",
       "guests": "Goście",
+
+      "eventDetails": "Szczegóły wydarzenia",
+      "eventDetailsPlaceholder": "Opisz miejsce, plan lub specjalne życzenia",
+
       "message": "Wiadomość",
       "messagePlaceholder": "Jakieś specjalne życzenia?",
-      "button": "Wyślij prośbę o rezerwację",
+
+      "consent": "Wyrażam zgodę na przetwarzanie moich danych osobowych w celu obsługi tej rezerwacji.",
+
+      "button": "Wyślij zapytanie",
+
       "successEyebrow": "Rezerwacja wysłana",
-      "successTitle": "Dziękuję!",
-      "successText": "Otrzymaliśmy Twoją prośbę o rezerwację i wkrótce się z Tobą skontaktujemy.",
+      "successTitle": "Dziękujemy!",
+      "successText": "Otrzymaliśmy Twoje zgłoszenie i skontaktujemy się z Tobą wkrótce.",
+
       "error": "Coś poszło nie tak. Spróbuj ponownie."
     },
     "mikes": {

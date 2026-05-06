@@ -1,66 +1,186 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@/lib/supabase/server";
+import { sendTelegramMessage } from "@/lib/telegram";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+function escapeHtml(value: unknown) {
+  return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+}
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const { name, phone, date, time, guests, message } = body;
+    const {
+      bookingType,
+      name,
+      phone,
+      email,
+      date,
+      time,
+      guests,
+      eventDetails,
+      message,
+      consent,
+    } = body;
 
-    if (!name || !phone || !date || !time || !guests) {
+    const guestsNumber = Number(guests);
+
+    if (
+        !bookingType ||
+        !name ||
+        !phone ||
+        !email ||
+        !date ||
+        !time ||
+        !guests ||
+        !consent
+    ) {
       return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
+          { error: "Missing required fields" },
+          { status: 400 }
+      );
+    }
+
+    if (Number.isNaN(guestsNumber) || guestsNumber < 10) {
+      return NextResponse.json(
+          { error: "Minimum booking is 10 guests" },
+          { status: 400 }
       );
     }
 
     const supabase = await createClient();
 
     const { error } = await supabase.from("booking_requests").insert({
+      booking_type: bookingType,
       name,
       phone,
+      email,
       date,
       time,
-      guests: Number(guests),
+      guests: guestsNumber,
+      event_details: eventDetails || null,
       message: message || null,
+      consent: Boolean(consent),
     });
 
     if (error) {
       console.error("Supabase booking error:", error);
       return NextResponse.json(
-        { error: "Failed to save booking" },
-        { status: 500 }
+          { error: "Failed to save booking" },
+          { status: 500 }
       );
     }
 
-    await resend.emails.send({
-      from: "Mike's Food <onboarding@resend.dev>",
-      to: process.env.BOOKING_EMAIL || "boking@nordiceatery.se",
-      subject: "New booking request",
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 24px; color: #111;">
-          <h2>New booking request</h2>
+    // sanitize
+    const safeBookingType = escapeHtml(bookingType);
+    const safeName = escapeHtml(name);
+    const safePhone = escapeHtml(phone);
+    const safeEmail = escapeHtml(email);
+    const safeDate = escapeHtml(date);
+    const safeTime = escapeHtml(time);
+    const safeGuests = escapeHtml(guestsNumber);
+    const safeEventDetails = escapeHtml(eventDetails || "Inga detaljer angivna");
+    const safeMessage = escapeHtml(message || "Inget meddelande");
 
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Phone:</strong> ${phone}</p>
-          <p><strong>Date:</strong> ${date}</p>
-          <p><strong>Time:</strong> ${time}</p>
-          <p><strong>Guests:</strong> ${guests}</p>
-          <p><strong>Message:</strong> ${message || "No message"}</p>
-        </div>
-      `,
+    // письмо владельцу
+    const ownerEmailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #24140F;">
+        <h2>Ny bokningsförfrågan</h2>
+
+        <p><strong>Typ:</strong> ${safeBookingType}</p>
+        <p><strong>Antal personer:</strong> ${safeGuests}</p>
+        <p><strong>Datum:</strong> ${safeDate}</p>
+        <p><strong>Tid:</strong> ${safeTime}</p>
+
+        <hr />
+
+        <p><strong>Namn:</strong> ${safeName}</p>
+        <p><strong>Telefon:</strong> ${safePhone}</p>
+        <p><strong>E-post:</strong> ${safeEmail}</p>
+
+        <hr />
+
+        <p><strong>Detaljer:</strong><br/>${safeEventDetails}</p>
+        <p><strong>Meddelande:</strong><br/>${safeMessage}</p>
+      </div>
+    `;
+
+    // автоответ клиенту
+    const clientAutoReplyHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #24140F;">
+        <h2>Tack för din bokning</h2>
+
+        <p>Hej ${safeName},</p>
+
+        <p>
+          Vi har tagit emot din bokningsförfrågan och återkommer inom kort.
+        </p>
+
+        <p>
+          <strong>${safeBookingType}</strong><br/>
+          ${safeGuests} personer<br/>
+          ${safeDate} kl. ${safeTime}
+        </p>
+
+        <p>
+          Du kan svara direkt på detta mejl om något behöver ändras.
+        </p>
+
+        <p>— Nordic Eatery</p>
+      </div>
+    `;
+
+    // 📩 владельцу
+    await resend.emails.send({
+      from: "Nordic Eatery <boking@nordiceatery.se>",
+      to: process.env.BOOKING_EMAIL || "bokning@nordiceatery.se",
+      replyTo: email,
+      subject: `Ny bokning: ${safeBookingType} — ${safeGuests} pers`,
+      html: ownerEmailHtml,
     });
 
+    // 📩 клиенту
+    await resend.emails.send({
+      from: "Nordic Eatery <boking@nordiceatery.se>",
+      to: email,
+      replyTo: process.env.BOOKING_EMAIL || "bokning@nordiceatery.se",
+      subject: "Vi har mottagit din bokning — Nordic Eatery",
+      html: clientAutoReplyHtml,
+    });
+    await sendTelegramMessage(`
+🔥 Ny bokning
+
+🍽 Typ: ${bookingType}
+👥 Personer: ${guests}
+
+📅 Datum: ${date}
+⏰ Tid: ${time}
+
+👤 ${name}
+📞 ${phone}
+📧 ${email}
+
+📝 Detaljer:
+${eventDetails || "Inga detaljer"}
+
+💬 Meddelande:
+${message || "Inget meddelande"}
+`);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Booking API error:", error);
 
     return NextResponse.json(
-      { error: "Something went wrong" },
-      { status: 500 }
+        { error: "Something went wrong" },
+        { status: 500 }
     );
   }
 }

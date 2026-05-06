@@ -343,18 +343,64 @@
       "eyebrow": "Boka ditt bord",
       "title": "Bokning",
       "subtitle": "Boka bord, catering eller Mike's Food Truck så bekräftar vi din förfrågan så snart som möjligt.",
+
+      "bookingType": "Typ av bokning",
+
+      "bookingTypes": {
+        "breakfast": {
+          "title": "Frukost",
+          "description": "Perfekt för morgonmöten, teamfrukost och företagsevent."
+        },
+        "brunch": {
+          "title": "Brunch",
+          "description": "Ett avslappnat alternativ för grupper, helger och privata bokningar."
+        },
+        "lunch": {
+          "title": "Lunch",
+          "description": "Vårt mest populära val för företag, möten och större sällskap."
+        },
+        "conference": {
+          "title": "Konferens",
+          "description": "Mat och upplägg för konferenser, workshops och affärsevent."
+        },
+        "dinner": {
+          "title": "Middag",
+          "description": "Perfekt för kvällsevent, privata middagar och företagsarrangemang."
+        },
+        "other": {
+          "title": "Övrigt",
+          "description": "Har du något annat i åtanke? Beskriv det så återkommer vi."
+        }
+      },
+
+      "guestsNote": "Minsta bokning är 10 personer.",
+      "guestsMinimumError": "Minsta bokning är 10 personer.",
+
       "name": "Fullständigt namn",
       "namePlaceholder": "Ditt namn",
+
       "phone": "Telefonnummer",
+
+      "email": "E-post",
+
       "date": "Datum",
       "time": "Tid",
       "guests": "Gäster",
+
+      "eventDetails": "Detaljer om bokningen",
+      "eventDetailsPlaceholder": "Berätta gärna om plats, upplägg, tider eller särskilda önskemål",
+
       "message": "Meddelande",
       "messagePlaceholder": "Några särskilda önskemål?",
+
+      "consent": "Jag godkänner att mina personuppgifter behandlas för denna bokningsförfrågan.",
+
       "button": "Skicka bokningsförfrågan",
+
       "successEyebrow": "Bokning skickad",
       "successTitle": "Tack så mycket!",
       "successText": "Vi har mottagit din bokningsförfrågan och kommer att kontakta dig inom kort.",
+
       "error": "Något gick fel. Vänligen försök igen."
     },
     "mikes": {
