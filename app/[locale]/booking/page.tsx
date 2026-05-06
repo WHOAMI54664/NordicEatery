@@ -6,7 +6,14 @@ import { useTranslations } from "next-intl";
 export default function BookingPage() {
   const t = useTranslations("pages.booking");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [selectedBookingService, setSelectedBookingService] = useState("");
   const [selectedBookingType, setSelectedBookingType] = useState("");
+
+  const bookingServices = ["table", "catering", "foodTruck"].map((service) => ({
+    value: service,
+    title: t(`bookingServices.${service}.title`),
+    description: t(`bookingServices.${service}.description`),
+  }));
 
   const bookingTypes = [
     "breakfast",
@@ -28,6 +35,16 @@ export default function BookingPage() {
     const formData = new FormData(form);
     const guests = Number(formData.get("guests"));
 
+    if (!selectedBookingService) {
+      alert(t("bookingServiceError"));
+      return;
+    }
+
+    if (!selectedBookingType) {
+      alert(t("bookingTypeError"));
+      return;
+    }
+
     if (guests < 10) {
       alert(t("guestsMinimumError"));
       return;
@@ -39,7 +56,8 @@ export default function BookingPage() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-            bookingType: selectedBookingType,
+        bookingService: selectedBookingService,
+        bookingType: selectedBookingType,
         name: formData.get("name"),
         phone: formData.get("phone"),
         email: formData.get("email"),
@@ -95,8 +113,49 @@ export default function BookingPage() {
 
           <form
               onSubmit={handleSubmit}
-              className="mx-auto grid max-w-3xl gap-5 rounded-3xl bg-white/80 p-8 shadow-xl backdrop-blur"
+              className="mx-auto grid max-w-3xl gap-7 rounded-3xl bg-white/80 p-8 shadow-xl backdrop-blur"
           >
+            <div>
+              <label className="mb-3 block text-sm font-bold text-dark">
+                {t("bookingService")}
+              </label>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                {bookingServices.map((service) => (
+                    <label
+                        key={service.value}
+                        className="group cursor-pointer rounded-3xl border border-black/10 bg-white p-5 transition hover:-translate-y-0.5 hover:border-paprika hover:shadow-lg has-[:checked]:border-paprika has-[:checked]:bg-paprika/5 has-[:checked]:shadow-lg"
+                    >
+                      <input
+                          required
+                          type="radio"
+                          name="bookingService"
+                          value={service.value}
+                          checked={selectedBookingService === service.value}
+                          onChange={() => setSelectedBookingService(service.value)}
+                          className="sr-only"
+                      />
+
+                      <div className="flex items-start gap-4">
+                        <div className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-black/20 transition group-hover:border-paprika group-has-[:checked]:border-paprika">
+                          <div className="h-2.5 w-2.5 rounded-full bg-paprika opacity-0 transition group-has-[:checked]:opacity-100" />
+                        </div>
+
+                        <div>
+                          <p className="text-base font-black text-dark">
+                            {service.title}
+                          </p>
+
+                          <p className="mt-1 text-sm leading-6 text-dark/55">
+                            {service.description}
+                          </p>
+                        </div>
+                      </div>
+                    </label>
+                ))}
+              </div>
+            </div>
+
             <div>
               <label className="mb-3 block text-sm font-bold text-dark">
                 {t("bookingType")}
@@ -216,9 +275,7 @@ export default function BookingPage() {
                     placeholder="10"
                     className="w-full rounded-2xl border border-black/10 bg-white px-5 py-4 outline-none transition focus:border-paprika"
                 />
-                <p className="mt-1 text-xs text-dark/50">
-                  {t("guestsNote")}
-                </p>
+                <p className="mt-1 text-xs text-dark/50">{t("guestsNote")}</p>
               </div>
             </div>
 

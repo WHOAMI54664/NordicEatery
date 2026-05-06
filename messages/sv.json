@@ -401,7 +401,24 @@
       "successTitle": "Tack så mycket!",
       "successText": "Vi har mottagit din bokningsförfrågan och kommer att kontakta dig inom kort.",
 
-      "error": "Något gick fel. Vänligen försök igen."
+      "error": "Något gick fel. Vänligen försök igen.",
+      "bookingService": "Vad vill du boka?",
+      "bookingServiceError": "Välj vad du vill boka.",
+      "bookingTypeError": "Välj typ av bokning.",
+      "bookingServices": {
+        "table": {
+          "title": "Bord",
+          "description": "Boka bord för en grupp hos oss."
+        },
+        "catering": {
+          "title": "Catering",
+          "description": "Mat till möten, event och privata tillfällen."
+        },
+        "foodTruck": {
+          "title": "Mike's Food Truck",
+          "description": "Boka vår food truck till ditt event."
+        }
+      }
     },
     "mikes": {
       "eyebrow": "Om Mike's Streetfood",

@@ -390,7 +390,25 @@
       "successTitle": "Dziękujemy!",
       "successText": "Otrzymaliśmy Twoje zgłoszenie i skontaktujemy się z Tobą wkrótce.",
 
-      "error": "Coś poszło nie tak. Spróbuj ponownie."
+      "error": "Coś poszło nie tak. Spróbuj ponownie.",
+      "bookingService": "Co chcesz zarezerwować?",
+      "bookingServiceError": "Wybierz, co chcesz zarezerwować.",
+      "bookingTypeError": "Wybierz typ rezerwacji.",
+
+      "bookingServices": {
+        "table": {
+          "title": "Stolik",
+          "description": "Zarezerwuj stolik dla swojej grupy w naszej restauracji."
+        },
+        "catering": {
+          "title": "Catering",
+          "description": "Jedzenie na spotkania, wydarzenia i prywatne okazje."
+        },
+        "foodTruck": {
+          "title": "Mike's Food Truck",
+          "description": "Zarezerwuj nasz food truck na swoje wydarzenie."
+        }
+      }
     },
     "mikes": {
       "eyebrow": "Mike's Food Truck",

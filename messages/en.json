@@ -392,7 +392,25 @@
       "successTitle": "Thank you!",
       "successText": "We have received your booking request and will contact you shortly.",
 
-      "error": "Something went wrong. Please try again."
+      "error": "Something went wrong. Please try again.",
+      "bookingService": "What would you like to book?",
+      "bookingServiceError": "Please select what you would like to book.",
+      "bookingTypeError": "Please select a booking type.",
+
+      "bookingServices": {
+        "table": {
+          "title": "Table",
+          "description": "Book a table for your group at our restaurant."
+        },
+        "catering": {
+          "title": "Catering",
+          "description": "Food for meetings, events and private occasions."
+        },
+        "foodTruck": {
+          "title": "Mike's Food Truck",
+          "description": "Book our food truck for your event."
+        }
+      }
     },
     "mikes": {
       "eyebrow": "Mike's Food Truck",

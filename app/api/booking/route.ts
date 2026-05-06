@@ -19,6 +19,7 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     const {
+      bookingService,
       bookingType,
       name,
       phone,
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
     const guestsNumber = Number(guests);
 
     if (
+        !bookingService ||
         !bookingType ||
         !name ||
         !phone ||
@@ -59,6 +61,7 @@ export async function POST(request: Request) {
     const supabase = await createClient();
 
     const { error } = await supabase.from("booking_requests").insert({
+      booking_service: bookingService,
       booking_type: bookingType,
       name,
       phone,
@@ -79,7 +82,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // sanitize
+    const safeBookingService = escapeHtml(bookingService);
     const safeBookingType = escapeHtml(bookingType);
     const safeName = escapeHtml(name);
     const safePhone = escapeHtml(phone);
@@ -90,11 +93,11 @@ export async function POST(request: Request) {
     const safeEventDetails = escapeHtml(eventDetails || "Inga detaljer angivna");
     const safeMessage = escapeHtml(message || "Inget meddelande");
 
-    // письмо владельцу
     const ownerEmailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #24140F;">
         <h2>Ny bokningsförfrågan</h2>
 
+        <p><strong>Bokning:</strong> ${safeBookingService}</p>
         <p><strong>Typ:</strong> ${safeBookingType}</p>
         <p><strong>Antal personer:</strong> ${safeGuests}</p>
         <p><strong>Datum:</strong> ${safeDate}</p>
@@ -113,7 +116,6 @@ export async function POST(request: Request) {
       </div>
     `;
 
-    // автоответ клиенту
     const clientAutoReplyHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #24140F;">
         <h2>Tack för din bokning</h2>
@@ -125,7 +127,8 @@ export async function POST(request: Request) {
         </p>
 
         <p>
-          <strong>${safeBookingType}</strong><br/>
+          <strong>${safeBookingService}</strong><br/>
+          ${safeBookingType}<br/>
           ${safeGuests} personer<br/>
           ${safeDate} kl. ${safeTime}
         </p>
@@ -138,16 +141,14 @@ export async function POST(request: Request) {
       </div>
     `;
 
-    // 📩 владельцу
     await resend.emails.send({
       from: "Nordic Eatery <boking@nordiceatery.se>",
       to: process.env.BOOKING_EMAIL || "bokning@nordiceatery.se",
       replyTo: email,
-      subject: `Ny bokning: ${safeBookingType} — ${safeGuests} pers`,
+      subject: `Ny bokning: ${safeBookingService} — ${safeGuests} pers`,
       html: ownerEmailHtml,
     });
 
-    // 📩 клиенту
     await resend.emails.send({
       from: "Nordic Eatery <boking@nordiceatery.se>",
       to: email,
@@ -155,9 +156,11 @@ export async function POST(request: Request) {
       subject: "Vi har mottagit din bokning — Nordic Eatery",
       html: clientAutoReplyHtml,
     });
+
     await sendTelegramMessage(`
 🔥 Ny bokning
 
+📌 Bokning: ${bookingService}
 🍽 Typ: ${bookingType}
 👥 Personer: ${guests}
 
@@ -174,6 +177,7 @@ ${eventDetails || "Inga detaljer"}
 💬 Meddelande:
 ${message || "Inget meddelande"}
 `);
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Booking API error:", error);
