@@ -418,7 +418,9 @@
           "title": "Mike's Food Truck",
           "description": "Boka vår food truck till ditt event."
         }
-      }
+      },
+      "tableGuestsNote": "Minsta bokning för bord är 2 personer.",
+      "tableGuestsMinimumError": "Minsta bokning för bord är 2 personer."
     },
     "mikes": {
       "eyebrow": "Om Mike's Streetfood",

@@ -410,7 +410,9 @@
           "title": "Mike's Food Truck",
           "description": "Book our food truck for your event."
         }
-      }
+      },
+      "tableGuestsNote": "Minimum table booking is 2 guests.",
+      "tableGuestsMinimumError": "Minimum table booking is 2 guests."
     },
     "mikes": {
       "eyebrow": "Mike's Food Truck",

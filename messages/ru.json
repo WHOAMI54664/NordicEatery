@@ -408,7 +408,9 @@
           "title": "Mike's Food Truck",
           "description": "Забронируйте наш food truck для вашего мероприятия."
         }
-      }
+      },
+      "tableGuestsNote": "Минимальное бронирование столика — 2 человека.",
+      "tableGuestsMinimumError": "Минимальное бронирование столика — 2 человека."
     },
     "mikes": {
       "eyebrow": "Фудтрак Майка",

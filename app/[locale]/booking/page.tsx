@@ -34,7 +34,7 @@ export default function BookingPage() {
     const form = event.currentTarget;
     const formData = new FormData(form);
     const guests = Number(formData.get("guests"));
-
+    const minimumGuests = selectedBookingService === "table" ? 2 : 10;
     if (!selectedBookingService) {
       alert(t("bookingServiceError"));
       return;
@@ -45,8 +45,12 @@ export default function BookingPage() {
       return;
     }
 
-    if (guests < 10) {
-      alert(t("guestsMinimumError"));
+    if (guests < minimumGuests) {
+      alert(
+          selectedBookingService === "table"
+              ? t("tableGuestsMinimumError")
+              : t("guestsMinimumError")
+      );
       return;
     }
 
@@ -271,11 +275,15 @@ export default function BookingPage() {
                     required
                     name="guests"
                     type="number"
-                    min="10"
-                    placeholder="10"
+                    min={selectedBookingService === "table" ? 2 : 10}
+                    placeholder={selectedBookingService === "table" ? "2" : "10"}
                     className="w-full rounded-2xl border border-black/10 bg-white px-5 py-4 outline-none transition focus:border-paprika"
                 />
-                <p className="mt-1 text-xs text-dark/50">{t("guestsNote")}</p>
+                <p className="mt-1 text-xs text-dark/50">
+                  {selectedBookingService === "table"
+                      ? t("tableGuestsNote")
+                      : t("guestsNote")}
+                </p>
               </div>
             </div>
 

@@ -408,7 +408,9 @@
           "title": "Mike's Food Truck",
           "description": "Zarezerwuj nasz food truck na swoje wydarzenie."
         }
-      }
+      },
+      "tableGuestsNote": "Minimalna rezerwacja stolika to 2 osoby.",
+      "tableGuestsMinimumError": "Minimalna rezerwacja stolika to 2 osoby."
     },
     "mikes": {
       "eyebrow": "Mike's Food Truck",

@@ -51,9 +51,16 @@ export async function POST(request: Request) {
       );
     }
 
-    if (Number.isNaN(guestsNumber) || guestsNumber < 10) {
+    const minimumGuests = bookingService === "table" ? 2 : 10;
+
+    if (Number.isNaN(guestsNumber) || guestsNumber < minimumGuests) {
       return NextResponse.json(
-          { error: "Minimum booking is 10 guests" },
+          {
+            error:
+                bookingService === "table"
+                    ? "Minimum table booking is 2 guests"
+                    : "Minimum booking is 10 guests",
+          },
           { status: 400 }
       );
     }
