@@ -8,6 +8,8 @@ import {
     ShoppingBag,
     Star,
 } from "lucide-react";
+import { EditableText } from "@/components/EditableText";
+import { createClient } from "@/lib/supabase/server";
 
 type PageProps = {
     params: Promise<{
@@ -206,15 +208,59 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
     const { locale } = await params;
     const page = getPageContent(locale);
 
+    const supabase = await createClient();
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    let isOwner = false;
+
+    if (user) {
+        const { data: profile } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", user.id)
+            .single();
+
+        isOwner = profile?.role === "owner" || profile?.role === "admin";
+    }
+
+    const { data: siteContent } = await supabase
+        .from("site_content")
+        .select("key,value")
+        .eq("locale", locale)
+        .eq("page", "delivery-boden");
+
+    const editableContent = new Map(
+        (siteContent || []).map((item) => [item.key, item.value])
+    );
+
+    function text(key: string, fallback: string) {
+        return editableContent.get(key) || fallback;
+    }
+
     const menuUrl = `/${locale}/menu`;
     const takeawayUrl = `/${locale}/takeaway-boden`;
     const burgersUrl = `/${locale}/burgers-boden`;
     const cateringUrl = `/${locale}/catering-boden`;
 
+    const benefits = page.benefits.map((item, index) => ({
+        key: `deliveryBoden.benefits.${index}`,
+        value: text(`deliveryBoden.benefits.${index}`, item),
+    }));
+
+    const faqItems = page.faq.map((item, index) => ({
+        qKey: `deliveryBoden.faq.${index}.q`,
+        aKey: `deliveryBoden.faq.${index}.a`,
+        q: text(`deliveryBoden.faq.${index}.q`, item.q),
+        a: text(`deliveryBoden.faq.${index}.a`, item.a),
+    }));
+
     const faqJsonLd = {
         "@context": "https://schema.org",
         "@type": "FAQPage",
-        mainEntity: page.faq.map((item) => ({
+        mainEntity: faqItems.map((item) => ({
             "@type": "Question",
             name: item.q,
             acceptedAnswer: {
@@ -223,6 +269,37 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
             },
         })),
     };
+
+    const cards = [
+        {
+            icon: Clock,
+            titleKey: "deliveryBoden.card1Title",
+            textKey: "deliveryBoden.card1Text",
+            title: text("deliveryBoden.card1Title", page.card1Title),
+            description: text("deliveryBoden.card1Text", page.card1Text),
+        },
+        {
+            icon: ShoppingBag,
+            titleKey: "deliveryBoden.card2Title",
+            textKey: "deliveryBoden.card2Text",
+            title: text("deliveryBoden.card2Title", page.card2Title),
+            description: text("deliveryBoden.card2Text", page.card2Text),
+        },
+        {
+            icon: Star,
+            titleKey: "deliveryBoden.card3Title",
+            textKey: "deliveryBoden.card3Text",
+            title: text("deliveryBoden.card3Title", page.card3Title),
+            description: text("deliveryBoden.card3Text", page.card3Text),
+        },
+        {
+            icon: CheckCircle2,
+            titleKey: "deliveryBoden.card4Title",
+            textKey: "deliveryBoden.card4Text",
+            title: text("deliveryBoden.card4Title", page.card4Title),
+            description: text("deliveryBoden.card4Text", page.card4Text),
+        },
+    ];
 
     return (
         <>
@@ -240,114 +317,224 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                     <div className="relative max-w-3xl">
                         <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-[#C7192E]">
                             <MapPin className="h-4 w-4" />
-                            {page.eyebrow}
+
+                            <EditableText
+                                value={text("deliveryBoden.eyebrow", page.eyebrow)}
+                                textKey="deliveryBoden.eyebrow"
+                                locale={locale}
+                                page="delivery-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </div>
 
                         <h1 className="mt-6 text-5xl font-black leading-[0.95] tracking-[-0.06em] text-[#25120F] sm:text-6xl">
-                            {page.h1}
+                            <EditableText
+                                value={text("deliveryBoden.h1", page.h1)}
+                                textKey="deliveryBoden.h1"
+                                locale={locale}
+                                page="delivery-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </h1>
 
                         <p className="mt-6 max-w-2xl text-lg font-medium leading-8 text-[#7B6A61]">
-                            {page.intro}
+                            <EditableText
+                                value={text("deliveryBoden.intro", page.intro)}
+                                textKey="deliveryBoden.intro"
+                                locale={locale}
+                                page="delivery-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </p>
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Link href={menuUrl} className="btn-primary gap-2">
-                                {page.orderOnline}
+                                <EditableText
+                                    value={text("deliveryBoden.orderOnline", page.orderOnline)}
+                                    textKey="deliveryBoden.orderOnline"
+                                    locale={locale}
+                                    page="delivery-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
+
                                 <ArrowRight className="h-4 w-4" />
                             </Link>
 
                             <Link href={takeawayUrl} className="btn-secondary">
-                                {page.takeaway}
+                                <EditableText
+                                    value={text("deliveryBoden.takeaway", page.takeaway)}
+                                    textKey="deliveryBoden.takeaway"
+                                    locale={locale}
+                                    page="delivery-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
                             </Link>
                         </div>
                     </div>
                 </section>
 
                 <section className="mt-10 grid gap-4 md:grid-cols-4">
-                    <div className="glass-card p-5">
-                        <Clock className="h-6 w-6 text-paprika" />
-                        <h2 className="mt-4 text-lg font-black text-dark">
-                            {page.card1Title}
-                        </h2>
-                        <p className="mt-2 text-sm leading-6 text-dark/60">
-                            {page.card1Text}
-                        </p>
-                    </div>
+                    {cards.map((card) => {
+                        const Icon = card.icon;
 
-                    <div className="glass-card p-5">
-                        <ShoppingBag className="h-6 w-6 text-paprika" />
-                        <h2 className="mt-4 text-lg font-black text-dark">
-                            {page.card2Title}
-                        </h2>
-                        <p className="mt-2 text-sm leading-6 text-dark/60">
-                            {page.card2Text}
-                        </p>
-                    </div>
+                        return (
+                            <div key={card.titleKey} className="glass-card p-5">
+                                <Icon className="h-6 w-6 text-paprika" />
 
-                    <div className="glass-card p-5">
-                        <Star className="h-6 w-6 text-paprika" />
-                        <h2 className="mt-4 text-lg font-black text-dark">
-                            {page.card3Title}
-                        </h2>
-                        <p className="mt-2 text-sm leading-6 text-dark/60">
-                            {page.card3Text}
-                        </p>
-                    </div>
+                                <h2 className="mt-4 text-lg font-black text-dark">
+                                    <EditableText
+                                        value={card.title}
+                                        textKey={card.titleKey}
+                                        locale={locale}
+                                        page="delivery-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
+                                </h2>
 
-                    <div className="glass-card p-5">
-                        <CheckCircle2 className="h-6 w-6 text-paprika" />
-                        <h2 className="mt-4 text-lg font-black text-dark">
-                            {page.card4Title}
-                        </h2>
-                        <p className="mt-2 text-sm leading-6 text-dark/60">
-                            {page.card4Text}
-                        </p>
-                    </div>
+                                <p className="mt-2 text-sm leading-6 text-dark/60">
+                                    <EditableText
+                                        value={card.description}
+                                        textKey={card.textKey}
+                                        locale={locale}
+                                        page="delivery-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
+                                </p>
+                            </div>
+                        );
+                    })}
                 </section>
 
                 <section className="mt-14 grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
                     <div>
                         <p className="font-black uppercase tracking-[0.25em] text-paprika">
-                            {page.sectionEyebrow}
+                            <EditableText
+                                value={text("deliveryBoden.sectionEyebrow", page.sectionEyebrow)}
+                                textKey="deliveryBoden.sectionEyebrow"
+                                locale={locale}
+                                page="delivery-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </p>
 
-                        <h2 className="section-title mt-3">{page.sectionTitle}</h2>
+                        <h2 className="section-title mt-3">
+                            <EditableText
+                                value={text("deliveryBoden.sectionTitle", page.sectionTitle)}
+                                textKey="deliveryBoden.sectionTitle"
+                                locale={locale}
+                                page="delivery-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
+                        </h2>
 
                         <div className="mt-6 space-y-5 text-base leading-8 text-dark/65">
-                            <p>{page.paragraph1}</p>
-                            <p>{page.paragraph2}</p>
-                            <p>{page.paragraph3}</p>
+                            <p>
+                                <EditableText
+                                    value={text("deliveryBoden.paragraph1", page.paragraph1)}
+                                    textKey="deliveryBoden.paragraph1"
+                                    locale={locale}
+                                    page="delivery-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
+                            </p>
+
+                            <p>
+                                <EditableText
+                                    value={text("deliveryBoden.paragraph2", page.paragraph2)}
+                                    textKey="deliveryBoden.paragraph2"
+                                    locale={locale}
+                                    page="delivery-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
+                            </p>
+
+                            <p>
+                                <EditableText
+                                    value={text("deliveryBoden.paragraph3", page.paragraph3)}
+                                    textKey="deliveryBoden.paragraph3"
+                                    locale={locale}
+                                    page="delivery-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
+                            </p>
                         </div>
 
                         <div className="mt-8 flex flex-wrap gap-3">
                             <Link href={menuUrl} className="btn-primary">
-                                {page.viewMenu}
+                                <EditableText
+                                    value={text("deliveryBoden.viewMenu", page.viewMenu)}
+                                    textKey="deliveryBoden.viewMenu"
+                                    locale={locale}
+                                    page="delivery-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
                             </Link>
 
                             <Link href={burgersUrl} className="btn-secondary">
-                                {page.burgers}
+                                <EditableText
+                                    value={text("deliveryBoden.burgers", page.burgers)}
+                                    textKey="deliveryBoden.burgers"
+                                    locale={locale}
+                                    page="delivery-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
                             </Link>
 
                             <Link href={cateringUrl} className="btn-secondary">
-                                {page.catering}
+                                <EditableText
+                                    value={text("deliveryBoden.catering", page.catering)}
+                                    textKey="deliveryBoden.catering"
+                                    locale={locale}
+                                    page="delivery-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
                             </Link>
                         </div>
                     </div>
 
                     <aside className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/90 p-6 shadow-xl shadow-[#4C2314]/8">
                         <h2 className="text-2xl font-black tracking-[-0.04em] text-dark">
-                            {page.whyTitle}
+                            <EditableText
+                                value={text("deliveryBoden.whyTitle", page.whyTitle)}
+                                textKey="deliveryBoden.whyTitle"
+                                locale={locale}
+                                page="delivery-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </h2>
 
                         <ul className="mt-6 space-y-4">
-                            {page.benefits.map((item) => (
+                            {benefits.map((item) => (
                                 <li
-                                    key={item}
+                                    key={item.key}
                                     className="flex gap-3 text-sm font-bold leading-6 text-dark/65"
                                 >
                                     <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-paprika" />
-                                    {item}
+
+                                    <EditableText
+                                        value={item.value}
+                                        textKey={item.key}
+                                        locale={locale}
+                                        page="delivery-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
                                 </li>
                             ))}
                         </ul>
@@ -356,17 +543,50 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
 
                 <section className="mt-16">
                     <p className="font-black uppercase tracking-[0.25em] text-paprika">
-                        {page.faqEyebrow}
+                        <EditableText
+                            value={text("deliveryBoden.faqEyebrow", page.faqEyebrow)}
+                            textKey="deliveryBoden.faqEyebrow"
+                            locale={locale}
+                            page="delivery-boden"
+                            canEdit={isOwner}
+                            as="span"
+                        />
                     </p>
 
-                    <h2 className="section-title mt-3">{page.faqTitle}</h2>
+                    <h2 className="section-title mt-3">
+                        <EditableText
+                            value={text("deliveryBoden.faqTitle", page.faqTitle)}
+                            textKey="deliveryBoden.faqTitle"
+                            locale={locale}
+                            page="delivery-boden"
+                            canEdit={isOwner}
+                            as="span"
+                        />
+                    </h2>
 
                     <div className="mt-8 grid gap-4 md:grid-cols-2">
-                        {page.faq.map((item) => (
-                            <div key={item.q} className="glass-card p-5">
-                                <h3 className="text-lg font-black text-dark">{item.q}</h3>
+                        {faqItems.map((item) => (
+                            <div key={item.qKey} className="glass-card p-5">
+                                <h3 className="text-lg font-black text-dark">
+                                    <EditableText
+                                        value={item.q}
+                                        textKey={item.qKey}
+                                        locale={locale}
+                                        page="delivery-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
+                                </h3>
+
                                 <p className="mt-3 text-sm leading-6 text-dark/60">
-                                    {item.a}
+                                    <EditableText
+                                        value={item.a}
+                                        textKey={item.aKey}
+                                        locale={locale}
+                                        page="delivery-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
                                 </p>
                             </div>
                         ))}

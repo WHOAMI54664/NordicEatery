@@ -1,8 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { EditableText } from "@/components/EditableText";
+import { HomeHeroPoster } from "@/components/HomeHeroPoster";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 
@@ -28,7 +28,7 @@ export default async function HomePage({
         .eq("id", user.id)
         .single();
 
-    isOwner = profile?.role === "owner";
+    isOwner = profile?.role === "owner" || profile?.role === "admin";
   }
 
   const t = await getTranslations("pages.home");
@@ -46,6 +46,25 @@ export default async function HomePage({
   function text(key: string, fallbackKey: string) {
     return content.get(key) || t(fallbackKey);
   }
+
+  const homePosters = [
+    {
+      key: "home.hero.poster.1",
+      src: content.get("home.hero.poster.1") || "",
+    },
+    {
+      key: "home.hero.poster.2",
+      src: content.get("home.hero.poster.2") || "",
+    },
+    {
+      key: "home.hero.poster.3",
+      src: content.get("home.hero.poster.3") || "",
+    },
+    {
+      key: "home.hero.poster.4",
+      src: content.get("home.hero.poster.4") || "",
+    },
+  ].filter((poster) => poster.src);
 
   const { data: featuredItems } = await supabase
       .from("products")
@@ -156,16 +175,12 @@ export default async function HomePage({
               <div className="relative flex min-h-[330px] items-center justify-center rounded-[1.5rem] bg-gradient-to-br from-[#FF1515] via-paprika to-cherry p-5 sm:min-h-[520px] sm:rounded-[1.7rem] sm:p-8">
                 <div className="absolute inset-x-8 top-1/2 h-24 -translate-y-1/2 rounded-full bg-white/20 blur-3xl sm:h-32" />
 
-                <Image
-                    src="/mikes_logo.png"
-                    alt="Nordic Eatery food delivery in Boden"
-                    width={520}
-                    height={520}
-                    priority
-                    fetchPriority="high"
-                    quality={80}
-                    sizes="(max-width: 640px) 88vw, (max-width: 1024px) 50vw, 520px"
-                    className="hero-image-in relative mx-auto h-auto w-[88%] max-w-[430px] object-contain drop-shadow-2xl sm:w-[82%] sm:max-w-[520px]"
+                <HomeHeroPoster
+                    posters={homePosters}
+                    fallbackImage="/mikes_logo.png"
+                    locale={locale}
+                    page="home"
+                    canEdit={isOwner}
                 />
               </div>
             </div>
@@ -228,10 +243,7 @@ export default async function HomePage({
               />
             </div>
 
-            <Link
-                href={`/${locale}/menu`}
-                className="btn-secondary w-full sm:w-auto"
-            >
+            <Link href={`/${locale}/menu`} className="btn-secondary w-full sm:w-auto">
               <EditableText
                   value={text("home.fullMenu", "fullMenu")}
                   textKey="home.fullMenu"

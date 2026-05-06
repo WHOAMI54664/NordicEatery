@@ -659,35 +659,35 @@
       "updating": "Updating..."
     },
     "reservations": {
-      "eyebrow": "Booking management",
+      "eyebrow": "Reservation management",
       "title": "Reservations",
-      "subtitle": "Manage customer bookings, guest count, confirmation status and reservation notes.",
+      "subtitle": "Manage customer bookings, guest counts, confirmation statuses and reservation notes.",
       "flow": "Reservation flow",
       "pending": "Pending",
       "pendingDescription": "Waiting for confirmation",
       "confirmed": "Confirmed",
-      "confirmedDescription": "Approved upcoming bookings",
+      "confirmedDescription": "Approved upcoming reservations",
       "completed": "Completed",
       "completedDescription": "Finished reservations",
       "cancelled": "Cancelled",
       "cancelledDescription": "Cancelled bookings",
       "allReservations": "All reservations",
-      "allReservationsDescription": "Bookings loaded from Supabase.",
-      "reservationsCount": "{count} reservations",
+      "allReservationsDescription": "Reservations fetched from Supabase.",
+      "reservationsCount": "reservations",
+      "guestsCount": "{count} guests",
       "noReservationsFound": "No reservations found",
-      "noReservationsDescription": "Customer bookings will appear here.",
+      "noReservationsDescription": "Customer reservations will appear here.",
       "contact": "Contact",
       "date": "Date",
       "time": "Time",
       "guests": "Guests",
       "note": "Note",
       "noContact": "No contact",
-      "guestsCount": "{count} guests",
       "statuses": {
-        "pending": "Pending",
+        "new": "New",
         "confirmed": "Confirmed",
-        "cancelled": "Cancelled",
-        "completed": "Completed"
+        "completed": "Completed",
+        "cancelled": "Cancelled"
       }
     },
     "menuAdmin": {
@@ -1033,3 +1033,4 @@
     }
   }
 }
+

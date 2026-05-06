@@ -11,6 +11,8 @@ import {
     Utensils,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { EditableText } from "@/components/EditableText";
+import { createClient } from "@/lib/supabase/server";
 
 type PageProps = {
     params: Promise<{
@@ -72,44 +74,100 @@ export async function generateMetadata({
 export default async function CateringBodenPage({ params }: PageProps) {
     const { locale } = await params;
 
+    const supabase = await createClient();
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    let isOwner = false;
+
+    if (user) {
+        const { data: profile } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", user.id)
+            .single();
+
+        isOwner = profile?.role === "owner" || profile?.role === "admin";
+    }
+
     const t = await getTranslations({
         locale,
         namespace: "pages.cateringBoden",
     });
+
+    const { data: siteContent } = await supabase
+        .from("site_content")
+        .select("key,value")
+        .eq("locale", locale)
+        .eq("page", "catering-boden");
+
+    const content = new Map(
+        (siteContent || []).map((item) => [item.key, item.value])
+    );
+
+    function text(key: string, fallbackKey: string) {
+        return content.get(key) || t(fallbackKey);
+    }
 
     const bookingUrl = `/${locale}/booking`;
     const contactUrl = `/${locale}/contact`;
     const menuUrl = `/${locale}/menu`;
     const deliveryUrl = `/${locale}/delivery-boden`;
 
-    const faqItems = [
+    const cards = [
         {
-            question: t("faq.items.0.question"),
-            answer: t("faq.items.0.answer"),
+            icon: PartyPopper,
+            titleKey: "cateringBoden.cards.private.title",
+            textKey: "cateringBoden.cards.private.description",
+            fallbackTitle: "cards.private.title",
+            fallbackText: "cards.private.description",
         },
         {
-            question: t("faq.items.1.question"),
-            answer: t("faq.items.1.answer"),
+            icon: Briefcase,
+            titleKey: "cateringBoden.cards.company.title",
+            textKey: "cateringBoden.cards.company.description",
+            fallbackTitle: "cards.company.title",
+            fallbackText: "cards.company.description",
         },
         {
-            question: t("faq.items.2.question"),
-            answer: t("faq.items.2.answer"),
+            icon: Truck,
+            titleKey: "cateringBoden.cards.delivery.title",
+            textKey: "cateringBoden.cards.delivery.description",
+            fallbackTitle: "cards.delivery.title",
+            fallbackText: "cards.delivery.description",
         },
         {
-            question: t("faq.items.3.question"),
-            answer: t("faq.items.3.answer"),
+            icon: MessageCircle,
+            titleKey: "cateringBoden.cards.planning.title",
+            textKey: "cateringBoden.cards.planning.description",
+            fallbackTitle: "cards.planning.title",
+            fallbackText: "cards.planning.description",
         },
     ];
+
+    const benefits = [0, 1, 2, 3, 4, 5].map((index) => ({
+        key: `cateringBoden.benefits.items.${index}`,
+        fallbackKey: `benefits.items.${index}`,
+    }));
+
+    const faqItems = [0, 1, 2, 3].map((index) => ({
+        qKey: `cateringBoden.faq.items.${index}.question`,
+        aKey: `cateringBoden.faq.items.${index}.answer`,
+        qFallback: `faq.items.${index}.question`,
+        aFallback: `faq.items.${index}.answer`,
+    }));
 
     const faqJsonLd = {
         "@context": "https://schema.org",
         "@type": "FAQPage",
         mainEntity: faqItems.map((item) => ({
             "@type": "Question",
-            name: item.question,
+            name: text(item.qKey, item.qFallback),
             acceptedAnswer: {
                 "@type": "Answer",
-                text: item.answer,
+                text: text(item.aKey, item.aFallback),
             },
         })),
     };
@@ -130,114 +188,254 @@ export default async function CateringBodenPage({ params }: PageProps) {
                     <div className="relative max-w-3xl">
                         <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-[#C7192E]">
                             <ChefHat className="h-4 w-4" />
-                            {t("hero.eyebrow")}
+
+                            <EditableText
+                                value={text("cateringBoden.hero.eyebrow", "hero.eyebrow")}
+                                textKey="cateringBoden.hero.eyebrow"
+                                locale={locale}
+                                page="catering-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </div>
 
                         <h1 className="mt-6 text-5xl font-black leading-[0.95] tracking-[-0.06em] text-[#25120F] sm:text-6xl">
-                            {t("hero.title")}
+                            <EditableText
+                                value={text("cateringBoden.hero.title", "hero.title")}
+                                textKey="cateringBoden.hero.title"
+                                locale={locale}
+                                page="catering-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </h1>
 
                         <p className="mt-6 max-w-2xl text-lg font-medium leading-8 text-[#7B6A61]">
-                            {t("hero.description")}
+                            <EditableText
+                                value={text(
+                                    "cateringBoden.hero.description",
+                                    "hero.description"
+                                )}
+                                textKey="cateringBoden.hero.description"
+                                locale={locale}
+                                page="catering-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </p>
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Link href={bookingUrl} className="btn-primary gap-2">
-                                {t("hero.primaryCta")}
+                                <EditableText
+                                    value={text(
+                                        "cateringBoden.hero.primaryCta",
+                                        "hero.primaryCta"
+                                    )}
+                                    textKey="cateringBoden.hero.primaryCta"
+                                    locale={locale}
+                                    page="catering-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
+
                                 <ArrowRight className="h-4 w-4" />
                             </Link>
 
                             <Link href={contactUrl} className="btn-secondary">
-                                {t("hero.secondaryCta")}
+                                <EditableText
+                                    value={text(
+                                        "cateringBoden.hero.secondaryCta",
+                                        "hero.secondaryCta"
+                                    )}
+                                    textKey="cateringBoden.hero.secondaryCta"
+                                    locale={locale}
+                                    page="catering-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
                             </Link>
                         </div>
                     </div>
                 </section>
 
                 <section className="mt-10 grid gap-4 md:grid-cols-4">
-                    <div className="glass-card p-5">
-                        <PartyPopper className="h-6 w-6 text-paprika" />
-                        <h2 className="mt-4 text-lg font-black text-dark">
-                            {t("cards.private.title")}
-                        </h2>
-                        <p className="mt-2 text-sm leading-6 text-dark/60">
-                            {t("cards.private.description")}
-                        </p>
-                    </div>
+                    {cards.map((card) => {
+                        const Icon = card.icon;
 
-                    <div className="glass-card p-5">
-                        <Briefcase className="h-6 w-6 text-paprika" />
-                        <h2 className="mt-4 text-lg font-black text-dark">
-                            {t("cards.company.title")}
-                        </h2>
-                        <p className="mt-2 text-sm leading-6 text-dark/60">
-                            {t("cards.company.description")}
-                        </p>
-                    </div>
+                        return (
+                            <div key={card.titleKey} className="glass-card p-5">
+                                <Icon className="h-6 w-6 text-paprika" />
 
-                    <div className="glass-card p-5">
-                        <Truck className="h-6 w-6 text-paprika" />
-                        <h2 className="mt-4 text-lg font-black text-dark">
-                            {t("cards.delivery.title")}
-                        </h2>
-                        <p className="mt-2 text-sm leading-6 text-dark/60">
-                            {t("cards.delivery.description")}
-                        </p>
-                    </div>
+                                <h2 className="mt-4 text-lg font-black text-dark">
+                                    <EditableText
+                                        value={text(card.titleKey, card.fallbackTitle)}
+                                        textKey={card.titleKey}
+                                        locale={locale}
+                                        page="catering-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
+                                </h2>
 
-                    <div className="glass-card p-5">
-                        <MessageCircle className="h-6 w-6 text-paprika" />
-                        <h2 className="mt-4 text-lg font-black text-dark">
-                            {t("cards.planning.title")}
-                        </h2>
-                        <p className="mt-2 text-sm leading-6 text-dark/60">
-                            {t("cards.planning.description")}
-                        </p>
-                    </div>
+                                <p className="mt-2 text-sm leading-6 text-dark/60">
+                                    <EditableText
+                                        value={text(card.textKey, card.fallbackText)}
+                                        textKey={card.textKey}
+                                        locale={locale}
+                                        page="catering-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
+                                </p>
+                            </div>
+                        );
+                    })}
                 </section>
 
                 <section className="mt-14 grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
                     <div>
                         <p className="font-black uppercase tracking-[0.25em] text-paprika">
-                            {t("content.eyebrow")}
+                            <EditableText
+                                value={text(
+                                    "cateringBoden.content.eyebrow",
+                                    "content.eyebrow"
+                                )}
+                                textKey="cateringBoden.content.eyebrow"
+                                locale={locale}
+                                page="catering-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </p>
 
-                        <h2 className="section-title mt-3">{t("content.title")}</h2>
+                        <h2 className="section-title mt-3">
+                            <EditableText
+                                value={text("cateringBoden.content.title", "content.title")}
+                                textKey="cateringBoden.content.title"
+                                locale={locale}
+                                page="catering-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
+                        </h2>
 
                         <div className="mt-6 space-y-5 text-base leading-8 text-dark/65">
-                            <p>{t("content.paragraph1")}</p>
-                            <p>{t("content.paragraph2")}</p>
-                            <p>{t("content.paragraph3")}</p>
+                            <p>
+                                <EditableText
+                                    value={text(
+                                        "cateringBoden.content.paragraph1",
+                                        "content.paragraph1"
+                                    )}
+                                    textKey="cateringBoden.content.paragraph1"
+                                    locale={locale}
+                                    page="catering-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
+                            </p>
+
+                            <p>
+                                <EditableText
+                                    value={text(
+                                        "cateringBoden.content.paragraph2",
+                                        "content.paragraph2"
+                                    )}
+                                    textKey="cateringBoden.content.paragraph2"
+                                    locale={locale}
+                                    page="catering-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
+                            </p>
+
+                            <p>
+                                <EditableText
+                                    value={text(
+                                        "cateringBoden.content.paragraph3",
+                                        "content.paragraph3"
+                                    )}
+                                    textKey="cateringBoden.content.paragraph3"
+                                    locale={locale}
+                                    page="catering-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
+                            </p>
                         </div>
 
                         <div className="mt-8 flex flex-wrap gap-3">
                             <Link href={bookingUrl} className="btn-primary">
-                                {t("content.bookingCta")}
+                                <EditableText
+                                    value={text(
+                                        "cateringBoden.content.bookingCta",
+                                        "content.bookingCta"
+                                    )}
+                                    textKey="cateringBoden.content.bookingCta"
+                                    locale={locale}
+                                    page="catering-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
                             </Link>
 
                             <Link href={menuUrl} className="btn-secondary">
-                                {t("content.menuCta")}
+                                <EditableText
+                                    value={text(
+                                        "cateringBoden.content.menuCta",
+                                        "content.menuCta"
+                                    )}
+                                    textKey="cateringBoden.content.menuCta"
+                                    locale={locale}
+                                    page="catering-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
                             </Link>
 
                             <Link href={deliveryUrl} className="btn-secondary">
-                                {t("content.deliveryCta")}
+                                <EditableText
+                                    value={text(
+                                        "cateringBoden.content.deliveryCta",
+                                        "content.deliveryCta"
+                                    )}
+                                    textKey="cateringBoden.content.deliveryCta"
+                                    locale={locale}
+                                    page="catering-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
                             </Link>
                         </div>
                     </div>
 
                     <aside className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/90 p-6 shadow-xl shadow-[#4C2314]/8">
                         <h2 className="text-2xl font-black tracking-[-0.04em] text-dark">
-                            {t("benefits.title")}
+                            <EditableText
+                                value={text("cateringBoden.benefits.title", "benefits.title")}
+                                textKey="cateringBoden.benefits.title"
+                                locale={locale}
+                                page="catering-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </h2>
 
                         <ul className="mt-6 space-y-4">
-                            {[0, 1, 2, 3, 4, 5].map((index) => (
+                            {benefits.map((item) => (
                                 <li
-                                    key={index}
+                                    key={item.key}
                                     className="flex gap-3 text-sm font-bold leading-6 text-dark/65"
                                 >
                                     <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-paprika" />
-                                    {t(`benefits.items.${index}`)}
+
+                                    <EditableText
+                                        value={text(item.key, item.fallbackKey)}
+                                        textKey={item.key}
+                                        locale={locale}
+                                        page="catering-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
                                 </li>
                             ))}
                         </ul>
@@ -248,33 +446,85 @@ export default async function CateringBodenPage({ params }: PageProps) {
                     <Utensils className="mx-auto h-8 w-8" />
 
                     <h2 className="mt-5 text-3xl font-black tracking-[-0.04em] sm:text-4xl">
-                        {t("cta.title")}
+                        <EditableText
+                            value={text("cateringBoden.cta.title", "cta.title")}
+                            textKey="cateringBoden.cta.title"
+                            locale={locale}
+                            page="catering-boden"
+                            canEdit={isOwner}
+                            as="span"
+                        />
                     </h2>
 
                     <p className="mx-auto mt-4 max-w-2xl text-white/90">
-                        {t("cta.description")}
+                        <EditableText
+                            value={text("cateringBoden.cta.description", "cta.description")}
+                            textKey="cateringBoden.cta.description"
+                            locale={locale}
+                            page="catering-boden"
+                            canEdit={isOwner}
+                            as="span"
+                        />
                     </p>
 
                     <Link href={bookingUrl} className="btn-secondary mt-8 inline-flex">
-                        {t("cta.button")}
+                        <EditableText
+                            value={text("cateringBoden.cta.button", "cta.button")}
+                            textKey="cateringBoden.cta.button"
+                            locale={locale}
+                            page="catering-boden"
+                            canEdit={isOwner}
+                            as="span"
+                        />
                     </Link>
                 </section>
 
                 <section className="mt-16">
                     <p className="font-black uppercase tracking-[0.25em] text-paprika">
-                        {t("faq.eyebrow")}
+                        <EditableText
+                            value={text("cateringBoden.faq.eyebrow", "faq.eyebrow")}
+                            textKey="cateringBoden.faq.eyebrow"
+                            locale={locale}
+                            page="catering-boden"
+                            canEdit={isOwner}
+                            as="span"
+                        />
                     </p>
 
-                    <h2 className="section-title mt-3">{t("faq.title")}</h2>
+                    <h2 className="section-title mt-3">
+                        <EditableText
+                            value={text("cateringBoden.faq.title", "faq.title")}
+                            textKey="cateringBoden.faq.title"
+                            locale={locale}
+                            page="catering-boden"
+                            canEdit={isOwner}
+                            as="span"
+                        />
+                    </h2>
 
                     <div className="mt-8 grid gap-4 md:grid-cols-2">
                         {faqItems.map((item) => (
-                            <div key={item.question} className="glass-card p-5">
+                            <div key={item.qKey} className="glass-card p-5">
                                 <h3 className="text-lg font-black text-dark">
-                                    {item.question}
+                                    <EditableText
+                                        value={text(item.qKey, item.qFallback)}
+                                        textKey={item.qKey}
+                                        locale={locale}
+                                        page="catering-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
                                 </h3>
+
                                 <p className="mt-3 text-sm leading-6 text-dark/60">
-                                    {item.answer}
+                                    <EditableText
+                                        value={text(item.aKey, item.aFallback)}
+                                        textKey={item.aKey}
+                                        locale={locale}
+                                        page="catering-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
                                 </p>
                             </div>
                         ))}

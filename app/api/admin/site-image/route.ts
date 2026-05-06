@@ -2,6 +2,21 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+function sanitizePathPart(value: string) {
+    return value
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9-_./]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^[-/]+|[-/]+$/g, "");
+}
+
 export async function POST(request: Request) {
     try {
         const supabase = await createClient();
@@ -14,13 +29,19 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
             .from("profiles")
             .select("role")
             .eq("id", user.id)
             .single();
 
-        if (profile?.role !== "owner") {
+        if (profileError || !profile) {
+            return NextResponse.json({ error: "Profile not found" }, { status: 403 });
+        }
+
+        const canEdit = profile.role === "owner" || profile.role === "admin";
+
+        if (!canEdit) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
@@ -35,16 +56,41 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Missing fields" }, { status: 400 });
         }
 
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            return NextResponse.json(
+                { error: "Only JPG, PNG and WebP images are allowed" },
+                { status: 400 }
+            );
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+            return NextResponse.json(
+                { error: "Image is too large. Maximum size is 2 MB" },
+                { status: 400 }
+            );
+        }
+
         const admin = createAdminClient();
 
-        const extension = file.name.split(".").pop() || "jpg";
-        const filePath = `${page}/${key}-${locale}-${Date.now()}.${extension}`;
+        const extension =
+            file.type === "image/png"
+                ? "png"
+                : file.type === "image/webp"
+                    ? "webp"
+                    : "jpg";
+
+        const safePage = sanitizePathPart(page);
+        const safeKey = sanitizePathPart(key);
+        const safeLocale = sanitizePathPart(locale);
+
+        const filePath = `${safePage}/${safeKey}-${safeLocale}-${Date.now()}.${extension}`;
 
         const { error: uploadError } = await admin.storage
             .from("site-images")
             .upload(filePath, file, {
                 upsert: true,
                 contentType: file.type,
+                cacheControl: "3600",
             });
 
         if (uploadError) {
@@ -63,6 +109,7 @@ export async function POST(request: Request) {
                 locale,
                 page,
                 value: url,
+                section: "images",
                 updated_at: new Date().toISOString(),
             },
             {
@@ -75,7 +122,9 @@ export async function POST(request: Request) {
         }
 
         return NextResponse.json({ url });
-    } catch {
+    } catch (error) {
+        console.error("site-image upload error:", error);
+
         return NextResponse.json({ error: "Server error" }, { status: 500 });
     }
 }

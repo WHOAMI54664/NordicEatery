@@ -14,6 +14,17 @@ function escapeHtml(value: unknown) {
       .replaceAll("'", "&#039;");
 }
 
+function createReservationNumber() {
+  const date = new Date();
+
+  const year = date.getFullYear().toString().slice(-2);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const random = Math.random().toString(36).slice(2, 6).toUpperCase();
+
+  return `NE-${year}${month}${day}-${random}`;
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -65,9 +76,13 @@ export async function POST(request: Request) {
       );
     }
 
+    const reservationNumber = createReservationNumber();
+
     const supabase = await createClient();
 
     const { error } = await supabase.from("booking_requests").insert({
+      reservation_number: reservationNumber,
+      status: "new",
       booking_service: bookingService,
       booking_type: bookingType,
       name,
@@ -89,6 +104,7 @@ export async function POST(request: Request) {
       );
     }
 
+    const safeReservationNumber = escapeHtml(reservationNumber);
     const safeBookingService = escapeHtml(bookingService);
     const safeBookingType = escapeHtml(bookingType);
     const safeName = escapeHtml(name);
@@ -104,6 +120,7 @@ export async function POST(request: Request) {
       <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #24140F;">
         <h2>Ny bokningsförfrågan</h2>
 
+        <p><strong>Bokningsnummer:</strong> ${safeReservationNumber}</p>
         <p><strong>Bokning:</strong> ${safeBookingService}</p>
         <p><strong>Typ:</strong> ${safeBookingType}</p>
         <p><strong>Antal personer:</strong> ${safeGuests}</p>
@@ -134,6 +151,7 @@ export async function POST(request: Request) {
         </p>
 
         <p>
+          <strong>Bokningsnummer:</strong> ${safeReservationNumber}<br/>
           <strong>${safeBookingService}</strong><br/>
           ${safeBookingType}<br/>
           ${safeGuests} personer<br/>
@@ -152,7 +170,7 @@ export async function POST(request: Request) {
       from: "Nordic Eatery <boking@nordiceatery.se>",
       to: process.env.BOOKING_EMAIL || "bokning@nordiceatery.se",
       replyTo: email,
-      subject: `Ny bokning: ${safeBookingService} — ${safeGuests} pers`,
+      subject: `Ny bokning ${safeReservationNumber}: ${safeBookingService} — ${safeGuests} pers`,
       html: ownerEmailHtml,
     });
 
@@ -160,16 +178,18 @@ export async function POST(request: Request) {
       from: "Nordic Eatery <boking@nordiceatery.se>",
       to: email,
       replyTo: process.env.BOOKING_EMAIL || "bokning@nordiceatery.se",
-      subject: "Vi har mottagit din bokning — Nordic Eatery",
+      subject: `Din bokning ${safeReservationNumber} — Nordic Eatery`,
       html: clientAutoReplyHtml,
     });
 
     await sendTelegramMessage(`
 🔥 Ny bokning
 
+🧾 Bokningsnummer: ${reservationNumber}
+
 📌 Bokning: ${bookingService}
 🍽 Typ: ${bookingType}
-👥 Personer: ${guests}
+👥 Personer: ${guestsNumber}
 
 📅 Datum: ${date}
 ⏰ Tid: ${time}
@@ -185,7 +205,10 @@ ${eventDetails || "Inga detaljer"}
 ${message || "Inget meddelande"}
 `);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      reservationNumber,
+    });
   } catch (error) {
     console.error("Booking API error:", error);
 

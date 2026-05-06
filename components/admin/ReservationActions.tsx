@@ -5,7 +5,7 @@ import { CheckCircle2, Clock, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/browser";
 
-type ReservationStatus = "pending" | "confirmed" | "cancelled" | "completed";
+type ReservationStatus = "new" | "confirmed" | "cancelled" | "completed";
 
 type ReservationActionsProps = {
     reservationId: string;
@@ -14,7 +14,7 @@ type ReservationActionsProps = {
 
 export function ReservationActions({
                                        reservationId,
-                                       status
+                                       status,
                                    }: ReservationActionsProps) {
     const t = useTranslations("admin.reservationActions");
 
@@ -25,14 +25,15 @@ export function ReservationActions({
         setIsLoading(true);
 
         const { error } = await supabase
-            .from("reservations")
+            .from("booking_requests")
             .update({
                 status: nextStatus,
-                updated_at: new Date().toISOString()
+                updated_at: new Date().toISOString(),
             })
             .eq("id", reservationId);
 
         if (error) {
+            console.error("Reservation status update error:", error);
             setIsLoading(false);
             return;
         }
@@ -42,7 +43,7 @@ export function ReservationActions({
 
     return (
         <div className="flex flex-wrap justify-end gap-2">
-            {status === "pending" ? (
+            {status === "new" ? (
                 <button
                     type="button"
                     disabled={isLoading}
@@ -77,12 +78,12 @@ export function ReservationActions({
                     {isLoading ? t("updating") : t("cancel")}
                 </button>
             )}
-
+            .neq("status", "cancelled")
             {status === "cancelled" ? (
                 <button
                     type="button"
                     disabled={isLoading}
-                    onClick={() => updateStatus("pending")}
+                    onClick={() => updateStatus("new")}
                     className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white px-4 text-xs font-black text-[#7B6A61] transition hover:border-[#E51B23]/20 hover:text-[#C7192E] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                     <Clock className="h-3.5 w-3.5" />

@@ -9,6 +9,8 @@ import {
     Utensils,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { EditableText } from "@/components/EditableText";
+import { createClient } from "@/lib/supabase/server";
 
 type PageProps = {
     params: Promise<{
@@ -70,44 +72,100 @@ export async function generateMetadata({
 export default async function TakeawayBodenPage({ params }: PageProps) {
     const { locale } = await params;
 
+    const supabase = await createClient();
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    let isOwner = false;
+
+    if (user) {
+        const { data: profile } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", user.id)
+            .single();
+
+        isOwner = profile?.role === "owner" || profile?.role === "admin";
+    }
+
     const t = await getTranslations({
         locale,
         namespace: "pages.takeawayBoden",
     });
+
+    const { data: siteContent } = await supabase
+        .from("site_content")
+        .select("key,value")
+        .eq("locale", locale)
+        .eq("page", "takeaway-boden");
+
+    const content = new Map(
+        (siteContent || []).map((item) => [item.key, item.value])
+    );
+
+    function text(key: string, fallbackKey: string) {
+        return content.get(key) || t(fallbackKey);
+    }
 
     const menuUrl = `/${locale}/menu`;
     const deliveryUrl = `/${locale}/delivery-boden`;
     const burgersUrl = `/${locale}/burgers-boden`;
     const cateringUrl = `/${locale}/catering-boden`;
 
-    const faqItems = [
+    const cards = [
         {
-            question: t("faq.items.0.question"),
-            answer: t("faq.items.0.answer"),
+            icon: ShoppingBag,
+            titleKey: "takeawayBoden.cards.order.title",
+            textKey: "takeawayBoden.cards.order.description",
+            fallbackTitle: "cards.order.title",
+            fallbackText: "cards.order.description",
         },
         {
-            question: t("faq.items.1.question"),
-            answer: t("faq.items.1.answer"),
+            icon: Utensils,
+            titleKey: "takeawayBoden.cards.fresh.title",
+            textKey: "takeawayBoden.cards.fresh.description",
+            fallbackTitle: "cards.fresh.title",
+            fallbackText: "cards.fresh.description",
         },
         {
-            question: t("faq.items.2.question"),
-            answer: t("faq.items.2.answer"),
+            icon: Clock,
+            titleKey: "takeawayBoden.cards.pickup.title",
+            textKey: "takeawayBoden.cards.pickup.description",
+            fallbackTitle: "cards.pickup.title",
+            fallbackText: "cards.pickup.description",
         },
         {
-            question: t("faq.items.3.question"),
-            answer: t("faq.items.3.answer"),
+            icon: PackageCheck,
+            titleKey: "takeawayBoden.cards.simple.title",
+            textKey: "takeawayBoden.cards.simple.description",
+            fallbackTitle: "cards.simple.title",
+            fallbackText: "cards.simple.description",
         },
     ];
+
+    const benefits = [0, 1, 2, 3, 4, 5].map((index) => ({
+        key: `takeawayBoden.benefits.items.${index}`,
+        fallbackKey: `benefits.items.${index}`,
+    }));
+
+    const faqItems = [0, 1, 2, 3].map((index) => ({
+        qKey: `takeawayBoden.faq.items.${index}.question`,
+        aKey: `takeawayBoden.faq.items.${index}.answer`,
+        qFallback: `faq.items.${index}.question`,
+        aFallback: `faq.items.${index}.answer`,
+    }));
 
     const faqJsonLd = {
         "@context": "https://schema.org",
         "@type": "FAQPage",
         mainEntity: faqItems.map((item) => ({
             "@type": "Question",
-            name: item.question,
+            name: text(item.qKey, item.qFallback),
             acceptedAnswer: {
                 "@type": "Answer",
-                text: item.answer,
+                text: text(item.aKey, item.aFallback),
             },
         })),
     };
@@ -128,114 +186,254 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                     <div className="relative max-w-3xl">
                         <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-[#C7192E]">
                             <ShoppingBag className="h-4 w-4" />
-                            {t("hero.eyebrow")}
+
+                            <EditableText
+                                value={text("takeawayBoden.hero.eyebrow", "hero.eyebrow")}
+                                textKey="takeawayBoden.hero.eyebrow"
+                                locale={locale}
+                                page="takeaway-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </div>
 
                         <h1 className="mt-6 text-5xl font-black leading-[0.95] tracking-[-0.06em] text-[#25120F] sm:text-6xl">
-                            {t("hero.title")}
+                            <EditableText
+                                value={text("takeawayBoden.hero.title", "hero.title")}
+                                textKey="takeawayBoden.hero.title"
+                                locale={locale}
+                                page="takeaway-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </h1>
 
                         <p className="mt-6 max-w-2xl text-lg font-medium leading-8 text-[#7B6A61]">
-                            {t("hero.description")}
+                            <EditableText
+                                value={text(
+                                    "takeawayBoden.hero.description",
+                                    "hero.description"
+                                )}
+                                textKey="takeawayBoden.hero.description"
+                                locale={locale}
+                                page="takeaway-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </p>
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Link href={menuUrl} className="btn-primary gap-2">
-                                {t("hero.primaryCta")}
+                                <EditableText
+                                    value={text(
+                                        "takeawayBoden.hero.primaryCta",
+                                        "hero.primaryCta"
+                                    )}
+                                    textKey="takeawayBoden.hero.primaryCta"
+                                    locale={locale}
+                                    page="takeaway-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
+
                                 <ArrowRight className="h-4 w-4" />
                             </Link>
 
                             <Link href={deliveryUrl} className="btn-secondary">
-                                {t("hero.secondaryCta")}
+                                <EditableText
+                                    value={text(
+                                        "takeawayBoden.hero.secondaryCta",
+                                        "hero.secondaryCta"
+                                    )}
+                                    textKey="takeawayBoden.hero.secondaryCta"
+                                    locale={locale}
+                                    page="takeaway-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
                             </Link>
                         </div>
                     </div>
                 </section>
 
                 <section className="mt-10 grid gap-4 md:grid-cols-4">
-                    <div className="glass-card p-5">
-                        <ShoppingBag className="h-6 w-6 text-paprika" />
-                        <h2 className="mt-4 text-lg font-black text-dark">
-                            {t("cards.order.title")}
-                        </h2>
-                        <p className="mt-2 text-sm leading-6 text-dark/60">
-                            {t("cards.order.description")}
-                        </p>
-                    </div>
+                    {cards.map((card) => {
+                        const Icon = card.icon;
 
-                    <div className="glass-card p-5">
-                        <Utensils className="h-6 w-6 text-paprika" />
-                        <h2 className="mt-4 text-lg font-black text-dark">
-                            {t("cards.fresh.title")}
-                        </h2>
-                        <p className="mt-2 text-sm leading-6 text-dark/60">
-                            {t("cards.fresh.description")}
-                        </p>
-                    </div>
+                        return (
+                            <div key={card.titleKey} className="glass-card p-5">
+                                <Icon className="h-6 w-6 text-paprika" />
 
-                    <div className="glass-card p-5">
-                        <Clock className="h-6 w-6 text-paprika" />
-                        <h2 className="mt-4 text-lg font-black text-dark">
-                            {t("cards.pickup.title")}
-                        </h2>
-                        <p className="mt-2 text-sm leading-6 text-dark/60">
-                            {t("cards.pickup.description")}
-                        </p>
-                    </div>
+                                <h2 className="mt-4 text-lg font-black text-dark">
+                                    <EditableText
+                                        value={text(card.titleKey, card.fallbackTitle)}
+                                        textKey={card.titleKey}
+                                        locale={locale}
+                                        page="takeaway-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
+                                </h2>
 
-                    <div className="glass-card p-5">
-                        <PackageCheck className="h-6 w-6 text-paprika" />
-                        <h2 className="mt-4 text-lg font-black text-dark">
-                            {t("cards.simple.title")}
-                        </h2>
-                        <p className="mt-2 text-sm leading-6 text-dark/60">
-                            {t("cards.simple.description")}
-                        </p>
-                    </div>
+                                <p className="mt-2 text-sm leading-6 text-dark/60">
+                                    <EditableText
+                                        value={text(card.textKey, card.fallbackText)}
+                                        textKey={card.textKey}
+                                        locale={locale}
+                                        page="takeaway-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
+                                </p>
+                            </div>
+                        );
+                    })}
                 </section>
 
                 <section className="mt-14 grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
                     <div>
                         <p className="font-black uppercase tracking-[0.25em] text-paprika">
-                            {t("content.eyebrow")}
+                            <EditableText
+                                value={text(
+                                    "takeawayBoden.content.eyebrow",
+                                    "content.eyebrow"
+                                )}
+                                textKey="takeawayBoden.content.eyebrow"
+                                locale={locale}
+                                page="takeaway-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </p>
 
-                        <h2 className="section-title mt-3">{t("content.title")}</h2>
+                        <h2 className="section-title mt-3">
+                            <EditableText
+                                value={text("takeawayBoden.content.title", "content.title")}
+                                textKey="takeawayBoden.content.title"
+                                locale={locale}
+                                page="takeaway-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
+                        </h2>
 
                         <div className="mt-6 space-y-5 text-base leading-8 text-dark/65">
-                            <p>{t("content.paragraph1")}</p>
-                            <p>{t("content.paragraph2")}</p>
-                            <p>{t("content.paragraph3")}</p>
+                            <p>
+                                <EditableText
+                                    value={text(
+                                        "takeawayBoden.content.paragraph1",
+                                        "content.paragraph1"
+                                    )}
+                                    textKey="takeawayBoden.content.paragraph1"
+                                    locale={locale}
+                                    page="takeaway-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
+                            </p>
+
+                            <p>
+                                <EditableText
+                                    value={text(
+                                        "takeawayBoden.content.paragraph2",
+                                        "content.paragraph2"
+                                    )}
+                                    textKey="takeawayBoden.content.paragraph2"
+                                    locale={locale}
+                                    page="takeaway-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
+                            </p>
+
+                            <p>
+                                <EditableText
+                                    value={text(
+                                        "takeawayBoden.content.paragraph3",
+                                        "content.paragraph3"
+                                    )}
+                                    textKey="takeawayBoden.content.paragraph3"
+                                    locale={locale}
+                                    page="takeaway-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
+                            </p>
                         </div>
 
                         <div className="mt-8 flex flex-wrap gap-3">
                             <Link href={menuUrl} className="btn-primary">
-                                {t("content.menuCta")}
+                                <EditableText
+                                    value={text(
+                                        "takeawayBoden.content.menuCta",
+                                        "content.menuCta"
+                                    )}
+                                    textKey="takeawayBoden.content.menuCta"
+                                    locale={locale}
+                                    page="takeaway-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
                             </Link>
 
                             <Link href={burgersUrl} className="btn-secondary">
-                                {t("content.burgersCta")}
+                                <EditableText
+                                    value={text(
+                                        "takeawayBoden.content.burgersCta",
+                                        "content.burgersCta"
+                                    )}
+                                    textKey="takeawayBoden.content.burgersCta"
+                                    locale={locale}
+                                    page="takeaway-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
                             </Link>
 
                             <Link href={cateringUrl} className="btn-secondary">
-                                {t("content.cateringCta")}
+                                <EditableText
+                                    value={text(
+                                        "takeawayBoden.content.cateringCta",
+                                        "content.cateringCta"
+                                    )}
+                                    textKey="takeawayBoden.content.cateringCta"
+                                    locale={locale}
+                                    page="takeaway-boden"
+                                    canEdit={isOwner}
+                                    as="span"
+                                />
                             </Link>
                         </div>
                     </div>
 
                     <aside className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/90 p-6 shadow-xl shadow-[#4C2314]/8">
                         <h2 className="text-2xl font-black tracking-[-0.04em] text-dark">
-                            {t("benefits.title")}
+                            <EditableText
+                                value={text("takeawayBoden.benefits.title", "benefits.title")}
+                                textKey="takeawayBoden.benefits.title"
+                                locale={locale}
+                                page="takeaway-boden"
+                                canEdit={isOwner}
+                                as="span"
+                            />
                         </h2>
 
                         <ul className="mt-6 space-y-4">
-                            {[0, 1, 2, 3, 4, 5].map((index) => (
+                            {benefits.map((item) => (
                                 <li
-                                    key={index}
+                                    key={item.key}
                                     className="flex gap-3 text-sm font-bold leading-6 text-dark/65"
                                 >
                                     <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-paprika" />
-                                    {t(`benefits.items.${index}`)}
+
+                                    <EditableText
+                                        value={text(item.key, item.fallbackKey)}
+                                        textKey={item.key}
+                                        locale={locale}
+                                        page="takeaway-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
                                 </li>
                             ))}
                         </ul>
@@ -244,19 +442,50 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
 
                 <section className="mt-16">
                     <p className="font-black uppercase tracking-[0.25em] text-paprika">
-                        {t("faq.eyebrow")}
+                        <EditableText
+                            value={text("takeawayBoden.faq.eyebrow", "faq.eyebrow")}
+                            textKey="takeawayBoden.faq.eyebrow"
+                            locale={locale}
+                            page="takeaway-boden"
+                            canEdit={isOwner}
+                            as="span"
+                        />
                     </p>
 
-                    <h2 className="section-title mt-3">{t("faq.title")}</h2>
+                    <h2 className="section-title mt-3">
+                        <EditableText
+                            value={text("takeawayBoden.faq.title", "faq.title")}
+                            textKey="takeawayBoden.faq.title"
+                            locale={locale}
+                            page="takeaway-boden"
+                            canEdit={isOwner}
+                            as="span"
+                        />
+                    </h2>
 
                     <div className="mt-8 grid gap-4 md:grid-cols-2">
                         {faqItems.map((item) => (
-                            <div key={item.question} className="glass-card p-5">
+                            <div key={item.qKey} className="glass-card p-5">
                                 <h3 className="text-lg font-black text-dark">
-                                    {item.question}
+                                    <EditableText
+                                        value={text(item.qKey, item.qFallback)}
+                                        textKey={item.qKey}
+                                        locale={locale}
+                                        page="takeaway-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
                                 </h3>
+
                                 <p className="mt-3 text-sm leading-6 text-dark/60">
-                                    {item.answer}
+                                    <EditableText
+                                        value={text(item.aKey, item.aFallback)}
+                                        textKey={item.aKey}
+                                        locale={locale}
+                                        page="takeaway-boden"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
                                 </p>
                             </div>
                         ))}

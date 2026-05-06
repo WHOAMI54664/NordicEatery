@@ -21,18 +21,22 @@ type ReservationsPageProps = {
     }>;
 };
 
-type ReservationStatus = "pending" | "confirmed" | "cancelled" | "completed";
+type ReservationStatus = "new" | "confirmed" | "cancelled" | "completed";
 
 type ReservationRow = {
     id: string;
-    customer_name: string;
-    customer_phone: string | null;
-    customer_email: string | null;
-    reservation_date: string;
-    reservation_time: string;
-    guests_count: number;
+    reservation_number: string | null;
+    name: string;
+    phone: string | null;
+    email: string | null;
+    booking_service: string | null;
+    booking_type: string | null;
+    date: string;
+    time: string;
+    guests: number;
     status: ReservationStatus;
-    note: string | null;
+    event_details: string | null;
+    message: string | null;
     created_at: string;
 };
 
@@ -48,7 +52,7 @@ function formatTime(time: string) {
 
 function getStatusClass(status: ReservationStatus) {
     switch (status) {
-        case "pending":
+        case "new":
             return "border-[#F6A21A]/25 bg-[#F6A21A]/15 text-[#A96800]";
         case "confirmed":
             return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700";
@@ -137,17 +141,16 @@ export default async function ReservationsPage({
     }
 
     const { data: reservations, error } = await supabase
-        .from("reservations")
+        .from("booking_requests")
         .select(
-            "id, customer_name, customer_phone, customer_email, reservation_date, reservation_time, guests_count, status, note, created_at"
+            "id, reservation_number, name, phone, email, booking_service, booking_type, date, time, guests, status, event_details, message, created_at"
         )
-        .order("reservation_date", { ascending: true })
-        .order("reservation_time", { ascending: true });
+        .order("created_at", { ascending: false });
 
     const reservationList = ((reservations || []) as ReservationRow[]) || [];
 
     const pendingCount = reservationList.filter(
-        (reservation) => reservation.status === "pending"
+        (reservation) => reservation.status === "new"
     ).length;
 
     const confirmedCount = reservationList.filter(
@@ -298,50 +301,52 @@ export default async function ReservationsPage({
                                     <tr key={reservation.id} className="group">
                                         <td className="rounded-l-2xl border-y border-l border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
                                             <p className="text-sm font-black text-[#25120F]">
-                                                {reservation.customer_name}
+                                                {reservation.name}
                                             </p>
                                             <p className="mt-1 max-w-[140px] truncate text-xs font-medium text-[#A39388]">
-                                                {reservation.id}
+                                                {reservation.reservation_number || reservation.id}
+                                            </p>
+                                            <p className="mt-1 text-xs font-bold text-[#C7192E]">
+                                                {reservation.booking_service || "—"} · {reservation.booking_type || "—"}
                                             </p>
                                         </td>
 
                                         <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
                                             <div className="space-y-1">
-                                                {reservation.customer_phone ? (
+                                                {reservation.phone ? (
                                                     <div className="flex items-center gap-2 text-xs font-bold text-[#25120F]">
                                                         <Phone className="h-3.5 w-3.5 text-[#C7192E]" />
-                                                        {reservation.customer_phone}
+                                                        {reservation.phone}
                                                     </div>
                                                 ) : null}
 
-                                                {reservation.customer_email ? (
+                                                {reservation.email ? (
                                                     <div className="flex items-center gap-2 text-xs font-bold text-[#7B6A61]">
                                                         <Mail className="h-3.5 w-3.5 text-[#C7192E]" />
-                                                        {reservation.customer_email}
+                                                        {reservation.email}
                                                     </div>
                                                 ) : null}
 
-                                                {!reservation.customer_phone &&
-                                                !reservation.customer_email ? (
+                                                {!reservation.phone && !reservation.email ? (
                                                     <span className="text-xs font-bold text-[#A39388]">
-                              {t("reservations.noContact")}
-                            </span>
+                                                    {t("reservations.noContact")}
+                                                    </span>
                                                 ) : null}
                                             </div>
                                         </td>
 
                                         <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#25120F] group-hover:bg-[#FFF3E2]">
-                                            {formatDate(reservation.reservation_date, locale)}
+                                            {formatDate(reservation.date, locale)}
                                         </td>
 
                                         <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#C7192E] group-hover:bg-[#FFF3E2]">
-                                            {formatTime(reservation.reservation_time)}
+                                            {formatTime(reservation.time)}
                                         </td>
 
                                         <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
                         <span className="rounded-full border border-[#EADDCF] bg-[#FFF3E2] px-3 py-1 text-xs font-black text-[#7B6A61]">
                           {t("reservations.guestsCount", {
-                              count: reservation.guests_count
+                              count: reservation.guests
                           })}
                         </span>
                                         </td>
@@ -358,7 +363,7 @@ export default async function ReservationsPage({
 
                                         <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
                                             <p className="max-w-[240px] truncate text-sm font-medium text-[#7B6A61]">
-                                                {reservation.note || "—"}
+                                                {reservation.event_details || reservation.message || "—"}
                                             </p>
                                         </td>
 

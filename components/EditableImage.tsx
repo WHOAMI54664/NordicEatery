@@ -11,11 +11,18 @@ type EditableImageProps = {
     locale: string;
     page: string;
     canEdit?: boolean;
+
     className?: string;
     imageClassName?: string;
+
     width?: number;
     height?: number;
+    fill?: boolean;
     priority?: boolean;
+    sizes?: string;
+
+    placeholderTitle?: string;
+    placeholderDescription?: string;
 };
 
 export function EditableImage({
@@ -25,11 +32,18 @@ export function EditableImage({
                                   locale,
                                   page,
                                   canEdit = false,
+
                                   className = "",
                                   imageClassName = "",
+
                                   width = 900,
                                   height = 650,
+                                  fill = false,
                                   priority = false,
+                                  sizes,
+
+                                  placeholderTitle = "Add photo",
+                                  placeholderDescription = "Recommended: horizontal image, 1200×850 px or 1600×1100 px.",
                               }: EditableImageProps) {
     const [imageSrc, setImageSrc] = useState(src || "");
     const [uploading, setUploading] = useState(false);
@@ -47,66 +61,75 @@ export function EditableImage({
         !imageError;
 
     async function uploadImage(file: File) {
-        setUploading(true);
+        try {
+            setUploading(true);
 
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("key", imageKey);
-        formData.append("locale", locale);
-        formData.append("page", page);
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("key", imageKey);
+            formData.append("locale", locale);
+            formData.append("page", page);
 
-        const response = await fetch("/api/admin/site-image", {
-            method: "POST",
-            body: formData,
-        });
+            const response = await fetch("/api/admin/site-image", {
+                method: "POST",
+                body: formData,
+            });
 
-        setUploading(false);
+            const data = await response.json();
 
-        const data = await response.json();
+            if (!response.ok || !data.url) {
+                alert(data.error || "Could not upload image");
+                return;
+            }
 
-        if (!response.ok || !data.url) {
-            alert(data.error || "Could not upload image");
-            return;
+            setImageSrc(data.url);
+            setImageError(false);
+        } catch {
+            alert("Could not upload image");
+        } finally {
+            setUploading(false);
         }
-
-        setImageSrc(data.url);
-        setImageError(false);
     }
 
     return (
         <div className={`group relative ${className}`}>
             {hasImage ? (
-                <Image
-                    src={imageSrc}
-                    alt={alt}
-                    width={width}
-                    height={height}
-                    priority={priority}
-                    className={imageClassName}
-                    onError={() => setImageError(true)}
-                />
+                fill ? (
+                    <Image
+                        src={imageSrc}
+                        alt={alt}
+                        fill
+                        priority={priority}
+                        sizes={sizes}
+                        className={imageClassName}
+                        onError={() => setImageError(true)}
+                    />
+                ) : (
+                    <Image
+                        src={imageSrc}
+                        alt={alt}
+                        width={width}
+                        height={height}
+                        priority={priority}
+                        sizes={sizes}
+                        className={imageClassName}
+                        onError={() => setImageError(true)}
+                    />
+                )
             ) : (
-                <div className="flex h-[420px] w-full items-center justify-center rounded-[1.5rem] bg-white text-center">
-                    {canEdit && (
+                <div className="flex h-full min-h-[320px] w-full items-center justify-center rounded-[1.5rem] bg-white text-center">
+                    {canEdit ? (
                         <div className="max-w-sm px-6 text-sm leading-6 text-dark/50">
                             <ImagePlus className="mx-auto mb-3 text-paprika/50" size={30} />
 
-                            <p className="mb-2 font-black text-dark">
-                                Add food truck photo
-                            </p>
+                            <p className="mb-2 font-black text-dark">{placeholderTitle}</p>
 
-                            <p>
-                                Recommended: horizontal image,
-                                <br />
-                                1200×850 px or 1600×1100 px
-                            </p>
+                            <p>{placeholderDescription}</p>
 
-                            <p className="mt-2">JPG / WebP, up to 800 KB</p>
-
-                            <p className="mt-2">
-                                Keep the truck centered and clearly visible.
-                            </p>
+                            <p className="mt-2">JPG / PNG / WebP</p>
                         </div>
+                    ) : (
+                        <span className="sr-only">Image not available</span>
                     )}
                 </div>
             )}
@@ -123,7 +146,12 @@ export function EditableImage({
                         disabled={uploading}
                         onChange={(event) => {
                             const file = event.target.files?.[0];
-                            if (file) uploadImage(file);
+
+                            if (file) {
+                                uploadImage(file);
+                            }
+
+                            event.currentTarget.value = "";
                         }}
                     />
                 </label>

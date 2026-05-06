@@ -3,6 +3,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { MenuJsonLd } from "@/components/seo/MenuJsonLd";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
+import { EditableText } from "@/components/EditableText";
 
 type MenuPageProps = {
     params: Promise<{
@@ -75,7 +76,38 @@ export default async function MenuPage({ params }: MenuPageProps) {
     const { locale } = await params;
 
     const supabase = await createClient();
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    let isOwner = false;
+
+    if (user) {
+        const { data: profile } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", user.id)
+            .single();
+
+        isOwner = profile?.role === "owner" || profile?.role === "admin";
+    }
+
     const t = await getTranslations("pages.menu");
+
+    const { data: siteContent } = await supabase
+        .from("site_content")
+        .select("key,value")
+        .eq("locale", locale)
+        .eq("page", "menu");
+
+    const content = new Map(
+        (siteContent || []).map((item) => [item.key, item.value])
+    );
+
+    function text(key: string, fallbackKey: string) {
+        return content.get(key) || t(fallbackKey);
+    }
 
     const { data: menuItems } = await supabase
         .from("products")
@@ -91,13 +123,36 @@ export default async function MenuPage({ params }: MenuPageProps) {
             <main className="container-page py-16">
                 <div className="max-w-3xl text-center sm:text-left">
                     <p className="font-black uppercase tracking-[0.25em] text-paprika">
-                        {t("eyebrow")}
+                        <EditableText
+                            value={text("menu.eyebrow", "eyebrow")}
+                            textKey="menu.eyebrow"
+                            locale={locale}
+                            page="menu"
+                            canEdit={isOwner}
+                            as="span"
+                        />
                     </p>
 
-                    <h1 className="section-title mt-3">{t("title")}</h1>
+                    <h1 className="section-title mt-3">
+                        <EditableText
+                            value={text("menu.title", "title")}
+                            textKey="menu.title"
+                            locale={locale}
+                            page="menu"
+                            canEdit={isOwner}
+                            as="span"
+                        />
+                    </h1>
 
                     <p className="mt-5 text-lg leading-8 text-dark/60">
-                        {t("subtitle")}
+                        <EditableText
+                            value={text("menu.subtitle", "subtitle")}
+                            textKey="menu.subtitle"
+                            locale={locale}
+                            page="menu"
+                            canEdit={isOwner}
+                            as="span"
+                        />
                     </p>
                 </div>
 
@@ -108,10 +163,20 @@ export default async function MenuPage({ params }: MenuPageProps) {
 
                         if (products.length === 0) return null;
 
+                        const categoryTextKey = `menu.categories.${category.titleKey}`;
+                        const fallbackKey = `categories.${category.titleKey}`;
+
                         return (
                             <section key={category.id} id={category.id}>
                                 <h2 className="mb-6 text-3xl font-black text-dark">
-                                    {t(`categories.${category.titleKey}`)}
+                                    <EditableText
+                                        value={text(categoryTextKey, fallbackKey)}
+                                        textKey={categoryTextKey}
+                                        locale={locale}
+                                        page="menu"
+                                        canEdit={isOwner}
+                                        as="span"
+                                    />
                                 </h2>
 
                                 <div className="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-3">
