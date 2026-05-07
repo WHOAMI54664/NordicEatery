@@ -78,7 +78,6 @@ export function ReservationActions({
                     {isLoading ? t("updating") : t("cancel")}
                 </button>
             )}
-            .neq("status", "cancelled")
             {status === "cancelled" ? (
                 <button
                     type="button"
