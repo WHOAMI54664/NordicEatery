@@ -1,7 +1,10 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { FooterClient } from "@/components/FooterClient";
 
 export async function Footer() {
+  noStore();
+
   const supabase = await createClient();
 
   const {
@@ -29,5 +32,29 @@ export async function Footer() {
       (siteContent || []).map((item) => [item.key, item.value])
   );
 
-  return <FooterClient canEdit={canEdit} editableContent={editableContent} />;
+  const { data: businessSettings } = await supabase
+      .from("business_settings")
+      .select(
+          `
+      business_name,
+      brand_name,
+      organization_number,
+      vat_number,
+      support_email,
+      booking_email,
+      phone,
+      location,
+      address
+    `
+      )
+      .limit(1)
+      .single();
+
+  return (
+      <FooterClient
+          canEdit={canEdit}
+          editableContent={editableContent}
+          businessSettings={businessSettings || null}
+      />
+  );
 }

@@ -6,9 +6,22 @@ import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { EditableText } from "@/components/EditableText";
 
+type FooterBusinessSettings = {
+    business_name?: string | null;
+    brand_name?: string | null;
+    organization_number?: string | null;
+    vat_number?: string | null;
+    support_email?: string | null;
+    booking_email?: string | null;
+    phone?: string | null;
+    location?: string | null;
+    address?: string | null;
+};
+
 type FooterClientProps = {
     canEdit: boolean;
     editableContent: Record<string, string>;
+    businessSettings: FooterBusinessSettings | null;
 };
 
 function PaymentIcons() {
@@ -39,7 +52,11 @@ function PaymentIcons() {
     );
 }
 
-export function FooterClient({ canEdit, editableContent }: FooterClientProps) {
+export function FooterClient({
+                                 canEdit,
+                                 editableContent,
+                                 businessSettings,
+                             }: FooterClientProps) {
     const t = useTranslations("footer");
     const params = useParams();
 
@@ -58,6 +75,19 @@ export function FooterClient({ canEdit, editableContent }: FooterClientProps) {
     }
 
     const currentYear = new Date().getFullYear();
+
+    const editableLinkLabels = [
+        ["footer.menu", "menu"],
+        ["footer.about", "about"],
+        ["footer.booking", "booking"],
+        ["footer.foodTruck", "foodTruck"],
+        ["footer.catering", "catering"],
+        ["footer.contact", "contact"],
+        ["footer.support", "support"],
+        ["footer.terms", "terms"],
+        ["footer.privacy", "privacy"],
+        ["footer.refunds", "refunds"],
+    ] as const;
 
     return (
         <footer className="mt-12 border-t border-dark/10 bg-cream/60 sm:mt-16">
@@ -200,76 +230,58 @@ export function FooterClient({ canEdit, editableContent }: FooterClientProps) {
                         </p>
 
                         <div className="mt-3 text-sm font-semibold leading-6 text-dark/70">
-                            <p>
-                                <EditableText
-                                    value={value("footer.businessName", "Nordic Eatery")}
-                                    textKey="footer.businessName"
-                                    locale={locale}
-                                    page="footer"
-                                    canEdit={canEdit}
-                                    as="span"
-                                />
-                            </p>
+                            <p>{businessSettings?.brand_name || "Nordic Eatery"}</p>
 
-                            <p>
-                                <EditableText
-                                    value={value("footer.businessStreet", "Unbyn 7")}
-                                    textKey="footer.businessStreet"
-                                    locale={locale}
-                                    page="footer"
-                                    canEdit={canEdit}
-                                    as="span"
-                                />
-                            </p>
+                            {businessSettings?.address && <p>{businessSettings.address}</p>}
 
-                            <p>
-                                <EditableText
-                                    value={value("footer.businessPostal", "961 93 Boden")}
-                                    textKey="footer.businessPostal"
-                                    locale={locale}
-                                    page="footer"
-                                    canEdit={canEdit}
-                                    as="span"
-                                />
-                            </p>
+                            {businessSettings?.location && <p>{businessSettings.location}</p>}
 
-                            <p>
-                                <EditableText
-                                    value={value("footer.businessCountry", "Sweden")}
-                                    textKey="footer.businessCountry"
-                                    locale={locale}
-                                    page="footer"
-                                    canEdit={canEdit}
-                                    as="span"
-                                />
-                            </p>
+                            {businessSettings?.organization_number && (
+                                <p className="mt-2">
+                                    Org.nr: {businessSettings.organization_number}
+                                </p>
+                            )}
+
+                            {businessSettings?.vat_number && (
+                                <p>VAT: {businessSettings.vat_number}</p>
+                            )}
 
                             <div className="mt-2">
                                 <p className="break-words">
-                                    <EditableText
-                                        value={value("footer.businessEmail", "kontakt@nordiceatery.se")}
-                                        textKey="footer.businessEmail"
-                                        locale={locale}
-                                        page="footer"
-                                        canEdit={canEdit}
-                                        as="span"
-                                    />
+                                    {businessSettings?.support_email || "kontakt@nordiceatery.se"}
                                 </p>
 
-                                <p>
-                                    <EditableText
-                                        value={value("footer.businessPhone", "+46 73 421 89 25")}
-                                        textKey="footer.businessPhone"
-                                        locale={locale}
-                                        page="footer"
-                                        canEdit={canEdit}
-                                        as="span"
-                                    />
-                                </p>
+                                {businessSettings?.phone && <p>{businessSettings.phone}</p>}
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {canEdit && (
+                    <div className="mt-8 rounded-[1.5rem] border border-paprika/10 bg-white/70 p-4 shadow-sm backdrop-blur">
+                        <p className="mb-3 text-xs font-black uppercase tracking-[0.25em] text-paprika">
+                            Footer edit
+                        </p>
+
+                        <div className="flex flex-wrap gap-2">
+                            {editableLinkLabels.map(([key, fallbackKey]) => (
+                                <span
+                                    key={key}
+                                    className="rounded-full border border-dark/10 bg-cream px-3 py-2 text-xs font-bold text-dark/70"
+                                >
+                  <EditableText
+                      value={text(key, fallbackKey)}
+                      textKey={key}
+                      locale={locale}
+                      page="footer"
+                      canEdit={canEdit}
+                      as="span"
+                  />
+                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 <div className="mt-8 border-t border-dark/10 pt-5">
                     <div className="flex flex-col items-center justify-between gap-4 text-xs text-dark/50 sm:flex-row">

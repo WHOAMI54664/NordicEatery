@@ -594,6 +594,105 @@
     }
   },
   "admin": {
+    "businessSettingsForm": {
+      "business": {
+        "title": "Business information",
+        "description": "Public information used across the website and order flow."
+      },
+      "contact": {
+        "title": "Contact details",
+        "description": "Customer support and booking contact channels."
+      },
+      "delivery": {
+        "title": "Delivery settings",
+        "description": "Delivery and pickup options for customer orders."
+      },
+      "payment": {
+        "title": "Payment settings",
+        "description": "Payment methods available during checkout."
+      },
+      "hours": {
+        "title": "Opening hours",
+        "description": "Basic schedule for restaurant availability."
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Operational alerts for orders and staff activity."
+      },
+      "fields": {
+        "businessName": "Business name",
+        "brandName": "Brand name",
+        "location": "Location",
+        "address": "Address",
+        "organizationNumber": "Organization number",
+        "vatNumber": "VAT number",
+        "supportEmail": "Support email",
+        "bookingEmail": "Booking email",
+        "phone": "Phone",
+        "estimatedTime": "Estimated time",
+        "deliveryArea": "Delivery area",
+        "mondayFriday": "Monday - Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      },
+      "placeholders": {
+        "address": "Restaurant address",
+        "closed": "Closed"
+      },
+      "toggles": {
+        "delivery": {
+          "label": "Delivery",
+          "description": "Allow customers to select delivery."
+        },
+        "pickup": {
+          "label": "Pickup",
+          "description": "Allow customers to select pickup."
+        },
+        "cash": {
+          "label": "Cash",
+          "description": "Allow cash payment at pickup or delivery."
+        },
+        "card": {
+          "label": "Card",
+          "description": "Allow card payments through Stripe."
+        },
+        "swish": {
+          "label": "Swish",
+          "description": "Enable Swish payments when integration is ready."
+        },
+        "holidayMode": {
+          "label": "Holiday mode",
+          "description": "Temporarily mark restaurant as unavailable."
+        },
+        "newOrderAlerts": {
+          "label": "New order alerts",
+          "description": "Show alerts when new orders arrive."
+        },
+        "kitchenUpdates": {
+          "label": "Kitchen updates",
+          "description": "Notify when kitchen status changes."
+        },
+        "lowStockAlerts": {
+          "label": "Low stock alerts",
+          "description": "Highlight low stock products in admin."
+        },
+        "emailNotifications": {
+          "label": "Email notifications",
+          "description": "Send operational email notifications."
+        }
+      },
+      "savePanel": {
+        "title": "Business settings",
+        "description": "Changes are saved directly to Supabase."
+      },
+      "buttons": {
+        "save": "Save settings",
+        "saving": "Saving..."
+      },
+      "messages": {
+        "success": "Settings saved successfully."
+      }
+    },
     "documentation": {
       "eyebrow": "CRM documentation",
       "title": "Documentation",

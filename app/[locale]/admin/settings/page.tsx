@@ -21,6 +21,9 @@ const fallbackSettings: BusinessSettings = {
     business_name: "Mikes Food",
     brand_name: "NordicEatery",
 
+    organization_number: "",
+    vat_number: "",
+
     support_email: "support@nordiceatery.se",
     booking_email: "booking@nordiceatery.se",
     phone: "",

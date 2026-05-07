@@ -592,6 +592,105 @@
     }
   },
   "admin": {
+    "businessSettingsForm": {
+      "business": {
+        "title": "Informacje o firmie",
+        "description": "Publiczne informacje używane na stronie i w procesie zamówień."
+      },
+      "contact": {
+        "title": "Dane kontaktowe",
+        "description": "Kanały kontaktu dla obsługi klienta i rezerwacji."
+      },
+      "delivery": {
+        "title": "Ustawienia dostawy",
+        "description": "Opcje dostawy i odbioru dla zamówień klientów."
+      },
+      "payment": {
+        "title": "Ustawienia płatności",
+        "description": "Metody płatności dostępne przy kasie."
+      },
+      "hours": {
+        "title": "Godziny otwarcia",
+        "description": "Podstawowy harmonogram dostępności restauracji."
+      },
+      "notifications": {
+        "title": "Powiadomienia",
+        "description": "Powiadomienia operacyjne dotyczące zamówień i aktywności personelu."
+      },
+      "fields": {
+        "businessName": "Nazwa firmy",
+        "brandName": "Nazwa marki",
+        "location": "Lokalizacja",
+        "address": "Adres",
+        "organizationNumber": "Numer organizacyjny",
+        "vatNumber": "Numer VAT",
+        "supportEmail": "E-mail wsparcia",
+        "bookingEmail": "E-mail rezerwacji",
+        "phone": "Telefon",
+        "estimatedTime": "Szacowany czas",
+        "deliveryArea": "Obszar dostawy",
+        "mondayFriday": "Poniedziałek - Piątek",
+        "saturday": "Sobota",
+        "sunday": "Niedziela"
+      },
+      "placeholders": {
+        "address": "Adres restauracji",
+        "closed": "Zamknięte"
+      },
+      "toggles": {
+        "delivery": {
+          "label": "Dostawa",
+          "description": "Pozwól klientom wybrać dostawę."
+        },
+        "pickup": {
+          "label": "Odbiór",
+          "description": "Pozwól klientom wybrać odbiór osobisty."
+        },
+        "cash": {
+          "label": "Gotówka",
+          "description": "Pozwól na płatność gotówką przy odbiorze lub dostawie."
+        },
+        "card": {
+          "label": "Karta",
+          "description": "Pozwól na płatności kartą przez Stripe."
+        },
+        "swish": {
+          "label": "Swish",
+          "description": "Włącz płatności Swish, gdy integracja będzie gotowa."
+        },
+        "holidayMode": {
+          "label": "Tryb urlopowy",
+          "description": "Tymczasowo oznacz restaurację jako niedostępną."
+        },
+        "newOrderAlerts": {
+          "label": "Powiadomienia o nowych zamówieniach",
+          "description": "Wyświetlaj alerty, gdy pojawią się nowe zamówienia."
+        },
+        "kitchenUpdates": {
+          "label": "Aktualizacje kuchni",
+          "description": "Powiadamiaj, gdy zmieni się status kuchni."
+        },
+        "lowStockAlerts": {
+          "label": "Alerty niskiego stanu magazynowego",
+          "description": "Wyróżniaj produkty z niskim stanem magazynowym w panelu admina."
+        },
+        "emailNotifications": {
+          "label": "Powiadomienia e-mail",
+          "description": "Wysyłaj operacyjne powiadomienia e-mail."
+        }
+      },
+      "savePanel": {
+        "title": "Ustawienia firmy",
+        "description": "Zmiany są zapisywane bezpośrednio w Supabase."
+      },
+      "buttons": {
+        "save": "Zapisz ustawienia",
+        "saving": "Zapisywanie..."
+      },
+      "messages": {
+        "success": "Ustawienia zostały zapisane."
+      }
+    },
     "documentation": {
       "eyebrow": "Dokumentacja CRM",
       "title": "Dokumentacja",
@@ -794,7 +893,7 @@
       "activeDeliveries": "Aktywne dostawy",
       "activeDeliveriesDescription": "Obecnie w drodze",
       "lowStockItems": "Niskie stany magazynowe",
-      "productsAvailable": "{liczba} dostępnych produktów",
+      "productsAvailable": "{count} produktów dostępnych",
       "recentOrders": "Ostatnie zamówienia",
       "recentOrdersDescription": "Podgląd na żywo zamówień w restauracji.",
       "viewAllOrders": "Zobacz wszystkie zamówienia",

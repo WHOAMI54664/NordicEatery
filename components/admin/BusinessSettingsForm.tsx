@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
     Bell,
     Building2,
@@ -8,14 +9,16 @@ import {
     Clock,
     CreditCard,
     Mail,
-    MapPin,
     Save,
-    Truck
+    Truck,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser";
 
 export type BusinessSettings = {
     id: string;
+
+    organization_number: string | null;
+    vat_number: string | null;
 
     business_name: string;
     brand_name: string;
@@ -55,7 +58,7 @@ function SectionCard({
                          icon: Icon,
                          title,
                          description,
-                         children
+                         children,
                      }: {
     icon: React.ElementType;
     title: string;
@@ -89,7 +92,7 @@ function TextField({
                        value,
                        onChange,
                        placeholder,
-                       type = "text"
+                       type = "text",
                    }: {
     label: string;
     value: string;
@@ -102,6 +105,7 @@ function TextField({
       <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
         {label}
       </span>
+
             <input
                 type={type}
                 value={value}
@@ -117,7 +121,7 @@ function ToggleRow({
                        label,
                        description,
                        checked,
-                       onChange
+                       onChange,
                    }: {
     label: string;
     description: string;
@@ -158,9 +162,8 @@ function ToggleRow({
     );
 }
 
-export function BusinessSettingsForm({
-                                         settings
-                                     }: BusinessSettingsFormProps) {
+export function BusinessSettingsForm({ settings }: BusinessSettingsFormProps) {
+    const t = useTranslations("admin.businessSettingsForm");
     const supabase = useMemo(() => createClient(), []);
 
     const [form, setForm] = useState<BusinessSettings>(settings);
@@ -174,7 +177,7 @@ export function BusinessSettingsForm({
     ) {
         setForm((current) => ({
             ...current,
-            [key]: value
+            [key]: value,
         }));
     }
 
@@ -183,31 +186,34 @@ export function BusinessSettingsForm({
         setSuccessMessage("");
         setErrorMessage("");
 
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from("business_settings")
             .update({
                 business_name: form.business_name,
                 brand_name: form.brand_name,
 
-                support_email: form.support_email,
-                booking_email: form.booking_email,
-                phone: form.phone,
+                organization_number: form.organization_number || null,
+                vat_number: form.vat_number || null,
 
-                location: form.location,
-                address: form.address,
+                support_email: form.support_email || null,
+                booking_email: form.booking_email || null,
+                phone: form.phone || null,
+
+                location: form.location || null,
+                address: form.address || null,
 
                 delivery_enabled: form.delivery_enabled,
                 pickup_enabled: form.pickup_enabled,
-                estimated_delivery_time: form.estimated_delivery_time,
-                delivery_area: form.delivery_area,
+                estimated_delivery_time: form.estimated_delivery_time || null,
+                delivery_area: form.delivery_area || null,
 
                 cash_enabled: form.cash_enabled,
                 card_enabled: form.card_enabled,
                 swish_enabled: form.swish_enabled,
 
-                monday_friday_hours: form.monday_friday_hours,
-                saturday_hours: form.saturday_hours,
-                sunday_hours: form.sunday_hours,
+                monday_friday_hours: form.monday_friday_hours || null,
+                saturday_hours: form.saturday_hours || null,
+                sunday_hours: form.sunday_hours || null,
                 holiday_mode: form.holiday_mode,
 
                 new_order_alerts: form.new_order_alerts,
@@ -215,9 +221,11 @@ export function BusinessSettingsForm({
                 low_stock_alerts: form.low_stock_alerts,
                 email_notifications: form.email_notifications,
 
-                updated_at: new Date().toISOString()
+                updated_at: new Date().toISOString(),
             })
-            .eq("id", form.id);
+            .eq("id", form.id)
+            .select()
+            .single();
 
         setIsSaving(false);
 
@@ -226,7 +234,11 @@ export function BusinessSettingsForm({
             return;
         }
 
-        setSuccessMessage("Settings saved successfully.");
+        if (data) {
+            setForm(data as BusinessSettings);
+        }
+
+        setSuccessMessage(t("messages.success"));
     }
 
     return (
@@ -246,54 +258,73 @@ export function BusinessSettingsForm({
             <section className="grid gap-6 xl:grid-cols-2">
                 <SectionCard
                     icon={Building2}
-                    title="Business information"
-                    description="Public information used across the website and order flow."
+                    title={t("business.title")}
+                    description={t("business.description")}
                 >
                     <div className="grid gap-4 sm:grid-cols-2">
                         <TextField
-                            label="Business name"
+                            label={t("fields.businessName")}
                             value={form.business_name}
                             onChange={(value) => updateField("business_name", value)}
                         />
+
                         <TextField
-                            label="Brand name"
+                            label={t("fields.brandName")}
                             value={form.brand_name}
                             onChange={(value) => updateField("brand_name", value)}
                         />
+
                         <TextField
-                            label="Location"
+                            label={t("fields.location")}
                             value={form.location || ""}
                             onChange={(value) => updateField("location", value)}
                         />
+
                         <TextField
-                            label="Address"
+                            label={t("fields.address")}
                             value={form.address || ""}
                             onChange={(value) => updateField("address", value)}
-                            placeholder="Restaurant address"
+                            placeholder={t("placeholders.address")}
+                        />
+
+                        <TextField
+                            label={t("fields.organizationNumber")}
+                            value={form.organization_number || ""}
+                            onChange={(value) => updateField("organization_number", value)}
+                            placeholder="XXXXXX-XXXX"
+                        />
+
+                        <TextField
+                            label={t("fields.vatNumber")}
+                            value={form.vat_number || ""}
+                            onChange={(value) => updateField("vat_number", value)}
+                            placeholder="SEXXXXXXXXXX01"
                         />
                     </div>
                 </SectionCard>
 
                 <SectionCard
                     icon={Mail}
-                    title="Contact details"
-                    description="Customer support and booking contact channels."
+                    title={t("contact.title")}
+                    description={t("contact.description")}
                 >
                     <div className="grid gap-4 sm:grid-cols-2">
                         <TextField
-                            label="Support email"
+                            label={t("fields.supportEmail")}
                             type="email"
                             value={form.support_email || ""}
                             onChange={(value) => updateField("support_email", value)}
                         />
+
                         <TextField
-                            label="Booking email"
+                            label={t("fields.bookingEmail")}
                             type="email"
                             value={form.booking_email || ""}
                             onChange={(value) => updateField("booking_email", value)}
                         />
+
                         <TextField
-                            label="Phone"
+                            label={t("fields.phone")}
                             value={form.phone || ""}
                             onChange={(value) => updateField("phone", value)}
                             placeholder="+46..."
@@ -303,20 +334,21 @@ export function BusinessSettingsForm({
 
                 <SectionCard
                     icon={Truck}
-                    title="Delivery settings"
-                    description="Delivery and pickup options for customer orders."
+                    title={t("delivery.title")}
+                    description={t("delivery.description")}
                 >
                     <div className="grid gap-4">
                         <div className="grid gap-4 sm:grid-cols-2">
                             <TextField
-                                label="Estimated time"
+                                label={t("fields.estimatedTime")}
                                 value={form.estimated_delivery_time || ""}
                                 onChange={(value) =>
                                     updateField("estimated_delivery_time", value)
                                 }
                             />
+
                             <TextField
-                                label="Delivery area"
+                                label={t("fields.deliveryArea")}
                                 value={form.delivery_area || ""}
                                 onChange={(value) => updateField("delivery_area", value)}
                             />
@@ -324,14 +356,15 @@ export function BusinessSettingsForm({
 
                         <div className="grid gap-3 sm:grid-cols-2">
                             <ToggleRow
-                                label="Delivery"
-                                description="Allow customers to select delivery."
+                                label={t("toggles.delivery.label")}
+                                description={t("toggles.delivery.description")}
                                 checked={form.delivery_enabled}
                                 onChange={(value) => updateField("delivery_enabled", value)}
                             />
+
                             <ToggleRow
-                                label="Pickup"
-                                description="Allow customers to select pickup."
+                                label={t("toggles.pickup.label")}
+                                description={t("toggles.pickup.description")}
                                 checked={form.pickup_enabled}
                                 onChange={(value) => updateField("pickup_enabled", value)}
                             />
@@ -341,25 +374,27 @@ export function BusinessSettingsForm({
 
                 <SectionCard
                     icon={CreditCard}
-                    title="Payment settings"
-                    description="Payment methods available during checkout."
+                    title={t("payment.title")}
+                    description={t("payment.description")}
                 >
                     <div className="grid gap-3">
                         <ToggleRow
-                            label="Cash"
-                            description="Allow cash payment at pickup or delivery."
+                            label={t("toggles.cash.label")}
+                            description={t("toggles.cash.description")}
                             checked={form.cash_enabled}
                             onChange={(value) => updateField("cash_enabled", value)}
                         />
+
                         <ToggleRow
-                            label="Card"
-                            description="Allow card payments through Stripe."
+                            label={t("toggles.card.label")}
+                            description={t("toggles.card.description")}
                             checked={form.card_enabled}
                             onChange={(value) => updateField("card_enabled", value)}
                         />
+
                         <ToggleRow
-                            label="Swish"
-                            description="Enable Swish payments when integration is ready."
+                            label={t("toggles.swish.label")}
+                            description={t("toggles.swish.description")}
                             checked={form.swish_enabled}
                             onChange={(value) => updateField("swish_enabled", value)}
                         />
@@ -368,31 +403,34 @@ export function BusinessSettingsForm({
 
                 <SectionCard
                     icon={Clock}
-                    title="Opening hours"
-                    description="Basic schedule for restaurant availability."
+                    title={t("hours.title")}
+                    description={t("hours.description")}
                 >
                     <div className="grid gap-4">
                         <TextField
-                            label="Monday - Friday"
+                            label={t("fields.mondayFriday")}
                             value={form.monday_friday_hours || ""}
                             onChange={(value) => updateField("monday_friday_hours", value)}
                             placeholder="10:00 - 20:00"
                         />
+
                         <TextField
-                            label="Saturday"
+                            label={t("fields.saturday")}
                             value={form.saturday_hours || ""}
                             onChange={(value) => updateField("saturday_hours", value)}
                             placeholder="11:00 - 21:00"
                         />
+
                         <TextField
-                            label="Sunday"
+                            label={t("fields.sunday")}
                             value={form.sunday_hours || ""}
                             onChange={(value) => updateField("sunday_hours", value)}
-                            placeholder="Closed"
+                            placeholder={t("placeholders.closed")}
                         />
+
                         <ToggleRow
-                            label="Holiday mode"
-                            description="Temporarily mark restaurant as unavailable."
+                            label={t("toggles.holidayMode.label")}
+                            description={t("toggles.holidayMode.description")}
                             checked={form.holiday_mode}
                             onChange={(value) => updateField("holiday_mode", value)}
                         />
@@ -401,31 +439,34 @@ export function BusinessSettingsForm({
 
                 <SectionCard
                     icon={Bell}
-                    title="Notifications"
-                    description="Operational alerts for orders and staff activity."
+                    title={t("notifications.title")}
+                    description={t("notifications.description")}
                 >
                     <div className="grid gap-3">
                         <ToggleRow
-                            label="New order alerts"
-                            description="Show alerts when new orders arrive."
+                            label={t("toggles.newOrderAlerts.label")}
+                            description={t("toggles.newOrderAlerts.description")}
                             checked={form.new_order_alerts}
                             onChange={(value) => updateField("new_order_alerts", value)}
                         />
+
                         <ToggleRow
-                            label="Kitchen updates"
-                            description="Notify when kitchen status changes."
+                            label={t("toggles.kitchenUpdates.label")}
+                            description={t("toggles.kitchenUpdates.description")}
                             checked={form.kitchen_updates}
                             onChange={(value) => updateField("kitchen_updates", value)}
                         />
+
                         <ToggleRow
-                            label="Low stock alerts"
-                            description="Highlight low stock products in admin."
+                            label={t("toggles.lowStockAlerts.label")}
+                            description={t("toggles.lowStockAlerts.description")}
                             checked={form.low_stock_alerts}
                             onChange={(value) => updateField("low_stock_alerts", value)}
                         />
+
                         <ToggleRow
-                            label="Email notifications"
-                            description="Send operational email notifications."
+                            label={t("toggles.emailNotifications.label")}
+                            description={t("toggles.emailNotifications.description")}
                             checked={form.email_notifications}
                             onChange={(value) => updateField("email_notifications", value)}
                         />
@@ -442,10 +483,11 @@ export function BusinessSettingsForm({
 
                         <div>
                             <p className="text-sm font-black text-[#25120F]">
-                                Business settings
+                                {t("savePanel.title")}
                             </p>
+
                             <p className="text-xs font-medium text-[#7B6A61]">
-                                Changes are saved directly to Supabase.
+                                {t("savePanel.description")}
                             </p>
                         </div>
                     </div>
@@ -457,7 +499,7 @@ export function BusinessSettingsForm({
                         className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-6 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         <Save className="h-4 w-4" />
-                        {isSaving ? "Saving..." : "Save settings"}
+                        {isSaving ? t("buttons.saving") : t("buttons.save")}
                     </button>
                 </div>
             </section>

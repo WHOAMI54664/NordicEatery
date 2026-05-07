@@ -592,6 +592,105 @@
     }
   },
   "admin": {
+    "businessSettingsForm": {
+      "business": {
+        "title": "Информация о компании",
+        "description": "Публичная информация, которая используется на сайте и в процессе заказов."
+      },
+      "contact": {
+        "title": "Контактные данные",
+        "description": "Каналы связи для поддержки клиентов и бронирований."
+      },
+      "delivery": {
+        "title": "Настройки доставки",
+        "description": "Варианты доставки и самовывоза для заказов клиентов."
+      },
+      "payment": {
+        "title": "Настройки оплаты",
+        "description": "Способы оплаты, доступные при оформлении заказа."
+      },
+      "hours": {
+        "title": "Часы работы",
+        "description": "Основной график доступности ресторана."
+      },
+      "notifications": {
+        "title": "Уведомления",
+        "description": "Операционные уведомления для заказов и активности персонала."
+      },
+      "fields": {
+        "businessName": "Название компании",
+        "brandName": "Название бренда",
+        "location": "Локация",
+        "address": "Адрес",
+        "organizationNumber": "Регистрационный номер",
+        "vatNumber": "Номер VAT",
+        "supportEmail": "Email поддержки",
+        "bookingEmail": "Email бронирования",
+        "phone": "Телефон",
+        "estimatedTime": "Ожидаемое время",
+        "deliveryArea": "Зона доставки",
+        "mondayFriday": "Понедельник - Пятница",
+        "saturday": "Суббота",
+        "sunday": "Воскресенье"
+      },
+      "placeholders": {
+        "address": "Адрес ресторана",
+        "closed": "Закрыто"
+      },
+      "toggles": {
+        "delivery": {
+          "label": "Доставка",
+          "description": "Разрешить клиентам выбирать доставку."
+        },
+        "pickup": {
+          "label": "Самовывоз",
+          "description": "Разрешить клиентам выбирать самовывоз."
+        },
+        "cash": {
+          "label": "Наличные",
+          "description": "Разрешить оплату наличными при самовывозе или доставке."
+        },
+        "card": {
+          "label": "Карта",
+          "description": "Разрешить оплату картой через Stripe."
+        },
+        "swish": {
+          "label": "Swish",
+          "description": "Включить оплату Swish, когда интеграция будет готова."
+        },
+        "holidayMode": {
+          "label": "Режим отпуска",
+          "description": "Временно отметить ресторан как недоступный."
+        },
+        "newOrderAlerts": {
+          "label": "Уведомления о новых заказах",
+          "description": "Показывать уведомления при поступлении новых заказов."
+        },
+        "kitchenUpdates": {
+          "label": "Обновления кухни",
+          "description": "Уведомлять при изменении статуса кухни."
+        },
+        "lowStockAlerts": {
+          "label": "Предупреждения о низких остатках",
+          "description": "Выделять товары с низким остатком в админ-панели."
+        },
+        "emailNotifications": {
+          "label": "Email-уведомления",
+          "description": "Отправлять операционные уведомления по email."
+        }
+      },
+      "savePanel": {
+        "title": "Настройки компании",
+        "description": "Изменения сохраняются напрямую в Supabase."
+      },
+      "buttons": {
+        "save": "Сохранить настройки",
+        "saving": "Сохраняем..."
+      },
+      "messages": {
+        "success": "Настройки успешно сохранены."
+      }
+    },
     "documentation": {
       "eyebrow": "Документация CRM",
       "title": "Документация",
@@ -794,7 +893,7 @@
       "activeDeliveries": "Активные поставки",
       "activeDeliveriesDescription": "В настоящее время в пути",
       "lowStockItems": "Товары с низким уровнем запасов",
-      "productsAvailable": "{количество} продуктов в наличии",
+      "productsAvailable": "{count} продуктов в наличии",
       "recentOrders": "Последние заказы",
       "recentOrdersDescription": "Обзор заказов в ресторане в режиме реального времени.",
       "viewAllOrders": "Посмотреть все заказы",
