@@ -25,6 +25,24 @@
       "ogDescription": "Maczanka, Knysza, chrupiące frytki i polski street food w Boden."
     }
   },
+  "staffAccountMenu": {
+    "button": "Strefa personelu",
+    "dashboard": "Panel główny",
+    "account": "Ustawienia konta",
+    "signOut": "Wyloguj się",
+    "fallbackStaff": "Personel",
+    "roles": {
+      "owner": "Właściciel",
+      "admin": "Administrator",
+      "cook": "Kucharz"
+    },
+    "aria": {
+      "openMenu": "Otwórz menu konta personelu",
+      "dashboard": "Przejdź do panelu administratora",
+      "account": "Przejdź do ustawień konta",
+      "signOut": "Wyloguj się"
+    }
+  },
   "nav": {
     "menu": "Menu",
     "about": "O nas",

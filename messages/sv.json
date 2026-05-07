@@ -25,6 +25,24 @@
       "ogDescription": "Maczanka, Knysza, krispiga pommes frites och polskinspirerad street food i Boden."
     }
   },
+  "staffAccountMenu": {
+    "button": "Personalområde",
+    "dashboard": "Instrumentpanel",
+    "account": "Kontoinställningar",
+    "signOut": "Logga ut",
+    "fallbackStaff": "Personal",
+    "roles": {
+      "owner": "Ägare",
+      "admin": "Administratör",
+      "cook": "Kock"
+    },
+    "aria": {
+      "openMenu": "Öppna personalmeny",
+      "dashboard": "Gå till adminpanelen",
+      "account": "Gå till kontoinställningar",
+      "signOut": "Logga ut"
+    }
+  },
   "nav": {
     "menu": "Meny",
     "about": "Om oss",

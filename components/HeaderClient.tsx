@@ -37,6 +37,11 @@ export function HeaderClient({
         return textFromContent(editableContent, key, t(fallbackKey));
     }
 
+    const cartLabel =
+        totalItems > 0
+            ? `${text("header.cart", "cart")}, ${totalItems}`
+            : text("header.cart", "cart");
+
     const navLinks = [
         {
             href: "/menu",
@@ -79,7 +84,12 @@ export function HeaderClient({
     return (
         <header className="sticky top-0 z-50 border-b border-white/60 bg-cream/75 shadow-sm backdrop-blur-2xl">
             <div className="container-page flex h-20 items-center justify-between gap-4">
-                <Link href={`/${locale}`} className="flex items-center" onClick={closeMenu}>
+                <Link
+                    href={`/${locale}`}
+                    className="flex items-center"
+                    onClick={closeMenu}
+                    aria-label="Nordic Eatery home"
+                >
                     <Image
                         src="/logo.png"
                         alt="Nordic Eatery logo"
@@ -90,7 +100,10 @@ export function HeaderClient({
                     />
                 </Link>
 
-                <nav className="hidden items-center gap-6 text-sm font-bold text-dark/70 lg:flex">
+                <nav
+                    className="hidden items-center gap-6 text-sm font-bold text-dark/70 lg:flex"
+                    aria-label="Main navigation"
+                >
                     {navLinks.map((link) => (
                         <Link
                             key={link.href}
@@ -109,15 +122,19 @@ export function HeaderClient({
                     <Link
                         href={localePath("/cart")}
                         className="btn-secondary gap-2 px-4 py-2.5"
+                        aria-label={cartLabel}
                     >
-                        <ShoppingBag size={18} />
+                        <ShoppingBag size={18} aria-hidden="true" />
 
                         <span className="hidden sm:inline">
               {text("header.cart", "cart")}
             </span>
 
                         {totalItems > 0 && (
-                            <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-paprika px-2 text-xs font-black text-white">
+                            <span
+                                className="flex h-6 min-w-6 items-center justify-center rounded-full bg-paprika px-2 text-xs font-black text-white"
+                                aria-hidden="true"
+                            >
                 {totalItems}
               </span>
                         )}
@@ -127,16 +144,28 @@ export function HeaderClient({
                         type="button"
                         onClick={() => setIsMenuOpen((value) => !value)}
                         className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-dark shadow-sm transition hover:bg-white lg:hidden"
-                        aria-label="Open menu"
+                        aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+                        aria-expanded={isMenuOpen}
+                        aria-controls="mobile-navigation"
                     >
-                        {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
+                        {isMenuOpen ? (
+                            <X size={22} aria-hidden="true" />
+                        ) : (
+                            <Menu size={22} aria-hidden="true" />
+                        )}
                     </button>
                 </div>
             </div>
 
             {isMenuOpen && (
-                <div className="border-t border-white/60 bg-cream/95 px-6 py-5 shadow-xl backdrop-blur-2xl lg:hidden">
-                    <nav className="container-page flex flex-col gap-3">
+                <div
+                    id="mobile-navigation"
+                    className="border-t border-white/60 bg-cream/95 px-6 py-5 shadow-xl backdrop-blur-2xl lg:hidden"
+                >
+                    <nav
+                        className="container-page flex flex-col gap-3"
+                        aria-label="Mobile navigation"
+                    >
                         {navLinks.map((link) => (
                             <Link
                                 key={link.href}
@@ -149,7 +178,7 @@ export function HeaderClient({
                         ))}
 
                         <div className="mt-3 flex items-center gap-2 rounded-2xl bg-white/70 px-5 py-4 text-xs font-black text-dark/50 shadow-sm">
-                            <Clock size={15} className="text-paprika" />
+                            <Clock size={15} className="text-paprika" aria-hidden="true" />
 
                             <EditableText
                                 value={text("header.delivery", "delivery")}

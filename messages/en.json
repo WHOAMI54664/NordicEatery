@@ -25,6 +25,24 @@
       "ogDescription": "Maczanka, Knysza, crispy fries and Polish-inspired street food in Boden."
     }
   },
+  "staffAccountMenu": {
+    "button": "Staff Area",
+    "dashboard": "Dashboard",
+    "account": "Account settings",
+    "signOut": "Sign out",
+    "fallbackStaff": "Staff",
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "cook": "Cook"
+    },
+    "aria": {
+      "openMenu": "Open staff account menu",
+      "dashboard": "Go to admin dashboard",
+      "account": "Go to account settings",
+      "signOut": "Sign out"
+    }
+  },
   "nav": {
     "menu": "Menu",
     "about": "About us",

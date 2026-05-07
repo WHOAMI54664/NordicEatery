@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Store, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -9,29 +9,149 @@ import { useCart } from "@/components/CartProvider";
 import { PaymentIcons } from "@/components/PaymentIcons";
 import type { PaymentMethod } from "@/types/order";
 
+type CheckoutSettings = {
+  delivery_enabled: boolean;
+  pickup_enabled: boolean;
+  estimated_delivery_time: string | null;
+  delivery_area: string | null;
+
+  cash_enabled: boolean;
+  card_enabled: boolean;
+  swish_enabled: boolean;
+};
+
+type CheckoutFormProps = {
+  locale: string;
+  settings: CheckoutSettings;
+};
+
 function createOrderId() {
   return `MF-${Date.now().toString(36).toUpperCase()}`;
 }
 
-export function CheckoutForm() {
+export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
   const t = useTranslations("pages.checkout");
-
   const router = useRouter();
-  const params = useParams();
-  const locale = String(params.locale || "sv");
 
   const { items, totalPrice, clearCart } = useCart();
 
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
-  const [deliveryType, setDeliveryType] = useState<"delivery" | "pickup">(
-      "delivery"
+  const deliveryOptions = useMemo(
+      () =>
+          [
+            {
+              value: "delivery" as const,
+              title: t("delivery"),
+              description: settings.estimated_delivery_time || t("deliveryTime"),
+              icon: Truck,
+              enabled: settings.delivery_enabled,
+            },
+            {
+              value: "pickup" as const,
+              title: t("pickup"),
+              description: t("pickupText"),
+              icon: Store,
+              enabled: settings.pickup_enabled,
+            },
+          ].filter((option) => option.enabled),
+      [settings.delivery_enabled, settings.pickup_enabled, settings.estimated_delivery_time, t]
   );
+
+  const paymentOptions = useMemo(
+      () =>
+          [
+            {
+              value: "card" as PaymentMethod,
+              title: t("card"),
+              description: t("cardText"),
+              enabled: settings.card_enabled,
+            },
+            {
+              value: "swish" as PaymentMethod,
+              title: t("swish"),
+              description: t("swishText"),
+              enabled: settings.swish_enabled,
+            },
+            {
+              value: "cash" as PaymentMethod,
+              title: t("cash"),
+              description: t("cashText"),
+              enabled: settings.cash_enabled,
+            },
+          ].filter((option) => option.enabled),
+      [settings.card_enabled, settings.swish_enabled, settings.cash_enabled, t]
+  );
+
+  const defaultDeliveryType = deliveryOptions[0]?.value || "delivery";
+  const defaultPaymentMethod = paymentOptions[0]?.value || "card";
+
+  const [paymentMethod, setPaymentMethod] =
+      useState<PaymentMethod>(defaultPaymentMethod);
+
+  const [deliveryType, setDeliveryType] = useState<"delivery" | "pickup">(
+      defaultDeliveryType
+  );
+
   const [isLoading, setIsLoading] = useState(false);
+
+  const selectedPaymentMethodIsAvailable = paymentOptions.some(
+      (option) => option.value === paymentMethod
+  );
+
+  const selectedDeliveryTypeIsAvailable = deliveryOptions.some(
+      (option) => option.value === deliveryType
+  );
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (isLoading) return;
+
+    if (items.length === 0) return;
+
+    if (paymentOptions.length === 0) {
+      alert("No payment methods are currently available.");
+      return;
+    }
+
+    if (deliveryOptions.length === 0) {
+      alert("No delivery options are currently available.");
+      return;
+    }
+
+    if (!selectedPaymentMethodIsAvailable) {
+      alert("Selected payment method is currently unavailable.");
+      return;
+    }
+
+    if (!selectedDeliveryTypeIsAvailable) {
+      alert("Selected delivery option is currently unavailable.");
+      return;
+    }
+
+    if (!settings.cash_enabled && paymentMethod === "cash") {
+      alert("Cash payment is currently disabled.");
+      return;
+    }
+
+    if (!settings.card_enabled && paymentMethod === "card") {
+      alert("Card payment is currently disabled.");
+      return;
+    }
+
+    if (!settings.swish_enabled && paymentMethod === "swish") {
+      alert("Swish payment is currently disabled.");
+      return;
+    }
+
+    if (!settings.delivery_enabled && deliveryType === "delivery") {
+      alert("Delivery is currently disabled.");
+      return;
+    }
+
+    if (!settings.pickup_enabled && deliveryType === "pickup") {
+      alert("Pickup is currently disabled.");
+      return;
+    }
 
     const formData = new FormData(event.currentTarget);
     setIsLoading(true);
@@ -42,13 +162,16 @@ export function CheckoutForm() {
       orderId,
       customerName: String(formData.get("customerName") || ""),
       customerPhone: String(formData.get("customerPhone") || ""),
-      address: String(formData.get("address") || ""),
+      address:
+          deliveryType === "pickup"
+              ? "Pickup"
+              : String(formData.get("address") || ""),
       deliveryType,
       comment: String(formData.get("comment") || ""),
       items,
       totalPrice,
       paymentMethod,
-      locale
+      locale,
     };
 
     try {
@@ -56,7 +179,7 @@ export function CheckoutForm() {
         const response = await fetch("/api/stripe/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(orderPayload)
+          body: JSON.stringify(orderPayload),
         });
 
         const data = await response.json();
@@ -75,7 +198,7 @@ export function CheckoutForm() {
       const response = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderPayload)
+        body: JSON.stringify(orderPayload),
       });
 
       const data = await response.json();
@@ -159,38 +282,41 @@ export function CheckoutForm() {
               {t("deliveryType")}
             </span>
 
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                    type="button"
-                    onClick={() => setDeliveryType("delivery")}
-                    className={`min-w-0 rounded-3xl border p-4 text-left transition ${
-                        deliveryType === "delivery"
-                            ? "border-paprika bg-paprika text-white"
-                            : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
-                    }`}
-                >
-                  <Truck className="h-5 w-5" />
-                  <p className="mt-2 truncate font-black">{t("delivery")}</p>
-                  <p className="mt-1 text-xs opacity-70">{t("deliveryTime")}</p>
-                </button>
+              {deliveryOptions.length === 0 ? (
+                  <div className="rounded-3xl border border-paprika/20 bg-paprika/10 p-4 text-sm font-bold text-paprika">
+                    Delivery and pickup are currently unavailable.
+                  </div>
+              ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    {deliveryOptions.map((option) => {
+                      const Icon = option.icon;
 
-                <button
-                    type="button"
-                    onClick={() => setDeliveryType("pickup")}
-                    className={`min-w-0 rounded-3xl border p-4 text-left transition ${
-                        deliveryType === "pickup"
-                            ? "border-paprika bg-paprika text-white"
-                            : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
-                    }`}
-                >
-                  <Store className="h-5 w-5" />
-                  <p className="mt-2 truncate font-black">{t("pickup")}</p>
-                  <p className="mt-1 text-xs opacity-70">{t("pickupText")}</p>
-                </button>
-              </div>
+                      return (
+                          <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => setDeliveryType(option.value)}
+                              className={`min-w-0 rounded-3xl border p-4 text-left transition ${
+                                  deliveryType === option.value
+                                      ? "border-paprika bg-paprika text-white"
+                                      : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
+                              }`}
+                          >
+                            <Icon className="h-5 w-5" />
+                            <p className="mt-2 truncate font-black">
+                              {option.title}
+                            </p>
+                            <p className="mt-1 text-xs opacity-70">
+                              {option.description}
+                            </p>
+                          </button>
+                      );
+                    })}
+                  </div>
+              )}
             </div>
 
-            {deliveryType === "delivery" && (
+            {deliveryType === "delivery" && settings.delivery_enabled && (
                 <label className="sm:col-span-2">
               <span className="mb-2 block text-sm font-bold text-dark">
                 {t("address")}
@@ -213,63 +339,42 @@ export function CheckoutForm() {
               {t("paymentMethod")}
             </span>
 
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                <button
-                    type="button"
-                    onClick={() => setPaymentMethod("card")}
-                    className={`min-w-0 rounded-3xl border px-3 py-4 text-left transition sm:p-4 ${
-                        paymentMethod === "card"
-                            ? "border-paprika bg-paprika text-white"
-                            : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
-                    }`}
-                >
-                  <p className="truncate font-black">{t("card")}</p>
-                  <p className="mt-1 line-clamp-2 text-xs leading-4 opacity-70">
-                    {t("cardText")}
-                  </p>
-                </button>
-
-                <button
-                    type="button"
-                    onClick={() => setPaymentMethod("swish")}
-                    className={`min-w-0 rounded-3xl border px-3 py-4 text-left transition sm:p-4 ${
-                        paymentMethod === "swish"
-                            ? "border-paprika bg-paprika text-white"
-                            : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
-                    }`}
-                >
-                  <p className="truncate font-black">{t("swish")}</p>
-                  <p className="mt-1 line-clamp-2 text-xs leading-4 opacity-70">
-                    {t("swishText")}
-                  </p>
-                </button>
-
-                <button
-                    type="button"
-                    onClick={() => setPaymentMethod("cash")}
-                    className={`min-w-0 rounded-3xl border px-3 py-4 text-left transition sm:p-4 ${
-                        paymentMethod === "cash"
-                            ? "border-paprika bg-paprika text-white"
-                            : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
-                    }`}
-                >
-                  <p className="truncate font-black">{t("cash")}</p>
-                  <p className="mt-1 line-clamp-2 text-xs leading-4 opacity-70">
-                    {t("cashText")}
-                  </p>
-                </button>
-              </div>
+              {paymentOptions.length === 0 ? (
+                  <div className="rounded-3xl border border-paprika/20 bg-paprika/10 p-4 text-sm font-bold text-paprika">
+                    No payment methods are currently available. Please contact the restaurant.
+                  </div>
+              ) : (
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                    {paymentOptions.map((option) => (
+                        <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => setPaymentMethod(option.value)}
+                            className={`min-w-0 rounded-3xl border px-3 py-4 text-left transition sm:p-4 ${
+                                paymentMethod === option.value
+                                    ? "border-paprika bg-paprika text-white"
+                                    : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
+                            }`}
+                        >
+                          <p className="truncate font-black">{option.title}</p>
+                          <p className="mt-1 line-clamp-2 text-xs leading-4 opacity-70">
+                            {option.description}
+                          </p>
+                        </button>
+                    ))}
+                  </div>
+              )}
 
               <input type="hidden" name="paymentMethod" value={paymentMethod} />
             </div>
 
-            {paymentMethod === "swish" && (
+            {paymentMethod === "swish" && settings.swish_enabled && (
                 <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
                   {t("swishInfo")}
                 </div>
             )}
 
-            {paymentMethod === "card" && (
+            {paymentMethod === "card" && settings.card_enabled && (
                 <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
                   {t("cardInfo")}
                 </div>
@@ -353,7 +458,13 @@ export function CheckoutForm() {
 
           <button
               type="submit"
-              disabled={isLoading}
+              disabled={
+                  isLoading ||
+                  paymentOptions.length === 0 ||
+                  deliveryOptions.length === 0 ||
+                  !selectedPaymentMethodIsAvailable ||
+                  !selectedDeliveryTypeIsAvailable
+              }
               className="btn-primary mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isLoading
