@@ -3,6 +3,7 @@ import "./globals.css";
 import { CartProvider } from "@/components/CartProvider";
 import { lufga } from "@/app/fonts";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
     metadataBase: new URL("https://www.nordiceatery.se"),
@@ -114,6 +115,7 @@ export default function RootLayout({
 
         <CartProvider>{children}</CartProvider>
         <Analytics />
+        <SpeedInsights />
         </body>
         </html>
     );
