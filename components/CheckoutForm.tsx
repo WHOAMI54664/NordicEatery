@@ -14,7 +14,6 @@ type CheckoutSettings = {
   pickup_enabled: boolean;
   estimated_delivery_time: string | null;
   delivery_area: string | null;
-
   cash_enabled: boolean;
   card_enabled: boolean;
   swish_enabled: boolean;
@@ -53,7 +52,12 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
               enabled: settings.pickup_enabled,
             },
           ].filter((option) => option.enabled),
-      [settings.delivery_enabled, settings.pickup_enabled, settings.estimated_delivery_time, t]
+      [
+        settings.delivery_enabled,
+        settings.pickup_enabled,
+        settings.estimated_delivery_time,
+        t,
+      ]
   );
 
   const paymentOptions = useMemo(
@@ -105,7 +109,6 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
     event.preventDefault();
 
     if (isLoading) return;
-
     if (items.length === 0) return;
 
     if (paymentOptions.length === 0) {
@@ -160,6 +163,7 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
 
     const orderPayload = {
       orderId,
+      orderNumber: orderId,
       customerName: String(formData.get("customerName") || ""),
       customerPhone: String(formData.get("customerPhone") || ""),
       address:
@@ -192,6 +196,32 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
 
         clearCart();
         window.location.href = data.url;
+        return;
+      }
+
+      if (paymentMethod === "swish") {
+        const response = await fetch("/api/swish/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderPayload),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || "Swish payment could not be started.");
+          setIsLoading(false);
+          return;
+        }
+
+        clearCart();
+
+        if (data.swishUrl) {
+          window.location.href = data.swishUrl;
+          return;
+        }
+
+        router.push(`/${locale}/order/${orderId}`);
         return;
       }
 
@@ -341,7 +371,8 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
 
               {paymentOptions.length === 0 ? (
                   <div className="rounded-3xl border border-paprika/20 bg-paprika/10 p-4 text-sm font-bold text-paprika">
-                    No payment methods are currently available. Please contact the restaurant.
+                    No payment methods are currently available. Please contact the
+                    restaurant.
                   </div>
               ) : (
                   <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -469,7 +500,7 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
           >
             {isLoading
                 ? t("processing")
-                : paymentMethod === "card"
+                : paymentMethod === "card" || paymentMethod === "swish"
                     ? t("continuePayment")
                     : t("placeOrder")}
           </button>

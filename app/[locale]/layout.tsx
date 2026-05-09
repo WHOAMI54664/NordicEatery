@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export default async function LocaleLayout({
   children,
@@ -24,6 +25,7 @@ export default async function LocaleLayout({
       <Header />
       {children}
       <Footer />
+      <SpeedInsights />
     </NextIntlClientProvider>
   );
 }
