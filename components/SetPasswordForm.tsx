@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 
@@ -9,7 +9,7 @@ export function SetPasswordForm() {
   const params = useParams();
   const locale = String(params.locale || "en");
 
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -17,48 +17,62 @@ export function SetPasswordForm() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isReady, setIsReady] = useState(false);
+  const [isSessionReady, setIsSessionReady] = useState(false);
 
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (
-          event === "PASSWORD_RECOVERY" ||
-          event === "SIGNED_IN"
-      ) {
-        setIsReady(true);
-      }
-    });
+    async function restoreSessionFromUrl() {
+      const hash = window.location.hash;
 
-    supabase.auth.getSession().then(({ data }) => {
+      if (hash) {
+        const params = new URLSearchParams(hash.replace("#", ""));
+
+        const accessToken = params.get("access_token");
+        const refreshToken = params.get("refresh_token");
+
+        if (accessToken && refreshToken) {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (error) {
+            setErrorMessage(error.message);
+            return;
+          }
+
+          window.history.replaceState(
+              null,
+              "",
+              window.location.pathname
+          );
+        }
+      }
+
+      const { data } = await supabase.auth.getSession();
+
       if (data.session) {
-        setIsReady(true);
+        setIsSessionReady(true);
+      } else {
+        setErrorMessage("Auth session missing. Please open the newest invite link again.");
       }
-    });
+    }
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    restoreSessionFromUrl();
   }, [supabase]);
 
-  async function handleSetPassword(
-      event: React.FormEvent<HTMLFormElement>
-  ) {
+  async function handleSetPassword(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setErrorMessage("");
     setSuccessMessage("");
 
-    if (!isReady) {
-      setErrorMessage("Auth session missing!");
+    if (!isSessionReady) {
+      setErrorMessage("Auth session missing. Please open the newest invite link again.");
       return;
     }
 
     if (password.length < 6) {
-      setErrorMessage(
-          "Password must be at least 6 characters."
-      );
+      setErrorMessage("Password must be at least 6 characters.");
       return;
     }
 
@@ -79,20 +93,15 @@ export function SetPasswordForm() {
       return;
     }
 
-    setSuccessMessage(
-        "Password has been set successfully."
-    );
+    setSuccessMessage("Password has been set successfully.");
 
     setTimeout(() => {
       router.push(`/${locale}/admin`);
-    }, 1000);
+    }, 900);
   }
 
   return (
-      <form
-          onSubmit={handleSetPassword}
-          className="glass-card w-full max-w-md p-8"
-      >
+      <form onSubmit={handleSetPassword} className="glass-card w-full max-w-md p-8">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-paprika/10 text-3xl">
           🔐
         </div>
@@ -128,9 +137,7 @@ export function SetPasswordForm() {
                 minLength={6}
                 type="password"
                 value={password}
-                onChange={(event) =>
-                    setPassword(event.target.value)
-                }
+                onChange={(event) => setPassword(event.target.value)}
                 className="input-field"
                 placeholder="Minimum 6 characters"
             />
@@ -146,9 +153,7 @@ export function SetPasswordForm() {
                 minLength={6}
                 type="password"
                 value={confirmPassword}
-                onChange={(event) =>
-                    setConfirmPassword(event.target.value)
-                }
+                onChange={(event) => setConfirmPassword(event.target.value)}
                 className="input-field"
                 placeholder="Repeat password"
             />
@@ -156,7 +161,7 @@ export function SetPasswordForm() {
 
           <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !isSessionReady}
               className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isLoading ? "Saving..." : "Set password"}
