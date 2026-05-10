@@ -5,6 +5,26 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const supportedLocales = ["en", "sv", "pl", "ru"] as const;
+
+type Locale = (typeof supportedLocales)[number];
+
+function getSafeLocale(locale: unknown): Locale {
+  if (typeof locale === "string" && supportedLocales.includes(locale as Locale)) {
+    return locale as Locale;
+  }
+
+  return "en";
+}
+
+function getSiteUrl() {
+  return (
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "http://localhost:3000"
+  ).replace(/\/$/, "");
+}
+
 export async function POST(request: Request) {
   const supabase = await createClient();
   const admin = createAdminClient();
@@ -18,21 +38,28 @@ export async function POST(request: Request) {
   }
 
   const { data: ownerProfile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
 
   if (ownerProfile?.role !== "owner") {
     return NextResponse.json({ error: "Owner only" }, { status: 403 });
   }
 
-  const { email } = await request.json();
+  const body = await request.json();
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const email = String(body.email || "").trim().toLowerCase();
+  const locale = getSafeLocale(body.locale);
+
+  if (!email) {
+    return NextResponse.json({ error: "Email is required" }, { status: 400 });
+  }
+
+  const siteUrl = getSiteUrl();
 
   const { error } = await admin.auth.resetPasswordForEmail(email, {
-    redirectTo: `${siteUrl}/auth/callback?next=/set-password`,
+    redirectTo: `${siteUrl}/${locale}/auth/callback?next=/set-password`,
   });
 
   if (error) {

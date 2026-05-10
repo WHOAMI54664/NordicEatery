@@ -6,6 +6,26 @@ import type { StaffRole } from "@/lib/auth/roles";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const supportedLocales = ["en", "sv", "pl", "ru"] as const;
+
+type Locale = (typeof supportedLocales)[number];
+
+function getSafeLocale(locale: unknown): Locale {
+  if (typeof locale === "string" && supportedLocales.includes(locale as Locale)) {
+    return locale as Locale;
+  }
+
+  return "en";
+}
+
+function getSiteUrl() {
+  return (
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "https://www.nordiceatery.se"
+  ).replace(/\/$/, "");
+}
+
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
@@ -21,10 +41,10 @@ export async function POST(request: Request) {
     }
 
     const { data: ownerProfile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
 
     if (profileError || ownerProfile?.role !== "owner") {
       return NextResponse.json({ error: "Owner only" }, { status: 403 });
@@ -34,15 +54,16 @@ export async function POST(request: Request) {
 
     const email = String(body.email || "").trim().toLowerCase();
     const role = String(body.role || "cook") as StaffRole;
+    const locale = getSafeLocale(body.locale);
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nordiceatery.se/set-password";
+    const siteUrl = getSiteUrl();
 
     const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
-      redirectTo: `${siteUrl}/auth/callback?next=/set-password`,
+      redirectTo: `${siteUrl}/${locale}/auth/callback?next=/set-password`,
       data: {
         role,
       },
@@ -64,8 +85,8 @@ export async function POST(request: Request) {
 
       if (upsertError) {
         return NextResponse.json(
-          { error: upsertError.message },
-          { status: 500 }
+            { error: upsertError.message },
+            { status: 500 }
         );
       }
     }
@@ -75,8 +96,8 @@ export async function POST(request: Request) {
     console.error("Invite staff error:", error);
 
     return NextResponse.json(
-      { error: "Could not invite staff member" },
-      { status: 500 }
+        { error: "Could not invite staff member" },
+        { status: 500 }
     );
   }
 }
