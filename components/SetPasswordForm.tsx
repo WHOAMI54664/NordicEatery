@@ -24,10 +24,10 @@ export function SetPasswordForm() {
       const hash = window.location.hash;
 
       if (hash) {
-        const params = new URLSearchParams(hash.replace("#", ""));
+        const hashParams = new URLSearchParams(hash.replace("#", ""));
 
-        const accessToken = params.get("access_token");
-        const refreshToken = params.get("refresh_token");
+        const accessToken = hashParams.get("access_token");
+        const refreshToken = hashParams.get("refresh_token");
 
         if (accessToken && refreshToken) {
           const { error } = await supabase.auth.setSession({
@@ -40,11 +40,7 @@ export function SetPasswordForm() {
             return;
           }
 
-          window.history.replaceState(
-              null,
-              "",
-              window.location.pathname
-          );
+          window.history.replaceState(null, "", window.location.pathname);
         }
       }
 
@@ -53,12 +49,35 @@ export function SetPasswordForm() {
       if (data.session) {
         setIsSessionReady(true);
       } else {
-        setErrorMessage("Auth session missing. Please open the newest invite link again.");
+        setErrorMessage(
+            "Auth session missing. Please open the newest invite link again."
+        );
       }
     }
 
     restoreSessionFromUrl();
   }, [supabase]);
+
+  async function redirectByRole() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+      if (profile?.role === "cook") {
+        router.push(`/${locale}/admin/kitchen`);
+        return;
+      }
+    }
+
+    router.push(`/${locale}/admin`);
+  }
 
   async function handleSetPassword(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -67,7 +86,9 @@ export function SetPasswordForm() {
     setSuccessMessage("");
 
     if (!isSessionReady) {
-      setErrorMessage("Auth session missing. Please open the newest invite link again.");
+      setErrorMessage(
+          "Auth session missing. Please open the newest invite link again."
+      );
       return;
     }
 
@@ -96,17 +117,20 @@ export function SetPasswordForm() {
     setSuccessMessage("Password has been set successfully.");
 
     setTimeout(() => {
-      router.push(`/${locale}/admin`);
+      redirectByRole();
     }, 900);
   }
 
   return (
-      <form onSubmit={handleSetPassword} className="glass-card w-full max-w-md p-8">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-paprika/10 text-3xl">
+      <form
+          onSubmit={handleSetPassword}
+          className="glass-card w-full max-w-md rounded-[2rem] p-5 sm:p-8"
+      >
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-paprika/10 text-2xl sm:h-16 sm:w-16 sm:text-3xl">
           🔐
         </div>
 
-        <h1 className="mt-6 text-center text-3xl font-black text-dark">
+        <h1 className="mt-5 text-center text-2xl font-black text-dark sm:mt-6 sm:text-3xl">
           Set your password
         </h1>
 
@@ -115,19 +139,19 @@ export function SetPasswordForm() {
         </p>
 
         {errorMessage && (
-            <div className="mt-5 rounded-3xl bg-paprika/10 p-4 text-sm font-bold text-paprika">
+            <div className="mt-5 rounded-2xl bg-paprika/10 p-3 text-sm font-bold text-paprika sm:rounded-3xl sm:p-4">
               {errorMessage}
             </div>
         )}
 
         {successMessage && (
-            <div className="mt-5 rounded-3xl bg-green-100 p-4 text-sm font-bold text-green-700">
+            <div className="mt-5 rounded-2xl bg-green-100 p-3 text-sm font-bold text-green-700 sm:rounded-3xl sm:p-4">
               {successMessage}
             </div>
         )}
 
         <div className="mt-6 space-y-4">
-          <label>
+          <label className="block">
           <span className="mb-2 block text-sm font-bold text-dark">
             New password
           </span>
@@ -138,12 +162,12 @@ export function SetPasswordForm() {
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="input-field"
+                className="input-field w-full text-base"
                 placeholder="Minimum 6 characters"
             />
           </label>
 
-          <label>
+          <label className="block">
           <span className="mb-2 block text-sm font-bold text-dark">
             Confirm password
           </span>
@@ -154,7 +178,7 @@ export function SetPasswordForm() {
                 type="password"
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
-                className="input-field"
+                className="input-field w-full text-base"
                 placeholder="Repeat password"
             />
           </label>
@@ -162,7 +186,7 @@ export function SetPasswordForm() {
           <button
               type="submit"
               disabled={isLoading || !isSessionReady}
-              className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-60"
+              className="btn-primary min-h-12 w-full text-sm disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
           >
             {isLoading ? "Saving..." : "Set password"}
           </button>
