@@ -17,39 +17,55 @@ import {
     MenuSquare,
     Settings,
     ShoppingBag,
-    Users
+    Users,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser";
+import type { StaffRole } from "@/lib/auth/roles";
+import {
+    canAccessKitchen,
+    canManageProducts,
+    canManageStaff,
+    canViewAnalytics,
+} from "@/lib/auth/roles";
 
 type SidebarProfile = {
     full_name: string | null;
     avatar_url: string | null;
     email: string | null;
+    role: StaffRole;
 };
 
 const mainNavItems = [
-    { labelKey: "dashboard", href: "/admin", icon: Home },
-    { labelKey: "orders", href: "/admin/orders", icon: ClipboardList },
-    { labelKey: "menu", href: "/admin/menu", icon: MenuSquare },
-    { labelKey: "products", href: "/admin/products", icon: ChefHat },
-    { labelKey: "kitchen", href: "/admin/kitchen", icon: ShoppingBag },
-    { labelKey: "reservations", href: "/admin/reservations", icon: CalendarDays }
+    { labelKey: "dashboard", href: "/admin", icon: Home, roles: ["owner", "admin"] },
+    { labelKey: "orders", href: "/admin/orders", icon: ClipboardList, roles: ["owner", "admin"] },
+    { labelKey: "menu", href: "/admin/menu", icon: MenuSquare, roles: ["owner", "admin"] },
+    { labelKey: "products", href: "/admin/products", icon: ChefHat, roles: ["owner", "admin"] },
+    { labelKey: "kitchen", href: "/admin/kitchen", icon: ShoppingBag, roles: ["owner", "admin", "cook"] },
+    { labelKey: "reservations", href: "/admin/reservations", icon: CalendarDays, roles: ["owner", "admin"] },
 ];
 
 const secondaryNavItems = [
-    { labelKey: "analytics", href: "/admin/analytics", icon: LineChart },
-    { labelKey: "staff", href: "/admin/staff", icon: Users },
-    { labelKey: "settings", href: "/admin/settings", icon: Settings },
-    { labelKey: "docs", href: "/admin/documentation", icon: BookOpen }
+    { labelKey: "analytics", href: "/admin/analytics", icon: LineChart, roles: ["owner", "admin"] },
+    { labelKey: "staff", href: "/admin/staff", icon: Users, roles: ["owner"] },
+    { labelKey: "settings", href: "/admin/settings", icon: Settings, roles: ["owner", "admin"] },
+    { labelKey: "docs", href: "/admin/documentation", icon: BookOpen, roles: ["owner", "admin"] },
 ];
 
 function cn(...classes: Array<string | false | null | undefined>) {
     return classes.filter(Boolean).join(" ");
 }
 
+function canSeeItem(role: StaffRole, roles: string[]) {
+    if (roles.includes("cook")) return canAccessKitchen(role);
+    if (roles.includes("owner") && roles.includes("admin")) {
+        return role === "owner" || role === "admin";
+    }
+    if (roles.includes("owner")) return canManageStaff(role);
+    return false;
+}
+
 export function AdminSidebar() {
     const t = useTranslations("admin");
-
     const params = useParams();
     const pathname = usePathname();
 
@@ -58,13 +74,11 @@ export function AdminSidebar() {
 
     const [profile, setProfile] = useState<SidebarProfile | null>(null);
 
+    const role = profile?.role || "cook";
+
     function isActive(href: string) {
         const fullHref = `/${locale}${href}`;
-
-        if (href === "/admin") {
-            return pathname === fullHref;
-        }
-
+        if (href === "/admin") return pathname === fullHref;
         return pathname.startsWith(fullHref);
     }
 
@@ -77,7 +91,7 @@ export function AdminSidebar() {
 
         async function loadProfile() {
             const {
-                data: { user }
+                data: { user },
             } = await supabase.auth.getUser();
 
             if (!user) {
@@ -87,7 +101,7 @@ export function AdminSidebar() {
 
             const { data } = await supabase
                 .from("profiles")
-                .select("full_name, avatar_url, email")
+                .select("full_name, avatar_url, email, role")
                 .eq("id", user.id)
                 .single();
 
@@ -96,14 +110,15 @@ export function AdminSidebar() {
             setProfile({
                 full_name: data?.full_name || null,
                 avatar_url: data?.avatar_url || null,
-                email: data?.email || user.email || null
+                email: data?.email || user.email || null,
+                role: (data?.role || "cook") as StaffRole,
             });
         }
 
         loadProfile();
 
         const {
-            data: { subscription }
+            data: { subscription },
         } = supabase.auth.onAuthStateChange(() => {
             loadProfile();
         });
@@ -118,6 +133,18 @@ export function AdminSidebar() {
         profile?.full_name?.trim() ||
         profile?.email?.split("@")[0] ||
         t("sidebar.adminUser");
+
+    const visibleMainNavItems = mainNavItems.filter((item) =>
+        canSeeItem(role, item.roles)
+    );
+
+    const visibleSecondaryNavItems = secondaryNavItems.filter((item) => {
+        if (item.href === "/admin/analytics") return canViewAnalytics(role);
+        if (item.href === "/admin/staff") return canManageStaff(role);
+        if (item.href === "/admin/settings") return role === "owner" || role === "admin";
+        if (item.href === "/admin/documentation") return role === "owner" || role === "admin";
+        return canSeeItem(role, item.roles);
+    });
 
     return (
         <aside className="hidden w-[290px] shrink-0 border-r border-[#EADDCF] bg-[#FFF4E3]/95 p-4 backdrop-blur-2xl lg:block">
@@ -159,7 +186,7 @@ export function AdminSidebar() {
                     </p>
 
                     <nav className="mt-2.5 space-y-1">
-                        {mainNavItems.map((item) => {
+                        {visibleMainNavItems.map((item) => {
                             const Icon = item.icon;
                             const active = isActive(item.href);
 
@@ -194,75 +221,79 @@ export function AdminSidebar() {
                     </nav>
                 </div>
 
-                <div className="mt-5">
-                    <p className="px-3 text-[10px] font-black uppercase tracking-[0.24em] text-[#A39388]">
-                        {t("sidebar.business")}
-                    </p>
+                {visibleSecondaryNavItems.length > 0 ? (
+                    <div className="mt-5">
+                        <p className="px-3 text-[10px] font-black uppercase tracking-[0.24em] text-[#A39388]">
+                            {t("sidebar.business")}
+                        </p>
 
-                    <nav className="mt-2.5 space-y-1">
-                        {secondaryNavItems.map((item) => {
-                            const Icon = item.icon;
-                            const active = isActive(item.href);
+                        <nav className="mt-2.5 space-y-1">
+                            {visibleSecondaryNavItems.map((item) => {
+                                const Icon = item.icon;
+                                const active = isActive(item.href);
 
-                            return (
-                                <Link
-                                    key={item.href}
-                                    href={getHref(item.href)}
-                                    className={cn(
-                                        "group relative flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-bold transition",
-                                        active
-                                            ? "border border-[#E51B23]/20 bg-[#E51B23]/10 text-[#C7192E]"
-                                            : "text-[#6F5E55] hover:bg-white/70 hover:text-[#25120F]"
-                                    )}
-                                >
-                                    {active ? (
-                                        <span className="absolute right-3 h-1.5 w-1.5 rounded-full bg-[#E51B23]" />
-                                    ) : null}
-
-                                    <Icon
+                                return (
+                                    <Link
+                                        key={item.href}
+                                        href={getHref(item.href)}
                                         className={cn(
-                                            "h-4 w-4 transition",
+                                            "group relative flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-bold transition",
                                             active
-                                                ? "text-[#E51B23]"
-                                                : "text-[#A39388] group-hover:text-[#C7192E]"
+                                                ? "border border-[#E51B23]/20 bg-[#E51B23]/10 text-[#C7192E]"
+                                                : "text-[#6F5E55] hover:bg-white/70 hover:text-[#25120F]"
                                         )}
-                                    />
+                                    >
+                                        {active ? (
+                                            <span className="absolute right-3 h-1.5 w-1.5 rounded-full bg-[#E51B23]" />
+                                        ) : null}
 
-                                    <span>{t(`common.${item.labelKey}`)}</span>
+                                        <Icon
+                                            className={cn(
+                                                "h-4 w-4 transition",
+                                                active
+                                                    ? "text-[#E51B23]"
+                                                    : "text-[#A39388] group-hover:text-[#C7192E]"
+                                            )}
+                                        />
+
+                                        <span>{t(`common.${item.labelKey}`)}</span>
+                                    </Link>
+                                );
+                            })}
+                        </nav>
+                    </div>
+                ) : null}
+
+                {role !== "cook" ? (
+                    <div className="mt-auto pt-4">
+                        <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[linear-gradient(180deg,rgba(255,252,246,0.98)_0%,rgba(255,247,240,0.96)_100%)] shadow-sm shadow-[#4C2314]/5">
+                            <div className="p-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#E51B23]/15 bg-[#E51B23]/8">
+                                        <BarChart3 className="h-4 w-4 text-[#C7192E]" />
+                                    </div>
+
+                                    <div>
+                                        <h3 className="text-sm font-black text-[#25120F]">
+                                            {t("common.needHelp")}
+                                        </h3>
+
+                                        <p className="mt-0.5 text-xs font-medium leading-4 text-[#7B6A61]">
+                                            {t("common.docsSupport")}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <Link
+                                    href={`/${locale}/admin/documentation`}
+                                    className="mt-3 flex w-full items-center justify-center rounded-2xl bg-[#E51B23] px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-[#E51B23]/15 transition hover:bg-[#C7192E]"
+                                >
+                                    {t("common.documentation")}
                                 </Link>
-                            );
-                        })}
-                    </nav>
-                </div>
-
-                <div className="mt-auto pt-4">
-                    <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[linear-gradient(180deg,rgba(255,252,246,0.98)_0%,rgba(255,247,240,0.96)_100%)] shadow-sm shadow-[#4C2314]/5">
-                        <div className="p-3">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#E51B23]/15 bg-[#E51B23]/8">
-                                    <BarChart3 className="h-4 w-4 text-[#C7192E]" />
-                                </div>
-
-                                <div>
-                                    <h3 className="text-sm font-black text-[#25120F]">
-                                        {t("common.needHelp")}
-                                    </h3>
-
-                                    <p className="mt-0.5 text-xs font-medium leading-4 text-[#7B6A61]">
-                                        {t("common.docsSupport")}
-                                    </p>
-                                </div>
                             </div>
-
-                            <Link
-                                href={`/${locale}/admin/documentation`}
-                                className="mt-3 flex w-full items-center justify-center rounded-2xl bg-[#E51B23] px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-[#E51B23]/15 transition hover:bg-[#C7192E]"
-                            >
-                                {t("common.documentation")}
-                            </Link>
                         </div>
                     </div>
-                </div>
+                ) : null}
             </div>
         </aside>
     );

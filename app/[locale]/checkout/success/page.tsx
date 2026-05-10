@@ -107,7 +107,7 @@ export default function CheckoutSuccessPage() {
             </p>
 
             <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link href="/kitchen" className="btn-primary">
+              <Link href={`/${locale}/admin/kitchen`} className="btn-primary">
                 Open kitchen board
               </Link>
 

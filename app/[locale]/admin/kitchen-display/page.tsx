@@ -21,7 +21,7 @@ export default async function KitchenDisplayPage({
     } = await supabase.auth.getUser();
 
     if (!user) {
-        redirect(`/${locale}/login?next=/${locale}/kitchen-display`);
+        redirect(`/${locale}/login?next=/${locale}/admin/kitchen-display`);
     }
 
     const { data: profile } = await supabase

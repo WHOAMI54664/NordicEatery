@@ -10,7 +10,7 @@ export function LoginForm() {
   const params = useParams();
 
   const locale = String(params.locale || "en");
-  const next = searchParams.get("next") || `/${locale}/kitchen`;
+  const next = searchParams.get("next") || `/${locale}/admin/kitchen`;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
