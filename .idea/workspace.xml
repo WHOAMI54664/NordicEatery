@@ -6,12 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="060f1486-bf69-4dc5-842d-f3514b9af11e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/[locale]/checkout/success/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/checkout/success/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/[locale]/order/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/order/[id]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/products/create/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/products/create/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/OrderStatusTracker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/OrderStatusTracker.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/messages/en.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/pl.json" beforeDir="false" afterPath="$PROJECT_DIR$/messages/pl.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -241,7 +235,7 @@
       <workItem from="1777491937877" duration="152712000" />
       <workItem from="1778253290686" duration="1155000" />
       <workItem from="1778257542810" duration="9954000" />
-      <workItem from="1778276522461" duration="11488000" />
+      <workItem from="1778276522461" duration="13656000" />
     </task>
     <servers />
   </component>
