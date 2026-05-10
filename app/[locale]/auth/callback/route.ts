@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 function getSafeNext(next: string | null) {
   if (!next) return "/set-password";
 
@@ -19,20 +22,23 @@ export async function GET(
 
   const requestUrl = new URL(request.url);
 
-  const code = requestUrl.searchParams.get("code");
+  const token_hash = requestUrl.searchParams.get("token_hash");
+  const type = requestUrl.searchParams.get("type");
 
   const next = getSafeNext(
       requestUrl.searchParams.get("next")
   );
 
-  if (code) {
-    const supabase = await createClient();
+  const supabase = await createClient();
 
-    const { error } =
-        await supabase.auth.exchangeCodeForSession(code);
+  if (token_hash && type) {
+    const { error } = await supabase.auth.verifyOtp({
+      type: type as any,
+      token_hash,
+    });
 
     if (error) {
-      console.error(error);
+      console.error("verifyOtp error:", error);
 
       return NextResponse.redirect(
           new URL(`/${locale}/login?error=auth`, requestUrl.origin)
