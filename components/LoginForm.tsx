@@ -62,7 +62,7 @@ export function LoginForm() {
                 required
                 type="email"
                 className="input-field"
-                placeholder="staff@mikesfood.se"
+                placeholder="staff@nordiceatery.se"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
             />
