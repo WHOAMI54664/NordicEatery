@@ -828,34 +828,34 @@
       }
     },
     "menuAdmin": {
-      "eyebrow": "Menu management",
+      "eyebrow": "Menu Management",
       "title": "Menu",
       "subtitle": "Organize your restaurant menu by categories, availability, stock and product performance.",
-      "viewProducts": "View products",
-      "totalProducts": "Total products",
-      "activeProducts": "Active products",
-      "hiddenProducts": "Hidden products",
-      "lowStock": "Low stock",
+      "viewProducts": "View Products",
+      "totalProducts": "Total Products",
+      "activeProducts": "Active Products",
+      "hiddenProducts": "Hidden Products",
+      "lowStock": "Low Stock",
       "manage": "Manage",
       "items": "Items",
       "active": "Active",
-      "avgPrice": "Avg price",
+      "avgPrice": "Average Price",
       "categories": {
         "maczanka": {
           "title": "Maczanka",
-          "description": "Signature Polish street food and warm main dishes."
+          "description": "Polish street food and hot main courses."
         },
         "knysza": {
           "title": "Knysza",
-          "description": "Fresh filled bread with meat, vegetables and sauces."
+          "description": "Freshly filled bread with meat, vegetables and sauces."
         },
         "fries": {
-          "title": "Fries",
-          "description": "Fries, extras, sauces and smaller add-ons."
+          "title": "French fries",
+          "description": "French fries, extra toppings, sauces and smaller toppings."
         },
         "drinks": {
           "title": "Drinks",
-          "description": "Soft drinks and cold beverages."
+          "description": "Soft drinks and cold drinks."
         }
       }
     },

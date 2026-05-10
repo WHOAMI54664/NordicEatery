@@ -828,32 +828,32 @@
     "menuAdmin": {
       "eyebrow": "Zarządzanie menu",
       "title": "Menu",
-      "subtitle": "Organizuj menu restauracji według kategorii, dostępności, zapasów i wydajności produktów.",
+      "subtitle": "Uporządkuj menu swojej restauracji według kategorii, dostępności, stanu magazynowego i wydajności produktów.",
       "viewProducts": "Wyświetl produkty",
-      "totalProducts": "Produkty ogółem",
+      "totalProducts": "Łączna liczba produktów",
       "activeProducts": "Aktywne produkty",
       "hiddenProducts": "Ukryte produkty",
-      "lowStock": "Niskie stany magazynowe",
-      "manage": "Zarządzanie",
-      "items": "Przedmioty",
-      "active": "Aktywny",
+      "lowStock": "Niski stan magazynowy",
+      "manage": "Zarządzaj",
+      "items": "Pozycje",
+      "active": "Aktywne",
       "avgPrice": "Średnia cena",
       "categories": {
         "maczanka": {
           "title": "Maczanka",
-          "description": "Charakterystyczny polski street food i ciepłe dania główne."
+          "description": "Polskie jedzenie uliczne i gorące dania główne."
         },
         "knysza": {
           "title": "Knysza",
-          "description": "Świeże pieczywo z mięsem, warzywami i sosami."
+          "description": "Świeżo nadziewany chleb z mięsem, warzywami i sosami."
         },
         "fries": {
           "title": "Frytki",
-          "description": "Frytki, dodatki, sosy i mniejsze dodatki."
+          "description": "Frytki, dodatki, sosy i drobne dodatki."
         },
         "drinks": {
           "title": "Napoje",
-          "description": "Napoje bezalkoholowe i zimne napoje."
+          "description": "Napoje bezalkoholowe i zimne."
         }
       }
     },
