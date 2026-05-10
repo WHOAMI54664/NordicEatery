@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 
@@ -17,15 +17,48 @@ export function SetPasswordForm() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
-  async function handleSetPassword(event: React.FormEvent<HTMLFormElement>) {
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (
+          event === "PASSWORD_RECOVERY" ||
+          event === "SIGNED_IN"
+      ) {
+        setIsReady(true);
+      }
+    });
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        setIsReady(true);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
+
+  async function handleSetPassword(
+      event: React.FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
     setErrorMessage("");
     setSuccessMessage("");
 
+    if (!isReady) {
+      setErrorMessage("Auth session missing!");
+      return;
+    }
+
     if (password.length < 6) {
-      setErrorMessage("Password must be at least 6 characters.");
+      setErrorMessage(
+          "Password must be at least 6 characters."
+      );
       return;
     }
 
@@ -46,15 +79,20 @@ export function SetPasswordForm() {
       return;
     }
 
-    setSuccessMessage("Password has been set successfully.");
+    setSuccessMessage(
+        "Password has been set successfully."
+    );
 
     setTimeout(() => {
       router.push(`/${locale}/admin`);
-    }, 900);
+    }, 1000);
   }
 
   return (
-      <form onSubmit={handleSetPassword} className="glass-card w-full max-w-md p-8">
+      <form
+          onSubmit={handleSetPassword}
+          className="glass-card w-full max-w-md p-8"
+      >
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-paprika/10 text-3xl">
           🔐
         </div>
@@ -90,7 +128,9 @@ export function SetPasswordForm() {
                 minLength={6}
                 type="password"
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                onChange={(event) =>
+                    setPassword(event.target.value)
+                }
                 className="input-field"
                 placeholder="Minimum 6 characters"
             />
@@ -106,7 +146,9 @@ export function SetPasswordForm() {
                 minLength={6}
                 type="password"
                 value={confirmPassword}
-                onChange={(event) => setConfirmPassword(event.target.value)}
+                onChange={(event) =>
+                    setConfirmPassword(event.target.value)
+                }
                 className="input-field"
                 placeholder="Repeat password"
             />

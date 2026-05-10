@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     const siteUrl = getSiteUrl();
 
     const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
-      redirectTo: `${siteUrl}/${locale}/auth/callback?next=/set-password`,
+      redirectTo: `${siteUrl}/${locale}/set-password`,
       data: {
         role,
       },
