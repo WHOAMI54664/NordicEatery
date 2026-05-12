@@ -12,10 +12,9 @@ export async function createClient() {
                 getAll() {
                     return cookieStore.getAll();
                 },
-                setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) => {
-                        cookieStore.set(name, value, options);
-                    });
+                setAll() {
+                    // В Server Components нельзя изменять cookies.
+                    // Cookie refresh должен происходить в middleware или route handlers.
                 },
             },
         }
