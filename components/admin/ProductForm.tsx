@@ -12,10 +12,12 @@ import {
   Package,
   Save,
   Sparkles,
-  Upload
+  Upload,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/browser";
+
+type MenuType = "standard" | "vegan" | "gluten_free";
 
 type ProductFormValues = {
   id?: string;
@@ -24,6 +26,7 @@ type ProductFormValues = {
   description?: string;
   price?: number;
   category?: string;
+  menu_type?: MenuType | null;
   badge?: string | null;
   image_url?: string | null;
   is_popular?: boolean;
@@ -50,7 +53,7 @@ function makeProductId(name: string) {
 
 function FieldLabel({
                       children,
-                      icon: Icon
+                      icon: Icon,
                     }: {
   children: React.ReactNode;
   icon?: React.ElementType;
@@ -71,7 +74,7 @@ function ToggleCard({
                       title,
                       description,
                       activeIcon: ActiveIcon,
-                      inactiveIcon: InactiveIcon
+                      inactiveIcon: InactiveIcon,
                     }: {
   checked: boolean;
   onChange: (value: boolean) => void;
@@ -117,7 +120,7 @@ function ToggleCard({
 export function ProductForm({
                               mode,
                               product,
-                              locale = "en"
+                              locale = "en",
                             }: ProductFormProps) {
   const t = useTranslations("admin.products");
   const common = useTranslations("admin.common");
@@ -130,6 +133,9 @@ export function ProductForm({
   const [description, setDescription] = useState(product?.description || "");
   const [price, setPrice] = useState(String(product?.price || ""));
   const [category, setCategory] = useState(product?.category || "maczanka");
+  const [menuType, setMenuType] = useState<MenuType>(
+      product?.menu_type || "standard"
+  );
   const [badge, setBadge] = useState(product?.badge || "");
   const [imageUrl, setImageUrl] = useState(product?.image_url || "");
   const [isPopular, setIsPopular] = useState(product?.is_popular || false);
@@ -194,6 +200,7 @@ export function ProductForm({
       description,
       price: Number(price),
       category,
+      menu_type: menuType,
       badge: badge || null,
       image_url: imageUrl || null,
       is_popular: isPopular,
@@ -202,7 +209,7 @@ export function ProductForm({
       track_stock: trackStock,
       stock_quantity: trackStock
           ? Math.max(0, Number(stockQuantity) || 0)
-          : 0
+          : 0,
     };
 
     try {
@@ -210,7 +217,7 @@ export function ProductForm({
         const res = await fetch("/api/products/create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
         });
 
         if (!res.ok) throw new Error(t("saveError"));
@@ -239,7 +246,10 @@ export function ProductForm({
       "min-h-32 w-full rounded-2xl border border-[#EADDCF] bg-white/75 px-4 py-3 text-sm font-semibold text-[#25120F] outline-none shadow-inner shadow-[#4C2314]/5 transition placeholder:text-[#A39388] focus:border-[#E51B23]/25 focus:bg-white focus:ring-4 focus:ring-[#E51B23]/8";
 
   return (
-      <form onSubmit={handleSubmit} className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+      <form
+          onSubmit={handleSubmit}
+          className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]"
+      >
         <section className="rounded-[1.75rem] border border-[#EADDCF] bg-white/55 p-5 shadow-sm shadow-[#4C2314]/5 lg:p-6">
           <div className="flex flex-col gap-3 border-b border-[#EADDCF] pb-5 sm:flex-row sm:items-start sm:justify-between">
             <div>
@@ -292,6 +302,19 @@ export function ProductForm({
             </div>
 
             <div>
+              <FieldLabel>Menu type</FieldLabel>
+              <select
+                  className={inputClass}
+                  value={menuType}
+                  onChange={(e) => setMenuType(e.target.value as MenuType)}
+              >
+                <option value="standard">Standard</option>
+                <option value="vegan">Vegan</option>
+                <option value="gluten_free">Gluten Free</option>
+              </select>
+            </div>
+
+            <div>
               <FieldLabel>Category</FieldLabel>
               <select
                   className={inputClass}
@@ -300,7 +323,8 @@ export function ProductForm({
               >
                 <option value="maczanka">Maczanka</option>
                 <option value="knysza">Knysza</option>
-                <option value="sides">Sides</option>
+                <option value="fries">Fries</option>
+                <option value="sauces">Sauces</option>
                 <option value="drinks">Drinks</option>
               </select>
             </div>
@@ -486,6 +510,14 @@ export function ProductForm({
                 }`}
             >
               {isAvailable ? "Available" : "Hidden"}
+            </span>
+
+              <span className="rounded-full border border-[#EADDCF] bg-white/80 px-3 py-1 text-xs font-black text-[#7B6A61]">
+              {menuType === "gluten_free" ? "Gluten Free" : menuType}
+            </span>
+
+              <span className="rounded-full border border-[#EADDCF] bg-white/80 px-3 py-1 text-xs font-black text-[#7B6A61]">
+              {category}
             </span>
 
               {isPopular ? (
