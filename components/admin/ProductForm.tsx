@@ -210,18 +210,40 @@ export function ProductForm({
       stock_quantity: trackStock
           ? Math.max(0, Number(stockQuantity) || 0)
           : 0,
+
+      name_sv: name,
+      name_pl: name,
+      name_ru: name,
+
+      subtitle_sv: subtitle || null,
+      subtitle_pl: subtitle || null,
+      subtitle_ru: subtitle || null,
+
+      description_sv: description || null,
+      description_pl: description || null,
+      description_ru: description || null,
     };
 
     try {
       if (mode === "create") {
+        console.log("CREATE PAYLOAD:", payload);
+
         const res = await fetch("/api/products/create", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
 
-        if (!res.ok) throw new Error(t("saveError"));
+        const data = await res.json().catch(() => null);
+
+        console.log("CREATE RESPONSE:", res.status, data);
+
+        if (!res.ok) {
+          throw new Error(data?.details || data?.error || t("saveError"));
+        }
       } else {
+        console.log("UPDATE PAYLOAD:", payload);
+
         const res = await fetch("/api/products/update", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -229,6 +251,8 @@ export function ProductForm({
         });
 
         const data = await res.json().catch(() => null);
+
+        console.log("UPDATE RESPONSE:", res.status, data);
 
         if (!res.ok) {
           throw new Error(data?.details || data?.error || t("saveError"));
@@ -239,9 +263,9 @@ export function ProductForm({
       router.refresh();
     } catch (error: any) {
       setErrorMessage(error.message || t("saveError"));
+    } finally {
+      setIsSaving(false);
     }
-
-    setIsSaving(false);
   }
 
   const inputClass =
