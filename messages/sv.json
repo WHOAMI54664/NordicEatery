@@ -321,8 +321,9 @@
       "categories": {
         "maczanka": "Maczanka",
         "knysza": "Knysza",
-        "fries": "Pommes frites",
-        "drinks": "Drycker"
+        "fries": "Pommes",
+        "drinks": "Dryck",
+        "sauces": "Dipsås",
       }
     },
     "about": {
