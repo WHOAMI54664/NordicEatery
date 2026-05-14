@@ -12,6 +12,7 @@ export async function POST(request: Request) {
             description,
             price,
             category,
+            menu_type = "standard",
             image_url,
             badge,
             is_available = true,
@@ -40,6 +41,7 @@ export async function POST(request: Request) {
                 description,
                 price: Number(price),
                 category,
+                menu_type: menu_type || "standard",
                 image_url: image_url || null,
                 badge: badge || null,
 

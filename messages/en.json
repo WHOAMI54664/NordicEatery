@@ -323,9 +323,9 @@
       "categories": {
         "maczanka": "Maczanka",
         "knysza": "Knysza",
-        "fries": "Fries",
         "drinks": "Drinks",
-        "sauces": "Sauces",
+        "fries": "Fries",
+        "sauces": "Sauces"
       }
     },
     "about": {

@@ -222,12 +222,17 @@ export function ProductForm({
 
         if (!res.ok) throw new Error(t("saveError"));
       } else {
-        const { error } = await supabase
-            .from("products")
-            .update(payload)
-            .eq("id", productId);
+        const res = await fetch("/api/products/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
 
-        if (error) throw error;
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          throw new Error(data?.details || data?.error || t("saveError"));
+        }
       }
 
       router.push(`/${locale}/admin/products`);
