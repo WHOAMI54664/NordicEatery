@@ -1,24 +1,46 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
 import { MenuJsonLd } from "@/components/seo/MenuJsonLd";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 import { EditableText } from "@/components/EditableText";
 
+type MenuType = "all" | "standard" | "vegan" | "gluten_free";
+
 type MenuPageProps = {
     params: Promise<{
         locale: string;
+    }>;
+    searchParams?: Promise<{
+        type?: string;
     }>;
 };
 
 const baseUrl = "https://www.nordiceatery.se";
 
+const menuTypes = [
+    { id: "all", label: "All" },
+    { id: "standard", label: "Standard" },
+    { id: "vegan", label: "Vegan" },
+    { id: "gluten_free", label: "Gluten Free" },
+] as const;
+
 const categories = [
     { id: "maczanka", titleKey: "maczanka" },
     { id: "knysza", titleKey: "knysza" },
     { id: "fries", titleKey: "fries" },
+    { id: "sauces", titleKey: "sauces" },
     { id: "drinks", titleKey: "drinks" },
 ] as const;
+
+function getValidMenuType(type?: string): MenuType {
+    if (type === "standard") return "standard";
+    if (type === "vegan") return "vegan";
+    if (type === "gluten_free") return "gluten_free";
+
+    return "all";
+}
 
 export async function generateMetadata({
                                            params,
@@ -72,8 +94,14 @@ export async function generateMetadata({
     };
 }
 
-export default async function MenuPage({ params }: MenuPageProps) {
+export default async function MenuPage({
+                                           params,
+                                           searchParams,
+                                       }: MenuPageProps) {
     const { locale } = await params;
+    const resolvedSearchParams = await searchParams;
+
+    const selectedMenuType = getValidMenuType(resolvedSearchParams?.type);
 
     const supabase = await createClient();
 
@@ -109,12 +137,18 @@ export default async function MenuPage({ params }: MenuPageProps) {
         return content.get(key) || t(fallbackKey);
     }
 
-    const { data: menuItems } = await supabase
+    let query = supabase
         .from("products")
         .select("*")
         .eq("is_available", true)
         .or("track_stock.eq.false,stock_quantity.gt.0")
         .order("sort_order", { ascending: true });
+
+    if (selectedMenuType !== "all") {
+        query = query.eq("menu_type", selectedMenuType);
+    }
+
+    const { data: menuItems } = await query;
 
     return (
         <>
@@ -154,6 +188,31 @@ export default async function MenuPage({ params }: MenuPageProps) {
                             as="span"
                         />
                     </p>
+                </div>
+
+                <div className="mt-10 flex flex-wrap gap-3">
+                    {menuTypes.map((type) => {
+                        const isActive = selectedMenuType === type.id;
+
+                        return (
+                            <Link
+                                key={type.id}
+                                href={
+                                    type.id === "all"
+                                        ? `/${locale}/menu`
+                                        : `/${locale}/menu?type=${type.id}`
+                                }
+                                className={[
+                                    "rounded-full px-6 py-3 text-sm font-black uppercase tracking-[0.18em] transition",
+                                    isActive
+                                        ? "bg-paprika text-white shadow-lg shadow-paprika/20"
+                                        : "border border-dark/10 bg-white text-dark hover:border-paprika hover:text-paprika",
+                                ].join(" ")}
+                            >
+                                {type.label}
+                            </Link>
+                        );
+                    })}
                 </div>
 
                 <div className="mt-10 space-y-14">
