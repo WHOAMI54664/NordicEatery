@@ -23,7 +23,6 @@ import { createClient } from "@/lib/supabase/browser";
 import type { StaffRole } from "@/lib/auth/roles";
 import {
     canAccessKitchen,
-    canManageProducts,
     canManageStaff,
     canViewAnalytics,
 } from "@/lib/auth/roles";
@@ -46,6 +45,7 @@ const mainNavItems = [
 
 const secondaryNavItems = [
     { labelKey: "analytics", href: "/admin/analytics", icon: LineChart, roles: ["owner", "admin"] },
+    { labelKey: "reports", href: "/admin/reports", icon: BarChart3, roles: ["owner", "admin"] },
     { labelKey: "staff", href: "/admin/staff", icon: Users, roles: ["owner"] },
     { labelKey: "settings", href: "/admin/settings", icon: Settings, roles: ["owner", "admin"] },
     { labelKey: "docs", href: "/admin/documentation", icon: BookOpen, roles: ["owner", "admin"] },
@@ -140,6 +140,7 @@ export function AdminSidebar() {
 
     const visibleSecondaryNavItems = secondaryNavItems.filter((item) => {
         if (item.href === "/admin/analytics") return canViewAnalytics(role);
+        if (item.href === "/admin/reports") return canViewAnalytics(role);
         if (item.href === "/admin/staff") return canManageStaff(role);
         if (item.href === "/admin/settings") return role === "owner" || role === "admin";
         if (item.href === "/admin/documentation") return role === "owner" || role === "admin";
