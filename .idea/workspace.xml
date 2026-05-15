@@ -4,19 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="060f1486-bf69-4dc5-842d-f3514b9af11e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/[locale]/admin/reports/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/api/admin/reports/online-sales/csv/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/[locale]/admin/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/admin/AdminSidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/admin/AdminSidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/messages/en.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/pl.json" beforeDir="false" afterPath="$PROJECT_DIR$/messages/pl.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/ru.json" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ru.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/messages/sv.json" beforeDir="false" afterPath="$PROJECT_DIR$/messages/sv.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-    </list>
+    <list default="true" id="060f1486-bf69-4dc5-842d-f3514b9af11e" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -249,7 +237,7 @@
       <workItem from="1778276522461" duration="13656000" />
       <workItem from="1778432068053" duration="19283000" />
       <workItem from="1778767297271" duration="411000" />
-      <workItem from="1778775179458" duration="18270000" />
+      <workItem from="1778775179458" duration="18677000" />
     </task>
     <servers />
   </component>

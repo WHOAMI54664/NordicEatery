@@ -15,6 +15,14 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  serverExternalPackages: ["pdfkit"],
+
+  outputFileTracingIncludes: {
+    "/api/admin/reports/online-sales/pdf": [
+      "./node_modules/pdfkit/js/data/*.afm",
+    ],
+  },
+
   async redirects() {
     return [
       {
