@@ -95,7 +95,7 @@ export function HeaderClient({
                         alt="Nordic Eatery logo"
                         width={180}
                         height={70}
-                        className="object-contain"
+                        className="object-contanano /root/swish-server/src/server.tsin"
                         priority
                     />
                 </Link>
