@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { createClient } from "@/lib/supabase/browser";
+import { useEffect, useState } from "react";
 
 type OrderStatus = "new" | "preparing" | "ready" | "completed" | "cancelled";
 
@@ -23,43 +22,52 @@ const statusText: Record<OrderStatus, string> = {
 };
 
 export function OrderStatusTracker({ orderNumber }: { orderNumber: string }) {
-    const supabase = useMemo(() => createClient(), []);
-
     const [order, setOrder] = useState<Order | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [hasError, setHasError] = useState(false);
 
     async function fetchOrder() {
-        const { data } = await supabase
-            .from("orders")
-            .select("id, order_number, status, payment_status, payment_method, total_price")
-            .eq("order_number", orderNumber)
-            .single();
+        try {
+            const response = await fetch(
+                `/api/orders/status/${encodeURIComponent(orderNumber)}`,
+                {
+                    method: "GET",
+                    cache: "no-store",
+                }
+            );
 
-        setOrder(data as Order | null);
-        setIsLoading(false);
+            if (response.status === 404) {
+                setOrder(null);
+                setHasError(false);
+                setIsLoading(false);
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error("Could not fetch order");
+            }
+
+            const data = (await response.json()) as { order: Order };
+
+            setOrder(data.order);
+            setHasError(false);
+            setIsLoading(false);
+        } catch (error) {
+            console.error("Order status fetch error:", error);
+            setHasError(true);
+            setIsLoading(false);
+        }
     }
 
     useEffect(() => {
         fetchOrder();
 
-        const channel = supabase
-            .channel(`order-${orderNumber}`)
-            .on(
-                "postgres_changes",
-                {
-                    event: "UPDATE",
-                    schema: "public",
-                    table: "orders",
-                    filter: `order_number=eq.${orderNumber}`,
-                },
-                (payload) => {
-                    setOrder(payload.new as Order);
-                }
-            )
-            .subscribe();
+        const interval = window.setInterval(() => {
+            fetchOrder();
+        }, 5000);
 
         return () => {
-            supabase.removeChannel(channel);
+            window.clearInterval(interval);
         };
     }, [orderNumber]);
 
@@ -68,6 +76,22 @@ export function OrderStatusTracker({ orderNumber }: { orderNumber: string }) {
             <main className="min-h-screen bg-cream px-6 py-24">
                 <section className="mx-auto max-w-xl rounded-[2rem] bg-white p-8 shadow-xl">
                     <h1 className="text-3xl font-black text-dark">Loading order...</h1>
+                </section>
+            </main>
+        );
+    }
+
+    if (hasError) {
+        return (
+            <main className="min-h-screen bg-cream px-6 py-24">
+                <section className="mx-auto max-w-xl rounded-[2rem] bg-white p-8 shadow-xl">
+                    <h1 className="text-3xl font-black text-dark">
+                        Could not load order
+                    </h1>
+
+                    <p className="mt-3 text-dark/60">
+                        Please refresh the page in a moment.
+                    </p>
                 </section>
             </main>
         );
@@ -108,11 +132,17 @@ export function OrderStatusTracker({ orderNumber }: { orderNumber: string }) {
 
                 <p className="mt-2 text-dark/60">
                     Total:{" "}
-                    <span className="font-bold text-paprika">{order.total_price} kr</span>
+                    <span className="font-bold text-paprika">
+            {order.total_price} kr
+          </span>
                 </p>
 
                 <div className="mt-8 space-y-4">
-                    <StatusStep active={order.status === "new"} done label="Order received" />
+                    <StatusStep
+                        active={order.status === "new"}
+                        done
+                        label="Order received"
+                    />
 
                     <StatusStep
                         active={order.status === "preparing"}

@@ -4,16 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="060f1486-bf69-4dc5-842d-f3514b9af11e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/orders/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/orders/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/products/update/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/products/update/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/stripe/checkout/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/stripe/checkout/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/stripe/session/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/stripe/session/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/stripe/webhook/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/stripe/webhook/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/swish/callback/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/swish/callback/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/HeaderClient.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/HeaderClient.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="060f1486-bf69-4dc5-842d-f3514b9af11e" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -246,7 +237,7 @@
       <workItem from="1778276522461" duration="13656000" />
       <workItem from="1778432068053" duration="19283000" />
       <workItem from="1778767297271" duration="411000" />
-      <workItem from="1778775179458" duration="14985000" />
+      <workItem from="1778775179458" duration="15567000" />
     </task>
     <servers />
   </component>
