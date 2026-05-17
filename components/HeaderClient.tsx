@@ -91,7 +91,7 @@ export function HeaderClient({
                     aria-label="Nordic Eatery home"
                 >
                     <Image
-                        src="/logo.png"
+                        src="/logo7.png"
                         alt="Nordic Eatery logo"
                         width={180}
                         height={70}

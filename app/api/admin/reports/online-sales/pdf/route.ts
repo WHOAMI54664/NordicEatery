@@ -169,25 +169,32 @@ async function generatePdfBuffer(
         doc.on("end", () => resolve(Buffer.concat(chunks)));
         doc.on("error", reject);
 
-        const pageWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+        const leftMargin = doc.page.margins.left;
+        const rightMargin = doc.page.margins.right;
+        const pageWidth = doc.page.width - leftMargin - rightMargin;
 
         function sectionTitle(title: string) {
+            doc.x = leftMargin;
+
             doc
                 .moveDown(1)
                 .fontSize(13)
                 .font("Helvetica-Bold")
                 .fillColor("#25120F")
-                .text(title);
+                .text(title, leftMargin, doc.y, {
+                    width: pageWidth,
+                });
 
             doc
                 .moveDown(0.35)
                 .strokeColor("#D8C7B8")
                 .lineWidth(1)
-                .moveTo(doc.x, doc.y)
-                .lineTo(doc.x + pageWidth, doc.y)
+                .moveTo(leftMargin, doc.y)
+                .lineTo(leftMargin + pageWidth, doc.y)
                 .stroke();
 
             doc.moveDown(0.7);
+            doc.x = leftMargin;
         }
 
         function summaryRow(label: string, value: string) {
@@ -197,19 +204,20 @@ async function generatePdfBuffer(
                 .fontSize(10)
                 .font("Helvetica")
                 .fillColor("#5F514A")
-                .text(label, doc.x, y, {
+                .text(label, leftMargin, y, {
                     width: 260,
                 });
 
             doc
                 .font("Helvetica-Bold")
                 .fillColor("#25120F")
-                .text(value, doc.x + 280, y, {
+                .text(value, leftMargin + 280, y, {
                     width: pageWidth - 280,
                     align: "right",
                 });
 
-            doc.moveDown(0.55);
+            doc.y = y + 18;
+            doc.x = leftMargin;
         }
 
         function ensureTableSpace(requiredHeight: number) {
@@ -221,7 +229,8 @@ async function generatePdfBuffer(
         }
 
         function drawOrdersHeader() {
-            const startX = doc.x;
+            const startX = leftMargin;
+            doc.x = leftMargin;
             const y = doc.y;
             const rowHeight = 22;
 
@@ -250,7 +259,8 @@ async function generatePdfBuffer(
         function drawOrderRow(order: OnlinePaidOrderRow, index: number) {
             ensureTableSpace(28);
 
-            const startX = doc.x;
+            const startX = leftMargin;
+            doc.x = leftMargin;
             const y = doc.y;
             const rowHeight = 28;
 
