@@ -11,10 +11,8 @@ import {
     Utensils
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { AdminShell } from "@/components/admin/AdminShell";
 import { createClient } from "@/lib/supabase/server";
 import { canManageProducts } from "@/lib/auth/roles";
-
 
 type MenuPageProps = {
     params: Promise<{
@@ -132,7 +130,9 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
 
     const { data: products } = await supabase
         .from("products")
-        .select("id, name, price, category, is_available, track_stock, stock_quantity")
+        .select(
+            "id, name, price, category, is_available, track_stock, stock_quantity"
+        )
         .order("sort_order", { ascending: true });
 
     const productList = (products || []) as ProductRow[];
@@ -154,194 +154,203 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
     }).length;
 
     return (
-        <AdminShell>
-            <div className="space-y-6">
-                <section className="relative overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:p-6">
-                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
+        <div className="space-y-6">
+            {/* Desktop hero */}
+            <section className="relative hidden overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:block lg:p-6">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
 
-                    <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-                        <div>
-                            <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
-                                <Layers3 className="h-3.5 w-3.5" />
-                                {t("menuAdmin.eyebrow")}
-                            </div>
+                <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+                    <div>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
+                            <Layers3 className="h-3.5 w-3.5" />
+                            {t("menuAdmin.eyebrow")}
+                        </div>
 
-                            <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
-                                {t("menuAdmin.title")}
-                            </h1>
+                        <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
+                            {t("menuAdmin.title")}
+                        </h1>
 
-                            <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                                {t("menuAdmin.subtitle")}
+                        <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
+                            {t("menuAdmin.subtitle")}
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                        <Link
+                            href={`/${locale}/admin/products`}
+                            className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/80 px-5 text-sm font-black text-[#25120F] shadow-sm shadow-[#4C2314]/5 transition hover:border-[#E51B23]/20 hover:text-[#C7192E]"
+                        >
+                            <ChefHat className="h-4 w-4" />
+                            {t("menuAdmin.viewProducts")}
+                        </Link>
+
+                        <Link
+                            href={`/${locale}/admin/products/new`}
+                            className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-5 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E]"
+                        >
+                            <Plus className="h-4 w-4" />
+                            {t("products.addProduct")}
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
+            {/* Compact global stats */}
+            <section className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
+                <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl md:rounded-[1.75rem] md:p-5">
+                    <div className="flex items-start justify-between gap-2 md:gap-4">
+                        <div className="min-w-0">
+                            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+                                {t("menuAdmin.totalProducts")}
                             </p>
+
+                            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] md:mt-3 md:text-3xl">
+                                {totalProducts}
+                            </h3>
                         </div>
 
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                            <Link
-                                href={`/${locale}/admin/products`}
-                                className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/80 px-5 text-sm font-black text-[#25120F] shadow-sm shadow-[#4C2314]/5 transition hover:border-[#E51B23]/20 hover:text-[#C7192E]"
-                            >
-                                <ChefHat className="h-4 w-4" />
-                                {t("menuAdmin.viewProducts")}
-                            </Link>
-
-                            <Link
-                                href={`/${locale}/admin/products/new`}
-                                className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-5 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E]"
-                            >
-                                <Plus className="h-4 w-4" />
-                                {t("products.addProduct")}
-                            </Link>
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 md:h-11 md:w-11">
+                            <Utensils className="h-4 w-4 text-[#C7192E] md:h-5 md:w-5" />
                         </div>
                     </div>
-                </section>
+                </div>
 
-                <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-sm font-black text-[#8A7A70]">
-                                    {t("menuAdmin.totalProducts")}
-                                </p>
-                                <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
-                                    {totalProducts}
-                                </h3>
-                            </div>
+                <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl md:rounded-[1.75rem] md:p-5">
+                    <div className="flex items-start justify-between gap-2 md:gap-4">
+                        <div className="min-w-0">
+                            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+                                {t("menuAdmin.activeProducts")}
+                            </p>
 
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
-                                <Utensils className="h-5 w-5 text-[#C7192E]" />
-                            </div>
+                            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-emerald-700 md:mt-3 md:text-3xl">
+                                {activeProducts}
+                            </h3>
+                        </div>
+
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 md:h-11 md:w-11">
+                            <Eye className="h-4 w-4 text-emerald-700 md:h-5 md:w-5" />
                         </div>
                     </div>
+                </div>
 
-                    <div className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-sm font-black text-[#8A7A70]">
-                                    {t("menuAdmin.activeProducts")}
-                                </p>
-                                <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-emerald-700">
-                                    {activeProducts}
-                                </h3>
-                            </div>
+                <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl md:rounded-[1.75rem] md:p-5">
+                    <div className="flex items-start justify-between gap-2 md:gap-4">
+                        <div className="min-w-0">
+                            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+                                {t("menuAdmin.hiddenProducts")}
+                            </p>
 
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10">
-                                <Eye className="h-5 w-5 text-emerald-700" />
-                            </div>
+                            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] md:mt-3 md:text-3xl">
+                                {hiddenProducts}
+                            </h3>
+                        </div>
+
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[#EADDCF] bg-[#FFF3E2] md:h-11 md:w-11">
+                            <EyeOff className="h-4 w-4 text-[#7B6A61] md:h-5 md:w-5" />
                         </div>
                     </div>
+                </div>
 
-                    <div className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-sm font-black text-[#8A7A70]">
-                                    {t("menuAdmin.hiddenProducts")}
-                                </p>
-                                <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
-                                    {hiddenProducts}
-                                </h3>
-                            </div>
+                <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl md:rounded-[1.75rem] md:p-5">
+                    <div className="flex items-start justify-between gap-2 md:gap-4">
+                        <div className="min-w-0">
+                            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+                                {t("menuAdmin.lowStock")}
+                            </p>
 
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#EADDCF] bg-[#FFF3E2]">
-                                <EyeOff className="h-5 w-5 text-[#7B6A61]" />
-                            </div>
+                            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#C7192E] md:mt-3 md:text-3xl">
+                                {lowStockProducts}
+                            </h3>
+                        </div>
+
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[#F6A21A]/25 bg-[#F6A21A]/15 md:h-11 md:w-11">
+                            <Package className="h-4 w-4 text-[#A96800] md:h-5 md:w-5" />
                         </div>
                     </div>
+                </div>
+            </section>
 
-                    <div className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-sm font-black text-[#8A7A70]">
-                                    {t("menuAdmin.lowStock")}
-                                </p>
-                                <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#C7192E]">
-                                    {lowStockProducts}
-                                </h3>
-                            </div>
+            {/* Menu categories */}
+            <section className="grid gap-4 xl:grid-cols-2">
+                {menuCategories.map((category) => {
+                    const stats = getCategoryStats(productList, category.id);
 
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#F6A21A]/25 bg-[#F6A21A]/15">
-                                <Package className="h-5 w-5 text-[#A96800]" />
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                    return (
+                        <article
+                            key={category.id}
+                            className="relative overflow-hidden rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl transition hover:-translate-y-0.5 hover:bg-white md:rounded-[2rem] md:p-5"
+                        >
+                            <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#E51B23]/8 blur-3xl" />
 
-                <section className="grid gap-5 xl:grid-cols-2">
-                    {menuCategories.map((category) => {
-                        const stats = getCategoryStats(productList, category.id);
-
-                        return (
-                            <article
-                                key={category.id}
-                                className="relative overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl transition hover:-translate-y-0.5 hover:bg-white"
-                            >
-                                <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#E51B23]/8 blur-3xl" />
-
-                                <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-                                    <div>
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
-                                            <Utensils className="h-5 w-5 text-[#C7192E]" />
-                                        </div>
-
-                                        <h2 className="mt-5 text-3xl font-black tracking-[-0.05em] text-[#25120F]">
-                                            {t(`menuAdmin.${category.titleKey}`)}
-                                        </h2>
-
-                                        <p className="mt-2 max-w-md text-sm font-medium leading-6 text-[#7B6A61]">
-                                            {t(`menuAdmin.${category.descriptionKey}`)}
-                                        </p>
+                            <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between md:gap-5">
+                                <div>
+                                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 md:h-12 md:w-12">
+                                        <Utensils className="h-4 w-4 text-[#C7192E] md:h-5 md:w-5" />
                                     </div>
 
-                                    <Link
-                                        href={`/${locale}/admin/products`}
-                                        className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/80 px-4 text-sm font-black text-[#25120F] shadow-sm shadow-[#4C2314]/5 transition hover:border-[#E51B23]/20 hover:text-[#C7192E]"
-                                    >
-                                        {t("menuAdmin.manage")}
-                                        <ArrowRight className="h-4 w-4" />
-                                    </Link>
+                                    <h2 className="mt-4 text-2xl font-black tracking-[-0.05em] text-[#25120F] md:mt-5 md:text-3xl">
+                                        {t(`menuAdmin.${category.titleKey}`)}
+                                    </h2>
+
+                                    <p className="mt-2 max-w-md text-sm font-medium leading-6 text-[#7B6A61]">
+                                        {t(`menuAdmin.${category.descriptionKey}`)}
+                                    </p>
                                 </div>
 
-                                <div className="relative mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                                    <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
-                                        <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
-                                            {t("menuAdmin.items")}
-                                        </p>
-                                        <p className="mt-2 text-2xl font-black text-[#25120F]">
-                                            {stats.total}
-                                        </p>
-                                    </div>
+                                <Link
+                                    href={`/${locale}/admin/products`}
+                                    className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/80 px-4 text-sm font-black text-[#25120F] shadow-sm shadow-[#4C2314]/5 transition hover:border-[#E51B23]/20 hover:text-[#C7192E]"
+                                >
+                                    {t("menuAdmin.manage")}
+                                    <ArrowRight className="h-4 w-4" />
+                                </Link>
+                            </div>
 
-                                    <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
-                                        <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
-                                            {t("menuAdmin.active")}
-                                        </p>
-                                        <p className="mt-2 text-2xl font-black text-emerald-700">
-                                            {stats.active}
-                                        </p>
-                                    </div>
+                            <div className="relative mt-5 grid grid-cols-2 gap-2.5 md:mt-6 md:gap-3 xl:grid-cols-4">
+                                <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-3 md:p-4">
+                                    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#A39388] md:text-xs">
+                                        {t("menuAdmin.items")}
+                                    </p>
 
-                                    <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
-                                        <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
-                                            {t("menuAdmin.lowStock")}
-                                        </p>
-                                        <p className="mt-2 text-2xl font-black text-[#C7192E]">
-                                            {stats.lowStock}
-                                        </p>
-                                    </div>
-
-                                    <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
-                                        <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
-                                            {t("menuAdmin.avgPrice")}
-                                        </p>
-                                        <p className="mt-2 text-2xl font-black text-[#25120F]">
-                                            {formatCurrency(stats.averagePrice, locale)}
-                                        </p>
-                                    </div>
+                                    <p className="mt-2 text-xl font-black text-[#25120F] md:text-2xl">
+                                        {stats.total}
+                                    </p>
                                 </div>
-                            </article>
-                        );
-                    })}
-                </section>
-            </div>
-        </AdminShell>
+
+                                <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-3 md:p-4">
+                                    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#A39388] md:text-xs">
+                                        {t("menuAdmin.active")}
+                                    </p>
+
+                                    <p className="mt-2 text-xl font-black text-emerald-700 md:text-2xl">
+                                        {stats.active}
+                                    </p>
+                                </div>
+
+                                <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-3 md:p-4">
+                                    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#A39388] md:text-xs">
+                                        {t("menuAdmin.lowStock")}
+                                    </p>
+
+                                    <p className="mt-2 text-xl font-black text-[#C7192E] md:text-2xl">
+                                        {stats.lowStock}
+                                    </p>
+                                </div>
+
+                                <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-3 md:p-4">
+                                    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#A39388] md:text-xs">
+                                        {t("menuAdmin.avgPrice")}
+                                    </p>
+
+                                    <p className="mt-2 text-base font-black text-[#25120F] md:text-2xl">
+                                        {formatCurrency(stats.averagePrice, locale)}
+                                    </p>
+                                </div>
+                            </div>
+                        </article>
+                    );
+                })}
+            </section>
+        </div>
     );
 }

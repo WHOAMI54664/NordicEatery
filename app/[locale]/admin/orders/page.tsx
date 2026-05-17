@@ -9,7 +9,6 @@ import {
     Truck
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { AdminShell } from "@/components/admin/AdminShell";
 import { OrderStatusActions } from "@/components/admin/OrderStatusActions";
 import { createClient } from "@/lib/supabase/server";
 import { canManageOrders } from "@/lib/auth/roles";
@@ -35,7 +34,12 @@ type DbOrder = {
     total_price: number;
     status: OrderStatus;
     payment_method: "cash" | "swish" | "card";
-    payment_status: "unpaid" | "awaiting_payment" | "paid" | "failed" | "refunded";
+    payment_status:
+        | "unpaid"
+        | "awaiting_payment"
+        | "paid"
+        | "failed"
+        | "refunded";
     created_at: string;
 };
 
@@ -174,173 +178,317 @@ export default async function AdminOrdersPage({
     ).length;
 
     return (
-        <AdminShell>
-            <div className="space-y-6">
-                <section className="relative overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:p-6">
-                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
+        <div className="space-y-6">
+            {/* Desktop hero */}
+            <section className="relative hidden overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:block lg:p-6">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
 
-                    <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-                        <div>
-                            <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
-                                <ClipboardList className="h-3.5 w-3.5" />
-                                {t("orders.eyebrow")}
-                            </div>
+                <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+                    <div>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
+                            <ClipboardList className="h-3.5 w-3.5" />
+                            {t("orders.eyebrow")}
+                        </div>
 
-                            <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
-                                {t("orders.title")}
-                            </h1>
+                        <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
+                            {t("orders.title")}
+                        </h1>
 
-                            <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                                {t("orders.subtitle")}
+                        <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
+                            {t("orders.subtitle")}
+                        </p>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                        <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
+                            <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
+                                {t("orders.total")}
+                            </p>
+                            <p className="mt-1 text-2xl font-black text-[#25120F]">
+                                {orderList.length}
                             </p>
                         </div>
 
-                        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                            <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
-                                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
-                                    {t("orders.total")}
-                                </p>
-                                <p className="mt-1 text-2xl font-black text-[#25120F]">
-                                    {orderList.length}
-                                </p>
-                            </div>
-
-                            <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
-                                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
-                                    {t("orders.active")}
-                                </p>
-                                <p className="mt-1 text-2xl font-black text-[#C7192E]">
-                                    {activeOrders.length}
-                                </p>
-                            </div>
-
-                            <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
-                                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
-                                    {t("orders.paid")}
-                                </p>
-                                <p className="mt-1 text-2xl font-black text-emerald-700">
-                                    {paidOrders}
-                                </p>
-                            </div>
-
-                            <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
-                                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
-                                    {t("orders.revenue")}
-                                </p>
-                                <p className="mt-1 text-2xl font-black text-[#25120F]">
-                                    {formatCurrency(todayRevenue, locale)}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {error ? (
-                    <div className="rounded-[1.5rem] border border-[#E51B23]/15 bg-[#E51B23]/8 p-4 text-sm font-bold text-[#C7192E]">
-                        {error.message}
-                    </div>
-                ) : null}
-
-                <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-sm font-black text-[#8A7A70]">
-                                    {t("orders.deliveryOrders")}
-                                </p>
-                                <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
-                                    {deliveryOrders}
-                                </h3>
-                            </div>
-
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
-                                <Truck className="h-5 w-5 text-[#C7192E]" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-sm font-black text-[#8A7A70]">
-                                    {t("orders.cashOrders")}
-                                </p>
-                                <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
-                                    {cashOrders}
-                                </h3>
-                            </div>
-
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#F6A21A]/25 bg-[#F6A21A]/15">
-                                <Banknote className="h-5 w-5 text-[#A96800]" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-sm font-black text-[#8A7A70]">
-                                    {t("orders.cardSwish")}
-                                </p>
-                                <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
-                                    {cardOrSwishOrders}
-                                </h3>
-                            </div>
-
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10">
-                                <CreditCard className="h-5 w-5 text-emerald-700" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-                        <div className="flex items-start justify-between gap-4">
-                            <div>
-                                <p className="text-sm font-black text-[#8A7A70]">
-                                    {t("orders.latestOrder")}
-                                </p>
-                                <h3 className="mt-3 text-xl font-black tracking-[-0.04em] text-[#25120F]">
-                                    {orderList[0] ? formatOrderNumber(orderList[0]) : "—"}
-                                </h3>
-                            </div>
-
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#EADDCF] bg-[#FFF3E2]">
-                                <CalendarClock className="h-5 w-5 text-[#7B6A61]" />
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section className="overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-                    <div className="flex flex-col gap-3 border-b border-[#EADDCF] px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                                {t("orders.allOrders")}
-                            </h2>
-                            <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                                {t("orders.allOrdersDescription")}
+                        <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
+                            <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
+                                {t("orders.active")}
+                            </p>
+                            <p className="mt-1 text-2xl font-black text-[#C7192E]">
+                                {activeOrders.length}
                             </p>
                         </div>
 
-                        <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-2 text-sm font-black text-[#7B6A61]">
-                            {t("orders.ordersCount", { count: orderList.length })}
+                        <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
+                            <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
+                                {t("orders.paid")}
+                            </p>
+                            <p className="mt-1 text-2xl font-black text-emerald-700">
+                                {paidOrders}
+                            </p>
+                        </div>
+
+                        <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
+                            <p className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
+                                {t("orders.revenue")}
+                            </p>
+                            <p className="mt-1 text-2xl font-black text-[#25120F]">
+                                {formatCurrency(todayRevenue, locale)}
+                            </p>
                         </div>
                     </div>
+                </div>
+            </section>
 
-                    {orderList.length === 0 ? (
-                        <div className="p-5">
-                            <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
-                                <PackageCheck className="mx-auto h-10 w-10 text-[#C7192E]" />
-                                <p className="mt-4 text-sm font-black text-[#25120F]">
-                                    {t("orders.noOrdersFound")}
-                                </p>
-                                <p className="mt-2 text-sm font-medium text-[#7B6A61]">
-                                    {t("orders.noOrdersDescription")}
-                                </p>
-                            </div>
+            {/* Mobile main counters */}
+            <section className="grid grid-cols-2 gap-3 lg:hidden">
+                <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+                    <p className="text-[11px] font-black leading-4 text-[#8A7A70]">
+                        {t("orders.total")}
+                    </p>
+                    <p className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F]">
+                        {orderList.length}
+                    </p>
+                </div>
+
+                <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+                    <p className="text-[11px] font-black leading-4 text-[#8A7A70]">
+                        {t("orders.active")}
+                    </p>
+                    <p className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#C7192E]">
+                        {activeOrders.length}
+                    </p>
+                </div>
+
+                <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+                    <p className="text-[11px] font-black leading-4 text-[#8A7A70]">
+                        {t("orders.paid")}
+                    </p>
+                    <p className="mt-2 text-2xl font-black tracking-[-0.055em] text-emerald-700">
+                        {paidOrders}
+                    </p>
+                </div>
+
+                <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+                    <p className="text-[11px] font-black leading-4 text-[#8A7A70]">
+                        {t("orders.revenue")}
+                    </p>
+                    <p className="mt-2 text-xl font-black tracking-[-0.055em] text-[#25120F]">
+                        {formatCurrency(todayRevenue, locale)}
+                    </p>
+                </div>
+            </section>
+
+            {error ? (
+                <div className="rounded-[1.5rem] border border-[#E51B23]/15 bg-[#E51B23]/8 p-4 text-sm font-bold text-[#C7192E]">
+                    {error.message}
+                </div>
+            ) : null}
+
+            {/* Secondary stats */}
+            <section className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
+                <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl md:rounded-[1.75rem] md:p-5">
+                    <div className="flex items-start justify-between gap-2 md:gap-4">
+                        <div className="min-w-0">
+                            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+                                {t("orders.deliveryOrders")}
+                            </p>
+                            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] md:mt-3 md:text-3xl">
+                                {deliveryOrders}
+                            </h3>
                         </div>
-                    ) : (
-                        <div className="overflow-x-auto">
+
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 md:h-11 md:w-11">
+                            <Truck className="h-4 w-4 text-[#C7192E] md:h-5 md:w-5" />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl md:rounded-[1.75rem] md:p-5">
+                    <div className="flex items-start justify-between gap-2 md:gap-4">
+                        <div className="min-w-0">
+                            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+                                {t("orders.cashOrders")}
+                            </p>
+                            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] md:mt-3 md:text-3xl">
+                                {cashOrders}
+                            </h3>
+                        </div>
+
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[#F6A21A]/25 bg-[#F6A21A]/15 md:h-11 md:w-11">
+                            <Banknote className="h-4 w-4 text-[#A96800] md:h-5 md:w-5" />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl md:rounded-[1.75rem] md:p-5">
+                    <div className="flex items-start justify-between gap-2 md:gap-4">
+                        <div className="min-w-0">
+                            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+                                {t("orders.cardSwish")}
+                            </p>
+                            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] md:mt-3 md:text-3xl">
+                                {cardOrSwishOrders}
+                            </h3>
+                        </div>
+
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 md:h-11 md:w-11">
+                            <CreditCard className="h-4 w-4 text-emerald-700 md:h-5 md:w-5" />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl md:rounded-[1.75rem] md:p-5">
+                    <div className="flex items-start justify-between gap-2 md:gap-4">
+                        <div className="min-w-0">
+                            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+                                {t("orders.latestOrder")}
+                            </p>
+                            <h3 className="mt-2 truncate text-base font-black tracking-[-0.04em] text-[#25120F] md:mt-3 md:text-xl">
+                                {orderList[0] ? formatOrderNumber(orderList[0]) : "—"}
+                            </h3>
+                        </div>
+
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[#EADDCF] bg-[#FFF3E2] md:h-11 md:w-11">
+                            <CalendarClock className="h-4 w-4 text-[#7B6A61] md:h-5 md:w-5" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Orders catalogue */}
+            <section className="overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+                <div className="flex flex-col gap-3 border-b border-[#EADDCF] px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+                    <div>
+                        <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
+                            {t("orders.allOrders")}
+                        </h2>
+                        <p className="mt-1 text-sm font-medium text-[#7B6A61]">
+                            {t("orders.allOrdersDescription")}
+                        </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-2 text-sm font-black text-[#7B6A61]">
+                        {t("orders.ordersCount", { count: orderList.length })}
+                    </div>
+                </div>
+
+                {orderList.length === 0 ? (
+                    <div className="p-4 sm:p-5">
+                        <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
+                            <PackageCheck className="mx-auto h-10 w-10 text-[#C7192E]" />
+                            <p className="mt-4 text-sm font-black text-[#25120F]">
+                                {t("orders.noOrdersFound")}
+                            </p>
+                            <p className="mt-2 text-sm font-medium text-[#7B6A61]">
+                                {t("orders.noOrdersDescription")}
+                            </p>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        {/* Mobile cards */}
+                        <div className="space-y-3 p-3 sm:p-4 lg:hidden">
+                            {orderList.map((order) => {
+                                const statusKey = getStatusKey(order.status);
+
+                                return (
+                                    <article
+                                        key={order.id}
+                                        className="rounded-[1.5rem] border border-[#EADDCF] bg-white/72 p-4 shadow-sm shadow-[#4C2314]/6"
+                                    >
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-black text-[#C7192E]">
+                                                    {formatOrderNumber(order)}
+                                                </p>
+                                                <p className="mt-1 truncate text-xs font-medium text-[#A39388]">
+                                                    {order.id}
+                                                </p>
+                                            </div>
+
+                                            <p className="shrink-0 text-base font-black text-[#25120F]">
+                                                {formatCurrency(order.total_price, locale)}
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-3 flex flex-wrap gap-2">
+                                            <span
+                                                className={`rounded-full border px-2.5 py-1 text-[11px] font-black ${getStatusClass(
+                                                    order.status
+                                                )}`}
+                                            >
+                                                {statusKey === "unknown"
+                                                    ? t("orders.unknown")
+                                                    : t(`statuses.${statusKey}`)}
+                                            </span>
+
+                                            <span className="rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-2.5 py-1 text-[11px] font-black text-[#C7192E]">
+                                                {t(
+                                                    `orders.deliveryTypes.${order.delivery_type}`
+                                                )}
+                                            </span>
+
+                                            <span
+                                                className={`rounded-full border px-2.5 py-1 text-[11px] font-black ${getPaymentClass(
+                                                    order.payment_status
+                                                )}`}
+                                            >
+                                                {t(
+                                                    `orders.paymentStatuses.${order.payment_status}`
+                                                )}
+                                            </span>
+                                        </div>
+
+                                        <div className="mt-4 space-y-2 rounded-[1.2rem] border border-[#EADDCF] bg-[#FFF9F1]/70 p-3">
+                                            <div>
+                                                <p className="text-sm font-black text-[#25120F]">
+                                                    {order.customer_name}
+                                                </p>
+                                                <p className="mt-0.5 text-xs font-medium text-[#7B6A61]">
+                                                    {t("orders.itemsCount", {
+                                                        count: order.items?.length || 0
+                                                    })}
+                                                </p>
+                                            </div>
+
+                                            <div className="flex items-center gap-2 text-sm font-bold text-[#25120F]">
+                                                <Phone className="h-3.5 w-3.5 shrink-0 text-[#C7192E]" />
+                                                <span>{order.customer_phone}</span>
+                                            </div>
+
+                                            <p className="text-xs font-medium leading-5 text-[#7B6A61]">
+                                                {order.delivery_type === "delivery"
+                                                    ? order.address || t("orders.noAddress")
+                                                    : t("orders.pickupOrder")}
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-3 flex flex-col gap-2 text-xs font-bold text-[#7B6A61]">
+                                            <div className="flex items-center justify-between gap-3">
+                                                <span>
+                                                    {t(
+                                                        `orders.paymentMethods.${order.payment_method}`
+                                                    )}
+                                                </span>
+                                                <span>
+                                                    {formatDate(order.created_at, locale)}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-4 border-t border-[#EADDCF] pt-4">
+                                            <OrderStatusActions
+                                                orderId={order.id}
+                                                status={order.status}
+                                            />
+                                        </div>
+                                    </article>
+                                );
+                            })}
+                        </div>
+
+                        {/* Desktop table */}
+                        <div className="hidden overflow-x-auto lg:block">
                             <table className="w-full min-w-[1180px] border-separate border-spacing-y-2 px-5 py-3 text-left">
                                 <thead>
                                 <tr className="text-xs uppercase tracking-[0.16em] text-[#A39388]">
@@ -407,53 +555,64 @@ export default async function AdminOrdersPage({
                                                 </div>
                                                 <p className="mt-1 max-w-[220px] truncate text-xs font-medium text-[#7B6A61]">
                                                     {order.delivery_type === "delivery"
-                                                        ? order.address || t("orders.noAddress")
+                                                        ? order.address ||
+                                                        t("orders.noAddress")
                                                         : t("orders.pickupOrder")}
                                                 </p>
                                             </td>
 
                                             <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                          <span className="rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
-                            {t(`orders.deliveryTypes.${order.delivery_type}`)}
-                          </span>
+                                                    <span className="rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
+                                                        {t(
+                                                            `orders.deliveryTypes.${order.delivery_type}`
+                                                        )}
+                                                    </span>
                                             </td>
 
                                             <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
                                                 <div className="flex flex-col gap-1">
-                            <span className="text-xs font-black uppercase text-[#25120F]">
-                              {t(`orders.paymentMethods.${order.payment_method}`)}
-                            </span>
+                                                        <span className="text-xs font-black uppercase text-[#25120F]">
+                                                            {t(
+                                                                `orders.paymentMethods.${order.payment_method}`
+                                                            )}
+                                                        </span>
                                                     <span
                                                         className={`w-fit rounded-full border px-3 py-1 text-xs font-black ${getPaymentClass(
                                                             order.payment_status
                                                         )}`}
                                                     >
-                              {t(
-                                  `orders.paymentStatuses.${order.payment_status}`
-                              )}
-                            </span>
+                                                            {t(
+                                                                `orders.paymentStatuses.${order.payment_status}`
+                                                            )}
+                                                        </span>
                                                 </div>
                                             </td>
 
                                             <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                          <span
-                              className={`rounded-full border px-3 py-1 text-xs font-black ${getStatusClass(
-                                  order.status
-                              )}`}
-                          >
-                            {statusKey === "unknown"
-                                ? t("orders.unknown")
-                                : t(`statuses.${statusKey}`)}
-                          </span>
+                                                    <span
+                                                        className={`rounded-full border px-3 py-1 text-xs font-black ${getStatusClass(
+                                                            order.status
+                                                        )}`}
+                                                    >
+                                                        {statusKey === "unknown"
+                                                            ? t("orders.unknown")
+                                                            : t(`statuses.${statusKey}`)}
+                                                    </span>
                                             </td>
 
                                             <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#25120F] group-hover:bg-[#FFF3E2]">
-                                                {formatCurrency(order.total_price, locale)}
+                                                {formatCurrency(
+                                                    order.total_price,
+                                                    locale
+                                                )}
                                             </td>
 
                                             <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
                                                 <p className="text-sm font-bold text-[#25120F]">
-                                                    {formatDate(order.created_at, locale)}
+                                                    {formatDate(
+                                                        order.created_at,
+                                                        locale
+                                                    )}
                                                 </p>
                                             </td>
 
@@ -469,9 +628,9 @@ export default async function AdminOrdersPage({
                                 </tbody>
                             </table>
                         </div>
-                    )}
-                </section>
-            </div>
-        </AdminShell>
+                    </>
+                )}
+            </section>
+        </div>
     );
 }

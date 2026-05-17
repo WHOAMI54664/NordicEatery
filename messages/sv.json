@@ -983,7 +983,7 @@
       "eyebrow": "Analys av verksamheten",
       "title": "Analys",
       "subtitle": "Spåra försäljning, order, leveransflöde, betalningsmetoder och köksaktiviteter från riktiga Supabase-data.",
-      "lastOrders": "Senaste {antal} beställningar",
+      "lastOrders": "Senaste {count} beställningar",
       "revenue": "Intäkter",
       "completedOrdersOnly": "Endast slutförda order",
       "totalOrders": "Totalt antal order",

@@ -34,6 +34,11 @@ type SidebarProfile = {
     role: StaffRole;
 };
 
+type AdminSidebarProps = {
+    variant?: "desktop" | "mobile";
+    onNavigate?: () => void;
+};
+
 const mainNavItems = [
     { labelKey: "dashboard", href: "/admin", icon: Home, roles: ["owner", "admin"] },
     { labelKey: "orders", href: "/admin/orders", icon: ClipboardList, roles: ["owner", "admin"] },
@@ -64,7 +69,10 @@ function canSeeItem(role: StaffRole, roles: string[]) {
     return false;
 }
 
-export function AdminSidebar() {
+export function AdminSidebar({
+                                 variant = "desktop",
+                                 onNavigate,
+                             }: AdminSidebarProps) {
     const t = useTranslations("admin");
     const params = useParams();
     const pathname = usePathname();
@@ -147,11 +155,22 @@ export function AdminSidebar() {
         return canSeeItem(role, item.roles);
     });
 
+    const asideClassName =
+        variant === "desktop"
+            ? "hidden w-[290px] shrink-0 border-r border-[#EADDCF] bg-[#FFF4E3]/95 p-4 backdrop-blur-2xl lg:block"
+            : "w-full bg-transparent p-4";
+
+    const contentClassName =
+        variant === "desktop"
+            ? "sticky top-4 flex h-[calc(100vh-2rem)] flex-col"
+            : "flex min-h-[calc(100dvh-7.5rem)] flex-col";
+
     return (
-        <aside className="hidden w-[290px] shrink-0 border-r border-[#EADDCF] bg-[#FFF4E3]/95 p-4 backdrop-blur-2xl lg:block">
-            <div className="sticky top-4 flex h-[calc(100vh-2rem)] flex-col">
+        <aside className={asideClassName}>
+            <div className={contentClassName}>
                 <Link
                     href={`/${locale}/admin/account`}
+                    onClick={onNavigate}
                     className="group flex items-center gap-3 rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6] px-3.5 py-3 shadow-sm shadow-[#4C2314]/5 transition hover:bg-white"
                 >
                     <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/10 text-[#C7192E]">
@@ -195,6 +214,7 @@ export function AdminSidebar() {
                                 <Link
                                     key={item.href}
                                     href={getHref(item.href)}
+                                    onClick={onNavigate}
                                     className={cn(
                                         "group relative flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-bold transition",
                                         active
@@ -237,6 +257,7 @@ export function AdminSidebar() {
                                     <Link
                                         key={item.href}
                                         href={getHref(item.href)}
+                                        onClick={onNavigate}
                                         className={cn(
                                             "group relative flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-bold transition",
                                             active
@@ -287,6 +308,7 @@ export function AdminSidebar() {
 
                                 <Link
                                     href={`/${locale}/admin/documentation`}
+                                    onClick={onNavigate}
                                     className="mt-3 flex w-full items-center justify-center rounded-2xl bg-[#E51B23] px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-[#E51B23]/15 transition hover:bg-[#C7192E]"
                                 >
                                     {t("common.documentation")}

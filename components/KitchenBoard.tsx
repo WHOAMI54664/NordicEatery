@@ -8,7 +8,6 @@ import {
   PackageCheck,
   RefreshCw,
   Trash2,
-  ShoppingBag,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/browser";
@@ -34,7 +33,12 @@ type DbOrder = {
   total_price: number;
   status: OrderStatus;
   payment_method: "cash" | "swish" | "card";
-  payment_status: "unpaid" | "awaiting_payment" | "paid" | "failed" | "refunded";
+  payment_status:
+      | "unpaid"
+      | "awaiting_payment"
+      | "paid"
+      | "failed"
+      | "refunded";
   created_at: string;
 };
 
@@ -96,8 +100,10 @@ function getColumnStyle(status: OrderStatus) {
     case "ready":
       return {
         icon: PackageCheck,
-        iconClass: "border-emerald-500/20 bg-emerald-500/10 text-emerald-700",
-        badgeClass: "border-emerald-500/20 bg-emerald-500/10 text-emerald-700",
+        iconClass:
+            "border-emerald-500/20 bg-emerald-500/10 text-emerald-700",
+        badgeClass:
+            "border-emerald-500/20 bg-emerald-500/10 text-emerald-700",
       };
     default:
       return {
@@ -252,6 +258,14 @@ export function KitchenBoard() {
       0
   );
 
+  const deliveryOrdersCount = activeOrders.filter(
+      (order) => order.delivery_type === "delivery"
+  ).length;
+
+  const pickupOrdersCount = activeOrders.filter(
+      (order) => order.delivery_type === "pickup"
+  ).length;
+
   if (isLoading) {
     return (
         <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-8 text-center shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[2rem] sm:p-10">
@@ -268,7 +282,8 @@ export function KitchenBoard() {
 
   return (
       <div className="space-y-4 px-1 sm:space-y-6 sm:px-0">
-        <section className="relative overflow-hidden rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl sm:rounded-[2rem] sm:p-5 lg:p-6">
+        {/* Desktop hero */}
+        <section className="relative hidden overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:block lg:p-6">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
 
           <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
@@ -278,7 +293,7 @@ export function KitchenBoard() {
                 {t("display")}
               </div>
 
-              <h1 className="mt-4 text-3xl font-black tracking-[-0.055em] text-[#25120F] sm:text-4xl md:text-5xl">
+              <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
                 {t("title")}
               </h1>
 
@@ -287,9 +302,9 @@ export function KitchenBoard() {
               </p>
             </div>
 
-            <div className="grid w-full grid-cols-2 gap-2 sm:gap-3 xl:w-auto xl:grid-cols-4">
-              <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-3 py-3 sm:px-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#A39388] sm:text-xs">
+            <div className="grid w-full grid-cols-2 gap-3 xl:w-auto xl:grid-cols-4">
+              <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
                   {t("newNow")}
                 </p>
 
@@ -298,8 +313,8 @@ export function KitchenBoard() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-3 py-3 sm:px-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#A39388] sm:text-xs">
+              <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
                   Preparing
                 </p>
 
@@ -308,8 +323,8 @@ export function KitchenBoard() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-3 py-3 sm:px-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#A39388] sm:text-xs">
+              <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
                   Ready
                 </p>
 
@@ -321,7 +336,7 @@ export function KitchenBoard() {
               <button
                   type="button"
                   onClick={() => fetchOrders()}
-                  className="col-span-2 flex items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-4 py-3 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E] xl:col-span-1"
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-4 py-3 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E]"
               >
                 <RefreshCw
                     className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
@@ -332,71 +347,112 @@ export function KitchenBoard() {
           </div>
         </section>
 
+        {/* Mobile compact kitchen status */}
+        <section className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:hidden">
+          <div className="grid grid-cols-3 gap-2">
+            <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-3 py-3 text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#A39388]">
+                {t("newNow")}
+              </p>
+
+              <p className="mt-1 text-2xl font-black text-[#C7192E]">
+                {newOrdersCount}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-3 py-3 text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#A39388]">
+                Preparing
+              </p>
+
+              <p className="mt-1 text-2xl font-black text-[#B45309]">
+                {preparingOrdersCount}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-3 py-3 text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#A39388]">
+                Ready
+              </p>
+
+              <p className="mt-1 text-2xl font-black text-emerald-700">
+                {readyOrdersCount}
+              </p>
+            </div>
+          </div>
+
+          <button
+              type="button"
+              onClick={() => fetchOrders()}
+              className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-4 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E]"
+          >
+            <RefreshCw
+                className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </button>
+        </section>
+
         {errorMessage ? (
             <div className="rounded-[1.25rem] border border-[#E51B23]/15 bg-[#E51B23]/8 p-4 text-sm font-bold text-[#C7192E] sm:rounded-[1.5rem]">
               {errorMessage}
             </div>
         ) : null}
 
+        {/* Compact stats */}
         <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
           <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[1.75rem] sm:p-5">
-            <p className="text-xs font-black text-[#8A7A70] sm:text-sm">
+            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
               Active orders
             </p>
 
-            <h3 className="mt-3 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:text-3xl">
+            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:mt-3 sm:text-3xl">
               {activeOrders.length}
             </h3>
 
-            <p className="mt-3 text-xs font-medium text-[#7B6A61]">
+            <p className="mt-2 line-clamp-2 text-[11px] font-medium leading-4 text-[#7B6A61] sm:mt-3 sm:text-xs">
               Orders currently in kitchen flow
             </p>
           </div>
 
           <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[1.75rem] sm:p-5">
-            <p className="text-xs font-black text-[#8A7A70] sm:text-sm">
+            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
               Active revenue
             </p>
 
-            <h3 className="mt-3 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:text-3xl">
+            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:mt-3 sm:text-3xl">
               {formatCurrency(activeRevenue)}
             </h3>
 
-            <p className="mt-3 text-xs font-medium text-[#7B6A61]">
+            <p className="mt-2 line-clamp-2 text-[11px] font-medium leading-4 text-[#7B6A61] sm:mt-3 sm:text-xs">
               Value of active orders
             </p>
           </div>
 
           <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[1.75rem] sm:p-5">
-            <p className="text-xs font-black text-[#8A7A70] sm:text-sm">
+            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
               Delivery orders
             </p>
 
-            <h3 className="mt-3 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:text-3xl">
-              {
-                activeOrders.filter((order) => order.delivery_type === "delivery")
-                    .length
-              }
+            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:mt-3 sm:text-3xl">
+              {deliveryOrdersCount}
             </h3>
 
-            <p className="mt-3 text-xs font-medium text-[#7B6A61]">
+            <p className="mt-2 line-clamp-2 text-[11px] font-medium leading-4 text-[#7B6A61] sm:mt-3 sm:text-xs">
               Delivery flow only
             </p>
           </div>
 
           <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[1.75rem] sm:p-5">
-            <p className="text-xs font-black text-[#8A7A70] sm:text-sm">
+            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
               Pickup orders
             </p>
 
-            <h3 className="mt-3 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:text-3xl">
-              {
-                activeOrders.filter((order) => order.delivery_type === "pickup")
-                    .length
-              }
+            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:mt-3 sm:text-3xl">
+              {pickupOrdersCount}
             </h3>
 
-            <p className="mt-3 text-xs font-medium text-[#7B6A61]">
+            <p className="mt-2 line-clamp-2 text-[11px] font-medium leading-4 text-[#7B6A61] sm:mt-3 sm:text-xs">
               Pickup flow only
             </p>
           </div>
@@ -579,7 +635,9 @@ export function KitchenBoard() {
                                     {order.status === "preparing" ? (
                                         <button
                                             type="button"
-                                            onClick={() => updateStatus(order.id, "ready")}
+                                            onClick={() =>
+                                                updateStatus(order.id, "ready")
+                                            }
                                             className="rounded-2xl bg-[#2A1712] px-4 py-3.5 text-sm font-black text-white transition hover:opacity-90 sm:py-3"
                                         >
                                           {t("markReady")}

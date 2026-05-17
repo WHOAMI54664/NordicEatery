@@ -10,10 +10,9 @@ import {
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { AdminShell } from "@/components/admin/AdminShell";
 import { AdminStatCard } from "@/components/admin/AdminStatCard";
 import { createClient } from "@/lib/supabase/server";
-import { AdminTopbar } from "@/components/admin/AdminTopbar";
+
 
 type AdminPageProps = {
   params: Promise<{
@@ -213,17 +212,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
     redirect(`/${locale}/login?next=/${locale}/admin`);
   }
 
-  const { data: currentProfile } = await supabase
-      .from("profiles")
-      .select("full_name, email, role")
-      .eq("id", user.id)
-      .single();
 
-  const profileName =
-      currentProfile?.full_name?.trim() ||
-      currentProfile?.email?.split("@")[0] ||
-      user.email?.split("@")[0] ||
-      t("sidebar.adminUser");
 
   const [products, profiles, orders] = await Promise.all([
     getProducts(supabase),
@@ -296,10 +285,8 @@ export default async function AdminPage({ params }: AdminPageProps) {
   }));
 
   return (
-      <AdminShell>
-        <AdminTopbar displayName={profileName} />
-
-        <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <>
+        <section className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
           <AdminStatCard
               title={t("dashboard.todayRevenue")}
               value={formatCurrency(todayRevenue, locale)}
@@ -536,6 +523,6 @@ export default async function AdminPage({ params }: AdminPageProps) {
             </div>
           </div>
         </section>
-      </AdminShell>
+        </>
   );
 }

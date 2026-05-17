@@ -169,9 +169,17 @@ export function StaffRolesPanel() {
     await fetchProfiles();
   }
 
-  const ownersCount = profiles.filter((profile) => profile.role === "owner").length;
-  const adminsCount = profiles.filter((profile) => profile.role === "admin").length;
-  const cooksCount = profiles.filter((profile) => profile.role === "cook").length;
+  const ownersCount = profiles.filter(
+      (profile) => profile.role === "owner"
+  ).length;
+
+  const adminsCount = profiles.filter(
+      (profile) => profile.role === "admin"
+  ).length;
+
+  const cooksCount = profiles.filter(
+      (profile) => profile.role === "cook"
+  ).length;
 
   if (isLoading) {
     return (
@@ -179,6 +187,7 @@ export function StaffRolesPanel() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
             <UsersRound className="h-6 w-6 animate-pulse text-[#C7192E]" />
           </div>
+
           <p className="mt-4 text-sm font-black text-[#25120F]">
             Loading staff...
           </p>
@@ -188,42 +197,57 @@ export function StaffRolesPanel() {
 
   return (
       <div className="space-y-6">
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-[1.75rem] border border-[#EADDCF] bg-white/70 p-5 shadow-sm shadow-[#4C2314]/5">
-            <p className="text-sm font-black text-[#8A7A70]">Total staff</p>
-            <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
+        {/* Compact statistics */}
+        <section className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
+          <div className="rounded-[1.5rem] border border-[#EADDCF] bg-white/70 p-4 shadow-sm shadow-[#4C2314]/5 md:rounded-[1.75rem] md:p-5">
+            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+              Total staff
+            </p>
+
+            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] md:mt-3 md:text-3xl">
               {profiles.length}
             </h3>
           </div>
 
-          <div className="rounded-[1.75rem] border border-[#EADDCF] bg-white/70 p-5 shadow-sm shadow-[#4C2314]/5">
-            <p className="text-sm font-black text-[#8A7A70]">Owners</p>
-            <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#C7192E]">
+          <div className="rounded-[1.5rem] border border-[#EADDCF] bg-white/70 p-4 shadow-sm shadow-[#4C2314]/5 md:rounded-[1.75rem] md:p-5">
+            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+              Owners
+            </p>
+
+            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#C7192E] md:mt-3 md:text-3xl">
               {ownersCount}
             </h3>
           </div>
 
-          <div className="rounded-[1.75rem] border border-[#EADDCF] bg-white/70 p-5 shadow-sm shadow-[#4C2314]/5">
-            <p className="text-sm font-black text-[#8A7A70]">Admins</p>
-            <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#A96800]">
+          <div className="rounded-[1.5rem] border border-[#EADDCF] bg-white/70 p-4 shadow-sm shadow-[#4C2314]/5 md:rounded-[1.75rem] md:p-5">
+            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+              Admins
+            </p>
+
+            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#A96800] md:mt-3 md:text-3xl">
               {adminsCount}
             </h3>
           </div>
 
-          <div className="rounded-[1.75rem] border border-[#EADDCF] bg-white/70 p-5 shadow-sm shadow-[#4C2314]/5">
-            <p className="text-sm font-black text-[#8A7A70]">Cooks</p>
-            <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-emerald-700">
+          <div className="rounded-[1.5rem] border border-[#EADDCF] bg-white/70 p-4 shadow-sm shadow-[#4C2314]/5 md:rounded-[1.75rem] md:p-5">
+            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+              Cooks
+            </p>
+
+            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-emerald-700 md:mt-3 md:text-3xl">
               {cooksCount}
             </h3>
           </div>
         </section>
 
+        {/* Heading + action */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-black tracking-[-0.04em] text-[#25120F]">
               Staff members
             </h2>
-            <p className="mt-1 text-sm font-medium text-[#7B6A61]">
+
+            <p className="mt-1 text-sm font-medium leading-6 text-[#7B6A61]">
               Invite staff, update roles, reset passwords and delete users.
             </p>
           </div>
@@ -231,7 +255,7 @@ export function StaffRolesPanel() {
           <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-5 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E]"
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-5 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E] sm:w-auto"
           >
             <Plus className="h-4 w-4" />
             Add staff member
@@ -250,37 +274,44 @@ export function StaffRolesPanel() {
             </div>
         ) : null}
 
-        <section className="overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-white/60 shadow-sm shadow-[#4C2314]/5">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[980px] border-separate border-spacing-y-2 px-5 py-3 text-left">
-              <thead>
-              <tr className="text-xs uppercase tracking-[0.16em] text-[#A39388]">
-                <th className="px-4 py-2 font-black">Member</th>
-                <th className="px-4 py-2 font-black">Role</th>
-                <th className="px-4 py-2 font-black">Created</th>
-                <th className="px-4 py-2 text-right font-black">Actions</th>
-              </tr>
-              </thead>
+        {profiles.length === 0 ? (
+            <section className="rounded-[2rem] border border-[#EADDCF] bg-white/60 p-5 shadow-sm shadow-[#4C2314]/5">
+              <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
+                <UsersRound className="mx-auto h-10 w-10 text-[#C7192E]" />
 
-              <tbody>
-              {profiles.map((profile) => (
-                  <tr key={profile.id} className="group">
-                    <td className="rounded-l-2xl border-y border-l border-[#EADDCF] bg-white/80 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
+                <p className="mt-4 text-sm font-black text-[#25120F]">
+                  No staff members found
+                </p>
+
+                <p className="mt-2 text-sm font-medium text-[#7B6A61]">
+                  Invite your first staff member to start managing roles.
+                </p>
+              </div>
+            </section>
+        ) : (
+            <>
+              {/* Mobile cards */}
+              <section className="space-y-3 lg:hidden">
+                {profiles.map((profile) => (
+                    <article
+                        key={profile.id}
+                        className="rounded-[1.5rem] border border-[#EADDCF] bg-white/72 p-4 shadow-sm shadow-[#4C2314]/6"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
                           <UserRound className="h-5 w-5 text-[#C7192E]" />
                         </div>
 
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-black text-[#25120F]">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="break-all text-sm font-black text-[#25120F]">
                               {profile.email}
                             </p>
 
                             {profile.id === currentUserId ? (
                                 <span className="rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-2.5 py-1 text-[11px] font-black text-[#C7192E]">
-                              You
-                            </span>
+                          You
+                        </span>
                             ) : null}
                           </div>
 
@@ -289,48 +320,50 @@ export function StaffRolesPanel() {
                           </p>
                         </div>
                       </div>
-                    </td>
 
-                    <td className="border-y border-[#EADDCF] bg-white/80 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                      <div className="flex items-center gap-3">
-                      <span
-                          className={`rounded-full border px-3 py-1 text-xs font-black capitalize ${getRoleClass(
-                              profile.role
-                          )}`}
-                      >
-                        {profile.role}
-                      </span>
+                      <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <span
+                      className={`rounded-full border px-3 py-1 text-xs font-black capitalize ${getRoleClass(
+                          profile.role
+                      )}`}
+                  >
+                    {profile.role}
+                  </span>
 
-                        <select
-                            className="h-10 min-w-36 rounded-2xl border border-[#EADDCF] bg-white px-3 text-sm font-black capitalize text-[#25120F] outline-none transition focus:border-[#E51B23]/25 focus:ring-4 focus:ring-[#E51B23]/8"
-                            value={profile.role}
-                            disabled={isWorking}
-                            onChange={(event) =>
-                                updateRole(profile.id, event.target.value as StaffRole)
-                            }
-                        >
-                          {STAFF_ROLES.map((role) => (
-                              <option key={role} value={role}>
-                                {role}
-                              </option>
-                          ))}
-                        </select>
+                        <span className="rounded-full border border-[#EADDCF] bg-[#FFF3E2] px-3 py-1 text-xs font-bold text-[#7B6A61]">
+                    {formatDate(profile.created_at)}
+                  </span>
                       </div>
-                    </td>
 
-                    <td className="border-y border-[#EADDCF] bg-white/80 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                      <p className="text-sm font-bold text-[#25120F]">
-                        {formatDate(profile.created_at)}
-                      </p>
-                    </td>
+                      <div className="mt-4 rounded-[1.25rem] border border-[#EADDCF] bg-[#FFF9F1]/70 p-3">
+                        <label className="block">
+                    <span className="mb-2 block text-[10px] font-black uppercase tracking-[0.16em] text-[#A39388]">
+                      Change role
+                    </span>
 
-                    <td className="rounded-r-2xl border-y border-r border-[#EADDCF] bg-white/80 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                      <div className="flex items-center justify-end gap-2">
+                          <select
+                              className="h-11 w-full rounded-2xl border border-[#EADDCF] bg-white px-3 text-sm font-black capitalize text-[#25120F] outline-none transition focus:border-[#E51B23]/25 focus:ring-4 focus:ring-[#E51B23]/8"
+                              value={profile.role}
+                              disabled={isWorking}
+                              onChange={(event) =>
+                                  updateRole(profile.id, event.target.value as StaffRole)
+                              }
+                          >
+                            {STAFF_ROLES.map((role) => (
+                                <option key={role} value={role}>
+                                  {role}
+                                </option>
+                            ))}
+                          </select>
+                        </label>
+                      </div>
+
+                      <div className="mt-4 grid gap-2">
                         <button
                             type="button"
                             disabled={isWorking}
                             onClick={() => resetPassword(profile.email)}
-                            className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white px-4 text-xs font-black text-[#25120F] shadow-sm shadow-[#4C2314]/5 transition hover:border-[#E51B23]/20 hover:text-[#C7192E] disabled:opacity-60"
+                            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white px-4 text-xs font-black text-[#25120F] shadow-sm shadow-[#4C2314]/5 transition hover:border-[#E51B23]/20 hover:text-[#C7192E] disabled:opacity-60"
                         >
                           <Mail className="h-3.5 w-3.5" />
                           Reset password
@@ -340,45 +373,139 @@ export function StaffRolesPanel() {
                             type="button"
                             disabled={isWorking || profile.id === currentUserId}
                             onClick={() => deleteUser(profile.id)}
-                            className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 px-4 text-xs font-black text-[#C7192E] transition hover:bg-[#E51B23]/12 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 px-4 text-xs font-black text-[#C7192E] transition hover:bg-[#E51B23]/12 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           Delete
                         </button>
                       </div>
-                    </td>
-                  </tr>
-              ))}
-              </tbody>
-            </table>
+                    </article>
+                ))}
+              </section>
 
-            {profiles.length === 0 ? (
-                <div className="p-5">
-                  <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
-                    <UsersRound className="mx-auto h-10 w-10 text-[#C7192E]" />
-                    <p className="mt-4 text-sm font-black text-[#25120F]">
-                      No staff members found
-                    </p>
-                    <p className="mt-2 text-sm font-medium text-[#7B6A61]">
-                      Invite your first staff member to start managing roles.
-                    </p>
-                  </div>
+              {/* Desktop table */}
+              <section className="hidden overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-white/60 shadow-sm shadow-[#4C2314]/5 lg:block">
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[980px] border-separate border-spacing-y-2 px-5 py-3 text-left">
+                    <thead>
+                    <tr className="text-xs uppercase tracking-[0.16em] text-[#A39388]">
+                      <th className="px-4 py-2 font-black">Member</th>
+                      <th className="px-4 py-2 font-black">Role</th>
+                      <th className="px-4 py-2 font-black">Created</th>
+                      <th className="px-4 py-2 text-right font-black">
+                        Actions
+                      </th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {profiles.map((profile) => (
+                        <tr key={profile.id} className="group">
+                          <td className="rounded-l-2xl border-y border-l border-[#EADDCF] bg-white/80 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
+                                <UserRound className="h-5 w-5 text-[#C7192E]" />
+                              </div>
+
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm font-black text-[#25120F]">
+                                    {profile.email}
+                                  </p>
+
+                                  {profile.id === currentUserId ? (
+                                      <span className="rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-2.5 py-1 text-[11px] font-black text-[#C7192E]">
+                                  You
+                                </span>
+                                  ) : null}
+                                </div>
+
+                                <p className="mt-1 text-xs font-medium text-[#7B6A61]">
+                                  {profile.full_name || "No name"}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="border-y border-[#EADDCF] bg-white/80 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                            <div className="flex items-center gap-3">
+                          <span
+                              className={`rounded-full border px-3 py-1 text-xs font-black capitalize ${getRoleClass(
+                                  profile.role
+                              )}`}
+                          >
+                            {profile.role}
+                          </span>
+
+                              <select
+                                  className="h-10 min-w-36 rounded-2xl border border-[#EADDCF] bg-white px-3 text-sm font-black capitalize text-[#25120F] outline-none transition focus:border-[#E51B23]/25 focus:ring-4 focus:ring-[#E51B23]/8"
+                                  value={profile.role}
+                                  disabled={isWorking}
+                                  onChange={(event) =>
+                                      updateRole(
+                                          profile.id,
+                                          event.target.value as StaffRole
+                                      )
+                                  }
+                              >
+                                {STAFF_ROLES.map((role) => (
+                                    <option key={role} value={role}>
+                                      {role}
+                                    </option>
+                                ))}
+                              </select>
+                            </div>
+                          </td>
+
+                          <td className="border-y border-[#EADDCF] bg-white/80 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                            <p className="text-sm font-bold text-[#25120F]">
+                              {formatDate(profile.created_at)}
+                            </p>
+                          </td>
+
+                          <td className="rounded-r-2xl border-y border-r border-[#EADDCF] bg-white/80 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                  type="button"
+                                  disabled={isWorking}
+                                  onClick={() => resetPassword(profile.email)}
+                                  className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white px-4 text-xs font-black text-[#25120F] shadow-sm shadow-[#4C2314]/5 transition hover:border-[#E51B23]/20 hover:text-[#C7192E] disabled:opacity-60"
+                              >
+                                <Mail className="h-3.5 w-3.5" />
+                                Reset password
+                              </button>
+
+                              <button
+                                  type="button"
+                                  disabled={isWorking || profile.id === currentUserId}
+                                  onClick={() => deleteUser(profile.id)}
+                                  className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 px-4 text-xs font-black text-[#C7192E] transition hover:bg-[#E51B23]/12 disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                  </table>
                 </div>
-            ) : null}
-          </div>
-        </section>
+              </section>
+            </>
+        )}
 
         {isModalOpen ? (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#25120F]/40 px-4 backdrop-blur-sm">
-              <div className="w-full max-w-md overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6] p-6 shadow-2xl shadow-[#4C2314]/20">
+            <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#25120F]/40 px-3 py-3 backdrop-blur-sm sm:items-center sm:px-4 sm:py-4">
+              <div className="max-h-[calc(100vh-1.5rem)] w-full max-w-md overflow-y-auto rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6] p-5 shadow-2xl shadow-[#4C2314]/20 sm:max-h-[calc(100vh-2rem)] sm:p-6">
                 <div className="flex items-start justify-between gap-4">
-                  <div>
+                  <div className="min-w-0">
                     <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
                       <ShieldCheck className="h-3.5 w-3.5" />
                       Staff invite
                     </div>
 
-                    <h3 className="mt-4 text-3xl font-black tracking-[-0.05em] text-[#25120F]">
+                    <h3 className="mt-4 text-2xl font-black tracking-[-0.05em] text-[#25120F] sm:text-3xl">
                       Add staff member
                     </h3>
 
@@ -390,7 +517,7 @@ export function StaffRolesPanel() {
                   <button
                       type="button"
                       onClick={() => setIsModalOpen(false)}
-                      className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#EADDCF] bg-white text-[#25120F] transition hover:border-[#E51B23]/20 hover:text-[#C7192E]"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#EADDCF] bg-white text-[#25120F] transition hover:border-[#E51B23]/20 hover:text-[#C7192E]"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -401,6 +528,7 @@ export function StaffRolesPanel() {
                 <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
                   Email
                 </span>
+
                     <input
                         required
                         type="email"
@@ -415,6 +543,7 @@ export function StaffRolesPanel() {
                 <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
                   Role
                 </span>
+
                     <select
                         value={inviteRole}
                         onChange={(event) =>

@@ -10,7 +10,6 @@ import {
     XCircle
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { AdminShell } from "@/components/admin/AdminShell";
 import { ReservationActions } from "@/components/admin/ReservationActions";
 import { createClient } from "@/lib/supabase/server";
 import { canManageReservations } from "@/lib/auth/roles";
@@ -88,25 +87,28 @@ function StatCard({
                     : "border-[#E51B23]/15 bg-[#E51B23]/8 text-[#C7192E]";
 
     return (
-        <div className="relative overflow-hidden rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-            <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-[#E51B23]/8 blur-2xl" />
+        <div className="relative overflow-hidden rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl md:rounded-[1.75rem] md:p-5">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-[#E51B23]/8 blur-2xl md:-right-12 md:-top-12 md:h-32 md:w-32" />
 
-            <div className="relative flex items-start justify-between gap-4">
-                <div>
-                    <p className="text-sm font-black text-[#8A7A70]">{title}</p>
-                    <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
+            <div className="relative flex items-start justify-between gap-2 md:gap-4">
+                <div className="min-w-0">
+                    <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+                        {title}
+                    </p>
+
+                    <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] md:mt-3 md:text-3xl">
                         {value}
                     </h3>
                 </div>
 
                 <div
-                    className={`flex h-11 w-11 items-center justify-center rounded-2xl border ${iconClass}`}
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border md:h-11 md:w-11 ${iconClass}`}
                 >
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-4 w-4 md:h-5 md:w-5" />
                 </div>
             </div>
 
-            <p className="relative mt-4 text-xs font-medium text-[#7B6A61]">
+            <p className="relative mt-3 line-clamp-2 text-[11px] font-medium leading-4 text-[#7B6A61] md:mt-4 md:text-xs">
                 {description}
             </p>
         </div>
@@ -166,106 +168,214 @@ export default async function ReservationsPage({
     ).length;
 
     return (
-        <AdminShell>
-            <div className="space-y-6">
-                <section className="relative overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:p-6">
-                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
+        <div className="space-y-6">
+            {/* Desktop hero */}
+            <section className="relative hidden overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:block lg:p-6">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
 
-                    <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-                        <div>
-                            <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
-                                <CalendarCheck className="h-3.5 w-3.5" />
-                                {t("reservations.eyebrow")}
-                            </div>
+                <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+                    <div>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
+                            <CalendarCheck className="h-3.5 w-3.5" />
+                            {t("reservations.eyebrow")}
+                        </div>
 
-                            <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
-                                {t("reservations.title")}
-                            </h1>
+                        <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
+                            {t("reservations.title")}
+                        </h1>
 
-                            <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                                {t("reservations.subtitle")}
+                        <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
+                            {t("reservations.subtitle")}
+                        </p>
+                    </div>
+
+                    <div className="flex h-12 items-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 text-sm font-black text-[#7B6A61]">
+                        <CalendarClock className="h-4 w-4 text-[#C7192E]" />
+                        {t("reservations.flow")}
+                    </div>
+                </div>
+            </section>
+
+            {error ? (
+                <div className="rounded-[1.5rem] border border-[#E51B23]/15 bg-[#E51B23]/8 p-4 text-sm font-bold text-[#C7192E]">
+                    {error.message}
+                </div>
+            ) : null}
+
+            {/* Compact stats */}
+            <section className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
+                <StatCard
+                    title={t("reservations.pending")}
+                    value={String(pendingCount)}
+                    description={t("reservations.pendingDescription")}
+                    icon={Clock}
+                    tone="gold"
+                />
+
+                <StatCard
+                    title={t("reservations.confirmed")}
+                    value={String(confirmedCount)}
+                    description={t("reservations.confirmedDescription")}
+                    icon={CheckCircle2}
+                    tone="green"
+                />
+
+                <StatCard
+                    title={t("reservations.completed")}
+                    value={String(completedCount)}
+                    description={t("reservations.completedDescription")}
+                    icon={UsersRound}
+                    tone="dark"
+                />
+
+                <StatCard
+                    title={t("reservations.cancelled")}
+                    value={String(cancelledCount)}
+                    description={t("reservations.cancelledDescription")}
+                    icon={XCircle}
+                    tone="red"
+                />
+            </section>
+
+            {/* Reservations catalogue */}
+            <section className="overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+                <div className="flex flex-col gap-3 border-b border-[#EADDCF] px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+                    <div>
+                        <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
+                            {t("reservations.allReservations")}
+                        </h2>
+
+                        <p className="mt-1 text-sm font-medium text-[#7B6A61]">
+                            {t("reservations.allReservationsDescription")}
+                        </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-2 text-sm font-black text-[#7B6A61]">
+                        {t("reservations.reservationsCount", {
+                            count: reservationList.length
+                        })}
+                    </div>
+                </div>
+
+                {reservationList.length === 0 ? (
+                    <div className="p-4 sm:p-5">
+                        <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
+                            <CalendarCheck className="mx-auto h-10 w-10 text-[#C7192E]" />
+
+                            <p className="mt-4 text-sm font-black text-[#25120F]">
+                                {t("reservations.noReservationsFound")}
+                            </p>
+
+                            <p className="mt-2 text-sm font-medium text-[#7B6A61]">
+                                {t("reservations.noReservationsDescription")}
                             </p>
                         </div>
-
-                        <div className="flex h-12 items-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 text-sm font-black text-[#7B6A61]">
-                            <CalendarClock className="h-4 w-4 text-[#C7192E]" />
-                            {t("reservations.flow")}
-                        </div>
                     </div>
-                </section>
+                ) : (
+                    <>
+                        {/* Mobile cards */}
+                        <div className="space-y-3 p-3 sm:p-4 lg:hidden">
+                            {reservationList.map((reservation) => (
+                                <article
+                                    key={reservation.id}
+                                    className="rounded-[1.5rem] border border-[#EADDCF] bg-white/72 p-4 shadow-sm shadow-[#4C2314]/6"
+                                >
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <h3 className="text-base font-black tracking-[-0.03em] text-[#25120F]">
+                                                {reservation.name}
+                                            </h3>
 
-                {error ? (
-                    <div className="rounded-[1.5rem] border border-[#E51B23]/15 bg-[#E51B23]/8 p-4 text-sm font-bold text-[#C7192E]">
-                        {error.message}
-                    </div>
-                ) : null}
+                                            <p className="mt-1 truncate text-xs font-medium text-[#A39388]">
+                                                {reservation.reservation_number ||
+                                                    reservation.id}
+                                            </p>
+                                        </div>
 
-                <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <StatCard
-                        title={t("reservations.pending")}
-                        value={String(pendingCount)}
-                        description={t("reservations.pendingDescription")}
-                        icon={Clock}
-                        tone="gold"
-                    />
+                                        <span
+                                            className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-black capitalize ${getStatusClass(
+                                                reservation.status
+                                            )}`}
+                                        >
+                                            {t(
+                                                `reservations.statuses.${reservation.status}`
+                                            )}
+                                        </span>
+                                    </div>
 
-                    <StatCard
-                        title={t("reservations.confirmed")}
-                        value={String(confirmedCount)}
-                        description={t("reservations.confirmedDescription")}
-                        icon={CheckCircle2}
-                        tone="green"
-                    />
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        <span className="rounded-full border border-[#EADDCF] bg-[#FFF3E2] px-2.5 py-1 text-[11px] font-black text-[#7B6A61]">
+                                            {formatDate(reservation.date, locale)}
+                                        </span>
 
-                    <StatCard
-                        title={t("reservations.completed")}
-                        value={String(completedCount)}
-                        description={t("reservations.completedDescription")}
-                        icon={UsersRound}
-                        tone="dark"
-                    />
+                                        <span className="rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-2.5 py-1 text-[11px] font-black text-[#C7192E]">
+                                            {formatTime(reservation.time)}
+                                        </span>
 
-                    <StatCard
-                        title={t("reservations.cancelled")}
-                        value={String(cancelledCount)}
-                        description={t("reservations.cancelledDescription")}
-                        icon={XCircle}
-                        tone="red"
-                    />
-                </section>
+                                        <span className="rounded-full border border-[#EADDCF] bg-[#FFF3E2] px-2.5 py-1 text-[11px] font-black text-[#7B6A61]">
+                                            {t("reservations.guestsCount", {
+                                                count: reservation.guests
+                                            })}
+                                        </span>
+                                    </div>
 
-                <section className="overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-                    <div className="flex flex-col gap-3 border-b border-[#EADDCF] px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                                {t("reservations.allReservations")}
-                            </h2>
-                            <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                                {t("reservations.allReservationsDescription")}
-                            </p>
+                                    <div className="mt-4 rounded-[1.25rem] border border-[#EADDCF] bg-[#FFF9F1]/70 p-3">
+                                        <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
+                                            {reservation.booking_service || "—"} ·{" "}
+                                            {reservation.booking_type || "—"}
+                                        </p>
+
+                                        <div className="mt-3 space-y-2">
+                                            {reservation.phone ? (
+                                                <div className="flex items-center gap-2 text-sm font-bold text-[#25120F]">
+                                                    <Phone className="h-3.5 w-3.5 shrink-0 text-[#C7192E]" />
+                                                    <span>{reservation.phone}</span>
+                                                </div>
+                                            ) : null}
+
+                                            {reservation.email ? (
+                                                <div className="flex items-center gap-2 text-sm font-bold text-[#7B6A61]">
+                                                    <Mail className="h-3.5 w-3.5 shrink-0 text-[#C7192E]" />
+                                                    <span className="truncate">
+                                                        {reservation.email}
+                                                    </span>
+                                                </div>
+                                            ) : null}
+
+                                            {!reservation.phone &&
+                                            !reservation.email ? (
+                                                <span className="text-sm font-bold text-[#A39388]">
+                                                    {t("reservations.noContact")}
+                                                </span>
+                                            ) : null}
+                                        </div>
+                                    </div>
+
+                                    {reservation.event_details || reservation.message ? (
+                                        <div className="mt-3 rounded-[1.25rem] border border-[#EADDCF] bg-white/70 p-3">
+                                            <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
+                                                {t("reservations.note")}
+                                            </p>
+
+                                            <p className="mt-1 text-sm font-medium leading-5 text-[#7B6A61]">
+                                                {reservation.event_details ||
+                                                    reservation.message}
+                                            </p>
+                                        </div>
+                                    ) : null}
+
+                                    <div className="mt-4 border-t border-[#EADDCF] pt-4">
+                                        <ReservationActions
+                                            reservationId={reservation.id}
+                                            status={reservation.status}
+                                        />
+                                    </div>
+                                </article>
+                            ))}
                         </div>
 
-                        <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-2 text-sm font-black text-[#7B6A61]">
-                            {t("reservations.reservationsCount", {
-                                count: reservationList.length
-                            })}
-                        </div>
-                    </div>
-
-                    {reservationList.length === 0 ? (
-                        <div className="p-5">
-                            <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
-                                <CalendarCheck className="mx-auto h-10 w-10 text-[#C7192E]" />
-                                <p className="mt-4 text-sm font-black text-[#25120F]">
-                                    {t("reservations.noReservationsFound")}
-                                </p>
-                                <p className="mt-2 text-sm font-medium text-[#7B6A61]">
-                                    {t("reservations.noReservationsDescription")}
-                                </p>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto">
+                        {/* Desktop table */}
+                        <div className="hidden overflow-x-auto lg:block">
                             <table className="w-full min-w-[1080px] border-separate border-spacing-y-2 px-5 py-3 text-left">
                                 <thead>
                                 <tr className="text-xs uppercase tracking-[0.16em] text-[#A39388]">
@@ -303,11 +413,15 @@ export default async function ReservationsPage({
                                             <p className="text-sm font-black text-[#25120F]">
                                                 {reservation.name}
                                             </p>
+
                                             <p className="mt-1 max-w-[140px] truncate text-xs font-medium text-[#A39388]">
-                                                {reservation.reservation_number || reservation.id}
+                                                {reservation.reservation_number ||
+                                                    reservation.id}
                                             </p>
+
                                             <p className="mt-1 text-xs font-bold text-[#C7192E]">
-                                                {reservation.booking_service || "—"} · {reservation.booking_type || "—"}
+                                                {reservation.booking_service || "—"} ·{" "}
+                                                {reservation.booking_type || "—"}
                                             </p>
                                         </td>
 
@@ -327,10 +441,11 @@ export default async function ReservationsPage({
                                                     </div>
                                                 ) : null}
 
-                                                {!reservation.phone && !reservation.email ? (
+                                                {!reservation.phone &&
+                                                !reservation.email ? (
                                                     <span className="text-xs font-bold text-[#A39388]">
-                                                    {t("reservations.noContact")}
-                                                    </span>
+                                                            {t("reservations.noContact")}
+                                                        </span>
                                                 ) : null}
                                             </div>
                                         </td>
@@ -344,26 +459,30 @@ export default async function ReservationsPage({
                                         </td>
 
                                         <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                        <span className="rounded-full border border-[#EADDCF] bg-[#FFF3E2] px-3 py-1 text-xs font-black text-[#7B6A61]">
-                          {t("reservations.guestsCount", {
-                              count: reservation.guests
-                          })}
-                        </span>
+                                                <span className="rounded-full border border-[#EADDCF] bg-[#FFF3E2] px-3 py-1 text-xs font-black text-[#7B6A61]">
+                                                    {t("reservations.guestsCount", {
+                                                        count: reservation.guests
+                                                    })}
+                                                </span>
                                         </td>
 
                                         <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
-                        <span
-                            className={`rounded-full border px-3 py-1 text-xs font-black capitalize ${getStatusClass(
-                                reservation.status
-                            )}`}
-                        >
-                          {t(`reservations.statuses.${reservation.status}`)}
-                        </span>
+                                                <span
+                                                    className={`rounded-full border px-3 py-1 text-xs font-black capitalize ${getStatusClass(
+                                                        reservation.status
+                                                    )}`}
+                                                >
+                                                    {t(
+                                                        `reservations.statuses.${reservation.status}`
+                                                    )}
+                                                </span>
                                         </td>
 
                                         <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
                                             <p className="max-w-[240px] truncate text-sm font-medium text-[#7B6A61]">
-                                                {reservation.event_details || reservation.message || "—"}
+                                                {reservation.event_details ||
+                                                    reservation.message ||
+                                                    "—"}
                                             </p>
                                         </td>
 
@@ -378,9 +497,9 @@ export default async function ReservationsPage({
                                 </tbody>
                             </table>
                         </div>
-                    )}
-                </section>
-            </div>
-        </AdminShell>
+                    </>
+                )}
+            </section>
+        </div>
     );
 }

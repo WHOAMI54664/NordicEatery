@@ -1154,7 +1154,7 @@
       "latestOrder": "Последний заказ",
       "allOrders": "Все заказы",
       "allOrdersDescription": "Последние заказы клиентов из Supabase.",
-      "ordersCount": "{счет} заказов",
+      "ordersCount": "{count} заказов",
       "noOrdersFound": "Заказы не найдены",
       "noOrdersDescription": "Здесь будут отображаться новые заказы клиентов.",
       "contact": "Связаться с",

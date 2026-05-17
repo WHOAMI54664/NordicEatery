@@ -3,7 +3,6 @@ import { ShieldCheck, UsersRound } from "lucide-react";
 import { StaffRolesPanel } from "@/components/StaffRolesPanel";
 import { canManageStaff } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
-import { AdminShell } from "@/components/admin/AdminShell";
 
 type StaffPageProps = {
   params: Promise<{
@@ -35,48 +34,49 @@ export default async function StaffPage({ params }: StaffPageProps) {
   }
 
   return (
-      <AdminShell>
-        <div className="space-y-6">
-          <section className="relative overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:p-6">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
+      <div className="space-y-6">
+        {/* Desktop hero */}
+        <section className="relative hidden overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:block lg:p-6">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
 
-            <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
-                  <UsersRound className="h-3.5 w-3.5" />
-                  Admin
-                </div>
-
-                <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
-                  Staff roles
-                </h1>
-
-                <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                  Manage owner, admin and cook roles. Only the owner can change
-                  staff permissions.
-                </p>
+          <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
+                <UsersRound className="h-3.5 w-3.5" />
+                Admin
               </div>
 
-              <div className="flex h-12 items-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 text-sm font-black text-[#7B6A61]">
-                <ShieldCheck className="h-4 w-4 text-[#C7192E]" />
-                Owner access only
-              </div>
-            </div>
-          </section>
+              <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
+                Staff roles
+              </h1>
 
-          <section className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl lg:p-6">
-            <div className="mb-6 border-b border-[#EADDCF] pb-5">
-              <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                Team members
-              </h2>
-              <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                Update staff permissions for CRM and kitchen access.
+              <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
+                Manage owner, admin and cook roles. Only the owner can change
+                staff permissions.
               </p>
             </div>
 
-            <StaffRolesPanel />
-          </section>
-        </div>
-      </AdminShell>
+            <div className="flex h-12 items-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 text-sm font-black text-[#7B6A61]">
+              <ShieldCheck className="h-4 w-4 text-[#C7192E]" />
+              Owner access only
+            </div>
+          </div>
+        </section>
+
+        {/* Staff panel */}
+        <section className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:p-5 lg:p-6">
+          <div className="mb-5 border-b border-[#EADDCF] pb-5 lg:mb-6">
+            <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
+              Team members
+            </h2>
+
+            <p className="mt-1 text-sm font-medium leading-6 text-[#7B6A61]">
+              Update staff permissions for CRM and kitchen access.
+            </p>
+          </div>
+
+          <StaffRolesPanel />
+        </section>
+      </div>
   );
 }

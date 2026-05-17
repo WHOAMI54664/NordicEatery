@@ -3,29 +3,35 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ConditionalPublicChrome } from "@/components/layout/ConditionalPublicChrome";
 
 export default async function LocaleLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
+                                               children,
+                                               params,
+                                           }: {
+    children: React.ReactNode;
+    params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
+    const { locale } = await params;
 
-  if (!routing.locales.includes(locale as "en" | "sv" | "pl" | "ru")) {
-    notFound();
-  }
+    if (!routing.locales.includes(locale as "en" | "sv" | "pl" | "ru")) {
+        notFound();
+    }
 
-  const messages = (await import(`@/messages/${locale}.json`)).default;
+    const messages = (await import(`@/messages/${locale}.json`)).default;
 
-  return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      <Header />
-      {children}
-      <Footer />
-      <SpeedInsights />
-    </NextIntlClientProvider>
-  );
+    return (
+        <NextIntlClientProvider locale={locale} messages={messages}>
+            <ConditionalPublicChrome
+                locale={locale}
+                header={<Header />}
+                footer={<Footer />}
+            >
+                {children}
+            </ConditionalPublicChrome>
+
+            <SpeedInsights />
+        </NextIntlClientProvider>
+    );
 }

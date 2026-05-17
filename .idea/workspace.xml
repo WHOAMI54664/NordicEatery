@@ -5,12 +5,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="060f1486-bf69-4dc5-842d-f3514b9af11e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/components/FoodTruckAnimation.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/lottie/foodtruck-animation.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/admin/AdminMobileNav.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/[locale]/mikes/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/mikes/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/[locale]/admin/analytics/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/analytics/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/[locale]/admin/documentation/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/documentation/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/[locale]/admin/kitchen-display/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/kitchen-display/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/[locale]/admin/kitchen/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/kitchen/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/[locale]/admin/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/[locale]/admin/menu/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/menu/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/[locale]/admin/orders/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/orders/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/[locale]/admin/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/[locale]/admin/products/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/products/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/[locale]/admin/reports/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/reports/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/[locale]/admin/reservations/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/reservations/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/[locale]/admin/settings/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/settings/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/[locale]/admin/staff/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/[locale]/admin/staff/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/KitchenBoard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/KitchenBoard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/StaffRolesPanel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/StaffRolesPanel.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/admin/AdminShell.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/admin/AdminShell.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/admin/AdminSidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/admin/AdminSidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/admin/AdminStatCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/admin/AdminStatCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/admin/AdminTopbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/admin/AdminTopbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/ru.json" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ru.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/sv.json" beforeDir="false" afterPath="$PROJECT_DIR$/messages/sv.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -247,7 +264,7 @@
       <workItem from="1778767297271" duration="411000" />
       <workItem from="1778775179458" duration="20984000" />
       <workItem from="1779014444365" duration="3231000" />
-      <workItem from="1779023867888" duration="6641000" />
+      <workItem from="1779023867888" duration="17424000" />
     </task>
     <servers />
   </component>

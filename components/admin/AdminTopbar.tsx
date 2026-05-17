@@ -12,7 +12,7 @@ import {
     UserRound,
     UsersRound
 } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 
 type AdminTopbarProps = {
@@ -51,26 +51,40 @@ function getResultIcon(type: SearchResult["type"]) {
 
 export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
     const t = useTranslations("admin");
+    const productsT = useTranslations("admin.products");
 
     const params = useParams();
+    const pathname = usePathname();
     const locale = String(params.locale || "en");
 
     const supabase = useMemo(() => createClient(), []);
 
+    const adminBase = `/${locale}/admin`;
+
+    const isDashboard = pathname === adminBase;
+    const isProductsPage = pathname === `${adminBase}/products`;
+
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<SearchResult[]>([]);
     const [isSearching, setIsSearching] = useState(false);
-    const [showGreeting, setShowGreeting] = useState(true);
+    const [showGreeting, setShowGreeting] = useState(isDashboard);
 
     const greeting = getGreeting(t);
 
     useEffect(() => {
+        if (!isDashboard) {
+            setShowGreeting(false);
+            return;
+        }
+
+        setShowGreeting(true);
+
         const timer = window.setTimeout(() => {
             setShowGreeting(false);
         }, 5200);
 
         return () => window.clearTimeout(timer);
-    }, []);
+    }, [isDashboard]);
 
     useEffect(() => {
         const searchValue = query.trim();
@@ -120,7 +134,9 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                 ordersRes.data?.map((order) => ({
                     id: order.id,
                     type: "order",
-                    title: order.order_number || `${t("table.order")} ${order.id.slice(0, 8)}`,
+                    title:
+                        order.order_number ||
+                        `${t("table.order")} ${order.id.slice(0, 8)}`,
                     subtitle: `${order.customer_name || t("table.customer")} · ${
                         order.total_price || 0
                     } kr · ${order.status}`,
@@ -142,14 +158,19 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                 staffRes.data?.map((staff) => ({
                     id: staff.id,
                     type: "staff",
-                    title: staff.full_name || staff.email || t("account.staffMember"),
+                    title:
+                        staff.full_name ||
+                        staff.email ||
+                        t("account.staffMember"),
                     subtitle: `${staff.role || "staff"} · ${
                         staff.email || t("account.noEmail")
                     }`,
                     href: `/${locale}/admin/staff`
                 })) || [];
 
-            setResults([...orderResults, ...productResults, ...staffResults].slice(0, 8));
+            setResults(
+                [...orderResults, ...productResults, ...staffResults].slice(0, 8)
+            );
             setIsSearching(false);
         }
 
@@ -163,14 +184,14 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
 
     return (
         <header
-            className={`relative z-50 overflow-visible rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl transition-all duration-700 ${
-                showGreeting ? "p-5 lg:p-6" : "p-3 lg:p-4"
+            className={`relative z-20 overflow-visible rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl transition-all duration-700 ${
+                showGreeting ? "p-5 lg:p-6" : "p-3.5 lg:p-4"
             }`}
         >
             <div className="pointer-events-none absolute inset-0 rounded-[2rem] bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_36%)]" />
 
             <div
-                className={`relative z-[60] flex flex-col gap-5 transition-all duration-700 ${
+                className={`relative z-10 flex flex-col gap-5 transition-all duration-700 ${
                     showGreeting
                         ? "xl:flex-row xl:items-center xl:justify-between"
                         : "xl:flex-row xl:items-center xl:justify-end"
@@ -191,8 +212,8 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                         <h1 className="mt-4 max-w-3xl text-3xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
                             {greeting}, {displayName}
                             <span className="ml-2 inline-block origin-[70%_70%] translate-y-1 animate-admin-wave">
-                👋
-              </span>
+                                👋
+                            </span>
                         </h1>
 
                         <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
@@ -202,17 +223,14 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                 </div>
 
                 <div
-                    className={`flex flex-col gap-3 transition-all duration-700 sm:flex-row sm:items-center ${
-                        showGreeting ? "" : "w-full justify-end"
+                    className={`flex w-full flex-col gap-3 transition-all duration-700 ${
+                        showGreeting ? "xl:max-w-[700px]" : ""
                     }`}
                 >
-                    <div
-                        className={`relative z-[80] min-w-0 transition-all duration-700 ${
-                            showGreeting ? "sm:w-[420px]" : "sm:w-[520px]"
-                        }`}
-                    >
+                    {/* Глобальный поиск */}
+                    <div className="relative z-20 min-w-0">
                         <label
-                            className={`flex min-w-0 items-center gap-3 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 text-[#7B6A61] shadow-inner shadow-[#4C2314]/5 transition-all duration-700 ${
+                            className={`flex min-w-0 items-center gap-3 rounded-2xl border border-[#EADDCF] bg-white/75 px-4 text-[#7B6A61] shadow-inner shadow-[#4C2314]/5 transition-all duration-700 ${
                                 showGreeting ? "h-12" : "h-11"
                             }`}
                         >
@@ -228,7 +246,7 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                         </label>
 
                         {query.trim().length >= 2 ? (
-                            <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-[999] overflow-hidden rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6] p-2 shadow-2xl shadow-[#4C2314]/20 backdrop-blur-2xl">
+                            <div className="absolute left-0 right-0 top-[calc(100%+10px)] z-30 overflow-hidden rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6] p-2 shadow-2xl shadow-[#4C2314]/20 backdrop-blur-2xl">
                                 {isSearching ? (
                                     <div className="px-4 py-4 text-sm font-black text-[#7B6A61]">
                                         {t("topbar.searching")}
@@ -245,18 +263,18 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                                                     onClick={() => setQuery("")}
                                                     className="flex items-center gap-3 rounded-2xl px-3 py-3 transition hover:bg-[#E51B23]/8"
                                                 >
-                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
-                            <Icon className="h-4 w-4 text-[#C7192E]" />
-                          </span>
+                                                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
+                                                        <Icon className="h-4 w-4 text-[#C7192E]" />
+                                                    </span>
 
                                                     <span className="min-w-0">
-                            <span className="block truncate text-sm font-black text-[#25120F]">
-                              {result.title}
-                            </span>
-                            <span className="mt-0.5 block truncate text-xs font-medium text-[#7B6A61]">
-                              {result.subtitle}
-                            </span>
-                          </span>
+                                                        <span className="block truncate text-sm font-black text-[#25120F]">
+                                                            {result.title}
+                                                        </span>
+                                                        <span className="mt-0.5 block truncate text-xs font-medium text-[#7B6A61]">
+                                                            {result.subtitle}
+                                                        </span>
+                                                    </span>
                                                 </Link>
                                             );
                                         })}
@@ -270,37 +288,42 @@ export function AdminTopbar({ displayName = "Admin" }: AdminTopbarProps) {
                         ) : null}
                     </div>
 
-                    <button
-                        type="button"
-                        className={`flex items-center justify-center rounded-2xl border border-[#EADDCF] bg-white/70 text-[#25120F] transition-all duration-700 hover:bg-white ${
-                            showGreeting ? "h-12 w-12" : "h-11 w-11"
-                        }`}
-                        aria-label={t("topbar.notifications")}
-                    >
-                        <Bell className="h-4 w-4" />
-                    </button>
+                    {/* Уведомления + профиль */}
+                    <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-3 sm:flex sm:items-center sm:justify-end">
+                        <button
+                            type="button"
+                            className={`flex items-center justify-center rounded-2xl border border-[#EADDCF] bg-white/75 text-[#25120F] transition-all duration-700 hover:bg-white ${
+                                showGreeting ? "h-12 w-12" : "h-11 w-11"
+                            }`}
+                            aria-label={t("topbar.notifications")}
+                        >
+                            <Bell className="h-4 w-4" />
+                        </button>
 
-                    <Link
-                        href={`/${locale}/admin/account`}
-                        className={`flex items-center gap-3 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 text-sm font-black text-[#25120F] transition-all duration-700 hover:bg-white ${
-                            showGreeting ? "h-12" : "h-11"
-                        }`}
-                    >
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#E51B23]/10 text-[#C7192E]">
-              <UserRound className="h-4 w-4" />
-            </span>
-                        {displayName}
-                    </Link>
+                        <Link
+                            href={`/${locale}/admin/account`}
+                            className={`flex min-w-0 items-center gap-3 rounded-2xl border border-[#EADDCF] bg-white/75 px-4 text-sm font-black text-[#25120F] transition-all duration-700 hover:bg-white sm:w-auto ${
+                                showGreeting ? "h-12" : "h-11"
+                            }`}
+                        >
+                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E51B23]/10 text-[#C7192E]">
+                                <UserRound className="h-4 w-4" />
+                            </span>
 
-                    <Link
-                        href={`/${locale}/admin/products/new`}
-                        className={`flex items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-5 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition-all duration-700 hover:bg-[#C7192E] ${
-                            showGreeting ? "h-12" : "h-11"
-                        }`}
-                    >
-                        <Plus className="h-4 w-4" />
-                        {t("common.createNew")}
-                    </Link>
+                            <span className="truncate">{displayName}</span>
+                        </Link>
+                    </div>
+
+                    {/* Контекстная кнопка страницы — пока для товаров */}
+                    {isProductsPage ? (
+                        <Link
+                            href={`/${locale}/admin/products/new`}
+                            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-5 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E] lg:hidden"
+                        >
+                            <Plus className="h-4 w-4" />
+                            {productsT("addProduct")}
+                        </Link>
+                    ) : null}
                 </div>
             </div>
 

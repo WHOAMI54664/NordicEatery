@@ -12,7 +12,6 @@ import {
   Truck
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { AdminShell } from "@/components/admin/AdminShell";
 import { createClient } from "@/lib/supabase/server";
 import { canViewAnalytics } from "@/lib/auth/roles";
 
@@ -104,6 +103,20 @@ function getStatusClass(status: string | null) {
   }
 }
 
+function getPaymentClass(status: string | null) {
+  switch (status) {
+    case "paid":
+      return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700";
+    case "awaiting_payment":
+      return "border-[#F6A21A]/25 bg-[#F6A21A]/15 text-[#A96800]";
+    case "failed":
+    case "refunded":
+      return "border-[#E51B23]/15 bg-[#E51B23]/8 text-[#C7192E]";
+    default:
+      return "border-[#EADDCF] bg-[#FFF3E2] text-[#7B6A61]";
+  }
+}
+
 function AnalyticsStatCard({
                              title,
                              value,
@@ -127,25 +140,28 @@ function AnalyticsStatCard({
                   : "border-[#E51B23]/15 bg-[#E51B23]/8 text-[#C7192E]";
 
   return (
-      <div className="relative overflow-hidden rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-        <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-[#E51B23]/8 blur-2xl" />
+      <div className="relative overflow-hidden rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl md:rounded-[1.75rem] md:p-5">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-[#E51B23]/8 blur-2xl md:-right-12 md:-top-12 md:h-32 md:w-32" />
 
-        <div className="relative flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-black text-[#8A7A70]">{title}</p>
-            <h3 className="mt-3 text-3xl font-black tracking-[-0.055em] text-[#25120F]">
+        <div className="relative flex items-start justify-between gap-2 md:gap-4">
+          <div className="min-w-0">
+            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+              {title}
+            </p>
+
+            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] md:mt-3 md:text-3xl">
               {value}
             </h3>
           </div>
 
           <div
-              className={`flex h-11 w-11 items-center justify-center rounded-2xl border ${iconClass}`}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border md:h-11 md:w-11 ${iconClass}`}
           >
-            <Icon className="h-5 w-5" />
+            <Icon className="h-4 w-4 md:h-5 md:w-5" />
           </div>
         </div>
 
-        <p className="relative mt-4 text-xs font-medium text-[#7B6A61]">
+        <p className="relative mt-3 line-clamp-2 text-[11px] font-medium leading-4 text-[#7B6A61] md:mt-4 md:text-xs">
           {description}
         </p>
       </div>
@@ -216,10 +232,6 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
       (order) => order.delivery_type === "delivery"
   );
 
-  const pickupOrders = orderList.filter(
-      (order) => order.delivery_type === "pickup"
-  );
-
   const cashOrders = orderList.filter(
       (order) => order.payment_method === "cash"
   );
@@ -269,126 +281,131 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
   const recentOrders = orderList.slice(0, 8);
 
   return (
-      <AdminShell>
-        <div className="space-y-6">
-          <section className="relative overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:p-6">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
+      <div className="space-y-6">
+        {/* Desktop hero */}
+        <section className="relative hidden overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:block lg:p-6">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
 
-            <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
+                <BarChart3 className="h-3.5 w-3.5" />
+                {t("analytics.eyebrow")}
+              </div>
+
+              <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
+                {t("analytics.title")}
+              </h1>
+
+              <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
+                {t("analytics.subtitle")}
+              </p>
+            </div>
+
+            <div className="flex h-12 items-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 text-sm font-black text-[#7B6A61]">
+              <CalendarClock className="h-4 w-4 text-[#C7192E]" />
+              {t("analytics.lastOrders", { count: 250 })}
+            </div>
+          </div>
+        </section>
+
+        {error ? (
+            <div className="rounded-[1.5rem] border border-[#E51B23]/15 bg-[#E51B23]/8 p-4 text-sm font-bold text-[#C7192E]">
+              {error.message}
+            </div>
+        ) : null}
+
+        {/* Main analytics cards */}
+        <section className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
+          <AnalyticsStatCard
+              title={t("analytics.revenue")}
+              value={formatCurrency(revenue, locale)}
+              description={t("analytics.completedOrdersOnly")}
+              icon={TrendingUp}
+              tone="red"
+          />
+
+          <AnalyticsStatCard
+              title={t("analytics.totalOrders")}
+              value={String(orderList.length)}
+              description={t("analytics.ordersLoaded")}
+              icon={ClipboardList}
+              tone="dark"
+          />
+
+          <AnalyticsStatCard
+              title={t("analytics.completed")}
+              value={String(completedOrders.length)}
+              description={t("analytics.completedDescription")}
+              icon={CheckCircle2}
+              tone="green"
+          />
+
+          <AnalyticsStatCard
+              title={t("analytics.activeNow")}
+              value={String(activeOrders.length)}
+              description={t("analytics.activeNowDescription")}
+              icon={Activity}
+              tone="gold"
+          />
+        </section>
+
+        {/* Secondary analytics cards */}
+        <section className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
+          <AnalyticsStatCard
+              title={t("analytics.averageOrder")}
+              value={formatCurrency(averageOrderValue, locale)}
+              description={t("analytics.averageOrderDescription")}
+              icon={Banknote}
+              tone="red"
+          />
+
+          <AnalyticsStatCard
+              title={t("analytics.activeRevenue")}
+              value={formatCurrency(activeRevenue, locale)}
+              description={t("analytics.activeRevenueDescription")}
+              icon={CreditCard}
+              tone="gold"
+          />
+
+          <AnalyticsStatCard
+              title={t("analytics.delivery")}
+              value={String(deliveryOrders.length)}
+              description={t("analytics.deliveryDescription")}
+              icon={Truck}
+              tone="red"
+          />
+
+          <AnalyticsStatCard
+              title={t("analytics.cancelled")}
+              value={String(cancelledOrders.length)}
+              description={t("analytics.cancelledDescription")}
+              icon={PieChart}
+              tone="dark"
+          />
+        </section>
+
+        {/* Charts */}
+        <section className="grid gap-6 xl:grid-cols-[1.35fr_0.85fr]">
+          <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:p-5 lg:p-6">
+            <div className="mb-5 flex flex-col gap-3 border-b border-[#EADDCF] pb-5 sm:flex-row sm:items-center sm:justify-between md:mb-6">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
-                  <BarChart3 className="h-3.5 w-3.5" />
-                  {t("analytics.eyebrow")}
-                </div>
+                <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
+                  {t("analytics.revenueTrend")}
+                </h2>
 
-                <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
-                  {t("analytics.title")}
-                </h1>
-
-                <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                  {t("analytics.subtitle")}
+                <p className="mt-1 text-sm font-medium text-[#7B6A61]">
+                  {t("analytics.revenueTrendDescription")}
                 </p>
               </div>
 
-              <div className="flex h-12 items-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 text-sm font-black text-[#7B6A61]">
-                <CalendarClock className="h-4 w-4 text-[#C7192E]" />
-                {t("analytics.lastOrders", { count: 250 })}
+              <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-2 text-sm font-black text-[#7B6A61]">
+                {t("analytics.sevenDays")}
               </div>
             </div>
-          </section>
 
-          {error ? (
-              <div className="rounded-[1.5rem] border border-[#E51B23]/15 bg-[#E51B23]/8 p-4 text-sm font-bold text-[#C7192E]">
-                {error.message}
-              </div>
-          ) : null}
-
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <AnalyticsStatCard
-                title={t("analytics.revenue")}
-                value={formatCurrency(revenue, locale)}
-                description={t("analytics.completedOrdersOnly")}
-                icon={TrendingUp}
-                tone="red"
-            />
-
-            <AnalyticsStatCard
-                title={t("analytics.totalOrders")}
-                value={String(orderList.length)}
-                description={t("analytics.ordersLoaded")}
-                icon={ClipboardList}
-                tone="dark"
-            />
-
-            <AnalyticsStatCard
-                title={t("analytics.completed")}
-                value={String(completedOrders.length)}
-                description={t("analytics.completedDescription")}
-                icon={CheckCircle2}
-                tone="green"
-            />
-
-            <AnalyticsStatCard
-                title={t("analytics.activeNow")}
-                value={String(activeOrders.length)}
-                description={t("analytics.activeNowDescription")}
-                icon={Activity}
-                tone="gold"
-            />
-          </section>
-
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <AnalyticsStatCard
-                title={t("analytics.averageOrder")}
-                value={formatCurrency(averageOrderValue, locale)}
-                description={t("analytics.averageOrderDescription")}
-                icon={Banknote}
-                tone="red"
-            />
-
-            <AnalyticsStatCard
-                title={t("analytics.activeRevenue")}
-                value={formatCurrency(activeRevenue, locale)}
-                description={t("analytics.activeRevenueDescription")}
-                icon={CreditCard}
-                tone="gold"
-            />
-
-            <AnalyticsStatCard
-                title={t("analytics.delivery")}
-                value={String(deliveryOrders.length)}
-                description={t("analytics.deliveryDescription")}
-                icon={Truck}
-                tone="red"
-            />
-
-            <AnalyticsStatCard
-                title={t("analytics.cancelled")}
-                value={String(cancelledOrders.length)}
-                description={t("analytics.cancelledDescription")}
-                icon={PieChart}
-                tone="dark"
-            />
-          </section>
-
-          <section className="grid gap-6 xl:grid-cols-[1.35fr_0.85fr]">
-            <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl lg:p-6">
-              <div className="mb-6 flex flex-col gap-3 border-b border-[#EADDCF] pb-5 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                    {t("analytics.revenueTrend")}
-                  </h2>
-                  <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                    {t("analytics.revenueTrendDescription")}
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-2 text-sm font-black text-[#7B6A61]">
-                  {t("analytics.sevenDays")}
-                </div>
-              </div>
-
-              <div className="flex h-80 items-end gap-3">
+            <div className="pb-2">
+              <div className="flex h-72 items-end gap-1.5 sm:h-80 sm:gap-3">
                 {dailyStats.map((day) => {
                   const height = Math.max(
                       8,
@@ -398,9 +415,9 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
                   return (
                       <div
                           key={day.key}
-                          className="flex h-full flex-1 flex-col justify-end gap-3"
+                          className="flex h-full min-w-0 flex-1 flex-col justify-end gap-3"
                       >
-                        <div className="flex flex-1 items-end rounded-2xl border border-[#EADDCF] bg-white/60 p-2">
+                        <div className="flex flex-1 items-end rounded-2xl border border-[#EADDCF] bg-white/60 p-1.5 sm:p-2">
                           <div
                               className="w-full rounded-xl bg-gradient-to-t from-[#E51B23] to-[#FF9F40] shadow-lg shadow-[#E51B23]/15"
                               style={{ height: `${height}%` }}
@@ -408,10 +425,11 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
                         </div>
 
                         <div className="text-center">
-                          <p className="text-xs font-black text-[#25120F]">
+                          <p className="text-[10px] font-black leading-4 text-[#25120F] sm:text-xs">
                             {formatCurrency(day.revenue, locale)}
                           </p>
-                          <p className="mt-1 text-[11px] font-bold text-[#A39388]">
+
+                          <p className="mt-1 text-[9px] font-bold leading-3 text-[#A39388] sm:text-[11px]">
                             {day.label}
                           </p>
                         </div>
@@ -420,147 +438,224 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
                 })}
               </div>
             </div>
+          </div>
 
-            <div className="space-y-6">
-              <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl lg:p-6">
-                <div className="mb-5 border-b border-[#EADDCF] pb-5">
-                  <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                    {t("analytics.orderVolume")}
-                  </h2>
-                  <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                    {t("analytics.orderVolumeDescription")}
-                  </p>
-                </div>
-
-                <div className="space-y-3">
-                  {dailyStats.map((day) => {
-                    const width = Math.max(
-                        4,
-                        Math.round((day.orders / maxDailyOrders) * 100)
-                    );
-
-                    return (
-                        <div key={day.key}>
-                          <div className="mb-1 flex items-center justify-between gap-3">
-                        <span className="text-xs font-black text-[#25120F]">
-                          {day.label}
-                        </span>
-                            <span className="text-xs font-black text-[#C7192E]">
-                          {day.orders}
-                        </span>
-                          </div>
-
-                          <div className="h-3 overflow-hidden rounded-full bg-[#FFF3E2]">
-                            <div
-                                className="h-full rounded-full bg-[#E51B23]"
-                                style={{ width: `${width}%` }}
-                            />
-                          </div>
-                        </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="rounded-[2rem] border border-[#EADDCF] bg-gradient-to-br from-[#FFFCF6]/95 via-[#FFF3E2]/90 to-[#FFE4D6]/75 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl lg:p-6">
-                <div className="mb-5 border-b border-[#EADDCF] pb-5">
-                  <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                    {t("analytics.paymentMix")}
-                  </h2>
-                  <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                    {t("analytics.paymentMixDescription")}
-                  </p>
-                </div>
-
-                <div className="grid gap-3">
-                  <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
-                  <span className="text-sm font-black text-[#25120F]">
-                    {t("analytics.cash")}
-                  </span>
-                    <span className="text-sm font-black text-[#C7192E]">
-                    {cashOrders.length}
-                  </span>
-                  </div>
-
-                  <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
-                  <span className="text-sm font-black text-[#25120F]">
-                    {t("analytics.card")}
-                  </span>
-                    <span className="text-sm font-black text-[#C7192E]">
-                    {cardOrders.length}
-                  </span>
-                  </div>
-
-                  <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
-                  <span className="text-sm font-black text-[#25120F]">
-                    {t("analytics.swish")}
-                  </span>
-                    <span className="text-sm font-black text-[#C7192E]">
-                    {swishOrders.length}
-                  </span>
-                  </div>
-
-                  <div className="flex items-center justify-between rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
-                  <span className="text-sm font-black text-emerald-800">
-                    {t("analytics.paidOrders")}
-                  </span>
-                    <span className="text-sm font-black text-emerald-700">
-                    {paidOrders.length}
-                  </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-            <div className="flex flex-col gap-3 border-b border-[#EADDCF] px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
-              <div>
+          <div className="space-y-6">
+            <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:p-5 lg:p-6">
+              <div className="mb-5 border-b border-[#EADDCF] pb-5">
                 <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                  {t("analytics.recentOrders")}
+                  {t("analytics.orderVolume")}
                 </h2>
+
                 <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                  {t("analytics.recentOrdersDescription")}
+                  {t("analytics.orderVolumeDescription")}
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-2 text-sm font-black text-[#7B6A61]">
-                {t("analytics.shown", { count: recentOrders.length })}
+              <div className="space-y-3">
+                {dailyStats.map((day) => {
+                  const width = Math.max(
+                      4,
+                      Math.round((day.orders / maxDailyOrders) * 100)
+                  );
+
+                  return (
+                      <div key={day.key}>
+                        <div className="mb-1 flex items-center justify-between gap-3">
+                      <span className="text-xs font-black text-[#25120F]">
+                        {day.label}
+                      </span>
+
+                          <span className="text-xs font-black text-[#C7192E]">
+                        {day.orders}
+                      </span>
+                        </div>
+
+                        <div className="h-3 overflow-hidden rounded-full bg-[#FFF3E2]">
+                          <div
+                              className="h-full rounded-full bg-[#E51B23]"
+                              style={{ width: `${width}%` }}
+                          />
+                        </div>
+                      </div>
+                  );
+                })}
               </div>
             </div>
 
-            {recentOrders.length === 0 ? (
-                <div className="p-5">
-                  <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
-                    <ClipboardList className="mx-auto h-10 w-10 text-[#C7192E]" />
-                    <p className="mt-4 text-sm font-black text-[#25120F]">
-                      {t("analytics.noOrdersFound")}
-                    </p>
-                    <p className="mt-2 text-sm font-medium text-[#7B6A61]">
-                      {t("analytics.noOrdersDescription")}
-                    </p>
-                  </div>
+            <div className="rounded-[2rem] border border-[#EADDCF] bg-gradient-to-br from-[#FFFCF6]/95 via-[#FFF3E2]/90 to-[#FFE4D6]/75 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:p-5 lg:p-6">
+              <div className="mb-5 border-b border-[#EADDCF] pb-5">
+                <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
+                  {t("analytics.paymentMix")}
+                </h2>
+
+                <p className="mt-1 text-sm font-medium text-[#7B6A61]">
+                  {t("analytics.paymentMixDescription")}
+                </p>
+              </div>
+
+              <div className="grid gap-3">
+                <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
+                <span className="text-sm font-black text-[#25120F]">
+                  {t("analytics.cash")}
+                </span>
+
+                  <span className="text-sm font-black text-[#C7192E]">
+                  {cashOrders.length}
+                </span>
                 </div>
-            ) : (
-                <div className="overflow-x-auto">
+
+                <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
+                <span className="text-sm font-black text-[#25120F]">
+                  {t("analytics.card")}
+                </span>
+
+                  <span className="text-sm font-black text-[#C7192E]">
+                  {cardOrders.length}
+                </span>
+                </div>
+
+                <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
+                <span className="text-sm font-black text-[#25120F]">
+                  {t("analytics.swish")}
+                </span>
+
+                  <span className="text-sm font-black text-[#C7192E]">
+                  {swishOrders.length}
+                </span>
+                </div>
+
+                <div className="flex items-center justify-between rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+                <span className="text-sm font-black text-emerald-800">
+                  {t("analytics.paidOrders")}
+                </span>
+
+                  <span className="text-sm font-black text-emerald-700">
+                  {paidOrders.length}
+                </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Recent orders */}
+        <section className="overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+          <div className="flex flex-col gap-3 border-b border-[#EADDCF] px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+            <div>
+              <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
+                {t("analytics.recentOrders")}
+              </h2>
+
+              <p className="mt-1 text-sm font-medium text-[#7B6A61]">
+                {t("analytics.recentOrdersDescription")}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-2 text-sm font-black text-[#7B6A61]">
+              {t("analytics.shown", { count: recentOrders.length })}
+            </div>
+          </div>
+
+          {recentOrders.length === 0 ? (
+              <div className="p-4 sm:p-5">
+                <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
+                  <ClipboardList className="mx-auto h-10 w-10 text-[#C7192E]" />
+
+                  <p className="mt-4 text-sm font-black text-[#25120F]">
+                    {t("analytics.noOrdersFound")}
+                  </p>
+
+                  <p className="mt-2 text-sm font-medium text-[#7B6A61]">
+                    {t("analytics.noOrdersDescription")}
+                  </p>
+                </div>
+              </div>
+          ) : (
+              <>
+                {/* Mobile cards */}
+                <div className="space-y-3 p-3 sm:p-4 lg:hidden">
+                  {recentOrders.map((order) => {
+                    const statusKey = getStatusKey(order.status);
+
+                    return (
+                        <article
+                            key={order.id}
+                            className="rounded-[1.5rem] border border-[#EADDCF] bg-white/72 p-4 shadow-sm shadow-[#4C2314]/6"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="max-w-[210px] truncate text-sm font-black text-[#25120F]">
+                                {order.id}
+                              </p>
+
+                              <p className="mt-1 text-xs font-medium text-[#A39388]">
+                                {formatDate(order.created_at, locale)}
+                              </p>
+                            </div>
+
+                            <p className="shrink-0 text-base font-black text-[#C7192E]">
+                              {formatCurrency(Number(order.total_price || 0), locale)}
+                            </p>
+                          </div>
+
+                          <div className="mt-3 flex flex-wrap gap-2">
+                      <span
+                          className={`rounded-full border px-2.5 py-1 text-[11px] font-black ${getStatusClass(
+                              order.status
+                          )}`}
+                      >
+                        {statusKey === "unknown"
+                            ? t("analytics.unknown")
+                            : t(`statuses.${statusKey}`)}
+                      </span>
+
+                            <span className="rounded-full border border-[#EADDCF] bg-[#FFF3E2] px-2.5 py-1 text-[11px] font-black capitalize text-[#7B6A61]">
+                        {order.payment_method || "—"}
+                      </span>
+
+                            <span className="rounded-full border border-[#EADDCF] bg-[#FFF3E2] px-2.5 py-1 text-[11px] font-black capitalize text-[#7B6A61]">
+                        {order.delivery_type || "—"}
+                      </span>
+
+                            <span
+                                className={`rounded-full border px-2.5 py-1 text-[11px] font-black ${getPaymentClass(
+                                    order.payment_status
+                                )}`}
+                            >
+                        {order.payment_status || "—"}
+                      </span>
+                          </div>
+                        </article>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop table */}
+                <div className="hidden overflow-x-auto lg:block">
                   <table className="w-full min-w-[900px] border-separate border-spacing-y-2 px-5 py-3 text-left">
                     <thead>
                     <tr className="text-xs uppercase tracking-[0.16em] text-[#A39388]">
                       <th className="px-4 py-2 font-black">
                         {t("table.order")}
                       </th>
+
                       <th className="px-4 py-2 font-black">
                         {t("table.status")}
                       </th>
+
                       <th className="px-4 py-2 font-black">
                         {t("analytics.payment")}
                       </th>
+
                       <th className="px-4 py-2 font-black">
                         {t("analytics.type")}
                       </th>
+
                       <th className="px-4 py-2 font-black">
                         {t("table.total")}
                       </th>
+
                       <th className="px-4 py-2 font-black">
                         {t("analytics.created")}
                       </th>
@@ -612,9 +707,9 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
                     </tbody>
                   </table>
                 </div>
-            )}
-          </section>
-        </div>
-      </AdminShell>
+              </>
+          )}
+        </section>
+      </div>
   );
 }

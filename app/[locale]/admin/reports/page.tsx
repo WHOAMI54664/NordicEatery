@@ -11,8 +11,6 @@ import {
     Smartphone,
     Truck,
 } from "lucide-react";
-import { AdminShell } from "@/components/admin/AdminShell";
-import { AdminTopbar } from "@/components/admin/AdminTopbar";
 import { AdminStatCard } from "@/components/admin/AdminStatCard";
 import { createClient } from "@/lib/supabase/server";
 import { canViewAnalytics, type StaffRole } from "@/lib/auth/roles";
@@ -119,11 +117,6 @@ async function getOnlinePaidOrders(
     fromDate: string,
     toDate: string
 ) {
-    /**
-     * We fetch with a safety buffer around the selected dates,
-     * then filter by the Swedish local business date in JavaScript.
-     * This keeps the report correct even when UTC and Stockholm calendar days differ.
-     */
     const queryStartUtc = `${addDaysToDateKey(fromDate, -1)}T00:00:00.000Z`;
     const queryEndUtcExclusive = `${addDaysToDateKey(toDate, 2)}T00:00:00.000Z`;
 
@@ -200,7 +193,7 @@ export default async function OnlineSalesReportsPage({
 
     const { data: currentProfile } = await supabase
         .from("profiles")
-        .select("full_name, email, role")
+        .select("role")
         .eq("id", user.id)
         .single();
 
@@ -209,12 +202,6 @@ export default async function OnlineSalesReportsPage({
     if (!canViewAnalytics(role)) {
         redirect(`/${locale}/admin`);
     }
-
-    const profileName =
-        currentProfile?.full_name?.trim() ||
-        currentProfile?.email?.split("@")[0] ||
-        user.email?.split("@")[0] ||
-        t("sidebar.adminUser");
 
     const orders = await getOnlinePaidOrders(
         supabase,
@@ -259,11 +246,6 @@ export default async function OnlineSalesReportsPage({
         0
     );
 
-    const refundedNet = orders.reduce(
-        (sum, order) => sum + safeAmount(order.refunded_net),
-        0
-    );
-
     const refundedVat = orders.reduce(
         (sum, order) => sum + safeAmount(order.refunded_vat),
         0
@@ -276,11 +258,11 @@ export default async function OnlineSalesReportsPage({
     const monthStart = `${today.slice(0, 8)}01`;
 
     return (
-        <AdminShell>
-            <AdminTopbar displayName={profileName} />
-
-            <section className="mt-6 rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl lg:p-6">
-                <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+        <div className="space-y-6">
+            {/* Report controls */}
+            <section className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:p-5 lg:p-6">
+                {/* Desktop title */}
+                <div className="hidden flex-col gap-5 lg:flex xl:flex-row xl:items-end xl:justify-between">
                     <div>
                         <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-[#C7192E]">
                             <FileBarChart2 className="h-3.5 w-3.5" />
@@ -298,7 +280,9 @@ export default async function OnlineSalesReportsPage({
 
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                         <div className="rounded-[1.5rem] border border-[#EADDCF] bg-white/70 px-4 py-3 text-sm font-bold text-[#6F5E55]">
-                            <span className="text-[#25120F]">{t("reports.period")}:</span>{" "}
+                            <span className="text-[#25120F]">
+                                {t("reports.period")}:
+                            </span>{" "}
                             {normalizedFromDate} — {normalizedToDate}
                         </div>
 
@@ -318,11 +302,43 @@ export default async function OnlineSalesReportsPage({
                     </div>
                 </div>
 
-                <form method="GET" className="mt-6 grid gap-3 rounded-[1.5rem] border border-[#EADDCF] bg-white/70 p-4 lg:grid-cols-[1fr_1fr_auto]">
+                {/* Mobile report actions */}
+                <div className="space-y-3 lg:hidden">
+                    <div className="rounded-[1.5rem] border border-[#EADDCF] bg-white/70 px-4 py-3 text-sm font-bold text-[#6F5E55]">
+                        <span className="text-[#25120F]">
+                            {t("reports.period")}:
+                        </span>{" "}
+                        <span className="block pt-1 text-[#25120F]">
+                            {normalizedFromDate} — {normalizedToDate}
+                        </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                        <Link
+                            href={`/api/admin/reports/online-sales/csv?from=${normalizedFromDate}&to=${normalizedToDate}`}
+                            className="inline-flex h-12 items-center justify-center rounded-[1.35rem] border border-[#E51B23]/15 bg-[#E51B23] px-4 text-sm font-black text-white shadow-lg shadow-[#E51B23]/15 transition hover:bg-[#C7192E]"
+                        >
+                            {t("reports.exportCsv")}
+                        </Link>
+
+                        <Link
+                            href={`/api/admin/reports/online-sales/pdf?from=${normalizedFromDate}&to=${normalizedToDate}`}
+                            className="inline-flex h-12 items-center justify-center rounded-[1.35rem] border border-[#EADDCF] bg-white/80 px-4 text-sm font-black text-[#C7192E] shadow-sm transition hover:border-[#E51B23]/25 hover:bg-[#FFF3E2]"
+                        >
+                            {t("reports.exportPdf")}
+                        </Link>
+                    </div>
+                </div>
+
+                <form
+                    method="GET"
+                    className="mt-5 grid gap-3 rounded-[1.5rem] border border-[#EADDCF] bg-white/70 p-4 lg:mt-6 lg:grid-cols-[1fr_1fr_auto]"
+                >
                     <label className="flex flex-col gap-2">
-            <span className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
-              {t("reports.from")}
-            </span>
+                        <span className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
+                            {t("reports.from")}
+                        </span>
+
                         <input
                             type="date"
                             name="from"
@@ -332,9 +348,10 @@ export default async function OnlineSalesReportsPage({
                     </label>
 
                     <label className="flex flex-col gap-2">
-            <span className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
-              {t("reports.to")}
-            </span>
+                        <span className="text-xs font-black uppercase tracking-[0.16em] text-[#A39388]">
+                            {t("reports.to")}
+                        </span>
+
                         <input
                             type="date"
                             name="to"
@@ -375,7 +392,8 @@ export default async function OnlineSalesReportsPage({
                 </div>
             </section>
 
-            <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {/* Main stats */}
+            <section className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
                 <AdminStatCard
                     title={t("reports.grossPaidSales")}
                     value={formatCurrency(grossSales, locale)}
@@ -404,15 +422,19 @@ export default async function OnlineSalesReportsPage({
                     title={t("reports.netAfterRefunds")}
                     value={formatCurrency(netGrossAfterRefunds, locale)}
                     description={t("reports.netAfterRefundsDescription")}
-                    trend={`${t("reports.refunds")}: ${formatCurrency(refundedGross, locale)}`}
+                    trend={`${t("reports.refunds")}: ${formatCurrency(
+                        refundedGross,
+                        locale
+                    )}`}
                     icon={RotateCcw}
                 />
             </section>
 
-            <section className="mt-6 grid gap-6 xl:grid-cols-[1fr_1fr]">
-                <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
+            {/* Reconciliation / VAT */}
+            <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
+                <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:p-5">
+                    <div className="flex items-start gap-3">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
                             <CreditCard className="h-5 w-5 text-[#C7192E]" />
                         </div>
 
@@ -420,6 +442,7 @@ export default async function OnlineSalesReportsPage({
                             <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
                                 {t("reports.paymentReconciliation")}
                             </h2>
+
                             <p className="mt-1 text-sm font-medium text-[#7B6A61]">
                                 {t("reports.paymentReconciliationDescription")}
                             </p>
@@ -427,47 +450,50 @@ export default async function OnlineSalesReportsPage({
                     </div>
 
                     <div className="mt-5 space-y-3">
-                        <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
+                        <div className="flex flex-col gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 p-4 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center gap-3">
                                 <CreditCard className="h-4 w-4 text-[#C7192E]" />
                                 <span className="text-sm font-bold text-[#25120F]">
-                  Stripe / Card
-                </span>
+                                    Stripe / Card
+                                </span>
                             </div>
+
                             <span className="text-sm font-black text-[#25120F]">
-                {formatCurrency(stripeSales, locale)}
-              </span>
+                                {formatCurrency(stripeSales, locale)}
+                            </span>
                         </div>
 
-                        <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
+                        <div className="flex flex-col gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 p-4 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center gap-3">
                                 <Smartphone className="h-4 w-4 text-[#A96800]" />
                                 <span className="text-sm font-bold text-[#25120F]">
-                  Swish
-                </span>
+                                    Swish
+                                </span>
                             </div>
+
                             <span className="text-sm font-black text-[#25120F]">
-                {formatCurrency(swishSales, locale)}
-              </span>
+                                {formatCurrency(swishSales, locale)}
+                            </span>
                         </div>
 
-                        <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
+                        <div className="flex flex-col gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 p-4 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center gap-3">
                                 <Truck className="h-4 w-4 text-emerald-700" />
                                 <span className="text-sm font-bold text-[#25120F]">
-                  {t("reports.deliveryFees")}
-                </span>
+                                    {t("reports.deliveryFees")}
+                                </span>
                             </div>
+
                             <span className="text-sm font-black text-[#25120F]">
-                {formatCurrency(deliveryFees, locale)}
-              </span>
+                                {formatCurrency(deliveryFees, locale)}
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
+                <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:p-5">
+                    <div className="flex items-start gap-3">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
                             <CalendarRange className="h-5 w-5 text-[#C7192E]" />
                         </div>
 
@@ -475,6 +501,7 @@ export default async function OnlineSalesReportsPage({
                             <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
                                 {t("reports.vatBreakdown")}
                             </h2>
+
                             <p className="mt-1 text-sm font-medium text-[#7B6A61]">
                                 {t("reports.vatBreakdownDescription")}
                             </p>
@@ -482,51 +509,57 @@ export default async function OnlineSalesReportsPage({
                     </div>
 
                     <div className="mt-5 space-y-3">
-                        <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
-              <span className="text-sm font-bold text-[#25120F]">
-                {t("reports.taxBase")}
-              </span>
+                        <div className="flex flex-col gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 p-4 sm:flex-row sm:items-center sm:justify-between">
+                            <span className="text-sm font-bold text-[#25120F]">
+                                {t("reports.taxBase")}
+                            </span>
+
                             <span className="text-sm font-black text-[#25120F]">
-                {formatCurrency(netSales, locale)}
-              </span>
+                                {formatCurrency(netSales, locale)}
+                            </span>
                         </div>
 
-                        <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
-              <span className="text-sm font-bold text-[#25120F]">
-                {t("reports.vatRateSix")}
-              </span>
+                        <div className="flex flex-col gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 p-4 sm:flex-row sm:items-center sm:justify-between">
+                            <span className="text-sm font-bold text-[#25120F]">
+                                {t("reports.vatRateSix")}
+                            </span>
+
                             <span className="text-sm font-black text-[#25120F]">
-                {formatCurrency(vatTotal, locale)}
-              </span>
+                                {formatCurrency(vatTotal, locale)}
+                            </span>
                         </div>
 
-                        <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
-              <span className="text-sm font-bold text-[#25120F]">
-                {t("reports.refundedVat")}
-              </span>
+                        <div className="flex flex-col gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 p-4 sm:flex-row sm:items-center sm:justify-between">
+                            <span className="text-sm font-bold text-[#25120F]">
+                                {t("reports.refundedVat")}
+                            </span>
+
                             <span className="text-sm font-black text-[#25120F]">
-                {formatCurrency(refundedVat, locale)}
-              </span>
+                                {formatCurrency(refundedVat, locale)}
+                            </span>
                         </div>
 
-                        <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-[#FFF3E2] p-4">
-              <span className="text-sm font-black text-[#25120F]">
-                {t("reports.vatAfterRefunds")}
-              </span>
+                        <div className="flex flex-col gap-2 rounded-2xl border border-[#EADDCF] bg-[#FFF3E2] p-4 sm:flex-row sm:items-center sm:justify-between">
+                            <span className="text-sm font-black text-[#25120F]">
+                                {t("reports.vatAfterRefunds")}
+                            </span>
+
                             <span className="text-sm font-black text-[#C7192E]">
-                {formatCurrency(netVatAfterRefunds, locale)}
-              </span>
+                                {formatCurrency(netVatAfterRefunds, locale)}
+                            </span>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section className="mt-6 rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+            {/* Included orders */}
+            <section className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:p-5">
                 <div className="flex flex-col gap-3 border-b border-[#EADDCF] pb-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
                             {t("reports.includedOrders")}
                         </h2>
+
                         <p className="mt-1 text-sm font-medium text-[#7B6A61]">
                             {t("reports.includedOrdersDescription")}
                         </p>
@@ -537,72 +570,188 @@ export default async function OnlineSalesReportsPage({
                     </div>
                 </div>
 
-                <div className="mt-5 overflow-x-auto">
-                    {orders.length > 0 ? (
-                        <table className="w-full min-w-[1100px] border-separate border-spacing-y-2 text-left">
-                            <thead>
-                            <tr className="text-xs uppercase tracking-[0.16em] text-[#A39388]">
-                                <th className="px-4 py-2 font-black">{t("reports.order")}</th>
-                                <th className="px-4 py-2 font-black">{t("reports.paidAt")}</th>
-                                <th className="px-4 py-2 font-black">{t("reports.payment")}</th>
-                                <th className="px-4 py-2 font-black">{t("reports.gross")}</th>
-                                <th className="px-4 py-2 font-black">{t("reports.net")}</th>
-                                <th className="px-4 py-2 font-black">{t("reports.vat")}</th>
-                                <th className="px-4 py-2 font-black">{t("reports.refundStatus")}</th>
-                                <th className="px-4 py-2 font-black">{t("reports.reference")}</th>
-                            </tr>
-                            </thead>
-
-                            <tbody>
+                {orders.length > 0 ? (
+                    <>
+                        {/* Mobile cards */}
+                        <div className="mt-5 space-y-3 lg:hidden">
                             {orders.map((order) => (
-                                <tr key={order.id} className="group">
-                                    <td className="rounded-l-2xl border-y border-l border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#25120F] group-hover:bg-[#FFF3E2]">
-                                        {order.order_number}
-                                    </td>
+                                <article
+                                    key={order.id}
+                                    className="rounded-[1.5rem] border border-[#EADDCF] bg-white/72 p-4 shadow-sm shadow-[#4C2314]/6"
+                                >
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-black text-[#25120F]">
+                                                {order.order_number}
+                                            </p>
 
-                                    <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-semibold text-[#25120F] group-hover:bg-[#FFF3E2]">
-                                        {formatStockholmDateTime(order.paid_at, locale)}
-                                    </td>
+                                            <p className="mt-1 text-xs font-medium text-[#A39388]">
+                                                {formatStockholmDateTime(
+                                                    order.paid_at,
+                                                    locale
+                                                )}
+                                            </p>
+                                        </div>
 
-                                    <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-bold text-[#25120F] group-hover:bg-[#FFF3E2]">
-                                        {getPaymentLabel(order.payment_method)}
-                                    </td>
+                                        <p className="shrink-0 text-sm font-black text-[#C7192E]">
+                                            {formatCurrency(
+                                                safeAmount(order.total_gross),
+                                                locale
+                                            )}
+                                        </p>
+                                    </div>
 
-                                    <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#25120F] group-hover:bg-[#FFF3E2]">
-                                        {formatCurrency(safeAmount(order.total_gross), locale)}
-                                    </td>
+                                    <div className="mt-3 flex flex-wrap gap-2">
+                                        <span className="rounded-full border border-[#EADDCF] bg-[#FFF3E2] px-2.5 py-1 text-[11px] font-black text-[#7B6A61]">
+                                            {getPaymentLabel(order.payment_method)}
+                                        </span>
 
-                                    <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-semibold text-[#25120F] group-hover:bg-[#FFF3E2]">
-                                        {formatCurrency(safeAmount(order.total_net), locale)}
-                                    </td>
+                                        <span className="rounded-full border border-[#EADDCF] bg-[#FFF3E2] px-2.5 py-1 text-[11px] font-black text-[#7B6A61]">
+                                            {order.refund_status || "none"}
+                                        </span>
+                                    </div>
 
-                                    <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-semibold text-[#C7192E] group-hover:bg-[#FFF3E2]">
-                                        {formatCurrency(safeAmount(order.total_vat), locale)}
-                                    </td>
+                                    <div className="mt-4 grid grid-cols-2 gap-2 rounded-[1.25rem] border border-[#EADDCF] bg-[#FFF9F1]/70 p-3">
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#A39388]">
+                                                {t("reports.net")}
+                                            </p>
+                                            <p className="mt-1 text-sm font-black text-[#25120F]">
+                                                {formatCurrency(
+                                                    safeAmount(order.total_net),
+                                                    locale
+                                                )}
+                                            </p>
+                                        </div>
 
-                                    <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-bold text-[#25120F] group-hover:bg-[#FFF3E2]">
-                                        {order.refund_status || "none"}
-                                    </td>
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#A39388]">
+                                                {t("reports.vat")}
+                                            </p>
+                                            <p className="mt-1 text-sm font-black text-[#C7192E]">
+                                                {formatCurrency(
+                                                    safeAmount(order.total_vat),
+                                                    locale
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
 
-                                    <td className="rounded-r-2xl border-y border-r border-[#EADDCF] bg-white/70 px-4 py-4 font-mono text-xs font-bold text-[#6F5E55] group-hover:bg-[#FFF3E2]">
-                                        {shortenReference(order.payment_reference)}
-                                    </td>
-                                </tr>
+                                    <div className="mt-3 rounded-[1.25rem] border border-[#EADDCF] bg-white/70 p-3">
+                                        <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#A39388]">
+                                            {t("reports.reference")}
+                                        </p>
+
+                                        <p className="mt-1 break-all font-mono text-xs font-bold text-[#6F5E55]">
+                                            {shortenReference(
+                                                order.payment_reference
+                                            )}
+                                        </p>
+                                    </div>
+                                </article>
                             ))}
-                            </tbody>
-                        </table>
-                    ) : (
-                        <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
-                            <p className="text-sm font-black text-[#25120F]">
-                                {t("reports.noPaidOrders")}
-                            </p>
-                            <p className="mt-2 text-sm font-medium text-[#7B6A61]">
-                                {t("reports.noPaidOrdersDescription")}
-                            </p>
                         </div>
-                    )}
-                </div>
+
+                        {/* Desktop table */}
+                        <div className="mt-5 hidden overflow-x-auto lg:block">
+                            <table className="w-full min-w-[1100px] border-separate border-spacing-y-2 text-left">
+                                <thead>
+                                <tr className="text-xs uppercase tracking-[0.16em] text-[#A39388]">
+                                    <th className="px-4 py-2 font-black">
+                                        {t("reports.order")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("reports.paidAt")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("reports.payment")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("reports.gross")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("reports.net")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("reports.vat")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("reports.refundStatus")}
+                                    </th>
+                                    <th className="px-4 py-2 font-black">
+                                        {t("reports.reference")}
+                                    </th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                {orders.map((order) => (
+                                    <tr key={order.id} className="group">
+                                        <td className="rounded-l-2xl border-y border-l border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#25120F] group-hover:bg-[#FFF3E2]">
+                                            {order.order_number}
+                                        </td>
+
+                                        <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-semibold text-[#25120F] group-hover:bg-[#FFF3E2]">
+                                            {formatStockholmDateTime(
+                                                order.paid_at,
+                                                locale
+                                            )}
+                                        </td>
+
+                                        <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-bold text-[#25120F] group-hover:bg-[#FFF3E2]">
+                                            {getPaymentLabel(
+                                                order.payment_method
+                                            )}
+                                        </td>
+
+                                        <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#25120F] group-hover:bg-[#FFF3E2]">
+                                            {formatCurrency(
+                                                safeAmount(order.total_gross),
+                                                locale
+                                            )}
+                                        </td>
+
+                                        <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-semibold text-[#25120F] group-hover:bg-[#FFF3E2]">
+                                            {formatCurrency(
+                                                safeAmount(order.total_net),
+                                                locale
+                                            )}
+                                        </td>
+
+                                        <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-semibold text-[#C7192E] group-hover:bg-[#FFF3E2]">
+                                            {formatCurrency(
+                                                safeAmount(order.total_vat),
+                                                locale
+                                            )}
+                                        </td>
+
+                                        <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-bold text-[#25120F] group-hover:bg-[#FFF3E2]">
+                                            {order.refund_status || "none"}
+                                        </td>
+
+                                        <td className="rounded-r-2xl border-y border-r border-[#EADDCF] bg-white/70 px-4 py-4 font-mono text-xs font-bold text-[#6F5E55] group-hover:bg-[#FFF3E2]">
+                                            {shortenReference(
+                                                order.payment_reference
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
+                ) : (
+                    <div className="mt-5 rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
+                        <p className="text-sm font-black text-[#25120F]">
+                            {t("reports.noPaidOrders")}
+                        </p>
+
+                        <p className="mt-2 text-sm font-medium text-[#7B6A61]">
+                            {t("reports.noPaidOrdersDescription")}
+                        </p>
+                    </div>
+                )}
             </section>
-        </AdminShell>
+        </div>
     );
 }

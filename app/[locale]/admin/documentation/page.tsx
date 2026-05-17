@@ -12,7 +12,6 @@ import {
     UsersRound
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { AdminShell } from "@/components/admin/AdminShell";
 import { createClient } from "@/lib/supabase/server";
 import { canManageSettings } from "@/lib/auth/roles";
 
@@ -34,14 +33,14 @@ function DocumentationSection({
     items: string[];
 }) {
     return (
-        <section className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl lg:p-6">
-            <div className="mb-5 flex items-start gap-4 border-b border-[#EADDCF] pb-5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
-                    <Icon className="h-5 w-5 text-[#C7192E]" />
+        <section className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:p-5 lg:rounded-[2rem] lg:p-6">
+            <div className="mb-4 flex items-start gap-3 border-b border-[#EADDCF] pb-4 sm:mb-5 sm:gap-4 sm:pb-5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 sm:h-11 sm:w-11">
+                    <Icon className="h-4 w-4 text-[#C7192E] sm:h-5 sm:w-5" />
                 </div>
 
-                <div>
-                    <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
+                <div className="min-w-0">
+                    <h2 className="text-lg font-black tracking-[-0.03em] text-[#25120F] sm:text-xl">
                         {title}
                     </h2>
 
@@ -51,11 +50,11 @@ function DocumentationSection({
                 </div>
             </div>
 
-            <ul className="space-y-3">
+            <ul className="space-y-2.5 sm:space-y-3">
                 {items.map((item) => (
                     <li
                         key={item}
-                        className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3 text-sm font-bold leading-6 text-[#25120F]"
+                        className="rounded-2xl border border-[#EADDCF] bg-white/70 px-3.5 py-3 text-sm font-bold leading-6 text-[#25120F] sm:px-4"
                     >
                         {item}
                     </li>
@@ -93,132 +92,131 @@ export default async function DocumentationPage({
     }
 
     return (
-        <AdminShell>
-            <div className="space-y-6">
-                <section className="relative overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:p-6">
-                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
+        <div className="space-y-6">
+            {/* Desktop hero */}
+            <section className="relative hidden overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:block lg:p-6">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
 
-                    <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-                        <div>
-                            <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
-                                <BookOpen className="h-3.5 w-3.5" />
-                                {t("documentation.eyebrow")}
-                            </div>
-
-                            <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
-                                {t("documentation.title")}
-                            </h1>
-
-                            <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                                {t("documentation.subtitle")}
-                            </p>
+                <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+                    <div>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
+                            <BookOpen className="h-3.5 w-3.5" />
+                            {t("documentation.eyebrow")}
                         </div>
 
-                        <div className="flex h-12 items-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 text-sm font-black text-[#7B6A61]">
-                            <ShieldCheck className="h-4 w-4 text-[#C7192E]" />
-                            {t("documentation.accessBadge")}
-                        </div>
+                        <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
+                            {t("documentation.title")}
+                        </h1>
+
+                        <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
+                            {t("documentation.subtitle")}
+                        </p>
                     </div>
-                </section>
 
-                <section className="grid gap-6 xl:grid-cols-2">
-                    <DocumentationSection
-                        icon={LayoutDashboard}
-                        title={t("documentation.dashboard.title")}
-                        description={t("documentation.dashboard.description")}
-                        items={[
-                            t("documentation.dashboard.item1"),
-                            t("documentation.dashboard.item2"),
-                            t("documentation.dashboard.item3"),
-                            t("documentation.dashboard.item4")
-                        ]}
-                    />
+                    <div className="flex h-12 items-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 text-sm font-black text-[#7B6A61]">
+                        <ShieldCheck className="h-4 w-4 text-[#C7192E]" />
+                        {t("documentation.accessBadge")}
+                    </div>
+                </div>
+            </section>
 
-                    <DocumentationSection
-                        icon={ClipboardList}
-                        title={t("documentation.orders.title")}
-                        description={t("documentation.orders.description")}
-                        items={[
-                            t("documentation.orders.item1"),
-                            t("documentation.orders.item2"),
-                            t("documentation.orders.item3"),
-                            t("documentation.orders.item4")
-                        ]}
-                    />
+            <section className="grid gap-4 lg:gap-6 xl:grid-cols-2">
+                <DocumentationSection
+                    icon={LayoutDashboard}
+                    title={t("documentation.dashboard.title")}
+                    description={t("documentation.dashboard.description")}
+                    items={[
+                        t("documentation.dashboard.item1"),
+                        t("documentation.dashboard.item2"),
+                        t("documentation.dashboard.item3"),
+                        t("documentation.dashboard.item4")
+                    ]}
+                />
 
-                    <DocumentationSection
-                        icon={ChefHat}
-                        title={t("documentation.kitchen.title")}
-                        description={t("documentation.kitchen.description")}
-                        items={[
-                            t("documentation.kitchen.item1"),
-                            t("documentation.kitchen.item2"),
-                            t("documentation.kitchen.item3"),
-                            t("documentation.kitchen.item4")
-                        ]}
-                    />
+                <DocumentationSection
+                    icon={ClipboardList}
+                    title={t("documentation.orders.title")}
+                    description={t("documentation.orders.description")}
+                    items={[
+                        t("documentation.orders.item1"),
+                        t("documentation.orders.item2"),
+                        t("documentation.orders.item3"),
+                        t("documentation.orders.item4")
+                    ]}
+                />
 
-                    <DocumentationSection
-                        icon={Package}
-                        title={t("documentation.products.title")}
-                        description={t("documentation.products.description")}
-                        items={[
-                            t("documentation.products.item1"),
-                            t("documentation.products.item2"),
-                            t("documentation.products.item3"),
-                            t("documentation.products.item4")
-                        ]}
-                    />
+                <DocumentationSection
+                    icon={ChefHat}
+                    title={t("documentation.kitchen.title")}
+                    description={t("documentation.kitchen.description")}
+                    items={[
+                        t("documentation.kitchen.item1"),
+                        t("documentation.kitchen.item2"),
+                        t("documentation.kitchen.item3"),
+                        t("documentation.kitchen.item4")
+                    ]}
+                />
 
-                    <DocumentationSection
-                        icon={UsersRound}
-                        title={t("documentation.staff.title")}
-                        description={t("documentation.staff.description")}
-                        items={[
-                            t("documentation.staff.item1"),
-                            t("documentation.staff.item2"),
-                            t("documentation.staff.item3"),
-                            t("documentation.staff.item4")
-                        ]}
-                    />
+                <DocumentationSection
+                    icon={Package}
+                    title={t("documentation.products.title")}
+                    description={t("documentation.products.description")}
+                    items={[
+                        t("documentation.products.item1"),
+                        t("documentation.products.item2"),
+                        t("documentation.products.item3"),
+                        t("documentation.products.item4")
+                    ]}
+                />
 
-                    <DocumentationSection
-                        icon={Settings}
-                        title={t("documentation.settingsSection.title")}
-                        description={t("documentation.settingsSection.description")}
-                        items={[
-                            t("documentation.settingsSection.item1"),
-                            t("documentation.settingsSection.item2"),
-                            t("documentation.settingsSection.item3"),
-                            t("documentation.settingsSection.item4")
-                        ]}
-                    />
+                <DocumentationSection
+                    icon={UsersRound}
+                    title={t("documentation.staff.title")}
+                    description={t("documentation.staff.description")}
+                    items={[
+                        t("documentation.staff.item1"),
+                        t("documentation.staff.item2"),
+                        t("documentation.staff.item3"),
+                        t("documentation.staff.item4")
+                    ]}
+                />
 
-                    <DocumentationSection
-                        icon={CreditCard}
-                        title={t("documentation.payments.title")}
-                        description={t("documentation.payments.description")}
-                        items={[
-                            t("documentation.payments.item1"),
-                            t("documentation.payments.item2"),
-                            t("documentation.payments.item3"),
-                            t("documentation.payments.item4")
-                        ]}
-                    />
+                <DocumentationSection
+                    icon={Settings}
+                    title={t("documentation.settingsSection.title")}
+                    description={t("documentation.settingsSection.description")}
+                    items={[
+                        t("documentation.settingsSection.item1"),
+                        t("documentation.settingsSection.item2"),
+                        t("documentation.settingsSection.item3"),
+                        t("documentation.settingsSection.item4")
+                    ]}
+                />
 
-                    <DocumentationSection
-                        icon={Truck}
-                        title={t("documentation.deployment.title")}
-                        description={t("documentation.deployment.description")}
-                        items={[
-                            t("documentation.deployment.item1"),
-                            t("documentation.deployment.item2"),
-                            t("documentation.deployment.item3"),
-                            t("documentation.deployment.item4")
-                        ]}
-                    />
-                </section>
-            </div>
-        </AdminShell>
+                <DocumentationSection
+                    icon={CreditCard}
+                    title={t("documentation.payments.title")}
+                    description={t("documentation.payments.description")}
+                    items={[
+                        t("documentation.payments.item1"),
+                        t("documentation.payments.item2"),
+                        t("documentation.payments.item3"),
+                        t("documentation.payments.item4")
+                    ]}
+                />
+
+                <DocumentationSection
+                    icon={Truck}
+                    title={t("documentation.deployment.title")}
+                    description={t("documentation.deployment.description")}
+                    items={[
+                        t("documentation.deployment.item1"),
+                        t("documentation.deployment.item2"),
+                        t("documentation.deployment.item3"),
+                        t("documentation.deployment.item4")
+                    ]}
+                />
+            </section>
+        </div>
     );
 }
