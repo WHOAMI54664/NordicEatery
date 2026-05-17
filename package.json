@@ -10,6 +10,7 @@
     "translate": "tsx scripts/translate.ts"
   },
   "dependencies": {
+    "@lottiefiles/dotlottie-react": "^0.19.2",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.1",
     "@vercel/analytics": "^2.0.1",

@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { EditableText } from "@/components/EditableText";
 import { createClient } from "@/lib/supabase/server";
 import { EditableImage } from "@/components/EditableImage";
+import { FoodTruckAnimation } from "@/components/FoodTruckAnimation";
 
 export default async function MikesPage({
                                           params,
@@ -102,20 +103,10 @@ export default async function MikesPage({
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-[2rem] bg-white/70 p-3 shadow-xl backdrop-blur">
-              <EditableImage
-                  src={text("mikes.hero.image", "heroImage")}
-                  alt="Mike's Food Truck"
-                  imageKey="mikes.hero.image"
-                  locale={locale}
-                  page="mikes"
-                  canEdit={isOwner}
-                  width={900}
-                  height={650}
-                  priority
-                  className="relative"
-                  imageClassName="h-[420px] w-full rounded-[1.5rem] object-cover"
-              />
+            <div className="flex h-[520px] items-center justify-center bg-transparent">
+              <div className="h-full w-full">
+                <FoodTruckAnimation />
+              </div>
             </div>
           </section>
 
