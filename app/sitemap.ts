@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 const baseUrl = "https://www.nordiceatery.se";
 
-const locales = ["en", "sv", "pl", "ru"] as const;
+const locales = ["sv", "en", "pl", "ru"] as const;
 
 const pages = [
     {
@@ -61,27 +61,34 @@ const pages = [
     priority: number;
 }>;
 
+function buildLocalizedUrl(locale: (typeof locales)[number], path: string) {
+    return path
+        ? `${baseUrl}/${locale}/${path}`
+        : `${baseUrl}/${locale}`;
+}
+
+function buildLanguageAlternates(path: string) {
+    return {
+        "sv-SE": buildLocalizedUrl("sv", path),
+        "en-SE": buildLocalizedUrl("en", path),
+        "pl-PL": buildLocalizedUrl("pl", path),
+        "ru-RU": buildLocalizedUrl("ru", path),
+        "x-default": buildLocalizedUrl("sv", path),
+    };
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
     const lastModified = new Date();
 
-    const localizedPages: MetadataRoute.Sitemap = locales.flatMap((locale) =>
+    return locales.flatMap((locale) =>
         pages.map((page) => ({
-            url: page.path
-                ? `${baseUrl}/${locale}/${page.path}`
-                : `${baseUrl}/${locale}`,
+            url: buildLocalizedUrl(locale, page.path),
             lastModified,
             changeFrequency: page.changeFrequency,
             priority: page.priority,
+            alternates: {
+                languages: buildLanguageAlternates(page.path),
+            },
         }))
     );
-
-    return [
-        {
-            url: baseUrl,
-            lastModified,
-            changeFrequency: "daily",
-            priority: 1,
-        },
-        ...localizedPages,
-    ];
 }
