@@ -70,9 +70,7 @@ export default function middleware(request: NextRequest) {
   }
 
   if (!hasLocale && pathname === "/") {
-    const locale = getPreferredLocale(request);
-
-    return NextResponse.redirect(new URL(`/${locale}`, request.url));
+    return NextResponse.redirect(new URL("/sv", request.url));
   }
 
   return intlMiddleware(request);
