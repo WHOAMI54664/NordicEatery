@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
@@ -6,11 +7,141 @@ import { HomeHeroPoster } from "@/components/HomeHeroPoster";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 
+type HomePageProps = {
+  params: Promise<{
+    locale: string;
+  }>;
+};
+
+const baseUrl = "https://www.nordiceatery.se";
+
+const homeSeo = {
+  sv: {
+    title: "Matleverans i Boden | Nordic Eatery",
+    description:
+        "Beställ färsk polsk comfort food, street food, fries och takeaway i Boden. Nordic Eatery erbjuder varm mat för upphämtning och leverans.",
+    ogLocale: "sv_SE",
+    keywords: [
+      "matleverans Boden",
+      "takeaway Boden",
+      "polsk mat Boden",
+      "street food Boden",
+      "mat i Boden",
+      "Maczanka Boden",
+      "Knysza Boden",
+      "catering Boden",
+    ],
+  },
+  en: {
+    title: "Food delivery in Boden | Nordic Eatery",
+    description:
+        "Order fresh Polish comfort food, street food, fries and takeaway in Boden. Nordic Eatery offers hot food for pickup and delivery.",
+    ogLocale: "en_SE",
+    keywords: [
+      "food delivery Boden",
+      "takeaway Boden",
+      "Polish food Boden",
+      "Polish street food Boden",
+      "food in Boden",
+      "Maczanka Boden",
+      "Knysza Boden",
+      "catering Boden",
+    ],
+  },
+  pl: {
+    title: "Dostawa jedzenia w Boden | Nordic Eatery",
+    description:
+        "Zamów świeże polskie comfort food, street food, frytki i jedzenie na wynos w Boden. Nordic Eatery oferuje odbiór i dostawę.",
+    ogLocale: "pl_PL",
+    keywords: [
+      "dostawa jedzenia Boden",
+      "jedzenie na wynos Boden",
+      "polskie jedzenie Boden",
+      "street food Boden",
+      "Maczanka Boden",
+      "Knysza Boden",
+      "catering Boden",
+    ],
+  },
+  ru: {
+    title: "Доставка еды в Будене | Nordic Eatery",
+    description:
+        "Заказывайте свежую польскую comfort food, street food, картофель фри и еду навынос в Будене. Nordic Eatery предлагает самовывоз и доставку.",
+    ogLocale: "ru_RU",
+    keywords: [
+      "доставка еды Буден",
+      "еда навынос Буден",
+      "польская еда Буден",
+      "street food Буден",
+      "Maczanka Буден",
+      "Knysza Буден",
+      "кейтеринг Буден",
+    ],
+  },
+} as const;
+
+function getHomeSeo(locale: string) {
+  if (locale === "sv" || locale === "en" || locale === "pl" || locale === "ru") {
+    return homeSeo[locale];
+  }
+
+  return homeSeo.sv;
+}
+
+export async function generateMetadata({
+                                         params,
+                                       }: HomePageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const seo = getHomeSeo(locale);
+
+  const canonicalPath = `/${locale}`;
+  const canonicalUrl = `${baseUrl}${canonicalPath}`;
+
+  return {
+    title: seo.title,
+    description: seo.description,
+    keywords: seo.keywords,
+
+    alternates: {
+      canonical: canonicalPath,
+      languages: {
+        "sv-SE": "/sv",
+        "en-SE": "/en",
+        "pl-PL": "/pl",
+        "ru-RU": "/ru",
+        "x-default": "/sv",
+      },
+    },
+
+    openGraph: {
+      title: seo.title,
+      description: seo.description,
+      url: canonicalUrl,
+      siteName: "Nordic Eatery",
+      locale: seo.ogLocale,
+      type: "website",
+      images: [
+        {
+          url: "/og-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: "Nordic Eatery food delivery in Boden",
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title: seo.title,
+      description: seo.description,
+      images: ["/og-image.jpg"],
+    },
+  };
+}
+
 export default async function HomePage({
                                          params,
-                                       }: {
-  params: Promise<{ locale: string }>;
-}) {
+                                       }: HomePageProps) {
   const { locale } = await params;
 
   const supabase = await createClient();
@@ -316,7 +447,7 @@ export default async function HomePage({
               </Link>
 
               <Link
-                  href={`/${locale}/burgers-boden`}
+                  href={`/${locale}/polish-food-boden`}
                   title={text("home.seoLinks.burgers", "seoLinks.burgers")}
                   aria-label={text("home.seoLinks.burgers", "seoLinks.burgers")}
                   className="rounded-xl border border-[#EADDCF] bg-white/70 px-4 py-3 text-center text-sm font-black text-dark transition hover:border-paprika/30 hover:text-paprika"

@@ -3,30 +3,10 @@ import "./globals.css";
 import { CartProvider } from "@/components/CartProvider";
 import { lufga } from "@/app/fonts";
 import { Analytics } from "@vercel/analytics/next";
+import { getLocale } from "next-intl/server";
 
 export const metadata: Metadata = {
     metadataBase: new URL("https://www.nordiceatery.se"),
-
-    title: {
-        default: "Food delivery in Boden | Nordic Eatery",
-        template: "%s | Nordic Eatery",
-    },
-
-    description:
-        "Order fresh Polish comfort food, burgers, fries and street food in Boden. Fast takeaway and delivery in 30–40 minutes.",
-
-    keywords: [
-        "food delivery Boden",
-        "takeaway Boden",
-        "Polish food Boden",
-        "Polish street food Boden",
-        "Maczanka Boden",
-        "Knysza Boden",
-        "street food Boden",
-        "catering Boden",
-        "matleverans Boden",
-        "polsk mat Boden",
-    ],
 
     icons: {
         icon: [
@@ -40,32 +20,6 @@ export const metadata: Metadata = {
     },
 
     manifest: "/site.webmanifest",
-
-    openGraph: {
-        title: "Food delivery in Boden | Nordic Eatery",
-        description:
-            "Fresh Polish comfort food, burgers, fries and street food in Boden. Fast takeaway and delivery in 30–40 minutes.",
-        url: "https://www.nordiceatery.se",
-        siteName: "Nordic Eatery",
-        locale: "en_SE",
-        type: "website",
-        images: [
-            {
-                url: "/og-image.jpg",
-                width: 1200,
-                height: 630,
-                alt: "Nordic Eatery food delivery in Boden",
-            },
-        ],
-    },
-
-    twitter: {
-        card: "summary_large_image",
-        title: "Food delivery in Boden | Nordic Eatery",
-        description:
-            "Order fresh Polish comfort food, burgers, fries and street food in Boden.",
-        images: ["/og-image.jpg"],
-    },
 
     robots: {
         index: true,
@@ -97,13 +51,15 @@ const organizationJsonLd = {
     },
 };
 
-export default function RootLayout({
-                                       children,
-                                   }: {
+export default async function RootLayout({
+                                             children,
+                                         }: {
     children: React.ReactNode;
 }) {
+    const locale = await getLocale();
+
     return (
-        <html lang="en" className={lufga.variable}>
+        <html lang={locale} className={lufga.variable}>
         <body className="font-sans">
         <script
             type="application/ld+json"
