@@ -49,6 +49,11 @@ const organizationJsonLd = {
         "@type": "City",
         name: "Boden",
     },
+    sameAs: [
+        "https://www.facebook.com/people/Mikes/61578834173310/",
+        "https://www.instagram.com/mikesfry",
+        "https://www.tiktok.com/@mikes_streetfood",
+    ],
 };
 
 export default async function RootLayout({

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -49,6 +50,78 @@ function PaymentIcons() {
                 </div>
             ))}
         </div>
+    );
+}
+
+function FacebookIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            className="h-4 w-4"
+            fill="currentColor"
+        >
+            <path d="M13.5 21v-7h2.7l.4-3h-3.1V9.1c0-.9.3-1.6 1.7-1.6H17V4.8c-.3 0-1.4-.1-2.6-.1-2.6 0-4.4 1.6-4.4 4.5V11H7v3h3v7h3.5Z" />
+        </svg>
+    );
+}
+
+function InstagramIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <rect x="3" y="3" width="18" height="18" rx="5" />
+            <circle cx="12" cy="12" r="4" />
+            <circle
+                cx="17.5"
+                cy="6.5"
+                r="1"
+                fill="currentColor"
+                stroke="none"
+            />
+        </svg>
+    );
+}
+
+function TikTokIcon() {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            className="h-4 w-4"
+            fill="currentColor"
+        >
+            <path d="M15.7 3c.3 1.7 1.3 3.1 2.8 4 .9.5 1.8.8 2.5.9v3.3c-1.6 0-3.2-.5-4.6-1.4v6.1c0 3.4-2.7 6.1-6.1 6.1S4.2 19.3 4.2 15.9s2.7-6.1 6.1-6.1c.4 0 .8 0 1.2.1v3.5a2.8 2.8 0 0 0-1.2-.3 2.8 2.8 0 1 0 2.8 2.8V3h2.6Z" />
+        </svg>
+    );
+}
+
+type SocialLinkProps = {
+    href: string;
+    label: string;
+    icon: ReactNode;
+};
+
+function SocialLink({ href, label, icon }: SocialLinkProps) {
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={label}
+            title={label}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-dark/10 bg-white/70 text-dark/55 shadow-sm transition hover:-translate-y-0.5 hover:border-paprika/25 hover:bg-white hover:text-paprika hover:shadow-md"
+        >
+            {icon}
+        </a>
     );
 }
 
@@ -145,19 +218,31 @@ export function FooterClient({
                         </p>
 
                         <div className="mt-3 flex flex-col gap-1.5 text-sm font-semibold text-dark/70 sm:gap-2">
-                            <Link href={localePath("/menu")} className="transition hover:text-paprika">
+                            <Link
+                                href={localePath("/menu")}
+                                className="transition hover:text-paprika"
+                            >
                                 {text("footer.menu", "menu")}
                             </Link>
 
-                            <Link href={localePath("/about")} className="transition hover:text-paprika">
+                            <Link
+                                href={localePath("/about")}
+                                className="transition hover:text-paprika"
+                            >
                                 {text("footer.about", "about")}
                             </Link>
 
-                            <Link href={localePath("/booking")} className="transition hover:text-paprika">
+                            <Link
+                                href={localePath("/booking")}
+                                className="transition hover:text-paprika"
+                            >
                                 {text("footer.booking", "booking")}
                             </Link>
 
-                            <Link href={localePath("/mikes")} className="transition hover:text-paprika">
+                            <Link
+                                href={localePath("/mikes")}
+                                className="transition hover:text-paprika"
+                            >
                                 {text("footer.foodTruck", "foodTruck")}
                             </Link>
                         </div>
@@ -176,15 +261,24 @@ export function FooterClient({
                         </p>
 
                         <div className="mt-3 flex flex-col gap-1.5 text-sm font-semibold text-dark/70 sm:gap-2">
-                            <Link href={localePath("/catering")} className="transition hover:text-paprika">
+                            <Link
+                                href={localePath("/catering")}
+                                className="transition hover:text-paprika"
+                            >
                                 {text("footer.catering", "catering")}
                             </Link>
 
-                            <Link href={localePath("/contact")} className="transition hover:text-paprika">
+                            <Link
+                                href={localePath("/contact")}
+                                className="transition hover:text-paprika"
+                            >
                                 {text("footer.contact", "contact")}
                             </Link>
 
-                            <Link href={localePath("/support")} className="transition hover:text-paprika">
+                            <Link
+                                href={localePath("/support")}
+                                className="transition hover:text-paprika"
+                            >
                                 {text("footer.support", "support")}
                             </Link>
                         </div>
@@ -203,15 +297,24 @@ export function FooterClient({
                         </p>
 
                         <div className="mt-3 flex flex-col gap-1.5 text-sm font-semibold text-dark/70 sm:gap-2">
-                            <Link href={localePath("/terms")} className="transition hover:text-paprika">
+                            <Link
+                                href={localePath("/terms")}
+                                className="transition hover:text-paprika"
+                            >
                                 {text("footer.terms", "terms")}
                             </Link>
 
-                            <Link href={localePath("/privacy")} className="transition hover:text-paprika">
+                            <Link
+                                href={localePath("/privacy")}
+                                className="transition hover:text-paprika"
+                            >
                                 {text("footer.privacy", "privacy")}
                             </Link>
 
-                            <Link href={localePath("/contact")} className="transition hover:text-paprika">
+                            <Link
+                                href={localePath("/contact")}
+                                className="transition hover:text-paprika"
+                            >
                                 {text("footer.refunds", "refunds")}
                             </Link>
                         </div>
@@ -232,9 +335,13 @@ export function FooterClient({
                         <div className="mt-3 text-sm font-semibold leading-6 text-dark/70">
                             <p>{businessSettings?.brand_name || "Nordic Eatery"}</p>
 
-                            {businessSettings?.address && <p>{businessSettings.address}</p>}
+                            {businessSettings?.address && (
+                                <p>{businessSettings.address}</p>
+                            )}
 
-                            {businessSettings?.location && <p>{businessSettings.location}</p>}
+                            {businessSettings?.location && (
+                                <p>{businessSettings.location}</p>
+                            )}
 
                             {businessSettings?.organization_number && (
                                 <p className="mt-2">
@@ -248,10 +355,13 @@ export function FooterClient({
 
                             <div className="mt-2">
                                 <p className="break-words">
-                                    {businessSettings?.support_email || "kontakt@nordiceatery.se"}
+                                    {businessSettings?.support_email ||
+                                        "kontakt@nordiceatery.se"}
                                 </p>
 
-                                {businessSettings?.phone && <p>{businessSettings.phone}</p>}
+                                {businessSettings?.phone && (
+                                    <p>{businessSettings.phone}</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -269,23 +379,23 @@ export function FooterClient({
                                     key={key}
                                     className="rounded-full border border-dark/10 bg-cream px-3 py-2 text-xs font-bold text-dark/70"
                                 >
-                  <EditableText
-                      value={text(key, fallbackKey)}
-                      textKey={key}
-                      locale={locale}
-                      page="footer"
-                      canEdit={canEdit}
-                      as="span"
-                  />
-                </span>
+                                    <EditableText
+                                        value={text(key, fallbackKey)}
+                                        textKey={key}
+                                        locale={locale}
+                                        page="footer"
+                                        canEdit={canEdit}
+                                        as="span"
+                                    />
+                                </span>
                             ))}
                         </div>
                     </div>
                 )}
 
                 <div className="mt-8 border-t border-dark/10 pt-5">
-                    <div className="flex flex-col items-center justify-between gap-4 text-xs text-dark/50 sm:flex-row">
-                        <p>
+                    <div className="flex flex-col items-center gap-4 text-xs text-dark/50 lg:flex-row lg:justify-between">
+                        <p className="text-center lg:text-left">
                             © {currentYear}{" "}
                             <EditableText
                                 value={value("footer.copyrightBrand", "NordicEatery")}
@@ -297,20 +407,52 @@ export function FooterClient({
                             />
                         </p>
 
-                        <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
-                            <Link href={localePath("/terms")} className="transition hover:text-paprika">
+                        <div className="flex items-center justify-center gap-2">
+                            <SocialLink
+                                href="https://www.facebook.com/people/Mikes/61578834173310/"
+                                label="Facebook"
+                                icon={<FacebookIcon />}
+                            />
+
+                            <SocialLink
+                                href="https://www.instagram.com/mikesfry"
+                                label="Instagram"
+                                icon={<InstagramIcon />}
+                            />
+
+                            <SocialLink
+                                href="https://www.tiktok.com/@mikes_streetfood"
+                                label="TikTok"
+                                icon={<TikTokIcon />}
+                            />
+                        </div>
+
+                        <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 lg:justify-end">
+                            <Link
+                                href={localePath("/terms")}
+                                className="transition hover:text-paprika"
+                            >
                                 {text("footer.terms", "terms")}
                             </Link>
 
-                            <Link href={localePath("/privacy")} className="transition hover:text-paprika">
+                            <Link
+                                href={localePath("/privacy")}
+                                className="transition hover:text-paprika"
+                            >
                                 {text("footer.privacy", "privacy")}
                             </Link>
 
-                            <Link href={localePath("/contact")} className="transition hover:text-paprika">
+                            <Link
+                                href={localePath("/contact")}
+                                className="transition hover:text-paprika"
+                            >
                                 {text("footer.contact", "contact")}
                             </Link>
 
-                            <Link href={localePath("/support")} className="transition hover:text-paprika">
+                            <Link
+                                href={localePath("/support")}
+                                className="transition hover:text-paprika"
+                            >
                                 {text("footer.support", "support")}
                             </Link>
                         </div>
