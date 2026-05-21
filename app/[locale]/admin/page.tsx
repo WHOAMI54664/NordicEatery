@@ -5,14 +5,13 @@ import {
   CreditCard,
   Package,
   Truck,
-  Users
+  Users,
 } from "lucide-react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { AdminStatCard } from "@/components/admin/AdminStatCard";
 import { createClient } from "@/lib/supabase/server";
-
 
 type AdminPageProps = {
   params: Promise<{
@@ -39,6 +38,7 @@ type ProfileRow = {
 type OrderRow = {
   id: string;
   order_number?: string | null;
+  display_order_number?: string | null;
   customer_name?: string | null;
   customerName?: string | null;
   customer_phone?: string | null;
@@ -55,19 +55,24 @@ function formatCurrency(value: number, locale: string) {
   return new Intl.NumberFormat(locale === "en" ? "en-SE" : locale, {
     style: "currency",
     currency: "SEK",
-    maximumFractionDigits: 0
+    maximumFractionDigits: 0,
   }).format(value);
 }
 
 function formatOrderNumber(order: OrderRow) {
-  if (order.order_number) return order.order_number;
+  if (order.display_order_number) {
+    return `#${order.display_order_number}`;
+  }
 
-  if (!order.id) return "MF-ORDER";
+  if (order.order_number && order.order_number.startsWith("MF-")) {
+    return order.order_number;
+  }
+
+  if (!order.id) return "#---";
 
   const cleanId = order.id.replace(/-/g, "").toUpperCase();
-  const shortId = cleanId.slice(-7);
 
-  return `MF-${shortId}`;
+  return `#${cleanId.slice(-3)}`;
 }
 
 function getTodayStartIso() {
@@ -183,7 +188,7 @@ async function getOrders(
   const { data, error } = await supabase
       .from("orders")
       .select(
-          "id, order_number, customer_name, customer_phone, total_price, status, delivery_type, created_at"
+          "id, order_number, display_order_number, customer_name, customer_phone, total_price, status, delivery_type, created_at"
       )
       .gte("created_at", todayStart)
       .order("created_at", { ascending: false })
@@ -205,19 +210,17 @@ export default async function AdminPage({ params }: AdminPageProps) {
   const supabase = await createClient();
 
   const {
-    data: { user }
+    data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
     redirect(`/${locale}/login?next=/${locale}/admin`);
   }
 
-
-
   const [products, profiles, orders] = await Promise.all([
     getProducts(supabase),
     getProfiles(supabase),
-    getOrders(supabase)
+    getOrders(supabase),
   ]);
 
   const todayRevenue = orders.reduce((sum, order) => {
@@ -246,8 +249,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
 
   const lowStockItems = products.filter((product) => {
     return (
-        Boolean(product.track_stock) &&
-        Number(product.stock_quantity || 0) <= 5
+        Boolean(product.track_stock) && Number(product.stock_quantity || 0) <= 5
     );
   }).length;
 
@@ -269,7 +271,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
       total: formatCurrency(getOrderTotal(order), locale),
       statusKey,
       statusLabel: t(`statuses.${statusKey}`),
-      time: getTimeAgo(createdAt, t)
+      time: getTimeAgo(createdAt, t),
     };
   });
 
@@ -281,7 +283,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
             : t("dashboard.availableNow"),
     revenue: product.price
         ? formatCurrency(product.price, locale)
-        : t("dashboard.noPrice")
+        : t("dashboard.noPrice"),
   }));
 
   return (
@@ -315,7 +317,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
               title={t("dashboard.lowStockItems")}
               value={String(lowStockItems)}
               description={t("dashboard.productsAvailable", {
-                count: availableProducts
+                count: availableProducts,
               })}
               trend={t("dashboard.check")}
               icon={Package}
@@ -371,7 +373,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
                     <tbody>
                     {recentOrders.map((order) => (
                         <tr key={order.id} className="group">
-                          <td className="rounded-l-2xl border-y border-l border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#25120F] group-hover:bg-[#FFF3E2]">
+                          <td className="rounded-l-2xl border-y border-l border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#C7192E] group-hover:bg-[#FFF3E2]">
                             {order.displayId}
                           </td>
 
@@ -523,6 +525,6 @@ export default async function AdminPage({ params }: AdminPageProps) {
             </div>
           </div>
         </section>
-        </>
+      </>
   );
 }

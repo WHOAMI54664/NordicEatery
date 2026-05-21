@@ -24,6 +24,7 @@ type KitchenOrderItem = {
 type DbOrder = {
   id: string;
   order_number: string | null;
+  display_order_number: string | null;
   customer_name: string;
   customer_phone: string;
   address: string;
@@ -63,10 +64,16 @@ function formatCurrency(value: number) {
 }
 
 function formatOrderNumber(order: DbOrder) {
-  if (order.order_number) return order.order_number;
+  if (order.display_order_number) {
+    return order.display_order_number;
+  }
+
+  if (order.order_number && order.order_number.startsWith("MF-")) {
+    return order.order_number.replace(/^#/, "");
+  }
 
   const cleanId = order.id.replace(/-/g, "").toUpperCase();
-  return `MF-${cleanId.slice(-7)}`;
+  return cleanId.slice(-3);
 }
 
 function getPaymentClass(paymentStatus: DbOrder["payment_status"]) {
@@ -159,7 +166,7 @@ export function KitchenBoard() {
     const { data, error } = await supabase
         .from("orders")
         .select(
-            "id, order_number, customer_name, customer_phone, address, delivery_type, comment, items, total_price, status, payment_method, payment_status, created_at"
+            "id, order_number, display_order_number, customer_name, customer_phone, address, delivery_type, comment, items, total_price, status, payment_method, payment_status, created_at"
         )
         .order("created_at", { ascending: true });
 
@@ -524,7 +531,7 @@ export function KitchenBoard() {
                                 >
                                   <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0">
-                                      <p className="text-xs font-black uppercase tracking-[0.18em] text-[#C7192E]">
+                                      <p className="text-2xl font-black uppercase tracking-[-0.04em] text-[#C7192E]">
                                         #{formatOrderNumber(order)}
                                       </p>
 
@@ -635,9 +642,7 @@ export function KitchenBoard() {
                                     {order.status === "preparing" ? (
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                updateStatus(order.id, "ready")
-                                            }
+                                            onClick={() => updateStatus(order.id, "ready")}
                                             className="rounded-2xl bg-[#2A1712] px-4 py-3.5 text-sm font-black text-white transition hover:opacity-90 sm:py-3"
                                         >
                                           {t("markReady")}
