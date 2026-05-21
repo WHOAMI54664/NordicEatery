@@ -17,6 +17,7 @@ type CheckoutItem = {
 
 type CheckoutBody = {
   orderId: string;
+  clientOrderId?: string;
   customerName: string;
   customerPhone: string;
   address: string;
@@ -67,6 +68,10 @@ function calculateVatFromGross(gross: number, vatRate: number) {
   };
 }
 
+function getOrderDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export async function POST(request: Request) {
   try {
     const stripe = getStripe();
@@ -76,6 +81,7 @@ export async function POST(request: Request) {
 
     const {
       orderId,
+      clientOrderId,
       customerName,
       customerPhone,
       address,
@@ -87,7 +93,9 @@ export async function POST(request: Request) {
       locale,
     } = body;
 
-    if (!orderId?.trim()) {
+    const technicalOrderId = orderId || clientOrderId;
+
+    if (!technicalOrderId?.trim()) {
       return NextResponse.json(
           { error: "Order ID is required" },
           { status: 400 }
@@ -135,20 +143,30 @@ export async function POST(request: Request) {
       );
     }
 
+    const { data: displayOrderNumber, error: displayOrderNumberError } =
+        await supabase.rpc("generate_daily_order_number");
+
+    if (displayOrderNumberError || !displayOrderNumber) {
+      console.error(
+          "Generate daily order number error:",
+          displayOrderNumberError
+      );
+
+      return NextResponse.json(
+          { error: "Could not generate order number" },
+          { status: 500 }
+      );
+    }
+
+    const orderDate = getOrderDate();
+
     const normalizedItems = items.map((item) => {
       const quantity = Math.max(1, Math.trunc(safeNumber(item.quantity, 1)));
       const unitPriceGross = roundMoney(safeNumber(item.price));
       const lineTotalGross = roundMoney(unitPriceGross * quantity);
 
-      const unitBreakdown = calculateVatFromGross(
-          unitPriceGross,
-          VAT_RATE
-      );
-
-      const lineBreakdown = calculateVatFromGross(
-          lineTotalGross,
-          VAT_RATE
-      );
+      const unitBreakdown = calculateVatFromGross(unitPriceGross, VAT_RATE);
+      const lineBreakdown = calculateVatFromGross(lineTotalGross, VAT_RATE);
 
       return {
         ...item,
@@ -174,14 +192,6 @@ export async function POST(request: Request) {
         )
     );
 
-    /**
-     * Compatibility logic:
-     * - If frontend already sends deliveryFee, we use it.
-     * - If not, we infer it from totalPrice - items subtotal.
-     *
-     * This does not break the current checkout flow,
-     * and also supports delivery fees correctly for tax reporting.
-     */
     const inferredDeliveryFee = roundMoney(
         Math.max(0, providedTotalPrice - subtotalGross)
     );
@@ -192,10 +202,7 @@ export async function POST(request: Request) {
             : 0
     );
 
-    const subtotalBreakdown = calculateVatFromGross(
-        subtotalGross,
-        VAT_RATE
-    );
+    const subtotalBreakdown = calculateVatFromGross(subtotalGross, VAT_RATE);
 
     const deliveryFeeBreakdown = calculateVatFromGross(
         deliveryFeeGross,
@@ -203,10 +210,7 @@ export async function POST(request: Request) {
     );
 
     const discountGross = 0;
-    const discountBreakdown = calculateVatFromGross(
-        discountGross,
-        VAT_RATE
-    );
+    const discountBreakdown = calculateVatFromGross(discountGross, VAT_RATE);
 
     const totalGross = roundMoney(
         subtotalBreakdown.gross +
@@ -226,13 +230,9 @@ export async function POST(request: Request) {
         discountBreakdown.vat
     );
 
-    /**
-     * This warning will not block checkout.
-     * It only helps us detect if the frontend total and accounting total ever diverge.
-     */
     if (providedTotalPrice !== totalGross) {
       console.warn("Stripe checkout total mismatch:", {
-        orderId,
+        orderId: technicalOrderId,
         providedTotalPrice,
         calculatedTotalGross: totalGross,
         subtotalGross,
@@ -246,7 +246,14 @@ export async function POST(request: Request) {
     const safeLocale = getSafeLocale(locale);
 
     const { error: orderError } = await supabase.from("orders").upsert({
-      order_number: orderId,
+      /**
+       * Technical order ID.
+       * The visible short number is display_order_number.
+       */
+      id: technicalOrderId,
+      order_number: technicalOrderId,
+      display_order_number: displayOrderNumber,
+      order_date: orderDate,
 
       customer_name: customerName.trim(),
       customer_phone: customerPhone.trim(),
@@ -321,10 +328,6 @@ export async function POST(request: Request) {
           },
         }));
 
-    /**
-     * If delivery fee exists, it must also be paid in Stripe.
-     * For the current pickup flow this does nothing.
-     */
     if (deliveryFeeBreakdown.gross > 0) {
       stripeLineItems.push({
         quantity: 1,
@@ -344,10 +347,13 @@ export async function POST(request: Request) {
       line_items: stripeLineItems,
 
       metadata: {
-        orderId,
+        orderId: technicalOrderId,
+        orderNumber: technicalOrderId,
+        displayOrderNumber,
+        orderDate,
       },
 
-      success_url: `${siteUrl}/${safeLocale}/order/${orderId}?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${siteUrl}/${safeLocale}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/${safeLocale}/checkout`,
     });
 
@@ -357,7 +363,7 @@ export async function POST(request: Request) {
           stripe_session_id: session.id,
           updated_at: new Date().toISOString(),
         })
-        .eq("order_number", orderId);
+        .eq("order_number", technicalOrderId);
 
     if (updateError) {
       console.error("Stripe session ID update error:", updateError);
@@ -368,7 +374,13 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({
+      url: session.url,
+      orderId: technicalOrderId,
+      orderNumber: technicalOrderId,
+      displayOrderNumber,
+      orderDate,
+    });
   } catch (error) {
     console.error("Stripe checkout error:", error);
 

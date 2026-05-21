@@ -16,6 +16,7 @@ type OrderItem = {
 
 type CreateOrderBody = {
     orderId?: string;
+    clientOrderId?: string;
     customerName?: string;
     customerPhone?: string;
     address?: string;
@@ -48,6 +49,10 @@ function safeNumber(value: unknown, fallback = 0) {
     return Number.isFinite(numberValue) ? numberValue : fallback;
 }
 
+function getOrderDate() {
+    return new Date().toISOString().slice(0, 10);
+}
+
 export async function POST(request: Request) {
     try {
         const supabase = createAdminClient();
@@ -55,6 +60,7 @@ export async function POST(request: Request) {
 
         const {
             orderId,
+            clientOrderId,
             customerName,
             customerPhone,
             address,
@@ -66,7 +72,9 @@ export async function POST(request: Request) {
             deliveryFee,
         } = body;
 
-        if (!orderId) {
+        const technicalOrderId = orderId || clientOrderId;
+
+        if (!technicalOrderId) {
             return NextResponse.json(
                 { error: "Order ID is required" },
                 { status: 400 }
@@ -102,10 +110,7 @@ export async function POST(request: Request) {
         }
 
         if (!items || items.length === 0) {
-            return NextResponse.json(
-                { error: "Cart is empty" },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
         }
 
         if (paymentMethod !== "cash" && paymentMethod !== "swish") {
@@ -115,21 +120,32 @@ export async function POST(request: Request) {
             );
         }
 
+        const { data: displayOrderNumber, error: displayOrderNumberError } =
+            await supabase.rpc("generate_daily_order_number");
+
+        if (displayOrderNumberError || !displayOrderNumber) {
+            console.error(
+                "Generate daily order number error:",
+                displayOrderNumberError
+            );
+
+            return NextResponse.json(
+                { error: "Could not generate order number" },
+                { status: 500 }
+            );
+        }
+
+        const orderDate = getOrderDate();
+
         const normalizedItems = items.map((item) => {
             const unitPriceGross = safeNumber(item.price);
             const quantity = Math.max(1, Math.trunc(safeNumber(item.quantity, 1)));
 
             const lineTotalGross = roundMoney(unitPriceGross * quantity);
 
-            const unitVatBreakdown = calculateVatFromGross(
-                unitPriceGross,
-                VAT_RATE
-            );
+            const unitVatBreakdown = calculateVatFromGross(unitPriceGross, VAT_RATE);
 
-            const lineVatBreakdown = calculateVatFromGross(
-                lineTotalGross,
-                VAT_RATE
-            );
+            const lineVatBreakdown = calculateVatFromGross(lineTotalGross, VAT_RATE);
 
             return {
                 ...item,
@@ -157,14 +173,6 @@ export async function POST(request: Request) {
 
         const providedTotalPrice = roundMoney(safeNumber(totalPrice));
 
-        /**
-         * Delivery fee logic:
-         * 1. If frontend sends deliveryFee explicitly, use it.
-         * 2. Otherwise infer it as:
-         *    totalPrice - sum of products.
-         *
-         * This keeps compatibility with the current checkout.
-         */
         const inferredDeliveryFee = roundMoney(
             Math.max(0, providedTotalPrice - subtotalGross)
         );
@@ -175,11 +183,7 @@ export async function POST(request: Request) {
                 : 0
         );
 
-        const subtotalBreakdown = calculateVatFromGross(
-            subtotalGross,
-            VAT_RATE
-        );
-
+        const subtotalBreakdown = calculateVatFromGross(subtotalGross, VAT_RATE);
         const deliveryFeeBreakdown = calculateVatFromGross(
             deliveryFeeGross,
             VAT_RATE
@@ -206,11 +210,6 @@ export async function POST(request: Request) {
             discountBreakdown.vat
         );
 
-        /**
-         * Safety check:
-         * total_price is the legacy field used across the project.
-         * It should match the calculated accounting total.
-         */
         if (providedTotalPrice > 0 && providedTotalPrice !== totalGross) {
             console.warn("Order total mismatch:", {
                 providedTotalPrice,
@@ -227,7 +226,15 @@ export async function POST(request: Request) {
             paymentMethod === "cash" ? "unpaid" : "awaiting_payment";
 
         const { error } = await supabase.from("orders").insert({
-            id: orderId,
+            id: technicalOrderId,
+
+            /**
+             * Keep old technical order number for compatibility.
+             * The short customer-facing number is display_order_number.
+             */
+            order_number: technicalOrderId,
+            display_order_number: displayOrderNumber,
+            order_date: orderDate,
 
             customer_name: customerName.trim(),
             customer_phone: customerPhone.trim(),
@@ -284,15 +291,15 @@ export async function POST(request: Request) {
         if (error) {
             console.error("Create order database error:", error);
 
-            return NextResponse.json(
-                { error: error.message },
-                { status: 500 }
-            );
+            return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
         return NextResponse.json({
             success: true,
-            orderId,
+            orderId: technicalOrderId,
+            orderNumber: technicalOrderId,
+            displayOrderNumber,
+            orderDate,
             tax: {
                 vatRate: VAT_RATE,
                 subtotalGross: subtotalBreakdown.gross,

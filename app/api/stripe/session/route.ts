@@ -5,6 +5,23 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+type OrderRow = {
+  id: string;
+  order_number: string | null;
+  display_order_number: string | null;
+  order_date: string | null;
+  customer_name: string | null;
+  customer_phone: string | null;
+  payment_method: string | null;
+  payment_status: string | null;
+  total_price: number | null;
+  total_gross: number | null;
+  total_net: number | null;
+  total_vat: number | null;
+  created_at: string | null;
+  paid_at: string | null;
+};
+
 function getStripe() {
   const secretKey = process.env.STRIPE_SECRET_KEY;
 
@@ -20,9 +37,7 @@ function getPaymentIntentId(
 ) {
   if (!paymentIntent) return null;
 
-  return typeof paymentIntent === "string"
-      ? paymentIntent
-      : paymentIntent.id;
+  return typeof paymentIntent === "string" ? paymentIntent : paymentIntent.id;
 }
 
 export async function GET(request: Request) {
@@ -47,6 +62,13 @@ export async function GET(request: Request) {
     const orderId = session.metadata?.orderId || null;
     const paymentIntentId = getPaymentIntentId(session.payment_intent);
 
+    if (!orderId) {
+      return NextResponse.json(
+          { error: "Missing orderId in Stripe session metadata" },
+          { status: 400 }
+      );
+    }
+
     /**
      * Stripe Checkout Session can return:
      * - payment_status: "paid"
@@ -55,7 +77,7 @@ export async function GET(request: Request) {
      *
      * For Nordic Eatery, only "paid" means the order becomes a confirmed online sale.
      */
-    if (session.payment_status === "paid" && orderId) {
+    if (session.payment_status === "paid") {
       const paidAt = new Date().toISOString();
 
       const { error: updateError } = await supabase
@@ -86,12 +108,76 @@ export async function GET(request: Request) {
       }
     }
 
+    const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .select(
+            `
+        id,
+        order_number,
+        display_order_number,
+        order_date,
+        customer_name,
+        customer_phone,
+        payment_method,
+        payment_status,
+        total_price,
+        total_gross,
+        total_net,
+        total_vat,
+        created_at,
+        paid_at
+      `
+        )
+        .eq("order_number", orderId)
+        .maybeSingle<OrderRow>();
+
+    if (orderError) {
+      console.error("Stripe session order fetch error:", orderError);
+
+      return NextResponse.json(
+          { error: orderError.message },
+          { status: 500 }
+      );
+    }
+
+    if (!order) {
+      return NextResponse.json(
+          { error: "Order not found" },
+          { status: 404 }
+      );
+    }
+
     return NextResponse.json({
-      id: session.id,
-      orderId,
-      paymentStatus: session.payment_status,
-      status: session.status,
-      paymentIntentId,
+      success: true,
+
+      stripe: {
+        id: session.id,
+        paymentStatus: session.payment_status,
+        status: session.status,
+        paymentIntentId,
+      },
+
+      order: {
+        id: order.id,
+        orderId: order.id,
+        orderNumber: order.order_number,
+        displayOrderNumber: order.display_order_number,
+        orderDate: order.order_date,
+
+        customerName: order.customer_name,
+        customerPhone: order.customer_phone,
+
+        paymentMethod: order.payment_method,
+        paymentStatus: order.payment_status,
+
+        totalPrice: order.total_price,
+        totalGross: order.total_gross,
+        totalNet: order.total_net,
+        totalVat: order.total_vat,
+
+        createdAt: order.created_at,
+        paidAt: order.paid_at,
+      },
     });
   } catch (error) {
     console.error("Stripe session error:", error);

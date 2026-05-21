@@ -24,8 +24,14 @@ type CheckoutFormProps = {
   settings: CheckoutSettings;
 };
 
-function createOrderId() {
-  return `MF-${Date.now().toString(36).toUpperCase()}`;
+function createClientOrderId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+
+  return `client-${Date.now().toString(36)}-${Math.random()
+      .toString(36)
+      .slice(2)}`;
 }
 
 export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
@@ -159,11 +165,11 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
     const formData = new FormData(event.currentTarget);
     setIsLoading(true);
 
-    const orderId = createOrderId();
+    const clientOrderId = createClientOrderId();
 
     const orderPayload = {
-      orderId,
-      orderNumber: orderId,
+      orderId: clientOrderId,
+      clientOrderId,
       customerName: String(formData.get("customerName") || ""),
       customerPhone: String(formData.get("customerPhone") || ""),
       address:
@@ -221,7 +227,7 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
           return;
         }
 
-        router.push(`/${locale}/order/${orderId}`);
+        router.push(`/${locale}/order/${clientOrderId}`);
         return;
       }
 
@@ -240,7 +246,9 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
       }
 
       clearCart();
-      router.push(`/${locale}/order/${orderId}`);
+
+      const trackingId = data.orderNumber || data.orderId || clientOrderId;
+      router.push(`/${locale}/order/${trackingId}`);
     } catch (error) {
       console.error("Checkout error:", error);
       alert(t("generalError"));
