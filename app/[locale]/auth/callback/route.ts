@@ -4,37 +4,101 @@ import { createClient } from "@/lib/supabase/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function getSafeNext(next: string | null) {
-  if (!next) return "/set-password";
-  if (!next.startsWith("/") || next.startsWith("//")) return "/set-password";
-  return next;
+type AuthCallbackProps = {
+  params: Promise<{
+    locale: string;
+  }>;
+};
+
+const supportedLocales = ["sv", "en", "pl", "ru"];
+
+function normalizeLocale(locale: string) {
+  return supportedLocales.includes(locale) ? locale : "sv";
 }
 
-export async function GET(
-    request: Request,
-    { params }: { params: Promise<{ locale: string }> }
-) {
+function getSafeNextPath(value: string | null, locale: string) {
+  const safeLocale = normalizeLocale(locale);
+
+  if (!value) {
+    return `/${safeLocale}/profile`;
+  }
+
+  let decodedValue = value;
+
+  try {
+    decodedValue = decodeURIComponent(value);
+  } catch {
+    decodedValue = value;
+  }
+
+  if (!decodedValue.startsWith("/")) {
+    return `/${safeLocale}/profile`;
+  }
+
+  if (decodedValue.startsWith("//")) {
+    return `/${safeLocale}/profile`;
+  }
+
+  /**
+   * Staff invite/reset flow.
+   * Existing admin code sends:
+   * /auth/callback?next=/set-password
+   */
+  if (
+      decodedValue === "/set-password" ||
+      decodedValue.endsWith("/set-password")
+  ) {
+    return `/${safeLocale}/set-password`;
+  }
+
+  /**
+   * If next already has locale:
+   * /sv/profile
+   */
+  const parts = decodedValue.split("/").filter(Boolean);
+
+  if (parts.length > 0 && supportedLocales.includes(parts[0])) {
+    /**
+     * Fix duplicated locale:
+     * /sv/sv/profile -> /sv/profile
+     */
+    if (parts.length >= 2 && supportedLocales.includes(parts[1])) {
+      return `/${parts[0]}/${parts.slice(2).join("/")}`;
+    }
+
+    return decodedValue;
+  }
+
+  /**
+   * If next is /profile, /cart, etc.
+   */
+  return `/${safeLocale}${decodedValue}`;
+}
+
+export async function GET(request: Request, { params }: AuthCallbackProps) {
   const { locale } = await params;
+  const safeLocale = normalizeLocale(locale);
 
   const requestUrl = new URL(request.url);
+
   const code = requestUrl.searchParams.get("code");
-  const next = getSafeNext(requestUrl.searchParams.get("next"));
+  const next = requestUrl.searchParams.get("next");
 
   if (code) {
     const supabase = await createClient();
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (error) {
-      console.error("exchangeCodeForSession error:", error.message);
+    if (!error) {
+      const redirectPath = getSafeNextPath(next, safeLocale);
 
-      return NextResponse.redirect(
-          new URL(`/${locale}/login?error=auth`, requestUrl.origin)
-      );
+      return NextResponse.redirect(new URL(redirectPath, requestUrl.origin));
     }
+
+    console.error("Localized auth callback error:", error);
   }
 
   return NextResponse.redirect(
-      new URL(`/${locale}${next}`, requestUrl.origin)
+      new URL(`/${safeLocale}/profile/login?auth_error=oauth_failed`, requestUrl.origin)
   );
 }
