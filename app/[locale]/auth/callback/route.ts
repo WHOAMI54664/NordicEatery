@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,6 +12,16 @@ type AuthCallbackProps = {
 };
 
 const supportedLocales = ["sv", "en", "pl", "ru"];
+
+function getEnv(name: string) {
+  const value = process.env[name];
+
+  if (!value) {
+    throw new Error(`${name} is missing`);
+  }
+
+  return value;
+}
 
 function normalizeLocale(locale: string) {
   return supportedLocales.includes(locale) ? locale : "sv";
@@ -51,12 +62,12 @@ function getSafeNextPath(value: string | null, locale: string) {
     return `/${safeLocale}/set-password`;
   }
 
+  const parts = decodedValue.split("/").filter(Boolean);
+
   /**
    * If next already has locale:
    * /sv/profile
    */
-  const parts = decodedValue.split("/").filter(Boolean);
-
   if (parts.length > 0 && supportedLocales.includes(parts[0])) {
     /**
      * Fix duplicated locale:
@@ -80,25 +91,62 @@ export async function GET(request: Request, { params }: AuthCallbackProps) {
   const safeLocale = normalizeLocale(locale);
 
   const requestUrl = new URL(request.url);
-
   const code = requestUrl.searchParams.get("code");
   const next = requestUrl.searchParams.get("next");
 
-  if (code) {
-    const supabase = await createClient();
-
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-    if (!error) {
-      const redirectPath = getSafeNextPath(next, safeLocale);
-
-      return NextResponse.redirect(new URL(redirectPath, requestUrl.origin));
-    }
-
-    console.error("Localized auth callback error:", error);
+  if (!code) {
+    return NextResponse.redirect(
+        new URL(
+            `/${safeLocale}/profile/login?auth_error=missing_code`,
+            requestUrl.origin
+        )
+    );
   }
 
-  return NextResponse.redirect(
-      new URL(`/${safeLocale}/profile/login?auth_error=oauth_failed`, requestUrl.origin)
+  const redirectPath = getSafeNextPath(next, safeLocale);
+  const response = NextResponse.redirect(new URL(redirectPath, requestUrl.origin));
+
+  const cookieStore = await cookies();
+
+  const supabase = createServerClient(
+      getEnv("NEXT_PUBLIC_SUPABASE_URL"),
+      getEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set(name, value, options);
+            });
+          },
+        },
+      }
   );
+
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error) {
+    console.error("Localized auth callback error:", error);
+
+    return NextResponse.redirect(
+        new URL(
+            `/${safeLocale}/profile/login?auth_error=${encodeURIComponent(
+                error.message
+            )}`,
+            requestUrl.origin
+        )
+    );
+  }
+
+  console.log("Localized auth callback session saved:", {
+    redirectPath,
+    hasSession: Boolean(data.session),
+    hasUser: Boolean(data.user),
+    email: data.user?.email,
+  });
+
+  return response;
 }

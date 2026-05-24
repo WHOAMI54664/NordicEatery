@@ -1,12 +1,25 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function getEnv(name: string) {
+    const value = process.env[name];
+
+    if (!value) {
+        throw new Error(`${name} is missing`);
+    }
+
+    return value;
+}
+
 export async function GET(request: Request) {
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get("code");
+
+    const redirectUrl = new URL("/sv/profile", requestUrl.origin);
 
     if (!code) {
         return NextResponse.redirect(
@@ -14,7 +27,27 @@ export async function GET(request: Request) {
         );
     }
 
-    const supabase = await createClient();
+    const response = NextResponse.redirect(redirectUrl);
+
+    const cookieStore = await cookies();
+
+    const supabase = createServerClient(
+        getEnv("NEXT_PUBLIC_SUPABASE_URL"),
+        getEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+        {
+            cookies: {
+                getAll() {
+                    return cookieStore.getAll();
+                },
+
+                setAll(cookiesToSet) {
+                    cookiesToSet.forEach(({ name, value, options }) => {
+                        response.cookies.set(name, value, options);
+                    });
+                },
+            },
+        }
+    );
 
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
@@ -29,13 +62,11 @@ export async function GET(request: Request) {
         );
     }
 
-    console.log("Customer OAuth session created:", {
+    console.log("Customer OAuth session saved:", {
         hasSession: Boolean(data.session),
         hasUser: Boolean(data.user),
-        userEmail: data.user?.email,
+        email: data.user?.email,
     });
 
-    return NextResponse.redirect(
-        new URL("/sv/profile?oauth=ok", requestUrl.origin)
-    );
+    return response;
 }
