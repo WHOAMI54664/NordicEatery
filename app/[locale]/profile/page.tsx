@@ -227,9 +227,35 @@ export default function CustomerProfilePage() {
         setIsLoading(true);
 
         try {
+            /*
+             * After OAuth callback, Supabase session/cookies can need
+             * a short moment before the client can read them.
+             */
+            await new Promise((resolve) => setTimeout(resolve, 400));
+
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+
+            console.log("CUSTOMER PROFILE SESSION:", {
+                hasSession: Boolean(session),
+                email: session?.user?.email,
+            });
+
+            if (session?.user) {
+                setAuthEmail(session.user.email || null);
+                await loadProfileByAuth();
+                return;
+            }
+
             const {
                 data: { user },
             } = await supabase.auth.getUser();
+
+            console.log("CUSTOMER PROFILE USER:", {
+                hasUser: Boolean(user),
+                email: user?.email,
+            });
 
             if (user) {
                 setAuthEmail(user.email || null);
@@ -349,15 +375,15 @@ export default function CustomerProfilePage() {
                             </h1>
 
                             <div className="mt-4 flex flex-col gap-2 text-sm font-bold text-dark/55">
-                <span className="inline-flex items-center justify-center gap-2">
-                  <Mail className="h-4 w-4 text-paprika" />
-                    {profile.email || "No email"}
-                </span>
+                                <span className="inline-flex items-center justify-center gap-2">
+                                    <Mail className="h-4 w-4 text-paprika" />
+                                    {profile.email || "No email"}
+                                </span>
 
                                 <span className="inline-flex items-center justify-center gap-2">
-                  <Phone className="h-4 w-4 text-paprika" />
+                                    <Phone className="h-4 w-4 text-paprika" />
                                     {profile.phone || "Phone not added yet"}
-                </span>
+                                </span>
                             </div>
 
                             {authEmail ? (
