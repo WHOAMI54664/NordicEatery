@@ -6,7 +6,6 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
     const requestUrl = new URL(request.url);
-
     const code = requestUrl.searchParams.get("code");
 
     if (code) {
@@ -15,10 +14,10 @@ export async function GET(request: Request) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
 
         if (!error) {
-            return NextResponse.redirect(new URL("/auth/finish", requestUrl.origin));
+            return NextResponse.redirect(new URL("/sv/profile", requestUrl.origin));
         }
 
-        console.error("OAuth callback error:", error);
+        console.error("Customer OAuth callback error:", error);
     }
 
     return NextResponse.redirect(

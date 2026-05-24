@@ -5,32 +5,19 @@ import { createClient } from "@/lib/supabase/browser";
 
 type CustomerOAuthButtonsProps = {
     locale: string;
-    returnTo?: string;
 };
 
 type OAuthProvider = "google" | "github" | "apple";
 
-const OAUTH_RETURN_TO_KEY = "nordic-eatery-oauth-return-to";
-
-export function CustomerOAuthButtons({
-                                         locale,
-                                         returnTo,
-                                     }: CustomerOAuthButtonsProps) {
+export function CustomerOAuthButtons({ locale }: CustomerOAuthButtonsProps) {
     const supabase = createClient();
 
     async function signInWithProvider(provider: OAuthProvider) {
-        const origin =
-            typeof window !== "undefined"
-                ? window.location.origin
-                : process.env.NEXT_PUBLIC_SITE_URL || "https://www.nordiceatery.se";
+        const redirectTo = "https://www.nordiceatery.se/auth/callback";
 
-        const cleanOrigin = origin.replace(/\/+$/, "");
-
-        const finalReturnTo = returnTo || `/${locale}/profile`;
-
-        window.localStorage.setItem(OAUTH_RETURN_TO_KEY, finalReturnTo);
-
-        const redirectTo = `${cleanOrigin}/auth/callback`;
+        console.log("Customer OAuth provider:", provider);
+        console.log("Customer OAuth locale:", locale);
+        console.log("Customer OAuth redirectTo:", redirectTo);
 
         const { error } = await supabase.auth.signInWithOAuth({
             provider,
@@ -40,6 +27,7 @@ export function CustomerOAuthButtons({
         });
 
         if (error) {
+            console.error("Customer OAuth error:", error);
             alert(error.message);
         }
     }
