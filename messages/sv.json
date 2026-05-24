@@ -1198,7 +1198,7 @@
     },
     "kitchen": {
       "display": "Köksdisplay",
-      "title": "Beställningar styrelse",
+      "title": "Beställningar",
       "subtitle": "Håll den här sidan öppen på kökets surfplatta. Nya beställningar kommer att visas här och kan flyttas genom kökets arbetsflöde.",
       "newNow": "Ny nu",
       "noActiveOrders": "Inga aktiva order",
