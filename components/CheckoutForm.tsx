@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Store, Truck } from "lucide-react";
+import { Gift, Store, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCart } from "@/components/CartProvider";
 import { PaymentIcons } from "@/components/PaymentIcons";
@@ -24,6 +24,25 @@ type CheckoutFormProps = {
   settings: CheckoutSettings;
 };
 
+type SwishCreateResponse = {
+  error?: string;
+
+  swishUrl?: string;
+  paymentUrl?: string;
+  deeplink?: string;
+
+  orderNumber?: string;
+  order_number?: string;
+  orderId?: string;
+  order_id?: string;
+
+  order?: {
+    orderNumber?: string;
+    order_number?: string;
+    id?: string;
+  };
+};
+
 function createClientOrderId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
@@ -32,6 +51,23 @@ function createClientOrderId() {
   return `client-${Date.now().toString(36)}-${Math.random()
       .toString(36)
       .slice(2)}`;
+}
+
+function getSwishOrderNumber(data: SwishCreateResponse) {
+  return (
+      data.orderNumber ||
+      data.order_number ||
+      data.order?.orderNumber ||
+      data.order?.order_number ||
+      data.orderId ||
+      data.order_id ||
+      data.order?.id ||
+      null
+  );
+}
+
+function getSwishLaunchUrl(data: SwishCreateResponse) {
+  return data.swishUrl || data.paymentUrl || data.deeplink || null;
 }
 
 export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
@@ -101,6 +137,7 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
       defaultDeliveryType
   );
 
+  const [loyaltyOptIn, setLoyaltyOptIn] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
   const selectedPaymentMethodIsAvailable = paymentOptions.some(
@@ -163,6 +200,16 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
     }
 
     const formData = new FormData(event.currentTarget);
+
+    const customerEmail = String(formData.get("customerEmail") || "")
+        .trim()
+        .toLowerCase();
+
+    if (loyaltyOptIn && !customerEmail) {
+      alert("Please enter your email to create a customer profile.");
+      return;
+    }
+
     setIsLoading(true);
 
     const clientOrderId = createClientOrderId();
@@ -170,12 +217,19 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
     const orderPayload = {
       orderId: clientOrderId,
       clientOrderId,
+
       customerName: String(formData.get("customerName") || ""),
       customerPhone: String(formData.get("customerPhone") || ""),
+      customerEmail,
+
+      loyaltyOptIn,
+      marketingConsent: false,
+
       address:
           deliveryType === "pickup"
               ? "Pickup"
               : String(formData.get("address") || ""),
+
       deliveryType,
       comment: String(formData.get("comment") || ""),
       items,
@@ -212,7 +266,7 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
           body: JSON.stringify(orderPayload),
         });
 
-        const data = await response.json();
+        const data = (await response.json()) as SwishCreateResponse;
 
         if (!response.ok) {
           alert(data.error || "Swish payment could not be started.");
@@ -220,14 +274,28 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
           return;
         }
 
-        clearCart();
+        const orderNumber = getSwishOrderNumber(data);
 
-        if (data.swishUrl) {
-          window.location.href = data.swishUrl;
+        if (!orderNumber) {
+          console.error("Missing Swish order number:", data);
+          alert("Swish payment started, but order number is missing.");
+          setIsLoading(false);
           return;
         }
 
-        router.push(`/${locale}/order/${clientOrderId}`);
+        clearCart();
+
+        const pendingUrl = `/${locale}/checkout/swish-pending?order_number=${encodeURIComponent(
+            orderNumber
+        )}`;
+
+        const swishLaunchUrl = getSwishLaunchUrl(data);
+
+        if (swishLaunchUrl) {
+          window.open(swishLaunchUrl, "_blank", "noopener,noreferrer");
+        }
+
+        router.push(pendingUrl);
         return;
       }
 
@@ -314,6 +382,71 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
                   placeholder={t("phonePlaceholder")}
               />
             </label>
+
+            <label className="sm:col-span-2">
+            <span className="mb-2 block text-sm font-bold text-dark">
+              Email
+            </span>
+              <input
+                  name="customerEmail"
+                  type="email"
+                  required={loyaltyOptIn}
+                  className="input-field"
+                  placeholder="your@email.com"
+              />
+              <p className="mt-2 text-xs leading-5 text-dark/45">
+                Required only if you want to create a customer profile and collect
+                discounts.
+              </p>
+            </label>
+
+            <div className="sm:col-span-2 overflow-hidden rounded-3xl border border-paprika/15 bg-white/75 p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-paprika/10 text-paprika">
+                  <Gift className="h-5 w-5" />
+                </div>
+
+                <div className="min-w-0">
+                  <p className="font-black text-dark">
+                    Get discounts with Nordic Eatery
+                  </p>
+
+                  <p className="mt-1 text-sm leading-6 text-dark/60">
+                    Create a free customer profile and collect points from every
+                    paid order. Your discount grows automatically.
+                  </p>
+
+                  <div className="mt-3 grid gap-2 text-xs font-bold text-dark/55 sm:grid-cols-4">
+                    <div className="rounded-2xl bg-cream px-3 py-2">
+                      500 pts → 5%
+                    </div>
+                    <div className="rounded-2xl bg-cream px-3 py-2">
+                      1000 pts → 10%
+                    </div>
+                    <div className="rounded-2xl bg-cream px-3 py-2">
+                      2000 pts → 15%
+                    </div>
+                    <div className="rounded-2xl bg-cream px-3 py-2">
+                      3000 pts → 20%
+                    </div>
+                  </div>
+
+                  <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-dark/10 bg-cream/70 p-3 text-sm leading-6 text-dark/70">
+                    <input
+                        type="checkbox"
+                        checked={loyaltyOptIn}
+                        onChange={(event) => setLoyaltyOptIn(event.target.checked)}
+                        className="mt-1 h-4 w-4 shrink-0"
+                    />
+
+                    <span>
+                    I want to create a customer profile and collect discounts
+                    from my orders.
+                  </span>
+                  </label>
+                </div>
+              </div>
+            </div>
 
             <div className="sm:col-span-2">
             <span className="mb-2 block text-sm font-bold text-dark">

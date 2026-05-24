@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { assertRestaurantShiftIsOpen } from "@/lib/restaurant/shift";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,14 +19,22 @@ type CheckoutItem = {
 type CheckoutBody = {
   orderId: string;
   clientOrderId?: string;
+
   customerName: string;
   customerPhone: string;
+  customerEmail?: string;
+
+  loyaltyOptIn?: boolean;
+  marketingConsent?: boolean;
+
   address: string;
   deliveryType: "delivery" | "pickup";
   comment?: string;
+
   items: CheckoutItem[];
   totalPrice: number;
   deliveryFee?: number;
+
   locale?: string;
 };
 
@@ -43,7 +52,20 @@ function getSafeLocale(locale?: string) {
   if (!locale) return "sv";
 
   const allowedLocales = ["sv", "en", "pl", "ru"];
+
   return allowedLocales.includes(locale) ? locale : "sv";
+}
+
+function getSiteUrl() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+  return siteUrl.replace(/\/+$/, "");
+}
+
+function normalizeEmail(email?: string | null) {
+  const value = email?.trim().toLowerCase();
+
+  return value || null;
 }
 
 function roundMoney(value: number) {
@@ -69,7 +91,12 @@ function calculateVatFromGross(gross: number, vatRate: number) {
 }
 
 function getOrderDate() {
-  return new Date().toISOString().slice(0, 10);
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Europe/Stockholm",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
 export async function POST(request: Request) {
@@ -77,23 +104,38 @@ export async function POST(request: Request) {
     const stripe = getStripe();
     const supabase = createAdminClient();
 
+    const shiftCheck = await assertRestaurantShiftIsOpen();
+
+    if (!shiftCheck.ok) {
+      return NextResponse.json({ error: shiftCheck.error }, { status: 403 });
+    }
+
     const body = (await request.json()) as CheckoutBody;
 
     const {
       orderId,
       clientOrderId,
+
       customerName,
       customerPhone,
+      customerEmail,
+
+      loyaltyOptIn,
+
       address,
       deliveryType,
       comment,
+
       items,
       totalPrice,
       deliveryFee,
+
       locale,
     } = body;
 
     const technicalOrderId = orderId || clientOrderId;
+    const normalizedCustomerEmail = normalizeEmail(customerEmail);
+    const shouldCreateLoyaltyProfile = Boolean(loyaltyOptIn);
 
     if (!technicalOrderId?.trim()) {
       return NextResponse.json(
@@ -112,6 +154,13 @@ export async function POST(request: Request) {
     if (!customerPhone?.trim()) {
       return NextResponse.json(
           { error: "Customer phone is required" },
+          { status: 400 }
+      );
+    }
+
+    if (shouldCreateLoyaltyProfile && !normalizedCustomerEmail) {
+      return NextResponse.json(
+          { error: "Email is required to create a customer profile" },
           { status: 400 }
       );
     }
@@ -203,7 +252,6 @@ export async function POST(request: Request) {
     );
 
     const subtotalBreakdown = calculateVatFromGross(subtotalGross, VAT_RATE);
-
     const deliveryFeeBreakdown = calculateVatFromGross(
         deliveryFeeGross,
         VAT_RATE
@@ -240,16 +288,11 @@ export async function POST(request: Request) {
       });
     }
 
-    const siteUrl =
-        process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-
+    const siteUrl = getSiteUrl();
     const safeLocale = getSafeLocale(locale);
+    const now = new Date().toISOString();
 
     const { error: orderError } = await supabase.from("orders").upsert({
-      /**
-       * Technical order ID.
-       * The visible short number is display_order_number.
-       */
       id: technicalOrderId,
       order_number: technicalOrderId,
       display_order_number: displayOrderNumber,
@@ -257,25 +300,20 @@ export async function POST(request: Request) {
 
       customer_name: customerName.trim(),
       customer_phone: customerPhone.trim(),
+      customer_email: normalizedCustomerEmail,
+
+      loyalty_opt_in: shouldCreateLoyaltyProfile,
+
       address: address.trim(),
       delivery_type: deliveryType,
       comment: comment?.trim() || null,
 
       items: normalizedItems,
-
-      /**
-       * Existing legacy field.
-       * Keep it because the current site/admin already relies on it.
-       */
       total_price: Math.round(totalGross),
 
       status: "new",
       payment_method: "card",
       payment_status: "awaiting_payment",
-
-      /**
-       * Accounting / Skatteverket reporting fields
-       */
       order_channel: "website",
       sale_type: "distance_online",
       currency: "SEK",
@@ -305,6 +343,8 @@ export async function POST(request: Request) {
       refunded_gross: 0,
       refunded_net: 0,
       refunded_vat: 0,
+
+      updated_at: now,
     });
 
     if (orderError) {
@@ -351,6 +391,7 @@ export async function POST(request: Request) {
         orderNumber: technicalOrderId,
         displayOrderNumber,
         orderDate,
+        loyaltyOptIn: String(shouldCreateLoyaltyProfile),
       },
 
       success_url: `${siteUrl}/${safeLocale}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,

@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { assertRestaurantShiftIsOpen } from "@/lib/restaurant/shift";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const VAT_RATE = 6; // 6% moms for takeaway / online food sales from 1 April 2026
+const VAT_RATE = 6;
 
 type OrderItem = {
     id: string;
@@ -17,11 +18,18 @@ type OrderItem = {
 type CreateOrderBody = {
     orderId?: string;
     clientOrderId?: string;
+
     customerName?: string;
     customerPhone?: string;
+    customerEmail?: string;
+
+    loyaltyOptIn?: boolean;
+    marketingConsent?: boolean;
+
     address?: string;
     deliveryType?: "delivery" | "pickup";
     comment?: string | null;
+
     items?: OrderItem[];
     totalPrice?: number;
     paymentMethod?: "cash" | "swish";
@@ -49,23 +57,47 @@ function safeNumber(value: unknown, fallback = 0) {
     return Number.isFinite(numberValue) ? numberValue : fallback;
 }
 
+function normalizeEmail(email?: string | null) {
+    const value = email?.trim().toLowerCase();
+
+    return value || null;
+}
+
 function getOrderDate() {
-    return new Date().toISOString().slice(0, 10);
+    return new Intl.DateTimeFormat("sv-SE", {
+        timeZone: "Europe/Stockholm",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    }).format(new Date());
 }
 
 export async function POST(request: Request) {
     try {
         const supabase = createAdminClient();
+
+        const shiftCheck = await assertRestaurantShiftIsOpen();
+
+        if (!shiftCheck.ok) {
+            return NextResponse.json({ error: shiftCheck.error }, { status: 403 });
+        }
+
         const body = (await request.json()) as CreateOrderBody;
 
         const {
             orderId,
             clientOrderId,
+
             customerName,
             customerPhone,
+            customerEmail,
+
+            loyaltyOptIn,
+
             address,
             deliveryType,
             comment,
+
             items,
             totalPrice,
             paymentMethod,
@@ -73,6 +105,8 @@ export async function POST(request: Request) {
         } = body;
 
         const technicalOrderId = orderId || clientOrderId;
+        const normalizedCustomerEmail = normalizeEmail(customerEmail);
+        const shouldCreateLoyaltyProfile = Boolean(loyaltyOptIn);
 
         if (!technicalOrderId) {
             return NextResponse.json(
@@ -91,6 +125,13 @@ export async function POST(request: Request) {
         if (!customerPhone?.trim()) {
             return NextResponse.json(
                 { error: "Customer phone is required" },
+                { status: 400 }
+            );
+        }
+
+        if (shouldCreateLoyaltyProfile && !normalizedCustomerEmail) {
+            return NextResponse.json(
+                { error: "Email is required to create a customer profile" },
                 { status: 400 }
             );
         }
@@ -144,7 +185,6 @@ export async function POST(request: Request) {
             const lineTotalGross = roundMoney(unitPriceGross * quantity);
 
             const unitVatBreakdown = calculateVatFromGross(unitPriceGross, VAT_RATE);
-
             const lineVatBreakdown = calculateVatFromGross(lineTotalGross, VAT_RATE);
 
             return {
@@ -178,9 +218,7 @@ export async function POST(request: Request) {
         );
 
         const deliveryFeeGross = roundMoney(
-            deliveryType === "delivery"
-                ? safeNumber(deliveryFee, inferredDeliveryFee)
-                : 0
+            deliveryType === "delivery" ? safeNumber(deliveryFee, inferredDeliveryFee) : 0
         );
 
         const subtotalBreakdown = calculateVatFromGross(subtotalGross, VAT_RATE);
@@ -228,35 +266,28 @@ export async function POST(request: Request) {
         const { error } = await supabase.from("orders").insert({
             id: technicalOrderId,
 
-            /**
-             * Keep old technical order number for compatibility.
-             * The short customer-facing number is display_order_number.
-             */
             order_number: technicalOrderId,
             display_order_number: displayOrderNumber,
             order_date: orderDate,
 
             customer_name: customerName.trim(),
             customer_phone: customerPhone.trim(),
+            customer_email: normalizedCustomerEmail,
+
+            loyalty_opt_in: shouldCreateLoyaltyProfile,
+
             address: address.trim(),
             delivery_type: deliveryType,
             comment: comment?.trim() || null,
 
             items: normalizedItems,
 
-            /**
-             * Legacy total, used by existing UI/admin logic.
-             * We now make it match total_gross.
-             */
             total_price: Math.round(totalGross),
 
             status: "new",
             payment_method: paymentMethod,
             payment_status: paymentStatus,
 
-            /**
-             * Accounting / Skatteverket report fields
-             */
             order_channel: "website",
             sale_type: saleType,
             currency: "SEK",
@@ -286,6 +317,8 @@ export async function POST(request: Request) {
             refunded_gross: 0,
             refunded_net: 0,
             refunded_vat: 0,
+
+            updated_at: new Date().toISOString(),
         });
 
         if (error) {

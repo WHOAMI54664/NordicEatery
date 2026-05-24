@@ -52,7 +52,8 @@
     "contact": "Kontakt",
     "support": "Stöd",
     "cart": "Vagn",
-    "delivery": "Leverans inom 30-40 min"
+    "delivery": "Leverans inom 30-40 min",
+    "profile": "Profil"
   },
   "footer": {
     "brand": "NordicEatery",
@@ -602,6 +603,25 @@
     }
   },
     "admin": {
+      "shift": {
+        "eyebrow": "Köksskift",
+        "checking": "Kontrollerar",
+        "open": "Öppet",
+        "closed": "Stängt",
+        "loading": "Laddar skift...",
+        "titleOpen": "Skiftet är öppet",
+        "titleClosed": "Skiftet är stängt",
+        "descriptionOpen": "Kunder kan lägga beställningar nu. Stäng skiftet när köket slutar ta emot beställningar.",
+        "descriptionClosed": "Kunder kan inte lägga beställningar medan skiftet är stängt. Öppna skiftet för att börja ta emot beställningar.",
+        "opened": "Öppnat",
+        "closedAt": "Stängt",
+        "openButton": "Öppna skift",
+        "closeButton": "Stäng skift",
+        "errors": {
+          "load": "Kunde inte ladda skiftstatus.",
+          "update": "Kunde inte uppdatera skiftet."
+        }
+      },
     "businessSettingsForm": {
       "business": {
         "title": "Företagsinformation",

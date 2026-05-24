@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { applyLoyaltyForPaidOrder } from "@/lib/customers/loyalty";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,14 +11,20 @@ type OrderRow = {
   order_number: string | null;
   display_order_number: string | null;
   order_date: string | null;
+
   customer_name: string | null;
   customer_phone: string | null;
+  customer_email: string | null;
+  loyalty_opt_in: boolean | null;
+
   payment_method: string | null;
   payment_status: string | null;
+
   total_price: number | null;
   total_gross: number | null;
   total_net: number | null;
   total_vat: number | null;
+
   created_at: string | null;
   paid_at: string | null;
 };
@@ -69,14 +76,6 @@ export async function GET(request: Request) {
       );
     }
 
-    /**
-     * Stripe Checkout Session can return:
-     * - payment_status: "paid"
-     * - "unpaid"
-     * - "no_payment_required"
-     *
-     * For Nordic Eatery, only "paid" means the order becomes a confirmed online sale.
-     */
     if (session.payment_status === "paid") {
       const paidAt = new Date().toISOString();
 
@@ -91,11 +90,6 @@ export async function GET(request: Request) {
             updated_at: paidAt,
           })
           .eq("order_number", orderId)
-          /**
-           * Important:
-           * do not overwrite paid_at every time this endpoint is refreshed.
-           * We only finalize orders that are still awaiting payment.
-           */
           .in("payment_status", ["awaiting_payment", "unpaid"]);
 
       if (updateError) {
@@ -118,6 +112,8 @@ export async function GET(request: Request) {
         order_date,
         customer_name,
         customer_phone,
+        customer_email,
+        loyalty_opt_in,
         payment_method,
         payment_status,
         total_price,
@@ -147,6 +143,27 @@ export async function GET(request: Request) {
       );
     }
 
+    let loyalty: Awaited<ReturnType<typeof applyLoyaltyForPaidOrder>> | null =
+        null;
+
+    if (session.payment_status === "paid" && order.payment_status === "paid") {
+      try {
+        loyalty = await applyLoyaltyForPaidOrder({
+          id: order.id,
+          customer_name: order.customer_name,
+          customer_phone: order.customer_phone,
+          customer_email: order.customer_email,
+          loyalty_opt_in: order.loyalty_opt_in,
+          total_gross: order.total_gross,
+          total_price: order.total_price,
+          payment_status: order.payment_status,
+          paid_at: order.paid_at,
+        });
+      } catch (loyaltyError) {
+        console.error("Stripe loyalty apply error:", loyaltyError);
+      }
+    }
+
     return NextResponse.json({
       success: true,
 
@@ -166,6 +183,8 @@ export async function GET(request: Request) {
 
         customerName: order.customer_name,
         customerPhone: order.customer_phone,
+        customerEmail: order.customer_email,
+        loyaltyOptIn: order.loyalty_opt_in,
 
         paymentMethod: order.payment_method,
         paymentStatus: order.payment_status,
@@ -178,6 +197,8 @@ export async function GET(request: Request) {
         createdAt: order.created_at,
         paidAt: order.paid_at,
       },
+
+      loyalty,
     });
   } catch (error) {
     console.error("Stripe session error:", error);

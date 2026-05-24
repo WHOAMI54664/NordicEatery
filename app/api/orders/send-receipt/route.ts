@@ -51,6 +51,7 @@ function formatDate(value: string | null) {
     if (!value) return "-";
 
     return new Intl.DateTimeFormat("sv-SE", {
+        timeZone: "Europe/Stockholm",
         year: "numeric",
         month: "2-digit",
         day: "2-digit",

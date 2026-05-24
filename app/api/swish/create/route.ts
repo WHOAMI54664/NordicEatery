@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { assertRestaurantShiftIsOpen } from "@/lib/restaurant/shift";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,6 +20,19 @@ export async function POST(request: Request) {
             return NextResponse.json(
                 { error: "SWISH_INTERNAL_SECRET is missing" },
                 { status: 500 }
+            );
+        }
+
+        /**
+         * Stop Swish orders before they reach the Swish backend
+         * if the restaurant shift is closed.
+         */
+        const shiftCheck = await assertRestaurantShiftIsOpen();
+
+        if (!shiftCheck.ok) {
+            return NextResponse.json(
+                { error: shiftCheck.error },
+                { status: 403 }
             );
         }
 

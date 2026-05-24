@@ -26,6 +26,7 @@ type SuccessOrder = {
 
   customerName: string | null;
   customerPhone: string | null;
+  customerEmail?: string | null;
 
   paymentMethod: string | null;
   paymentStatus: string | null;
@@ -51,9 +52,17 @@ type StripeSessionResponse = {
   order?: SuccessOrder;
 };
 
+type PaidStatusResponse = {
+  success?: boolean;
+  error?: string;
+  isPaid?: boolean;
+  order?: SuccessOrder;
+};
+
 export default function CheckoutSuccessPage() {
-  const params = useParams<{ locale: string }>();
-  const locale = params?.locale || "sv";
+  const params = useParams<{ locale?: string | string[] }>();
+
+  const locale = typeof params?.locale === "string" ? params.locale : "sv";
 
   const [status, setStatus] = useState<PaymentStatus>("checking");
   const [order, setOrder] = useState<SuccessOrder | null>(null);
@@ -84,51 +93,94 @@ export default function CheckoutSuccessPage() {
 
     if (!dateValue) return null;
 
-    return new Intl.DateTimeFormat(locale, {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(dateValue));
+    try {
+      return new Intl.DateTimeFormat(locale, {
+        timeZone: "Europe/Stockholm",
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(new Date(dateValue));
+    } catch {
+      return new Intl.DateTimeFormat("sv-SE", {
+        timeZone: "Europe/Stockholm",
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(new Date(dateValue));
+    }
   }, [locale, order?.createdAt, order?.paidAt]);
 
   useEffect(() => {
     async function verifyPayment() {
       try {
-        const params = new URLSearchParams(window.location.search);
-        const sessionId = params.get("session_id");
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get("session_id");
+        const orderNumber = urlParams.get("order_number");
 
-        if (!sessionId) {
-          setErrorMessage("Missing Stripe session ID.");
-          setStatus("failed");
+        if (sessionId) {
+          const response = await fetch(
+              `/api/stripe/session?session_id=${encodeURIComponent(sessionId)}`,
+              {
+                method: "GET",
+                cache: "no-store",
+              }
+          );
+
+          const data = (await response.json()) as StripeSessionResponse;
+
+          if (!response.ok) {
+            setErrorMessage(data.error || "Could not verify payment.");
+            setStatus("failed");
+            return;
+          }
+
+          if (data.stripe?.paymentStatus !== "paid" || !data.order) {
+            setErrorMessage("Payment was not confirmed.");
+            setStatus("failed");
+            return;
+          }
+
+          setOrder(data.order);
+          setStatus("paid");
           return;
         }
 
-        const response = await fetch(
-            `/api/stripe/session?session_id=${encodeURIComponent(sessionId)}`,
-            {
-              method: "GET",
-              cache: "no-store",
-            }
-        );
+        if (orderNumber) {
+          const response = await fetch(
+              `/api/orders/paid-status?order_number=${encodeURIComponent(
+                  orderNumber
+              )}`,
+              {
+                method: "GET",
+                cache: "no-store",
+              }
+          );
 
-        const data = (await response.json()) as StripeSessionResponse;
+          const data = (await response.json()) as PaidStatusResponse;
 
-        if (!response.ok) {
-          setErrorMessage(data.error || "Could not verify payment.");
-          setStatus("failed");
+          if (!response.ok) {
+            setErrorMessage(data.error || "Could not verify payment.");
+            setStatus("failed");
+            return;
+          }
+
+          if (!data.isPaid || !data.order) {
+            setErrorMessage("Payment was not confirmed.");
+            setStatus("failed");
+            return;
+          }
+
+          setOrder(data.order);
+          setStatus("paid");
           return;
         }
 
-        if (data.stripe?.paymentStatus !== "paid" || !data.order) {
-          setErrorMessage("Payment was not confirmed.");
-          setStatus("failed");
-          return;
-        }
-
-        setOrder(data.order);
-        setStatus("paid");
+        setErrorMessage("Missing payment reference.");
+        setStatus("failed");
       } catch (error) {
         console.error("Payment verification error:", error);
         setErrorMessage("Could not verify payment.");
@@ -244,7 +296,9 @@ export default function CheckoutSuccessPage() {
                         value={
                           order.paymentMethod === "card"
                               ? "Card"
-                              : order.paymentMethod || "—"
+                              : order.paymentMethod === "swish"
+                                  ? "Swish"
+                                  : order.paymentMethod || "—"
                         }
                         icon={<CreditCard className="h-4 w-4" />}
                     />

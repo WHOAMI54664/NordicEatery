@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Menu, ShoppingBag, X } from "lucide-react";
+import { Clock, Menu, ShoppingBag, UserRound, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCart } from "@/components/CartProvider";
 import { StaffAccountMenu } from "@/components/StaffAccountMenu";
@@ -41,6 +41,8 @@ export function HeaderClient({
         totalItems > 0
             ? `${text("header.cart", "cart")}, ${totalItems}`
             : text("header.cart", "cart");
+
+    const profileLabel = text("header.profile", "profile");
 
     const navLinks = [
         {
@@ -95,7 +97,7 @@ export function HeaderClient({
                         alt="Nordic Eatery logo"
                         width={180}
                         height={70}
-                        className="object-contanano /root/swish-server/src/server.tsin"
+                        className="object-contain"
                         priority
                     />
                 </Link>
@@ -117,6 +119,16 @@ export function HeaderClient({
 
                 <div className="flex items-center gap-2 sm:gap-3">
                     <LanguageSwitcher />
+
+                    <Link
+                        href={localePath("/profile")}
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/80 text-dark shadow-sm transition hover:bg-white hover:text-paprika"
+                        aria-label={profileLabel}
+                        title={profileLabel}
+                    >
+                        <UserRound size={18} aria-hidden="true" />
+                    </Link>
+
                     <StaffAccountMenu />
 
                     <Link
@@ -177,6 +189,15 @@ export function HeaderClient({
                             </Link>
                         ))}
 
+                        <Link
+                            href={localePath("/profile")}
+                            onClick={closeMenu}
+                            className="flex items-center gap-3 rounded-2xl bg-white/70 px-5 py-4 text-sm font-black text-dark shadow-sm hover:bg-white hover:text-paprika"
+                        >
+                            <UserRound size={18} aria-hidden="true" />
+                            {profileLabel}
+                        </Link>
+
                         <div className="mt-3 flex items-center gap-2 rounded-2xl bg-white/70 px-5 py-4 text-xs font-black text-dark/50 shadow-sm">
                             <Clock size={15} className="text-paprika" aria-hidden="true" />
 
@@ -208,6 +229,7 @@ export function HeaderClient({
                             ["header.catering", "catering"],
                             ["header.contact", "contact"],
                             ["header.support", "support"],
+                            ["header.profile", "profile"],
                             ["header.cart", "cart"],
                         ].map(([key, fallbackKey]) => (
                             <span

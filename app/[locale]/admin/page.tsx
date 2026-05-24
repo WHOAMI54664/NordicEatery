@@ -11,6 +11,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { AdminStatCard } from "@/components/admin/AdminStatCard";
+import { ShiftControlCard } from "@/components/admin/ShiftControlCard";
 import { createClient } from "@/lib/supabase/server";
 
 type AdminPageProps = {
@@ -287,7 +288,9 @@ export default async function AdminPage({ params }: AdminPageProps) {
   }));
 
   return (
-      <>
+      <div className="space-y-6">
+        <ShiftControlCard />
+
         <section className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
           <AdminStatCard
               title={t("dashboard.todayRevenue")}
@@ -324,7 +327,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
           />
         </section>
 
-        <section className="mt-6 grid gap-6 xl:grid-cols-[1.5fr_0.85fr]">
+        <section className="grid gap-6 xl:grid-cols-[1.5fr_0.85fr]">
           <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
             <div className="flex flex-col gap-3 border-b border-[#EADDCF] pb-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -525,6 +528,6 @@ export default async function AdminPage({ params }: AdminPageProps) {
             </div>
           </div>
         </section>
-      </>
+      </div>
   );
 }

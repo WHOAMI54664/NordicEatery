@@ -52,7 +52,8 @@
     "contact": "Contact",
     "support": "Support",
     "cart": "Cart",
-    "delivery": "Delivery in 30–40 min"
+    "delivery": "Delivery in 30–40 min",
+    "profile": "Profile"
   },
   "footer": {
     "brand": "NordicEatery",
@@ -613,6 +614,25 @@
     }
   },
   "admin": {
+    "shift": {
+      "eyebrow": "Kitchen shift",
+      "checking": "Checking",
+      "open": "Open",
+      "closed": "Closed",
+      "loading": "Loading shift...",
+      "titleOpen": "Shift is open",
+      "titleClosed": "Shift is closed",
+      "descriptionOpen": "Customers can place orders now. Close the shift when the kitchen stops accepting orders.",
+      "descriptionClosed": "Customers cannot place orders while the shift is closed. Open the shift to start accepting orders.",
+      "opened": "Opened",
+      "closedAt": "Closed",
+      "openButton": "Open shift",
+      "closeButton": "Close shift",
+      "errors": {
+        "load": "Could not load shift state.",
+        "update": "Could not update shift."
+      }
+    },
     "businessSettingsForm": {
       "business": {
         "title": "Business information",
