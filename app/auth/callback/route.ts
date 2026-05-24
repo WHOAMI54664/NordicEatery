@@ -8,19 +8,34 @@ export async function GET(request: Request) {
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get("code");
 
-    if (code) {
-        const supabase = await createClient();
-
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-        if (!error) {
-            return NextResponse.redirect(new URL("/sv/profile", requestUrl.origin));
-        }
-
-        console.error("Customer OAuth callback error:", error);
+    if (!code) {
+        return NextResponse.redirect(
+            new URL("/sv/profile/login?auth_error=missing_code", requestUrl.origin)
+        );
     }
 
+    const supabase = await createClient();
+
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (error) {
+        console.error("Customer OAuth callback error:", error);
+
+        return NextResponse.redirect(
+            new URL(
+                `/sv/profile/login?auth_error=${encodeURIComponent(error.message)}`,
+                requestUrl.origin
+            )
+        );
+    }
+
+    console.log("Customer OAuth session created:", {
+        hasSession: Boolean(data.session),
+        hasUser: Boolean(data.user),
+        userEmail: data.user?.email,
+    });
+
     return NextResponse.redirect(
-        new URL("/sv/profile/login?auth_error=oauth_failed", requestUrl.origin)
+        new URL("/sv/profile?oauth=ok", requestUrl.origin)
     );
 }
