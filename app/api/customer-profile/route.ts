@@ -10,7 +10,12 @@ type CustomerProfileRow = {
     full_name: string | null;
     email: string | null;
     phone: string | null;
+    normalized_email?: string | null;
+    normalized_phone?: string | null;
     avatar_url: string | null;
+
+    is_registered?: boolean | null;
+    loyalty_opt_in?: boolean | null;
 
     total_orders: number | null;
     total_spent_gross: number | string | null;
@@ -66,6 +71,30 @@ function profileResponse(profile: CustomerProfileRow) {
     };
 }
 
+function getUserFullName(userMetadata: Record<string, unknown> | undefined) {
+    const fullName =
+        typeof userMetadata?.full_name === "string"
+            ? userMetadata.full_name
+            : null;
+
+    const name =
+        typeof userMetadata?.name === "string" ? userMetadata.name : null;
+
+    return fullName || name || null;
+}
+
+function getUserAvatarUrl(userMetadata: Record<string, unknown> | undefined) {
+    const avatarUrl =
+        typeof userMetadata?.avatar_url === "string"
+            ? userMetadata.avatar_url
+            : null;
+
+    const picture =
+        typeof userMetadata?.picture === "string" ? userMetadata.picture : null;
+
+    return avatarUrl || picture || null;
+}
+
 export async function POST(request: Request) {
     try {
         const body = (await request.json()) as CustomerProfileRequestBody;
@@ -73,7 +102,7 @@ export async function POST(request: Request) {
         const adminSupabase = createAdminClient();
 
         let normalizedEmail = normalizeEmail(body.email);
-        let normalizedPhone = normalizePhone(body.phone);
+        const normalizedPhone = normalizePhone(body.phone);
 
         if (body.useAuth) {
             const supabase = await createClient();
@@ -99,7 +128,7 @@ export async function POST(request: Request) {
                 );
             }
 
-            const { data: profile, error } = await adminSupabase
+            const { data: existingProfile, error: findError } = await adminSupabase
                 .from("customer_profiles")
                 .select(
                     `
@@ -108,6 +137,8 @@ export async function POST(request: Request) {
           email,
           phone,
           avatar_url,
+          is_registered,
+          loyalty_opt_in,
           total_orders,
           total_spent_gross,
           loyalty_points,
@@ -119,26 +150,83 @@ export async function POST(request: Request) {
                 .eq("normalized_email", normalizedEmail)
                 .maybeSingle<CustomerProfileRow>();
 
-            if (error) {
-                console.error("Customer auth profile fetch error:", error);
+            if (findError) {
+                console.error("Customer auth profile fetch error:", findError);
 
-                return NextResponse.json({ error: error.message }, { status: 500 });
+                return NextResponse.json({ error: findError.message }, { status: 500 });
             }
 
-            if (!profile) {
+            if (existingProfile) {
+                return NextResponse.json({
+                    success: true,
+                    profile: profileResponse(existingProfile),
+                    authEmail: normalizedEmail,
+                });
+            }
+
+            const now = new Date().toISOString();
+
+            const fullName = getUserFullName(user.user_metadata);
+            const avatarUrl = getUserAvatarUrl(user.user_metadata);
+
+            const { data: createdProfile, error: createError } = await adminSupabase
+                .from("customer_profiles")
+                .insert({
+                    full_name: fullName,
+                    email: normalizedEmail,
+                    phone: null,
+
+                    normalized_email: normalizedEmail,
+                    normalized_phone: null,
+
+                    avatar_url: avatarUrl,
+
+                    is_registered: true,
+                    loyalty_opt_in: true,
+                    marketing_consent: false,
+                    registered_at: now,
+
+                    total_orders: 0,
+                    total_spent_gross: 0,
+                    loyalty_points: 0,
+                    discount_percent: 0,
+
+                    last_order_at: null,
+                    updated_at: now,
+                })
+                .select(
+                    `
+          id,
+          full_name,
+          email,
+          phone,
+          avatar_url,
+          is_registered,
+          loyalty_opt_in,
+          total_orders,
+          total_spent_gross,
+          loyalty_points,
+          discount_percent,
+          last_order_at,
+          created_at
+        `
+                )
+                .single<CustomerProfileRow>();
+
+            if (createError) {
+                console.error("Create OAuth customer profile error:", createError);
+
                 return NextResponse.json(
-                    {
-                        error:
-                            "No loyalty profile found for this email. Create it during checkout or link your phone number.",
-                        authEmail: normalizedEmail,
-                    },
-                    { status: 404 }
+                    { error: createError.message },
+                    { status: 500 }
                 );
             }
 
             return NextResponse.json({
                 success: true,
-                profile: profileResponse(profile),
+                profile: profileResponse(createdProfile),
+                authEmail: normalizedEmail,
+                created: true,
             });
         }
 
@@ -165,6 +253,8 @@ export async function POST(request: Request) {
         email,
         phone,
         avatar_url,
+        is_registered,
+        loyalty_opt_in,
         total_orders,
         total_spent_gross,
         loyalty_points,
