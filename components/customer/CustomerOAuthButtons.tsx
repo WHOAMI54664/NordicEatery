@@ -1,10 +1,7 @@
 "use client";
 
 import { Github, Mail } from "lucide-react";
-import { usePathname, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
-
-const OAUTH_RETURN_TO_KEY = "nordic-eatery-oauth-return-to";
 
 type CustomerOAuthButtonsProps = {
     locale: string;
@@ -13,53 +10,13 @@ type CustomerOAuthButtonsProps = {
 
 type OAuthProvider = "google" | "github" | "apple";
 
-const SUPPORTED_LOCALES = ["sv", "en", "pl", "ru"];
-
-function normalizeLocale(locale: string) {
-    const cleanLocale = locale.replace(/^\/+|\/+$/g, "");
-
-    return SUPPORTED_LOCALES.includes(cleanLocale) ? cleanLocale : "sv";
-}
-
-function getSafeReturnPath(value: string, locale: string) {
-    const safeLocale = normalizeLocale(locale);
-
-    if (!value.startsWith("/")) return `/${safeLocale}/profile`;
-    if (value.startsWith("//")) return `/${safeLocale}/profile`;
-
-    const parts = value.split("/").filter(Boolean);
-
-    if (
-        parts.length >= 2 &&
-        SUPPORTED_LOCALES.includes(parts[0]) &&
-        SUPPORTED_LOCALES.includes(parts[1])
-    ) {
-        return `/${parts[0]}/${parts.slice(2).join("/")}`;
-    }
-
-    if (parts.length > 0 && !SUPPORTED_LOCALES.includes(parts[0])) {
-        return `/${safeLocale}${value}`;
-    }
-
-    return value;
-}
+const OAUTH_RETURN_TO_KEY = "nordic-eatery-oauth-return-to";
 
 export function CustomerOAuthButtons({
                                          locale,
                                          returnTo,
                                      }: CustomerOAuthButtonsProps) {
     const supabase = createClient();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
-
-    const safeLocale = normalizeLocale(locale);
-
-    function getCurrentReturnPath() {
-        const currentPath = pathname || `/${safeLocale}/profile`;
-        const queryString = searchParams.toString();
-
-        return queryString ? `${currentPath}?${queryString}` : currentPath;
-    }
 
     async function signInWithProvider(provider: OAuthProvider) {
         const origin =
@@ -69,21 +26,11 @@ export function CustomerOAuthButtons({
 
         const cleanOrigin = origin.replace(/\/+$/, "");
 
-        const finalReturnPath = getSafeReturnPath(
-            returnTo || getCurrentReturnPath(),
-            safeLocale
-        );
+        const finalReturnTo = returnTo || `/${locale}/profile`;
 
-        window.localStorage.setItem(OAUTH_RETURN_TO_KEY, finalReturnPath);
+        window.localStorage.setItem(OAUTH_RETURN_TO_KEY, finalReturnTo);
 
-        /**
-         * Important:
-         * No query params here. Supabase must see an exact allowed redirect URL.
-         */
         const redirectTo = `${cleanOrigin}/auth/callback`;
-
-        console.log("OAuth redirectTo:", redirectTo);
-        console.log("OAuth returnTo:", finalReturnPath);
 
         const { error } = await supabase.auth.signInWithOAuth({
             provider,
