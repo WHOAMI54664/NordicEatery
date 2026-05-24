@@ -4,6 +4,8 @@ import { Github, Mail } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 
+const OAUTH_RETURN_TO_KEY = "nordic-eatery-oauth-return-to";
+
 type CustomerOAuthButtonsProps = {
     locale: string;
     returnTo?: string;
@@ -16,11 +18,7 @@ const SUPPORTED_LOCALES = ["sv", "en", "pl", "ru"];
 function normalizeLocale(locale: string) {
     const cleanLocale = locale.replace(/^\/+|\/+$/g, "");
 
-    if (SUPPORTED_LOCALES.includes(cleanLocale)) {
-        return cleanLocale;
-    }
-
-    return "sv";
+    return SUPPORTED_LOCALES.includes(cleanLocale) ? cleanLocale : "sv";
 }
 
 function getSafeReturnPath(value: string, locale: string) {
@@ -31,10 +29,6 @@ function getSafeReturnPath(value: string, locale: string) {
 
     const parts = value.split("/").filter(Boolean);
 
-    /**
-     * Fix duplicated locale:
-     * /sv/sv/profile -> /sv/profile
-     */
     if (
         parts.length >= 2 &&
         SUPPORTED_LOCALES.includes(parts[0]) &&
@@ -43,10 +37,6 @@ function getSafeReturnPath(value: string, locale: string) {
         return `/${parts[0]}/${parts.slice(2).join("/")}`;
     }
 
-    /**
-     * If path has no locale, add it:
-     * /profile -> /sv/profile
-     */
     if (parts.length > 0 && !SUPPORTED_LOCALES.includes(parts[0])) {
         return `/${safeLocale}${value}`;
     }
@@ -84,11 +74,16 @@ export function CustomerOAuthButtons({
             safeLocale
         );
 
-        const redirectTo = `${cleanOrigin}/auth/callback?next=${encodeURIComponent(
-            finalReturnPath
-        )}`;
+        window.localStorage.setItem(OAUTH_RETURN_TO_KEY, finalReturnPath);
+
+        /**
+         * Important:
+         * No query params here. Supabase must see an exact allowed redirect URL.
+         */
+        const redirectTo = `${cleanOrigin}/auth/callback`;
 
         console.log("OAuth redirectTo:", redirectTo);
+        console.log("OAuth returnTo:", finalReturnPath);
 
         const { error } = await supabase.auth.signInWithOAuth({
             provider,
