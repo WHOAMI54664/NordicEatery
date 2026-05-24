@@ -33,8 +33,27 @@ export function HeaderClient({
     const { totalItems } = useCart();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+    const safeLocale = locale.replace(/^\/+|\/+$/g, "");
+
+    function localePath(path: string) {
+        const cleanPath = path.startsWith("/") ? path : `/${path}`;
+
+        if (
+            cleanPath === `/${safeLocale}` ||
+            cleanPath.startsWith(`/${safeLocale}/`)
+        ) {
+            return cleanPath;
+        }
+
+        return `/${safeLocale}${cleanPath}`;
+    }
+
     function text(key: string, fallbackKey: string) {
         return textFromContent(editableContent, key, t(fallbackKey));
+    }
+
+    function closeMenu() {
+        setIsMenuOpen(false);
     }
 
     const cartLabel =
@@ -75,19 +94,11 @@ export function HeaderClient({
         },
     ];
 
-    function localePath(path: string) {
-        return `/${locale}${path}`;
-    }
-
-    function closeMenu() {
-        setIsMenuOpen(false);
-    }
-
     return (
         <header className="sticky top-0 z-50 border-b border-white/60 bg-cream/75 shadow-sm backdrop-blur-2xl">
             <div className="container-page flex h-20 items-center justify-between gap-4">
                 <Link
-                    href={`/${locale}`}
+                    href={`/${safeLocale}`}
                     className="flex items-center"
                     onClick={closeMenu}
                     aria-label="Nordic Eatery home"
@@ -204,7 +215,7 @@ export function HeaderClient({
                             <EditableText
                                 value={text("header.delivery", "delivery")}
                                 textKey="header.delivery"
-                                locale={locale}
+                                locale={safeLocale}
                                 page="header"
                                 canEdit={canEdit}
                                 as="span"
@@ -239,7 +250,7 @@ export function HeaderClient({
                 <EditableText
                     value={text(key, fallbackKey)}
                     textKey={key}
-                    locale={locale}
+                    locale={safeLocale}
                     page="header"
                     canEdit={canEdit}
                     as="span"
