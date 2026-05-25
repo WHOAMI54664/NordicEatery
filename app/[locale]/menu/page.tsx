@@ -5,6 +5,8 @@ import { MenuJsonLd } from "@/components/seo/MenuJsonLd";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 import { EditableText } from "@/components/EditableText";
+import { KitchenClosedModal } from "@/components/KitchenClosedModal";
+import { getPublicShiftStatus } from "@/lib/restaurant/public-shift";
 
 type MenuType = "all" | "standard" | "vegan" | "gluten_free";
 
@@ -103,6 +105,8 @@ export default async function MenuPage({
 
     const selectedMenuType = getValidMenuType(resolvedSearchParams?.type);
 
+    const shiftStatus = await getPublicShiftStatus();
+
     const supabase = await createClient();
 
     const {
@@ -155,6 +159,11 @@ export default async function MenuPage({
             <MenuJsonLd products={menuItems || []} locale={locale} />
 
             <main className="container-page py-16">
+                <KitchenClosedModal
+                    locale={locale}
+                    isOpenInitially={!shiftStatus.isOpen}
+                />
+
                 <div className="max-w-3xl text-center sm:text-left">
                     <p className="font-black uppercase tracking-[0.25em] text-paprika">
                         <EditableText
@@ -189,6 +198,13 @@ export default async function MenuPage({
                         />
                     </p>
                 </div>
+
+                {!shiftStatus.isOpen ? (
+                    <div className="mt-8 rounded-[2rem] border border-paprika/15 bg-paprika/10 p-5 text-sm font-bold leading-6 text-paprika">
+                        Kitchen is currently closed. You can browse the menu, but online
+                        ordering is paused until the shift is opened.
+                    </div>
+                ) : null}
 
                 <div className="mt-10 flex flex-wrap gap-3">
                     {menuTypes.map((type) => {
