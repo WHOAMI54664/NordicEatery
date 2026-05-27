@@ -11,6 +11,8 @@ import {
 import { EditableText } from "@/components/EditableText";
 import { createClient } from "@/lib/supabase/server";
 
+type Locale = "sv" | "en" | "pl" | "ru";
+
 type PageProps = {
     params: Promise<{
         locale: string;
@@ -19,97 +21,37 @@ type PageProps = {
 
 const baseUrl = "https://www.nordiceatery.se";
 
+const locales = ["sv", "en", "pl", "ru"] as const;
+
+const ogLocales: Record<Locale, string> = {
+    sv: "sv_SE",
+    en: "en_SE",
+    pl: "pl_PL",
+    ru: "ru_RU",
+};
+
 const content = {
-    en: {
-        metadataTitle: "Food Delivery in Boden | Order Online | Nordic Eatery",
-        metadataDescription:
-            "Order fresh Polish comfort food, burgers, crispy fries and street food in Boden. Fast food delivery and takeaway from Nordic Eatery in 30–40 minutes.",
-        ogTitle: "Food Delivery in Boden | Nordic Eatery",
-        ogDescription:
-            "Fresh Polish comfort food, burgers, fries and street food with fast delivery and takeaway in Boden.",
-
-        eyebrow: "Food delivery in Boden",
-        h1: "Fast food delivery in Boden",
-        intro:
-            "Looking for fresh food delivery in Boden? Nordic Eatery serves Polish comfort food, burgers, crispy fries and street food made fresh to order. Order online for delivery or takeaway and enjoy warm food in around 30–40 minutes.",
-        orderOnline: "Order online",
-        takeaway: "Takeaway in Boden",
-
-        card1Title: "30–40 min",
-        card1Text: "Fast delivery time for online food orders in Boden.",
-        card2Title: "Order online",
-        card2Text: "Choose your favourite dishes from our online menu.",
-        card3Title: "Fresh food",
-        card3Text: "Burgers, fries, Polish comfort food and street food.",
-        card4Title: "Takeaway too",
-        card4Text: "Prefer pickup? Order takeaway and collect your food.",
-
-        sectionEyebrow: "Order food online",
-        sectionTitle: "Fresh delivery food in Boden",
-        paragraph1:
-            "Nordic Eatery is a local food concept in Boden focused on real food, quick service and easy online ordering. Our menu is built around comforting dishes that work perfectly for delivery and takeaway — warm, filling and prepared fresh.",
-        paragraph2:
-            "Whether you are searching for food delivery in Boden, takeaway near you, burgers, crispy fries or Polish street food, Nordic Eatery gives you a simple way to order online without waiting on the phone.",
-        paragraph3:
-            "We prepare orders as quickly as possible while keeping the food fresh and consistent. Delivery usually takes around 30–40 minutes, depending on the time of day, order size and delivery location.",
-
-        viewMenu: "View menu",
-        burgers: "Burgers in Boden",
-        catering: "Catering",
-
-        whyTitle: "Why order from Nordic Eatery?",
-        benefits: [
-            "Fast food delivery in Boden",
-            "Freshly prepared dishes",
-            "Polish comfort food and street food",
-            "Burgers, fries and drinks",
-            "Online ordering for delivery or takeaway",
-            "Good option for lunch, dinner or casual meals",
-        ],
-
-        faqEyebrow: "FAQ",
-        faqTitle: "Food delivery questions",
-        faq: [
-            {
-                q: "Do you deliver food in Boden?",
-                a: "Yes. Nordic Eatery offers online food delivery in Boden with fresh dishes prepared for delivery and takeaway.",
-            },
-            {
-                q: "How long does delivery take?",
-                a: "Delivery usually takes around 30–40 minutes depending on demand, order size and delivery location.",
-            },
-            {
-                q: "Can I order takeaway?",
-                a: "Yes. You can order online and choose takeaway if you prefer to pick up your food.",
-            },
-            {
-                q: "What food can I order?",
-                a: "You can order burgers, crispy fries, Polish comfort food, street food, drinks and selected menu specials.",
-            },
-        ],
-    },
-
     sv: {
         metadataTitle: "Matleverans i Boden | Beställ online | Nordic Eatery",
         metadataDescription:
-            "Beställ polsk comfort food, hamburgare, krispiga pommes och street food i Boden. Snabb matleverans och takeaway från Nordic Eatery på 30–40 minuter.",
+            "Beställ polsk comfort food, maczanka, knysza, krispiga pommes och street food i Boden. Snabb matleverans och takeaway från Nordic Eatery.",
         ogTitle: "Matleverans i Boden | Nordic Eatery",
         ogDescription:
-            "Polsk comfort food, hamburgare, pommes och street food med snabb leverans och takeaway i Boden.",
+            "Polsk comfort food, maczanka, knysza, pommes och street food med leverans och takeaway i Boden.",
 
         eyebrow: "Matleverans i Boden",
         h1: "Snabb matleverans i Boden",
         intro:
-            "Letar du efter färsk matleverans i Boden? Nordic Eatery serverar polsk comfort food, hamburgare, krispiga pommes och street food som tillagas färskt vid beställning. Beställ online för leverans eller takeaway och få varm mat på cirka 30–40 minuter.",
+            "Letar du efter färsk matleverans i Boden? Nordic Eatery serverar polsk comfort food, maczanka, knysza, krispiga pommes och street food som tillagas färskt vid beställning. Beställ online för leverans eller takeaway och få varm mat så snabbt som möjligt.",
         orderOnline: "Beställ online",
         takeaway: "Takeaway i Boden",
 
-        card1Title: "30–40 min",
-        card1Text: "Snabb leveranstid för matbeställningar online i Boden.",
+        card1Title: "Snabb leverans",
+        card1Text: "Smidig matleverans för onlinebeställningar i Boden.",
         card2Title: "Beställ online",
         card2Text: "Välj dina favoriträtter från vår online-meny.",
         card3Title: "Färsk mat",
-        card3Text: "Hamburgare, pommes, polsk comfort food och street food.",
+        card3Text: "Maczanka, knysza, pommes, polsk comfort food och street food.",
         card4Title: "Även takeaway",
         card4Text: "Vill du hämta själv? Beställ takeaway och hämta din mat.",
 
@@ -118,20 +60,20 @@ const content = {
         paragraph1:
             "Nordic Eatery är ett lokalt matkoncept i Boden med fokus på riktig mat, snabb service och enkel onlinebeställning. Vår meny är skapad för rätter som passar perfekt för leverans och takeaway — varma, mättande och färskt tillagade.",
         paragraph2:
-            "Oavsett om du söker matleverans i Boden, takeaway nära dig, hamburgare, krispiga pommes eller polsk street food ger Nordic Eatery dig ett enkelt sätt att beställa online utan att behöva ringa.",
+            "Oavsett om du söker matleverans i Boden, takeaway nära dig, krispiga pommes eller polsk street food ger Nordic Eatery dig ett enkelt sätt att beställa online utan att behöva ringa.",
         paragraph3:
-            "Vi förbereder beställningar så snabbt som möjligt samtidigt som maten håller hög kvalitet. Leverans tar vanligtvis cirka 30–40 minuter beroende på tidpunkt, orderstorlek och leveransadress.",
+            "Vi förbereder beställningar så snabbt som möjligt samtidigt som maten håller hög kvalitet. Leveranstiden kan variera beroende på tidpunkt, orderstorlek och leveransadress.",
 
         viewMenu: "Se meny",
-        burgers: "Hamburgare i Boden",
+        polishFood: "Polsk mat i Boden",
         catering: "Catering",
 
         whyTitle: "Varför beställa från Nordic Eatery?",
         benefits: [
-            "Snabb matleverans i Boden",
+            "Matleverans i Boden",
             "Färskt tillagade rätter",
             "Polsk comfort food och street food",
-            "Hamburgare, pommes och drycker",
+            "Maczanka, knysza, pommes och drycker",
             "Onlinebeställning för leverans eller takeaway",
             "Bra val för lunch, middag eller enkel vardagsmat",
         ],
@@ -145,7 +87,7 @@ const content = {
             },
             {
                 q: "Hur lång tid tar leveransen?",
-                a: "Leverans tar vanligtvis cirka 30–40 minuter beroende på efterfrågan, orderstorlek och leveransadress.",
+                a: "Leveranstiden kan variera beroende på efterfrågan, orderstorlek och leveransadress.",
             },
             {
                 q: "Kan jag beställa takeaway?",
@@ -153,44 +95,268 @@ const content = {
             },
             {
                 q: "Vilken mat kan jag beställa?",
-                a: "Du kan beställa hamburgare, krispiga pommes, polsk comfort food, street food, drycker och utvalda menyfavoriter.",
+                a: "Du kan beställa maczanka, knysza, krispiga pommes, polsk comfort food, street food, drycker och utvalda menyfavoriter.",
             },
         ],
     },
-};
+
+    en: {
+        metadataTitle: "Food Delivery in Boden | Order Online | Nordic Eatery",
+        metadataDescription:
+            "Order fresh Polish comfort food, maczanka, knysza, crispy fries and street food in Boden. Food delivery and takeaway from Nordic Eatery.",
+        ogTitle: "Food Delivery in Boden | Nordic Eatery",
+        ogDescription:
+            "Fresh Polish comfort food, maczanka, knysza, fries and street food with delivery and takeaway in Boden.",
+
+        eyebrow: "Food delivery in Boden",
+        h1: "Fast food delivery in Boden",
+        intro:
+            "Looking for fresh food delivery in Boden? Nordic Eatery serves Polish comfort food, maczanka, knysza, crispy fries and street food made fresh to order. Order online for delivery or takeaway and enjoy warm food as quickly as possible.",
+        orderOnline: "Order online",
+        takeaway: "Takeaway in Boden",
+
+        card1Title: "Fast delivery",
+        card1Text: "Smooth food delivery for online orders in Boden.",
+        card2Title: "Order online",
+        card2Text: "Choose your favourite dishes from our online menu.",
+        card3Title: "Fresh food",
+        card3Text: "Maczanka, knysza, fries, Polish comfort food and street food.",
+        card4Title: "Takeaway too",
+        card4Text: "Prefer pickup? Order takeaway and collect your food.",
+
+        sectionEyebrow: "Order food online",
+        sectionTitle: "Fresh delivery food in Boden",
+        paragraph1:
+            "Nordic Eatery is a local food concept in Boden focused on real food, quick service and easy online ordering. Our menu is built around comforting dishes that work perfectly for delivery and takeaway — warm, filling and prepared fresh.",
+        paragraph2:
+            "Whether you are searching for food delivery in Boden, takeaway near you, crispy fries or Polish street food, Nordic Eatery gives you a simple way to order online without waiting on the phone.",
+        paragraph3:
+            "We prepare orders as quickly as possible while keeping the food fresh and consistent. Delivery time can vary depending on the time of day, order size and delivery location.",
+
+        viewMenu: "View menu",
+        polishFood: "Polish food in Boden",
+        catering: "Catering",
+
+        whyTitle: "Why order from Nordic Eatery?",
+        benefits: [
+            "Food delivery in Boden",
+            "Freshly prepared dishes",
+            "Polish comfort food and street food",
+            "Maczanka, knysza, fries and drinks",
+            "Online ordering for delivery or takeaway",
+            "Good option for lunch, dinner or casual meals",
+        ],
+
+        faqEyebrow: "FAQ",
+        faqTitle: "Food delivery questions",
+        faq: [
+            {
+                q: "Do you deliver food in Boden?",
+                a: "Yes. Nordic Eatery offers online food delivery in Boden with fresh dishes prepared for delivery and takeaway.",
+            },
+            {
+                q: "How long does delivery take?",
+                a: "Delivery time can vary depending on demand, order size and delivery location.",
+            },
+            {
+                q: "Can I order takeaway?",
+                a: "Yes. You can order online and choose takeaway if you prefer to pick up your food.",
+            },
+            {
+                q: "What food can I order?",
+                a: "You can order maczanka, knysza, crispy fries, Polish comfort food, street food, drinks and selected menu specials.",
+            },
+        ],
+    },
+
+    pl: {
+        metadataTitle: "Dostawa jedzenia w Boden | Zamów online | Nordic Eatery",
+        metadataDescription:
+            "Zamów świeże polskie comfort food, maczankę, knyszę, chrupiące frytki i street food w Boden. Dostawa i odbiór z Nordic Eatery.",
+        ogTitle: "Dostawa jedzenia w Boden | Nordic Eatery",
+        ogDescription:
+            "Polskie comfort food, maczanka, knysza, frytki i street food z dostawą oraz odbiorem w Boden.",
+
+        eyebrow: "Dostawa jedzenia w Boden",
+        h1: "Szybka dostawa jedzenia w Boden",
+        intro:
+            "Szukasz świeżego jedzenia z dostawą w Boden? Nordic Eatery serwuje polskie comfort food, maczankę, knyszę, chrupiące frytki i street food przygotowywany na świeżo. Zamów online z dostawą lub odbiorem osobistym.",
+        orderOnline: "Zamów online",
+        takeaway: "Odbiór w Boden",
+
+        card1Title: "Szybka dostawa",
+        card1Text: "Wygodna dostawa jedzenia dla zamówień online w Boden.",
+        card2Title: "Zamów online",
+        card2Text: "Wybierz ulubione dania z naszego menu online.",
+        card3Title: "Świeże jedzenie",
+        card3Text: "Maczanka, knysza, frytki, polskie comfort food i street food.",
+        card4Title: "Także odbiór",
+        card4Text: "Wolisz odebrać sam? Zamów takeaway i odbierz jedzenie.",
+
+        sectionEyebrow: "Zamów jedzenie online",
+        sectionTitle: "Świeże jedzenie z dostawą w Boden",
+        paragraph1:
+            "Nordic Eatery to lokalny koncept gastronomiczny w Boden skupiony na prawdziwym jedzeniu, szybkiej obsłudze i prostym zamawianiu online. Nasze menu dobrze sprawdza się zarówno w dostawie, jak i przy odbiorze osobistym.",
+        paragraph2:
+            "Jeśli szukasz dostawy jedzenia w Boden, takeaway w pobliżu, chrupiących frytek albo polskiego street foodu, Nordic Eatery daje prosty sposób zamawiania bez konieczności dzwonienia.",
+        paragraph3:
+            "Przygotowujemy zamówienia możliwie szybko, dbając o świeżość i jakość jedzenia. Czas dostawy może się różnić w zależności od pory dnia, wielkości zamówienia i adresu dostawy.",
+
+        viewMenu: "Zobacz menu",
+        polishFood: "Polskie jedzenie w Boden",
+        catering: "Catering",
+
+        whyTitle: "Dlaczego warto zamówić z Nordic Eatery?",
+        benefits: [
+            "Dostawa jedzenia w Boden",
+            "Świeżo przygotowywane dania",
+            "Polskie comfort food i street food",
+            "Maczanka, knysza, frytki i napoje",
+            "Zamówienia online z dostawą lub odbiorem",
+            "Dobry wybór na lunch, kolację lub szybki posiłek",
+        ],
+
+        faqEyebrow: "FAQ",
+        faqTitle: "Pytania o dostawę jedzenia",
+        faq: [
+            {
+                q: "Czy dostarczacie jedzenie w Boden?",
+                a: "Tak. Nordic Eatery oferuje zamówienia online z dostawą w Boden oraz opcją odbioru osobistego.",
+            },
+            {
+                q: "Ile trwa dostawa?",
+                a: "Czas dostawy może się różnić w zależności od liczby zamówień, wielkości zamówienia i adresu dostawy.",
+            },
+            {
+                q: "Czy mogę zamówić takeaway?",
+                a: "Tak. Możesz zamówić online i wybrać odbiór osobisty.",
+            },
+            {
+                q: "Jakie jedzenie mogę zamówić?",
+                a: "Możesz zamówić maczankę, knyszę, chrupiące frytki, polskie comfort food, street food, napoje i wybrane pozycje z menu.",
+            },
+        ],
+    },
+
+    ru: {
+        metadataTitle: "Доставка еды в Будене | Заказать онлайн | Nordic Eatery",
+        metadataDescription:
+            "Закажите польскую comfort food, мацанку, кнышу, хрустящий картофель фри и street food в Будене. Доставка и самовывоз от Nordic Eatery.",
+        ogTitle: "Доставка еды в Будене | Nordic Eatery",
+        ogDescription:
+            "Польская comfort food, мацанка, кныша, фри и street food с доставкой и самовывозом в Будене.",
+
+        eyebrow: "Доставка еды в Будене",
+        h1: "Быстрая доставка еды в Будене",
+        intro:
+            "Ищете свежую еду с доставкой в Будене? Nordic Eatery готовит польскую comfort food, мацанку, кнышу, хрустящий картофель фри и street food на заказ. Закажите онлайн с доставкой или самовывозом.",
+        orderOnline: "Заказать онлайн",
+        takeaway: "Самовывоз в Будене",
+
+        card1Title: "Быстрая доставка",
+        card1Text: "Удобная доставка еды для онлайн-заказов в Будене.",
+        card2Title: "Заказ онлайн",
+        card2Text: "Выберите любимые блюда из нашего онлайн-меню.",
+        card3Title: "Свежая еда",
+        card3Text: "Мацанка, кныша, фри, польская comfort food и street food.",
+        card4Title: "Есть самовывоз",
+        card4Text: "Хотите забрать сами? Оформите заказ на самовывоз.",
+
+        sectionEyebrow: "Закажите еду онлайн",
+        sectionTitle: "Свежая еда с доставкой в Будене",
+        paragraph1:
+            "Nordic Eatery — локальный фуд-концепт в Будене с фокусом на настоящую еду, быстрый сервис и простой онлайн-заказ. Наше меню хорошо подходит и для доставки, и для самовывоза.",
+        paragraph2:
+            "Если вы ищете доставку еды в Будене, takeaway рядом, хрустящий картофель фри или польский street food, Nordic Eatery даёт простой способ заказать онлайн без звонков.",
+        paragraph3:
+            "Мы готовим заказы максимально быстро, сохраняя свежесть и качество еды. Время доставки может отличаться в зависимости от времени дня, размера заказа и адреса доставки.",
+
+        viewMenu: "Посмотреть меню",
+        polishFood: "Польская еда в Будене",
+        catering: "Кейтеринг",
+
+        whyTitle: "Почему стоит заказать в Nordic Eatery?",
+        benefits: [
+            "Доставка еды в Будене",
+            "Свежеприготовленные блюда",
+            "Польская comfort food и street food",
+            "Мацанка, кныша, фри и напитки",
+            "Онлайн-заказ с доставкой или самовывозом",
+            "Хороший вариант для обеда, ужина или быстрого перекуса",
+        ],
+
+        faqEyebrow: "FAQ",
+        faqTitle: "Вопросы о доставке еды",
+        faq: [
+            {
+                q: "Вы доставляете еду в Будене?",
+                a: "Да. Nordic Eatery предлагает онлайн-заказы с доставкой в Будене и возможностью самовывоза.",
+            },
+            {
+                q: "Сколько занимает доставка?",
+                a: "Время доставки может отличаться в зависимости от загруженности, размера заказа и адреса доставки.",
+            },
+            {
+                q: "Можно заказать самовывоз?",
+                a: "Да. Вы можете заказать онлайн и выбрать самовывоз.",
+            },
+            {
+                q: "Какую еду можно заказать?",
+                a: "Вы можете заказать мацанку, кнышу, хрустящий картофель фри, польскую comfort food, street food, напитки и избранные позиции меню.",
+            },
+        ],
+    },
+} as const;
+
+function isSupportedLocale(locale: string): locale is Locale {
+    return locales.includes(locale as Locale);
+}
+
+function getSafeLocale(locale: string): Locale {
+    return isSupportedLocale(locale) ? locale : "sv";
+}
 
 function getPageContent(locale: string) {
-    if (locale === "sv") return content.sv;
-    return content.en;
+    return content[getSafeLocale(locale)];
+}
+
+function buildDeliveryUrl(locale: Locale) {
+    return `${baseUrl}/${locale}/delivery-boden`;
+}
+
+function buildLanguageAlternates() {
+    return {
+        sv: buildDeliveryUrl("sv"),
+        en: buildDeliveryUrl("en"),
+        pl: buildDeliveryUrl("pl"),
+        ru: buildDeliveryUrl("ru"),
+        "x-default": buildDeliveryUrl("sv"),
+    };
 }
 
 export async function generateMetadata({
                                            params,
                                        }: PageProps): Promise<Metadata> {
     const { locale } = await params;
-    const page = getPageContent(locale);
-
-    const canonical =
-        locale === "sv"
-            ? `${baseUrl}/sv/delivery-boden`
-            : `${baseUrl}/en/delivery-boden`;
+    const currentLocale = getSafeLocale(locale);
+    const page = getPageContent(currentLocale);
+    const canonical = buildDeliveryUrl(currentLocale);
 
     return {
         title: page.metadataTitle,
         description: page.metadataDescription,
+
         alternates: {
             canonical,
-            languages: {
-                en: `${baseUrl}/en/delivery-boden`,
-                sv: `${baseUrl}/sv/delivery-boden`,
-                "x-default": `${baseUrl}/en/delivery-boden`,
-            },
+            languages: buildLanguageAlternates(),
         },
+
         openGraph: {
             title: page.ogTitle,
             description: page.ogDescription,
             url: canonical,
             siteName: "Nordic Eatery",
+            locale: ogLocales[currentLocale],
             type: "website",
             images: [
                 {
@@ -201,12 +367,32 @@ export async function generateMetadata({
                 },
             ],
         },
+
+        twitter: {
+            card: "summary_large_image",
+            title: page.ogTitle,
+            description: page.ogDescription,
+            images: [`${baseUrl}/og-image.jpg`],
+        },
+
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                "max-image-preview": "large",
+                "max-snippet": -1,
+                "max-video-preview": -1,
+            },
+        },
     };
 }
 
 export default async function DeliveryBodenPage({ params }: PageProps) {
     const { locale } = await params;
-    const page = getPageContent(locale);
+    const currentLocale = getSafeLocale(locale);
+    const page = getPageContent(currentLocale);
 
     const supabase = await createClient();
 
@@ -229,7 +415,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
     const { data: siteContent } = await supabase
         .from("site_content")
         .select("key,value")
-        .eq("locale", locale)
+        .eq("locale", currentLocale)
         .eq("page", "delivery-boden");
 
     const editableContent = new Map(
@@ -240,10 +426,10 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
         return editableContent.get(key) || fallback;
     }
 
-    const menuUrl = `/${locale}/menu`;
-    const takeawayUrl = `/${locale}/takeaway-boden`;
-    const burgersUrl = `/${locale}/burgers-boden`;
-    const cateringUrl = `/${locale}/catering-boden`;
+    const menuUrl = `/${currentLocale}/menu`;
+    const takeawayUrl = `/${currentLocale}/takeaway-boden`;
+    const polishFoodUrl = `/${currentLocale}/polish-food-boden`;
+    const cateringUrl = `/${currentLocale}/catering-boden`;
 
     const benefits = page.benefits.map((item, index) => ({
         key: `deliveryBoden.benefits.${index}`,
@@ -321,7 +507,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                             <EditableText
                                 value={text("deliveryBoden.eyebrow", page.eyebrow)}
                                 textKey="deliveryBoden.eyebrow"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="delivery-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -332,7 +518,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                             <EditableText
                                 value={text("deliveryBoden.h1", page.h1)}
                                 textKey="deliveryBoden.h1"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="delivery-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -343,7 +529,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                             <EditableText
                                 value={text("deliveryBoden.intro", page.intro)}
                                 textKey="deliveryBoden.intro"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="delivery-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -355,7 +541,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                                 <EditableText
                                     value={text("deliveryBoden.orderOnline", page.orderOnline)}
                                     textKey="deliveryBoden.orderOnline"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="delivery-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -368,7 +554,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                                 <EditableText
                                     value={text("deliveryBoden.takeaway", page.takeaway)}
                                     textKey="deliveryBoden.takeaway"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="delivery-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -390,7 +576,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={card.title}
                                         textKey={card.titleKey}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="delivery-boden"
                                         canEdit={isOwner}
                                         as="span"
@@ -401,7 +587,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={card.description}
                                         textKey={card.textKey}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="delivery-boden"
                                         canEdit={isOwner}
                                         as="span"
@@ -418,7 +604,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                             <EditableText
                                 value={text("deliveryBoden.sectionEyebrow", page.sectionEyebrow)}
                                 textKey="deliveryBoden.sectionEyebrow"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="delivery-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -429,7 +615,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                             <EditableText
                                 value={text("deliveryBoden.sectionTitle", page.sectionTitle)}
                                 textKey="deliveryBoden.sectionTitle"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="delivery-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -441,7 +627,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                                 <EditableText
                                     value={text("deliveryBoden.paragraph1", page.paragraph1)}
                                     textKey="deliveryBoden.paragraph1"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="delivery-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -452,7 +638,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                                 <EditableText
                                     value={text("deliveryBoden.paragraph2", page.paragraph2)}
                                     textKey="deliveryBoden.paragraph2"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="delivery-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -463,7 +649,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                                 <EditableText
                                     value={text("deliveryBoden.paragraph3", page.paragraph3)}
                                     textKey="deliveryBoden.paragraph3"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="delivery-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -476,18 +662,18 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                                 <EditableText
                                     value={text("deliveryBoden.viewMenu", page.viewMenu)}
                                     textKey="deliveryBoden.viewMenu"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="delivery-boden"
                                     canEdit={isOwner}
                                     as="span"
                                 />
                             </Link>
 
-                            <Link href={burgersUrl} className="btn-secondary">
+                            <Link href={polishFoodUrl} className="btn-secondary">
                                 <EditableText
-                                    value={text("deliveryBoden.burgers", page.burgers)}
+                                    value={text("deliveryBoden.burgers", page.polishFood)}
                                     textKey="deliveryBoden.burgers"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="delivery-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -498,7 +684,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                                 <EditableText
                                     value={text("deliveryBoden.catering", page.catering)}
                                     textKey="deliveryBoden.catering"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="delivery-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -512,7 +698,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                             <EditableText
                                 value={text("deliveryBoden.whyTitle", page.whyTitle)}
                                 textKey="deliveryBoden.whyTitle"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="delivery-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -530,7 +716,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={item.value}
                                         textKey={item.key}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="delivery-boden"
                                         canEdit={isOwner}
                                         as="span"
@@ -546,7 +732,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                         <EditableText
                             value={text("deliveryBoden.faqEyebrow", page.faqEyebrow)}
                             textKey="deliveryBoden.faqEyebrow"
-                            locale={locale}
+                            locale={currentLocale}
                             page="delivery-boden"
                             canEdit={isOwner}
                             as="span"
@@ -557,7 +743,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                         <EditableText
                             value={text("deliveryBoden.faqTitle", page.faqTitle)}
                             textKey="deliveryBoden.faqTitle"
-                            locale={locale}
+                            locale={currentLocale}
                             page="delivery-boden"
                             canEdit={isOwner}
                             as="span"
@@ -571,7 +757,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={item.q}
                                         textKey={item.qKey}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="delivery-boden"
                                         canEdit={isOwner}
                                         as="span"
@@ -582,7 +768,7 @@ export default async function DeliveryBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={item.a}
                                         textKey={item.aKey}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="delivery-boden"
                                         canEdit={isOwner}
                                         as="span"

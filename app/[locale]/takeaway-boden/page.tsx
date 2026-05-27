@@ -12,6 +12,8 @@ import { getTranslations } from "next-intl/server";
 import { EditableText } from "@/components/EditableText";
 import { createClient } from "@/lib/supabase/server";
 
+type Locale = "sv" | "en" | "pl" | "ru";
+
 type PageProps = {
     params: Promise<{
         locale: string;
@@ -20,36 +22,65 @@ type PageProps = {
 
 const baseUrl = "https://www.nordiceatery.se";
 
+const locales = ["sv", "en", "pl", "ru"] as const;
+
+const ogLocales: Record<Locale, string> = {
+    sv: "sv_SE",
+    en: "en_SE",
+    pl: "pl_PL",
+    ru: "ru_RU",
+};
+
+function isSupportedLocale(locale: string): locale is Locale {
+    return locales.includes(locale as Locale);
+}
+
+function getSafeLocale(locale: string): Locale {
+    return isSupportedLocale(locale) ? locale : "sv";
+}
+
+function buildTakeawayUrl(locale: Locale) {
+    return `${baseUrl}/${locale}/takeaway-boden`;
+}
+
+function buildLanguageAlternates() {
+    return {
+        sv: buildTakeawayUrl("sv"),
+        en: buildTakeawayUrl("en"),
+        pl: buildTakeawayUrl("pl"),
+        ru: buildTakeawayUrl("ru"),
+        "x-default": buildTakeawayUrl("sv"),
+    };
+}
+
 export async function generateMetadata({
                                            params,
                                        }: PageProps): Promise<Metadata> {
     const { locale } = await params;
+    const currentLocale = getSafeLocale(locale);
 
     const t = await getTranslations({
-        locale,
+        locale: currentLocale,
         namespace: "seo.takeawayBoden",
     });
 
-    const canonical = `${baseUrl}/${locale}/takeaway-boden`;
+    const canonical = buildTakeawayUrl(currentLocale);
 
     return {
         title: t("title"),
         description: t("description"),
+
         alternates: {
             canonical,
-            languages: {
-                en: `${baseUrl}/en/takeaway-boden`,
-                sv: `${baseUrl}/sv/takeaway-boden`,
-                pl: `${baseUrl}/pl/takeaway-boden`,
-                ru: `${baseUrl}/ru/takeaway-boden`,
-                "x-default": `${baseUrl}/en/takeaway-boden`,
-            },
+            languages: buildLanguageAlternates(),
         },
+
         openGraph: {
             title: t("ogTitle"),
             description: t("ogDescription"),
             url: canonical,
             siteName: "Nordic Eatery",
+            locale: ogLocales[currentLocale],
             type: "website",
             images: [
                 {
@@ -60,17 +91,31 @@ export async function generateMetadata({
                 },
             ],
         },
+
         twitter: {
             card: "summary_large_image",
             title: t("ogTitle"),
             description: t("ogDescription"),
             images: [`${baseUrl}/og-image.jpg`],
         },
+
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                "max-image-preview": "large",
+                "max-snippet": -1,
+                "max-video-preview": -1,
+            },
+        },
     };
 }
 
 export default async function TakeawayBodenPage({ params }: PageProps) {
     const { locale } = await params;
+    const currentLocale = getSafeLocale(locale);
 
     const supabase = await createClient();
 
@@ -91,14 +136,14 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
     }
 
     const t = await getTranslations({
-        locale,
+        locale: currentLocale,
         namespace: "pages.takeawayBoden",
     });
 
     const { data: siteContent } = await supabase
         .from("site_content")
         .select("key,value")
-        .eq("locale", locale)
+        .eq("locale", currentLocale)
         .eq("page", "takeaway-boden");
 
     const content = new Map(
@@ -109,10 +154,10 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
         return content.get(key) || t(fallbackKey);
     }
 
-    const menuUrl = `/${locale}/menu`;
-    const deliveryUrl = `/${locale}/delivery-boden`;
-    const burgersUrl = `/${locale}/burgers-boden`;
-    const cateringUrl = `/${locale}/catering-boden`;
+    const menuUrl = `/${currentLocale}/menu`;
+    const deliveryUrl = `/${currentLocale}/delivery-boden`;
+    const polishFoodUrl = `/${currentLocale}/polish-food-boden`;
+    const cateringUrl = `/${currentLocale}/catering-boden`;
 
     const cards = [
         {
@@ -190,7 +235,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                             <EditableText
                                 value={text("takeawayBoden.hero.eyebrow", "hero.eyebrow")}
                                 textKey="takeawayBoden.hero.eyebrow"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="takeaway-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -201,7 +246,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                             <EditableText
                                 value={text("takeawayBoden.hero.title", "hero.title")}
                                 textKey="takeawayBoden.hero.title"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="takeaway-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -215,7 +260,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                                     "hero.description"
                                 )}
                                 textKey="takeawayBoden.hero.description"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="takeaway-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -230,7 +275,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                                         "hero.primaryCta"
                                     )}
                                     textKey="takeawayBoden.hero.primaryCta"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="takeaway-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -246,7 +291,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                                         "hero.secondaryCta"
                                     )}
                                     textKey="takeawayBoden.hero.secondaryCta"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="takeaway-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -268,7 +313,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={text(card.titleKey, card.fallbackTitle)}
                                         textKey={card.titleKey}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="takeaway-boden"
                                         canEdit={isOwner}
                                         as="span"
@@ -279,7 +324,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={text(card.textKey, card.fallbackText)}
                                         textKey={card.textKey}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="takeaway-boden"
                                         canEdit={isOwner}
                                         as="span"
@@ -299,7 +344,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                                     "content.eyebrow"
                                 )}
                                 textKey="takeawayBoden.content.eyebrow"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="takeaway-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -310,7 +355,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                             <EditableText
                                 value={text("takeawayBoden.content.title", "content.title")}
                                 textKey="takeawayBoden.content.title"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="takeaway-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -325,7 +370,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                                         "content.paragraph1"
                                     )}
                                     textKey="takeawayBoden.content.paragraph1"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="takeaway-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -339,7 +384,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                                         "content.paragraph2"
                                     )}
                                     textKey="takeawayBoden.content.paragraph2"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="takeaway-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -353,7 +398,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                                         "content.paragraph3"
                                     )}
                                     textKey="takeawayBoden.content.paragraph3"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="takeaway-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -369,21 +414,21 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                                         "content.menuCta"
                                     )}
                                     textKey="takeawayBoden.content.menuCta"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="takeaway-boden"
                                     canEdit={isOwner}
                                     as="span"
                                 />
                             </Link>
 
-                            <Link href={burgersUrl} className="btn-secondary">
+                            <Link href={polishFoodUrl} className="btn-secondary">
                                 <EditableText
                                     value={text(
                                         "takeawayBoden.content.burgersCta",
                                         "content.burgersCta"
                                     )}
                                     textKey="takeawayBoden.content.burgersCta"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="takeaway-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -397,7 +442,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                                         "content.cateringCta"
                                     )}
                                     textKey="takeawayBoden.content.cateringCta"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="takeaway-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -411,7 +456,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                             <EditableText
                                 value={text("takeawayBoden.benefits.title", "benefits.title")}
                                 textKey="takeawayBoden.benefits.title"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="takeaway-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -429,7 +474,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={text(item.key, item.fallbackKey)}
                                         textKey={item.key}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="takeaway-boden"
                                         canEdit={isOwner}
                                         as="span"
@@ -445,7 +490,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                         <EditableText
                             value={text("takeawayBoden.faq.eyebrow", "faq.eyebrow")}
                             textKey="takeawayBoden.faq.eyebrow"
-                            locale={locale}
+                            locale={currentLocale}
                             page="takeaway-boden"
                             canEdit={isOwner}
                             as="span"
@@ -456,7 +501,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                         <EditableText
                             value={text("takeawayBoden.faq.title", "faq.title")}
                             textKey="takeawayBoden.faq.title"
-                            locale={locale}
+                            locale={currentLocale}
                             page="takeaway-boden"
                             canEdit={isOwner}
                             as="span"
@@ -470,7 +515,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={text(item.qKey, item.qFallback)}
                                         textKey={item.qKey}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="takeaway-boden"
                                         canEdit={isOwner}
                                         as="span"
@@ -481,7 +526,7 @@ export default async function TakeawayBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={text(item.aKey, item.aFallback)}
                                         textKey={item.aKey}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="takeaway-boden"
                                         canEdit={isOwner}
                                         as="span"

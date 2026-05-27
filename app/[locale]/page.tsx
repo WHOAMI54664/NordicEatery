@@ -13,7 +13,11 @@ type HomePageProps = {
   }>;
 };
 
+type Locale = "sv" | "en" | "pl" | "ru";
+
 const baseUrl = "https://www.nordiceatery.se";
+
+const locales = ["sv", "en", "pl", "ru"] as const;
 
 const homeSeo = {
   sv: {
@@ -80,22 +84,40 @@ const homeSeo = {
   },
 } as const;
 
+function isSupportedLocale(locale: string): locale is Locale {
+  return locales.includes(locale as Locale);
+}
+
 function getHomeSeo(locale: string) {
-  if (locale === "sv" || locale === "en" || locale === "pl" || locale === "ru") {
+  if (isSupportedLocale(locale)) {
     return homeSeo[locale];
   }
 
   return homeSeo.sv;
 }
 
+function getLocalizedUrl(locale: Locale, path = "") {
+  return `${baseUrl}/${locale}${path}`;
+}
+
+function getLanguageAlternates(path = "") {
+  return {
+    sv: getLocalizedUrl("sv", path),
+    en: getLocalizedUrl("en", path),
+    pl: getLocalizedUrl("pl", path),
+    ru: getLocalizedUrl("ru", path),
+    "x-default": getLocalizedUrl("sv", path),
+  };
+}
+
 export async function generateMetadata({
                                          params,
                                        }: HomePageProps): Promise<Metadata> {
   const { locale } = await params;
-  const seo = getHomeSeo(locale);
 
-  const canonicalPath = `/${locale}`;
-  const canonicalUrl = `${baseUrl}${canonicalPath}`;
+  const currentLocale = isSupportedLocale(locale) ? locale : "sv";
+  const seo = getHomeSeo(currentLocale);
+  const canonicalUrl = getLocalizedUrl(currentLocale);
 
   return {
     title: seo.title,
@@ -103,14 +125,8 @@ export async function generateMetadata({
     keywords: seo.keywords,
 
     alternates: {
-      canonical: canonicalPath,
-      languages: {
-        "sv-SE": "/sv",
-        "en-SE": "/en",
-        "pl-PL": "/pl",
-        "ru-RU": "/ru",
-        "x-default": "/sv",
-      },
+      canonical: canonicalUrl,
+      languages: getLanguageAlternates(),
     },
 
     openGraph: {
@@ -122,7 +138,7 @@ export async function generateMetadata({
       type: "website",
       images: [
         {
-          url: "/og-image.jpg",
+          url: `${baseUrl}/og-image.jpg`,
           width: 1200,
           height: 630,
           alt: "Nordic Eatery food delivery in Boden",
@@ -134,14 +150,24 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: seo.title,
       description: seo.description,
-      images: ["/og-image.jpg"],
+      images: [`${baseUrl}/og-image.jpg`],
+    },
+
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
     },
   };
 }
 
-export default async function HomePage({
-                                         params,
-                                       }: HomePageProps) {
+export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
 
   const supabase = await createClient();

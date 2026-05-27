@@ -11,6 +11,8 @@ import { getTranslations } from "next-intl/server";
 import { EditableText } from "@/components/EditableText";
 import { createClient } from "@/lib/supabase/server";
 
+type Locale = "sv" | "en" | "pl" | "ru";
+
 type PageProps = {
     params: Promise<{
         locale: string;
@@ -19,36 +21,65 @@ type PageProps = {
 
 const baseUrl = "https://www.nordiceatery.se";
 
+const locales = ["sv", "en", "pl", "ru"] as const;
+
+const ogLocales: Record<Locale, string> = {
+    sv: "sv_SE",
+    en: "en_SE",
+    pl: "pl_PL",
+    ru: "ru_RU",
+};
+
+function isSupportedLocale(locale: string): locale is Locale {
+    return locales.includes(locale as Locale);
+}
+
+function getSafeLocale(locale: string): Locale {
+    return isSupportedLocale(locale) ? locale : "sv";
+}
+
+function buildPolishFoodUrl(locale: Locale) {
+    return `${baseUrl}/${locale}/polish-food-boden`;
+}
+
+function buildLanguageAlternates() {
+    return {
+        sv: buildPolishFoodUrl("sv"),
+        en: buildPolishFoodUrl("en"),
+        pl: buildPolishFoodUrl("pl"),
+        ru: buildPolishFoodUrl("ru"),
+        "x-default": buildPolishFoodUrl("sv"),
+    };
+}
+
 export async function generateMetadata({
                                            params,
                                        }: PageProps): Promise<Metadata> {
     const { locale } = await params;
+    const currentLocale = getSafeLocale(locale);
 
     const t = await getTranslations({
-        locale,
+        locale: currentLocale,
         namespace: "seo.polishFoodBoden",
     });
 
-    const canonical = `${baseUrl}/${locale}/polish-food-boden`;
+    const canonical = buildPolishFoodUrl(currentLocale);
 
     return {
         title: t("title"),
         description: t("description"),
+
         alternates: {
             canonical,
-            languages: {
-                en: `${baseUrl}/en/polish-food-boden`,
-                sv: `${baseUrl}/sv/polish-food-boden`,
-                pl: `${baseUrl}/pl/polish-food-boden`,
-                ru: `${baseUrl}/ru/polish-food-boden`,
-                "x-default": `${baseUrl}/en/polish-food-boden`,
-            },
+            languages: buildLanguageAlternates(),
         },
+
         openGraph: {
             title: t("ogTitle"),
             description: t("ogDescription"),
             url: canonical,
             siteName: "Nordic Eatery",
+            locale: ogLocales[currentLocale],
             type: "website",
             images: [
                 {
@@ -59,17 +90,31 @@ export async function generateMetadata({
                 },
             ],
         },
+
         twitter: {
             card: "summary_large_image",
             title: t("ogTitle"),
             description: t("ogDescription"),
             images: [`${baseUrl}/og-image.jpg`],
         },
+
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                "max-image-preview": "large",
+                "max-snippet": -1,
+                "max-video-preview": -1,
+            },
+        },
     };
 }
 
 export default async function PolishFoodBodenPage({ params }: PageProps) {
     const { locale } = await params;
+    const currentLocale = getSafeLocale(locale);
 
     const supabase = await createClient();
 
@@ -90,14 +135,14 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
     }
 
     const t = await getTranslations({
-        locale,
+        locale: currentLocale,
         namespace: "pages.polishFoodBoden",
     });
 
     const { data: siteContent } = await supabase
         .from("site_content")
         .select("key,value")
-        .eq("locale", locale)
+        .eq("locale", currentLocale)
         .eq("page", "polish-food-boden");
 
     const content = new Map(
@@ -108,9 +153,9 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
         return content.get(key) || t(fallbackKey);
     }
 
-    const menuUrl = `/${locale}/menu`;
-    const deliveryUrl = `/${locale}/delivery-boden`;
-    const takeawayUrl = `/${locale}/takeaway-boden`;
+    const menuUrl = `/${currentLocale}/menu`;
+    const deliveryUrl = `/${currentLocale}/delivery-boden`;
+    const takeawayUrl = `/${currentLocale}/takeaway-boden`;
 
     const cards = [
         {
@@ -151,12 +196,9 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                         <Utensils className="h-4 w-4" />
 
                         <EditableText
-                            value={text(
-                                "polishFoodBoden.hero.eyebrow",
-                                "hero.eyebrow"
-                            )}
+                            value={text("polishFoodBoden.hero.eyebrow", "hero.eyebrow")}
                             textKey="polishFoodBoden.hero.eyebrow"
-                            locale={locale}
+                            locale={currentLocale}
                             page="polish-food-boden"
                             canEdit={isOwner}
                             as="span"
@@ -167,7 +209,7 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                         <EditableText
                             value={text("polishFoodBoden.hero.title", "hero.title")}
                             textKey="polishFoodBoden.hero.title"
-                            locale={locale}
+                            locale={currentLocale}
                             page="polish-food-boden"
                             canEdit={isOwner}
                             as="span"
@@ -181,7 +223,7 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                                 "hero.description"
                             )}
                             textKey="polishFoodBoden.hero.description"
-                            locale={locale}
+                            locale={currentLocale}
                             page="polish-food-boden"
                             canEdit={isOwner}
                             as="span"
@@ -196,7 +238,7 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                                     "hero.primaryCta"
                                 )}
                                 textKey="polishFoodBoden.hero.primaryCta"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="polish-food-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -212,7 +254,7 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                                     "hero.secondaryCta"
                                 )}
                                 textKey="polishFoodBoden.hero.secondaryCta"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="polish-food-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -234,7 +276,7 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                                 <EditableText
                                     value={text(card.titleKey, card.fallbackTitle)}
                                     textKey={card.titleKey}
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="polish-food-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -245,7 +287,7 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                                 <EditableText
                                     value={text(card.textKey, card.fallbackText)}
                                     textKey={card.textKey}
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="polish-food-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -260,12 +302,9 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                 <div>
                     <p className="font-black uppercase tracking-[0.25em] text-paprika">
                         <EditableText
-                            value={text(
-                                "polishFoodBoden.content.eyebrow",
-                                "content.eyebrow"
-                            )}
+                            value={text("polishFoodBoden.content.eyebrow", "content.eyebrow")}
                             textKey="polishFoodBoden.content.eyebrow"
-                            locale={locale}
+                            locale={currentLocale}
                             page="polish-food-boden"
                             canEdit={isOwner}
                             as="span"
@@ -276,7 +315,7 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                         <EditableText
                             value={text("polishFoodBoden.content.title", "content.title")}
                             textKey="polishFoodBoden.content.title"
-                            locale={locale}
+                            locale={currentLocale}
                             page="polish-food-boden"
                             canEdit={isOwner}
                             as="span"
@@ -291,7 +330,7 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                                     "content.paragraph1"
                                 )}
                                 textKey="polishFoodBoden.content.paragraph1"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="polish-food-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -305,7 +344,7 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                                     "content.paragraph2"
                                 )}
                                 textKey="polishFoodBoden.content.paragraph2"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="polish-food-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -319,7 +358,7 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                                     "content.paragraph3"
                                 )}
                                 textKey="polishFoodBoden.content.paragraph3"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="polish-food-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -330,12 +369,9 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                     <div className="mt-8 flex flex-wrap gap-3">
                         <Link href={menuUrl} className="btn-primary">
                             <EditableText
-                                value={text(
-                                    "polishFoodBoden.content.menuCta",
-                                    "content.menuCta"
-                                )}
+                                value={text("polishFoodBoden.content.menuCta", "content.menuCta")}
                                 textKey="polishFoodBoden.content.menuCta"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="polish-food-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -349,7 +385,7 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                                     "content.takeawayCta"
                                 )}
                                 textKey="polishFoodBoden.content.takeawayCta"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="polish-food-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -363,7 +399,7 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                                     "content.deliveryCta"
                                 )}
                                 textKey="polishFoodBoden.content.deliveryCta"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="polish-food-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -377,7 +413,7 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                         <EditableText
                             value={text("polishFoodBoden.benefits.title", "benefits.title")}
                             textKey="polishFoodBoden.benefits.title"
-                            locale={locale}
+                            locale={currentLocale}
                             page="polish-food-boden"
                             canEdit={isOwner}
                             as="span"
@@ -395,7 +431,7 @@ export default async function PolishFoodBodenPage({ params }: PageProps) {
                                 <EditableText
                                     value={text(item.key, item.fallbackKey)}
                                     textKey={item.key}
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="polish-food-boden"
                                     canEdit={isOwner}
                                     as="span"

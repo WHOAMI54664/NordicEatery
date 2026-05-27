@@ -8,6 +8,8 @@ import { EditableText } from "@/components/EditableText";
 import { KitchenClosedModal } from "@/components/KitchenClosedModal";
 import { getPublicShiftStatus } from "@/lib/restaurant/public-shift";
 
+type Locale = "sv" | "en" | "pl" | "ru";
+
 type MenuType = "all" | "standard" | "vegan" | "gluten_free";
 
 type MenuPageProps = {
@@ -20,6 +22,15 @@ type MenuPageProps = {
 };
 
 const baseUrl = "https://www.nordiceatery.se";
+
+const locales = ["sv", "en", "pl", "ru"] as const;
+
+const ogLocales: Record<Locale, string> = {
+    sv: "sv_SE",
+    en: "en_SE",
+    pl: "pl_PL",
+    ru: "ru_RU",
+};
 
 const menuTypes = [
     { id: "all", label: "All" },
@@ -36,6 +47,14 @@ const categories = [
     { id: "drinks", titleKey: "drinks" },
 ] as const;
 
+function isSupportedLocale(locale: string): locale is Locale {
+    return locales.includes(locale as Locale);
+}
+
+function getSafeLocale(locale: string): Locale {
+    return isSupportedLocale(locale) ? locale : "sv";
+}
+
 function getValidMenuType(type?: string): MenuType {
     if (type === "standard") return "standard";
     if (type === "vegan") return "vegan";
@@ -44,17 +63,32 @@ function getValidMenuType(type?: string): MenuType {
     return "all";
 }
 
+function buildMenuUrl(locale: Locale) {
+    return `${baseUrl}/${locale}/menu`;
+}
+
+function buildLanguageAlternates() {
+    return {
+        sv: buildMenuUrl("sv"),
+        en: buildMenuUrl("en"),
+        pl: buildMenuUrl("pl"),
+        ru: buildMenuUrl("ru"),
+        "x-default": buildMenuUrl("sv"),
+    };
+}
+
 export async function generateMetadata({
                                            params,
                                        }: MenuPageProps): Promise<Metadata> {
     const { locale } = await params;
+    const currentLocale = getSafeLocale(locale);
 
     const t = await getTranslations({
-        locale,
+        locale: currentLocale,
         namespace: "seo.menu",
     });
 
-    const canonical = `${baseUrl}/${locale}/menu`;
+    const canonical = buildMenuUrl(currentLocale);
 
     return {
         title: t("title"),
@@ -62,13 +96,7 @@ export async function generateMetadata({
 
         alternates: {
             canonical,
-            languages: {
-                en: `${baseUrl}/en/menu`,
-                sv: `${baseUrl}/sv/menu`,
-                pl: `${baseUrl}/pl/menu`,
-                ru: `${baseUrl}/ru/menu`,
-                "x-default": `${baseUrl}/en/menu`,
-            },
+            languages: buildLanguageAlternates(),
         },
 
         openGraph: {
@@ -76,6 +104,7 @@ export async function generateMetadata({
             description: t("ogDescription"),
             url: canonical,
             siteName: "Nordic Eatery",
+            locale: ogLocales[currentLocale],
             type: "website",
             images: [
                 {
@@ -93,6 +122,18 @@ export async function generateMetadata({
             description: t("ogDescription"),
             images: [`${baseUrl}/og-image.jpg`],
         },
+
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                "max-image-preview": "large",
+                "max-snippet": -1,
+                "max-video-preview": -1,
+            },
+        },
     };
 }
 
@@ -101,6 +142,7 @@ export default async function MenuPage({
                                            searchParams,
                                        }: MenuPageProps) {
     const { locale } = await params;
+    const currentLocale = getSafeLocale(locale);
     const resolvedSearchParams = await searchParams;
 
     const selectedMenuType = getValidMenuType(resolvedSearchParams?.type);
@@ -125,12 +167,15 @@ export default async function MenuPage({
         isOwner = profile?.role === "owner" || profile?.role === "admin";
     }
 
-    const t = await getTranslations("pages.menu");
+    const t = await getTranslations({
+        locale: currentLocale,
+        namespace: "pages.menu",
+    });
 
     const { data: siteContent } = await supabase
         .from("site_content")
         .select("key,value")
-        .eq("locale", locale)
+        .eq("locale", currentLocale)
         .eq("page", "menu");
 
     const content = new Map(
@@ -156,11 +201,11 @@ export default async function MenuPage({
 
     return (
         <>
-            <MenuJsonLd products={menuItems || []} locale={locale} />
+            <MenuJsonLd products={menuItems || []} locale={currentLocale} />
 
             <main className="container-page py-16">
                 <KitchenClosedModal
-                    locale={locale}
+                    locale={currentLocale}
                     isOpenInitially={!shiftStatus.isOpen}
                 />
 
@@ -169,7 +214,7 @@ export default async function MenuPage({
                         <EditableText
                             value={text("menu.eyebrow", "eyebrow")}
                             textKey="menu.eyebrow"
-                            locale={locale}
+                            locale={currentLocale}
                             page="menu"
                             canEdit={isOwner}
                             as="span"
@@ -180,7 +225,7 @@ export default async function MenuPage({
                         <EditableText
                             value={text("menu.title", "title")}
                             textKey="menu.title"
-                            locale={locale}
+                            locale={currentLocale}
                             page="menu"
                             canEdit={isOwner}
                             as="span"
@@ -191,7 +236,7 @@ export default async function MenuPage({
                         <EditableText
                             value={text("menu.subtitle", "subtitle")}
                             textKey="menu.subtitle"
-                            locale={locale}
+                            locale={currentLocale}
                             page="menu"
                             canEdit={isOwner}
                             as="span"
@@ -215,8 +260,8 @@ export default async function MenuPage({
                                 key={type.id}
                                 href={
                                     type.id === "all"
-                                        ? `/${locale}/menu`
-                                        : `/${locale}/menu?type=${type.id}`
+                                        ? `/${currentLocale}/menu`
+                                        : `/${currentLocale}/menu?type=${type.id}`
                                 }
                                 className={[
                                     "rounded-full px-6 py-3 text-sm font-black uppercase tracking-[0.18em] transition",
@@ -247,7 +292,7 @@ export default async function MenuPage({
                                     <EditableText
                                         value={text(categoryTextKey, fallbackKey)}
                                         textKey={categoryTextKey}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="menu"
                                         canEdit={isOwner}
                                         as="span"

@@ -4,6 +4,8 @@ const baseUrl = "https://www.nordiceatery.se";
 
 const locales = ["sv", "en", "pl", "ru"] as const;
 
+type Locale = (typeof locales)[number];
+
 const pages = [
     {
         path: "",
@@ -41,6 +43,11 @@ const pages = [
         priority: 0.75,
     },
     {
+        path: "mikes",
+        changeFrequency: "monthly",
+        priority: 0.7,
+    },
+    {
         path: "contact",
         changeFrequency: "monthly",
         priority: 0.6,
@@ -55,24 +62,32 @@ const pages = [
         changeFrequency: "monthly",
         priority: 0.5,
     },
+    {
+        path: "terms",
+        changeFrequency: "yearly",
+        priority: 0.35,
+    },
+    {
+        path: "privacy",
+        changeFrequency: "yearly",
+        priority: 0.35,
+    },
 ] satisfies Array<{
     path: string;
     changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"];
     priority: number;
 }>;
 
-function buildLocalizedUrl(locale: (typeof locales)[number], path: string) {
-    return path
-        ? `${baseUrl}/${locale}/${path}`
-        : `${baseUrl}/${locale}`;
+function buildLocalizedUrl(locale: Locale, path: string) {
+    return path ? `${baseUrl}/${locale}/${path}` : `${baseUrl}/${locale}`;
 }
 
 function buildLanguageAlternates(path: string) {
     return {
-        "sv-SE": buildLocalizedUrl("sv", path),
-        "en-SE": buildLocalizedUrl("en", path),
-        "pl-PL": buildLocalizedUrl("pl", path),
-        "ru-RU": buildLocalizedUrl("ru", path),
+        sv: buildLocalizedUrl("sv", path),
+        en: buildLocalizedUrl("en", path),
+        pl: buildLocalizedUrl("pl", path),
+        ru: buildLocalizedUrl("ru", path),
         "x-default": buildLocalizedUrl("sv", path),
     };
 }

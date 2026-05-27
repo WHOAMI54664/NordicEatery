@@ -14,6 +14,8 @@ import { getTranslations } from "next-intl/server";
 import { EditableText } from "@/components/EditableText";
 import { createClient } from "@/lib/supabase/server";
 
+type Locale = "sv" | "en" | "pl" | "ru";
+
 type PageProps = {
     params: Promise<{
         locale: string;
@@ -22,36 +24,65 @@ type PageProps = {
 
 const baseUrl = "https://www.nordiceatery.se";
 
+const locales = ["sv", "en", "pl", "ru"] as const;
+
+const ogLocales: Record<Locale, string> = {
+    sv: "sv_SE",
+    en: "en_SE",
+    pl: "pl_PL",
+    ru: "ru_RU",
+};
+
+function isSupportedLocale(locale: string): locale is Locale {
+    return locales.includes(locale as Locale);
+}
+
+function getSafeLocale(locale: string): Locale {
+    return isSupportedLocale(locale) ? locale : "sv";
+}
+
+function buildCateringUrl(locale: Locale) {
+    return `${baseUrl}/${locale}/catering-boden`;
+}
+
+function buildLanguageAlternates() {
+    return {
+        sv: buildCateringUrl("sv"),
+        en: buildCateringUrl("en"),
+        pl: buildCateringUrl("pl"),
+        ru: buildCateringUrl("ru"),
+        "x-default": buildCateringUrl("sv"),
+    };
+}
+
 export async function generateMetadata({
                                            params,
                                        }: PageProps): Promise<Metadata> {
     const { locale } = await params;
+    const currentLocale = getSafeLocale(locale);
 
     const t = await getTranslations({
-        locale,
+        locale: currentLocale,
         namespace: "seo.cateringBoden",
     });
 
-    const canonical = `${baseUrl}/${locale}/catering-boden`;
+    const canonical = buildCateringUrl(currentLocale);
 
     return {
         title: t("title"),
         description: t("description"),
+
         alternates: {
             canonical,
-            languages: {
-                en: `${baseUrl}/en/catering-boden`,
-                sv: `${baseUrl}/sv/catering-boden`,
-                pl: `${baseUrl}/pl/catering-boden`,
-                ru: `${baseUrl}/ru/catering-boden`,
-                "x-default": `${baseUrl}/en/catering-boden`,
-            },
+            languages: buildLanguageAlternates(),
         },
+
         openGraph: {
             title: t("ogTitle"),
             description: t("ogDescription"),
             url: canonical,
             siteName: "Nordic Eatery",
+            locale: ogLocales[currentLocale],
             type: "website",
             images: [
                 {
@@ -62,17 +93,31 @@ export async function generateMetadata({
                 },
             ],
         },
+
         twitter: {
             card: "summary_large_image",
             title: t("ogTitle"),
             description: t("ogDescription"),
             images: [`${baseUrl}/og-image.jpg`],
         },
+
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                "max-image-preview": "large",
+                "max-snippet": -1,
+                "max-video-preview": -1,
+            },
+        },
     };
 }
 
 export default async function CateringBodenPage({ params }: PageProps) {
     const { locale } = await params;
+    const currentLocale = getSafeLocale(locale);
 
     const supabase = await createClient();
 
@@ -93,14 +138,14 @@ export default async function CateringBodenPage({ params }: PageProps) {
     }
 
     const t = await getTranslations({
-        locale,
+        locale: currentLocale,
         namespace: "pages.cateringBoden",
     });
 
     const { data: siteContent } = await supabase
         .from("site_content")
         .select("key,value")
-        .eq("locale", locale)
+        .eq("locale", currentLocale)
         .eq("page", "catering-boden");
 
     const content = new Map(
@@ -111,10 +156,10 @@ export default async function CateringBodenPage({ params }: PageProps) {
         return content.get(key) || t(fallbackKey);
     }
 
-    const bookingUrl = `/${locale}/booking`;
-    const contactUrl = `/${locale}/contact`;
-    const menuUrl = `/${locale}/menu`;
-    const deliveryUrl = `/${locale}/delivery-boden`;
+    const bookingUrl = `/${currentLocale}/booking`;
+    const contactUrl = `/${currentLocale}/contact`;
+    const menuUrl = `/${currentLocale}/menu`;
+    const deliveryUrl = `/${currentLocale}/delivery-boden`;
 
     const cards = [
         {
@@ -192,7 +237,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                             <EditableText
                                 value={text("cateringBoden.hero.eyebrow", "hero.eyebrow")}
                                 textKey="cateringBoden.hero.eyebrow"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="catering-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -203,7 +248,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                             <EditableText
                                 value={text("cateringBoden.hero.title", "hero.title")}
                                 textKey="cateringBoden.hero.title"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="catering-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -217,7 +262,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                     "hero.description"
                                 )}
                                 textKey="cateringBoden.hero.description"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="catering-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -232,7 +277,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                         "hero.primaryCta"
                                     )}
                                     textKey="cateringBoden.hero.primaryCta"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="catering-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -248,7 +293,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                         "hero.secondaryCta"
                                     )}
                                     textKey="cateringBoden.hero.secondaryCta"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="catering-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -270,7 +315,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={text(card.titleKey, card.fallbackTitle)}
                                         textKey={card.titleKey}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="catering-boden"
                                         canEdit={isOwner}
                                         as="span"
@@ -281,7 +326,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={text(card.textKey, card.fallbackText)}
                                         textKey={card.textKey}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="catering-boden"
                                         canEdit={isOwner}
                                         as="span"
@@ -301,7 +346,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                     "content.eyebrow"
                                 )}
                                 textKey="cateringBoden.content.eyebrow"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="catering-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -312,7 +357,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                             <EditableText
                                 value={text("cateringBoden.content.title", "content.title")}
                                 textKey="cateringBoden.content.title"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="catering-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -327,7 +372,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                         "content.paragraph1"
                                     )}
                                     textKey="cateringBoden.content.paragraph1"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="catering-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -341,7 +386,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                         "content.paragraph2"
                                     )}
                                     textKey="cateringBoden.content.paragraph2"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="catering-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -355,7 +400,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                         "content.paragraph3"
                                     )}
                                     textKey="cateringBoden.content.paragraph3"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="catering-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -371,7 +416,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                         "content.bookingCta"
                                     )}
                                     textKey="cateringBoden.content.bookingCta"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="catering-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -385,7 +430,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                         "content.menuCta"
                                     )}
                                     textKey="cateringBoden.content.menuCta"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="catering-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -399,7 +444,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                         "content.deliveryCta"
                                     )}
                                     textKey="cateringBoden.content.deliveryCta"
-                                    locale={locale}
+                                    locale={currentLocale}
                                     page="catering-boden"
                                     canEdit={isOwner}
                                     as="span"
@@ -413,7 +458,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                             <EditableText
                                 value={text("cateringBoden.benefits.title", "benefits.title")}
                                 textKey="cateringBoden.benefits.title"
-                                locale={locale}
+                                locale={currentLocale}
                                 page="catering-boden"
                                 canEdit={isOwner}
                                 as="span"
@@ -431,7 +476,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={text(item.key, item.fallbackKey)}
                                         textKey={item.key}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="catering-boden"
                                         canEdit={isOwner}
                                         as="span"
@@ -449,7 +494,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                         <EditableText
                             value={text("cateringBoden.cta.title", "cta.title")}
                             textKey="cateringBoden.cta.title"
-                            locale={locale}
+                            locale={currentLocale}
                             page="catering-boden"
                             canEdit={isOwner}
                             as="span"
@@ -460,7 +505,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                         <EditableText
                             value={text("cateringBoden.cta.description", "cta.description")}
                             textKey="cateringBoden.cta.description"
-                            locale={locale}
+                            locale={currentLocale}
                             page="catering-boden"
                             canEdit={isOwner}
                             as="span"
@@ -471,7 +516,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                         <EditableText
                             value={text("cateringBoden.cta.button", "cta.button")}
                             textKey="cateringBoden.cta.button"
-                            locale={locale}
+                            locale={currentLocale}
                             page="catering-boden"
                             canEdit={isOwner}
                             as="span"
@@ -484,7 +529,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                         <EditableText
                             value={text("cateringBoden.faq.eyebrow", "faq.eyebrow")}
                             textKey="cateringBoden.faq.eyebrow"
-                            locale={locale}
+                            locale={currentLocale}
                             page="catering-boden"
                             canEdit={isOwner}
                             as="span"
@@ -495,7 +540,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                         <EditableText
                             value={text("cateringBoden.faq.title", "faq.title")}
                             textKey="cateringBoden.faq.title"
-                            locale={locale}
+                            locale={currentLocale}
                             page="catering-boden"
                             canEdit={isOwner}
                             as="span"
@@ -509,7 +554,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={text(item.qKey, item.qFallback)}
                                         textKey={item.qKey}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="catering-boden"
                                         canEdit={isOwner}
                                         as="span"
@@ -520,7 +565,7 @@ export default async function CateringBodenPage({ params }: PageProps) {
                                     <EditableText
                                         value={text(item.aKey, item.aFallback)}
                                         textKey={item.aKey}
-                                        locale={locale}
+                                        locale={currentLocale}
                                         page="catering-boden"
                                         canEdit={isOwner}
                                         as="span"

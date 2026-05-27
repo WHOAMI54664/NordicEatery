@@ -1,12 +1,22 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { CartProvider } from "@/components/CartProvider";
 import { lufga } from "@/app/fonts";
 import { Analytics } from "@vercel/analytics/next";
 import { getLocale } from "next-intl/server";
 
+const baseUrl = "https://www.nordiceatery.se";
+
 export const metadata: Metadata = {
-    metadataBase: new URL("https://www.nordiceatery.se"),
+    metadataBase: new URL(baseUrl),
+
+    applicationName: "Nordic Eatery",
+    title: {
+        default: "Nordic Eatery | Polish Street Food in Boden",
+        template: "%s | Nordic Eatery",
+    },
+    description:
+        "Nordic Eatery serves Polish street food, takeaway, catering and food truck service in Boden, Sweden.",
 
     icons: {
         icon: [
@@ -21,19 +31,56 @@ export const metadata: Metadata = {
 
     manifest: "/site.webmanifest",
 
+    openGraph: {
+        type: "website",
+        siteName: "Nordic Eatery",
+        title: "Nordic Eatery | Polish Street Food in Boden",
+        description:
+            "Polish street food, takeaway, catering and food truck service in Boden, Sweden.",
+        url: baseUrl,
+        images: [
+            {
+                url: "/og-image.jpg",
+                width: 1200,
+                height: 630,
+                alt: "Nordic Eatery - Polish street food in Boden",
+            },
+        ],
+    },
+
+    twitter: {
+        card: "summary_large_image",
+        title: "Nordic Eatery | Polish Street Food in Boden",
+        description:
+            "Polish street food, takeaway, catering and food truck service in Boden, Sweden.",
+        images: ["/og-image.jpg"],
+    },
+
     robots: {
         index: true,
         follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+            "max-video-preview": -1,
+        },
     },
 };
 
-const organizationJsonLd = {
+export const viewport: Viewport = {
+    themeColor: "#B51F26",
+};
+
+const restaurantJsonLd = {
     "@context": "https://schema.org",
     "@type": "Restaurant",
+    "@id": `${baseUrl}/#restaurant`,
     name: "Nordic Eatery",
-    url: "https://www.nordiceatery.se",
-    logo: "https://www.nordiceatery.se/logo.png",
-    image: "https://www.nordiceatery.se/og-image.jpg",
+    url: baseUrl,
+    logo: `${baseUrl}/logo.png`,
+    image: `${baseUrl}/og-image.jpg`,
     telephone: "+46734218925",
     email: "kontakt@nordiceatery.se",
     servesCuisine: ["Polish food", "Street food", "Comfort food"],
@@ -69,7 +116,7 @@ export default async function RootLayout({
         <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{
-                __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c"),
+                __html: JSON.stringify(restaurantJsonLd).replace(/</g, "\\u003c"),
             }}
         />
 
