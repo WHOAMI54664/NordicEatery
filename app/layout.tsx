@@ -4,6 +4,7 @@ import { CartProvider } from "@/components/CartProvider";
 import { lufga } from "@/app/fonts";
 import { Analytics } from "@vercel/analytics/next";
 import { getLocale } from "next-intl/server";
+import { GoogleTagManager } from "@next/third-parties/google";
 
 const baseUrl = "https://www.nordiceatery.se";
 
@@ -109,9 +110,12 @@ export default async function RootLayout({
     children: React.ReactNode;
 }) {
     const locale = await getLocale();
+    const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
 
     return (
         <html lang={locale} className={lufga.variable}>
+        {gtmId ? <GoogleTagManager gtmId={gtmId} /> : null}
+
         <body className="font-sans">
         <script
             type="application/ld+json"
@@ -121,6 +125,7 @@ export default async function RootLayout({
         />
 
         <CartProvider>{children}</CartProvider>
+
         <Analytics />
         </body>
         </html>
