@@ -33,6 +33,5 @@ http://localhost:3000
 - Replace demo localStorage orders with Supabase Realtime
 - Add admin orders page
 - Add real logo
-# NordicEatery
-# NordicEatery
+  
 # NordicEatery
