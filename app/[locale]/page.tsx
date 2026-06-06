@@ -21,12 +21,11 @@ const locales = ["sv", "en", "pl", "ru"] as const;
 
 const homeSeo = {
   sv: {
-    title: "Matleverans i Boden | Nordic Eatery",
+    title: "Polsk streetfood, catering & event | Nordic Eatery",
     description:
-        "Beställ färsk polsk comfort food, street food, fries och takeaway i Boden. Nordic Eatery erbjuder varm mat för upphämtning och leverans.",
+        "Beställ färsk polsk comfort food, street food, fries och takeaway i Boden. Nordic Eatery erbjuder varm mat för upphämtning.",
     ogLocale: "sv_SE",
     keywords: [
-      "matleverans Boden",
       "takeaway Boden",
       "polsk mat Boden",
       "street food Boden",
@@ -37,12 +36,11 @@ const homeSeo = {
     ],
   },
   en: {
-    title: "Food delivery in Boden | Nordic Eatery",
+    title: "Polish street food, catering & events | Nordic Eatery",
     description:
-        "Order fresh Polish comfort food, street food, fries and takeaway in Boden. Nordic Eatery offers hot food for pickup and delivery.",
+        "Order fresh Polish comfort food, street food, fries and takeaway in Boden. Nordic Eatery offers hot food for pickup.",
     ogLocale: "en_SE",
     keywords: [
-      "food delivery Boden",
       "takeaway Boden",
       "Polish food Boden",
       "Polish street food Boden",
@@ -53,12 +51,11 @@ const homeSeo = {
     ],
   },
   pl: {
-    title: "Dostawa jedzenia w Boden | Nordic Eatery",
+    title: "Polskie jedzenie w Boden | Nordic Eatery",
     description:
-        "Zamów świeże polskie comfort food, street food, frytki i jedzenie na wynos w Boden. Nordic Eatery oferuje odbiór i dostawę.",
+        "Zamów świeże polskie comfort food, street food, frytki i jedzenie na wynos w Boden. Nordic Eatery oferuje odbiór.",
     ogLocale: "pl_PL",
     keywords: [
-      "dostawa jedzenia Boden",
       "jedzenie na wynos Boden",
       "polskie jedzenie Boden",
       "street food Boden",
@@ -68,12 +65,11 @@ const homeSeo = {
     ],
   },
   ru: {
-    title: "Доставка еды в Будене | Nordic Eatery",
+    title: "Польский стритфуд, кейтеринг & ивенты | Nordic Eatery",
     description:
-        "Заказывайте свежую польскую comfort food, street food, картофель фри и еду навынос в Будене. Nordic Eatery предлагает самовывоз и доставку.",
+        "Заказывайте свежую польскую comfort food, street food, картофель фри и еду навынос в Будене. Nordic Eatery предлагает самовывоз.",
     ogLocale: "ru_RU",
     keywords: [
-      "доставка еды Буден",
       "еда навынос Буден",
       "польская еда Буден",
       "street food Буден",
@@ -122,7 +118,7 @@ export async function generateMetadata({
   return {
     title: seo.title,
     description: seo.description,
-    keywords: seo.keywords,
+    keywords: [...seo.keywords],
 
     alternates: {
       canonical: canonicalUrl,
@@ -460,7 +456,17 @@ export default async function HomePage({ params }: HomePageProps) {
                   aria-label={text("home.seoLinks.delivery", "seoLinks.delivery")}
                   className="rounded-xl border border-[#EADDCF] bg-white/70 px-4 py-3 text-center text-sm font-black text-dark transition hover:border-paprika/30 hover:text-paprika"
               >
-                {text("home.seoLinks.deliveryShort", "seoLinks.deliveryShort")}
+                <EditableText
+                    value={text(
+                        "home.seoLinks.deliveryShort",
+                        "seoLinks.deliveryShort"
+                    )}
+                    textKey="home.seoLinks.deliveryShort"
+                    locale={locale}
+                    page="home"
+                    canEdit={isOwner}
+                    as="span"
+                />
               </Link>
 
               <Link
@@ -469,7 +475,17 @@ export default async function HomePage({ params }: HomePageProps) {
                   aria-label={text("home.seoLinks.takeaway", "seoLinks.takeaway")}
                   className="rounded-xl border border-[#EADDCF] bg-white/70 px-4 py-3 text-center text-sm font-black text-dark transition hover:border-paprika/30 hover:text-paprika"
               >
-                {text("home.seoLinks.takeawayShort", "seoLinks.takeawayShort")}
+                <EditableText
+                    value={text(
+                        "home.seoLinks.takeawayShort",
+                        "seoLinks.takeawayShort"
+                    )}
+                    textKey="home.seoLinks.takeawayShort"
+                    locale={locale}
+                    page="home"
+                    canEdit={isOwner}
+                    as="span"
+                />
               </Link>
 
               <Link
@@ -478,7 +494,17 @@ export default async function HomePage({ params }: HomePageProps) {
                   aria-label={text("home.seoLinks.burgers", "seoLinks.burgers")}
                   className="rounded-xl border border-[#EADDCF] bg-white/70 px-4 py-3 text-center text-sm font-black text-dark transition hover:border-paprika/30 hover:text-paprika"
               >
-                {text("home.seoLinks.burgersShort", "seoLinks.burgersShort")}
+                <EditableText
+                    value={text(
+                        "home.seoLinks.burgersShort",
+                        "seoLinks.burgersShort"
+                    )}
+                    textKey="home.seoLinks.burgersShort"
+                    locale={locale}
+                    page="home"
+                    canEdit={isOwner}
+                    as="span"
+                />
               </Link>
 
               <Link
@@ -487,7 +513,17 @@ export default async function HomePage({ params }: HomePageProps) {
                   aria-label={text("home.seoLinks.catering", "seoLinks.catering")}
                   className="rounded-xl border border-[#EADDCF] bg-white/70 px-4 py-3 text-center text-sm font-black text-dark transition hover:border-paprika/30 hover:text-paprika"
               >
-                {text("home.seoLinks.cateringShort", "seoLinks.cateringShort")}
+                <EditableText
+                    value={text(
+                        "home.seoLinks.cateringShort",
+                        "seoLinks.cateringShort"
+                    )}
+                    textKey="home.seoLinks.cateringShort"
+                    locale={locale}
+                    page="home"
+                    canEdit={isOwner}
+                    as="span"
+                />
               </Link>
 
               <Link
@@ -496,7 +532,14 @@ export default async function HomePage({ params }: HomePageProps) {
                   aria-label={text("home.seoLinks.menu", "seoLinks.menu")}
                   className="rounded-xl border border-[#EADDCF] bg-white/70 px-4 py-3 text-center text-sm font-black text-dark transition hover:border-paprika/30 hover:text-paprika"
               >
-                {text("home.seoLinks.menuShort", "seoLinks.menuShort")}
+                <EditableText
+                    value={text("home.seoLinks.menuShort", "seoLinks.menuShort")}
+                    textKey="home.seoLinks.menuShort"
+                    locale={locale}
+                    page="home"
+                    canEdit={isOwner}
+                    as="span"
+                />
               </Link>
             </div>
           </div>
