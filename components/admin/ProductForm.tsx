@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BadgePercent,
   CheckCircle2,
@@ -18,6 +18,28 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/browser";
 
 type MenuType = "standard" | "vegan" | "gluten_free";
+
+const DEFAULT_CATEGORIES = ["maczanka", "knysza", "fries", "sauces", "drinks"];
+
+const NEW_CATEGORY_VALUE = "__new__";
+
+// Normalizes a typed category name into a stable slug, e.g. "Fika" -> "fika",
+// "Glass & Dessert" -> "glass-dessert". Matches the menu's category ids.
+function slugifyCategory(value: string) {
+  return value
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+}
+
+function titleizeCategory(value: string) {
+  const label = value.replace(/[-_]+/g, " ").trim();
+
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
 
 type ProductFormValues = {
   id?: string;
@@ -133,6 +155,47 @@ export function ProductForm({
   const [description, setDescription] = useState(product?.description || "");
   const [price, setPrice] = useState(String(product?.price || ""));
   const [category, setCategory] = useState(product?.category || "maczanka");
+  const [existingCategories, setExistingCategories] = useState<string[]>([]);
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
+
+  // Collect every category currently used by products so the dropdown offers
+  // them alongside the defaults (no separate categories table needed).
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadCategories() {
+      const { data } = await supabase.from("products").select("category");
+
+      if (!isMounted || !data) return;
+
+      const unique = Array.from(
+          new Set(
+              data
+                  .map((row) => (row.category || "").trim())
+                  .filter(Boolean)
+          )
+      );
+
+      setExistingCategories(unique);
+    }
+
+    loadCategories();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [supabase]);
+
+  const categoryOptions = useMemo(() => {
+    const merged = [
+      ...DEFAULT_CATEGORIES,
+      ...existingCategories,
+      ...(product?.category ? [product.category] : []),
+    ];
+
+    return Array.from(new Set(merged.map((value) => value.trim()).filter(Boolean)));
+  }, [existingCategories, product?.category]);
   const [menuType, setMenuType] = useState<MenuType>(
       product?.menu_type || "standard"
   );
@@ -193,13 +256,23 @@ export function ProductForm({
       return;
     }
 
+    const effectiveCategory = isAddingCategory
+        ? slugifyCategory(newCategory)
+        : category;
+
+    if (!effectiveCategory) {
+      setErrorMessage("Please choose or enter a category.");
+      setIsSaving(false);
+      return;
+    }
+
     const payload = {
       id: productId,
       name,
       subtitle,
       description,
       price: Number(price),
-      category,
+      category: effectiveCategory,
       menu_type: menuType,
       badge: badge || null,
       image_url: imageUrl || null,
@@ -347,15 +420,34 @@ export function ProductForm({
               <FieldLabel>Category</FieldLabel>
               <select
                   className={inputClass}
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  value={isAddingCategory ? NEW_CATEGORY_VALUE : category}
+                  onChange={(e) => {
+                    if (e.target.value === NEW_CATEGORY_VALUE) {
+                      setIsAddingCategory(true);
+                      setNewCategory("");
+                    } else {
+                      setIsAddingCategory(false);
+                      setCategory(e.target.value);
+                    }
+                  }}
               >
-                <option value="maczanka">Maczanka</option>
-                <option value="knysza">Knysza</option>
-                <option value="fries">Fries</option>
-                <option value="sauces">Sauces</option>
-                <option value="drinks">Drinks</option>
+                {categoryOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {titleizeCategory(option)}
+                    </option>
+                ))}
+                <option value={NEW_CATEGORY_VALUE}>+ New category…</option>
               </select>
+
+              {isAddingCategory ? (
+                  <input
+                      className={`${inputClass} mt-2`}
+                      value={newCategory}
+                      onChange={(e) => setNewCategory(e.target.value)}
+                      placeholder="e.g. Fika"
+                      autoFocus
+                  />
+              ) : null}
             </div>
 
             <div>
