@@ -200,11 +200,14 @@ export function KitchenBoard() {
           orders
               .filter((order) => !["completed", "cancelled"].includes(order.status))
               .filter((order) => {
-                if (order.payment_method === "card") {
-                  return order.payment_status === "paid";
+                // Cash is pay-on-site, so it reaches the kitchen while unpaid.
+                if (order.payment_method === "cash") {
+                  return true;
                 }
 
-                return true;
+                // Card and Swish must be fully paid before the kitchen sees them.
+                // Unpaid / awaiting / failed online orders are never shown.
+                return order.payment_status === "paid";
               })
               .sort(
                   (a, b) =>
