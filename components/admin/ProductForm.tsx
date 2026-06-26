@@ -89,7 +89,7 @@ function ToggleCard({
       <button
           type="button"
           onClick={() => onChange(!checked)}
-          className={`flex items-start gap-3 rounded-2xl border p-4 text-left transition ${
+          className={`flex h-full flex-col gap-3 rounded-2xl border p-4 text-left transition ${
               checked
                   ? "border-[#E51B23]/20 bg-[#E51B23]/8 shadow-sm shadow-[#E51B23]/10"
                   : "border-[#EADDCF] bg-white/70 hover:bg-[#FFF3E2]"
@@ -277,7 +277,7 @@ export function ProductForm({
   return (
       <form
           onSubmit={handleSubmit}
-          className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]"
+          className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]"
       >
         <section className="rounded-[1.75rem] border border-[#EADDCF] bg-white/55 p-5 shadow-sm shadow-[#4C2314]/5 lg:p-6">
           <div className="flex flex-col gap-3 border-b border-[#EADDCF] pb-5 sm:flex-row sm:items-start sm:justify-between">
