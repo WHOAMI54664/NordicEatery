@@ -1,8 +1,18 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireRole } from "@/lib/auth/api-guard";
 
 export async function POST(req: Request) {
     try {
+        const guard = await requireRole(["owner", "admin"]);
+
+        if (!guard.ok) {
+            return NextResponse.json(
+                { error: guard.error },
+                { status: guard.status }
+            );
+        }
+
         const supabase = createAdminClient();
         const body = await req.json();
 

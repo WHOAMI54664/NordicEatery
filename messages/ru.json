@@ -578,8 +578,12 @@
       "deliveryType": "Тип доставки",
       "delivery": "Доставка",
       "deliveryTime": "30-40 мин",
-      "pickup": "Подборка",
-      "pickupText": "В ресторане",
+      "pickup": "Самовывоз",
+      "pickupText": "У фудтрака",
+      "pickupLocation": "Где находится фудтрак",
+      "pickupOptionTitle": "Как вы хотите получить заказ?",
+      "eatIn": "На месте",
+      "takeaway": "С собой",
       "address": "Адрес",
       "addressPlaceholder": "Улица, квартира, город",
       "paymentMethod": "Способ оплаты",
@@ -626,9 +630,13 @@
       "closedAt": "Закрыта",
       "openButton": "Открыть смену",
       "closeButton": "Закрыть смену",
+      "addressLabel": "Адрес фудтрака",
+      "addressPlaceholder": "Напр. Kungsgatan 12, Boden",
+      "addressHint": "Адрес показывается клиентам при оформлении заказа, пока смена открыта.",
       "errors": {
         "load": "Не удалось загрузить статус смены.",
-        "update": "Не удалось обновить смену."
+        "update": "Не удалось обновить смену.",
+        "addressRequired": "Укажите адрес фудтрака, чтобы открыть смену."
       }
     },
     "businessSettingsForm": {

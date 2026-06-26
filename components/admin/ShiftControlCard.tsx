@@ -16,6 +16,7 @@ type ShiftState = {
     openedAt: string | null;
     closedAt: string | null;
     updatedAt: string | null;
+    locationAddress: string | null;
 };
 
 function formatStockholmTime(value: string | null) {
@@ -32,6 +33,7 @@ export function ShiftControlCard() {
     const t = useTranslations("admin.shift");
 
     const [shift, setShift] = useState<ShiftState | null>(null);
+    const [address, setAddress] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
@@ -51,6 +53,7 @@ export function ShiftControlCard() {
             }
 
             setShift(data.shift);
+            setAddress(data.shift?.locationAddress || "");
             setErrorMessage("");
         } catch (error) {
             console.error("Shift fetch error:", error);
@@ -63,6 +66,11 @@ export function ShiftControlCard() {
     async function updateShift(action: "open" | "close") {
         if (isUpdating) return;
 
+        if (action === "open" && !address.trim()) {
+            setErrorMessage(t("errors.addressRequired"));
+            return;
+        }
+
         setIsUpdating(true);
         setErrorMessage("");
 
@@ -72,7 +80,7 @@ export function ShiftControlCard() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ action }),
+                body: JSON.stringify({ action, address: address.trim() }),
             });
 
             const data = await response.json();
@@ -163,6 +171,27 @@ export function ShiftControlCard() {
                   {formatStockholmTime(shift?.closedAt || null)}
                 </span>
                             </div>
+                        </div>
+
+                        <div className="mt-4">
+                            <label
+                                htmlFor="shift-location-address"
+                                className="mb-2 block text-xs font-black uppercase tracking-[0.14em] text-[#A39388]"
+                            >
+                                {t("addressLabel")}
+                            </label>
+                            <input
+                                id="shift-location-address"
+                                type="text"
+                                value={address}
+                                onChange={(event) => setAddress(event.target.value)}
+                                placeholder={t("addressPlaceholder")}
+                                disabled={isLoading || isUpdating}
+                                className="w-full rounded-2xl border border-[#EADDCF] bg-white/80 px-4 py-3 text-sm font-medium text-[#25120F] outline-none transition placeholder:text-[#A39388] focus:border-[#E51B23]/50 focus:ring-4 focus:ring-[#E51B23]/10 disabled:opacity-60"
+                            />
+                            <p className="mt-1.5 text-xs font-medium text-[#7B6A61]">
+                                {t("addressHint")}
+                            </p>
                         </div>
                     </div>
                 </div>

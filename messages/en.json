@@ -581,7 +581,11 @@
       "delivery": "Delivery",
       "deliveryTime": "30–40 min",
       "pickup": "Pickup",
-      "pickupText": "At restaurant",
+      "pickupText": "At the food truck",
+      "pickupLocation": "Food truck location",
+      "pickupOptionTitle": "How would you like your order?",
+      "eatIn": "Eat here",
+      "takeaway": "Take away",
       "address": "Address",
       "addressPlaceholder": "Street, apartment, city",
       "paymentMethod": "Payment method",
@@ -628,9 +632,13 @@
       "closedAt": "Closed",
       "openButton": "Open shift",
       "closeButton": "Close shift",
+      "addressLabel": "Food truck address",
+      "addressPlaceholder": "E.g. Kungsgatan 12, Boden",
+      "addressHint": "Shown to customers at checkout while the shift is open.",
       "errors": {
         "load": "Could not load shift state.",
-        "update": "Could not update shift."
+        "update": "Could not update shift.",
+        "addressRequired": "Enter the food truck address to open the shift."
       }
     },
     "businessSettingsForm": {

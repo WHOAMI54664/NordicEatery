@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import type { Product } from "@/types/product";
 import { useCart } from "@/components/CartProvider";
+import { useKitchenStatus } from "@/components/KitchenStatusProvider";
 
 type ProductCardProps = {
     product: Product;
@@ -14,6 +15,7 @@ type ProductCardProps = {
 
 export function ProductCard({ product, compact = false }: ProductCardProps) {
     const { addItem } = useCart();
+    const { requireShiftOpen } = useKitchenStatus();
     const params = useParams();
     const locale = String(params.locale || "en");
 
@@ -34,12 +36,15 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
     const totalPrice = product.price * quantity;
 
     function addSelectedQuantity() {
+        setIsOpen(false);
+
+        if (!requireShiftOpen()) return;
+
         for (let i = 0; i < quantity; i += 1) {
             addItem(product);
         }
 
         setQuantity(1);
-        setIsOpen(false);
     }
 
     return (
@@ -123,6 +128,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
                     type="button"
                     onClick={(event) => {
                         event.stopPropagation();
+                        if (!requireShiftOpen()) return;
                         addItem(product);
                     }}
                     className={`flex w-full items-center justify-center gap-2 bg-paprika font-black text-white transition hover:bg-cherry ${

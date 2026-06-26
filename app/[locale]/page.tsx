@@ -4,7 +4,9 @@ import { ArrowRight } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { EditableText } from "@/components/EditableText";
 import { HomeHeroPoster } from "@/components/HomeHeroPoster";
+import { KitchenStatusProvider } from "@/components/KitchenStatusProvider";
 import { createClient } from "@/lib/supabase/server";
+import { getPublicShiftStatus } from "@/lib/restaurant/public-shift";
 import { getTranslations } from "next-intl/server";
 
 type HomePageProps = {
@@ -228,6 +230,8 @@ export default async function HomePage({ params }: HomePageProps) {
       .order("sort_order", { ascending: true })
       .limit(6);
 
+  const shift = await getPublicShiftStatus();
+
   const categories = [
     {
       key: "home.categories.maczanka",
@@ -408,11 +412,13 @@ export default async function HomePage({ params }: HomePageProps) {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-3">
-            {(featuredItems || []).map((product) => (
-                <ProductCard key={product.id} product={product} compact />
-            ))}
-          </div>
+          <KitchenStatusProvider locale={locale} isShiftOpen={shift.isOpen}>
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-3">
+              {(featuredItems || []).map((product) => (
+                  <ProductCard key={product.id} product={product} compact />
+              ))}
+            </div>
+          </KitchenStatusProvider>
         </section>
 
         <section className="container-page pb-14 sm:pb-16">

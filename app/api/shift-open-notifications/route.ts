@@ -1,8 +1,36 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendTelegramMessage } from "@/lib/telegram";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+function escapeHtml(value: unknown) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+async function notifyStaffOnTelegram(payload: {
+    email: string | null;
+    phone: string | null;
+    locale: string;
+    source: string;
+}) {
+    try {
+        await sendTelegramMessage(
+            `🔔 <b>Ny avisering – köket stängt</b>\n\n` +
+            `📧 Email: ${escapeHtml(payload.email || "—")}\n` +
+            `📞 Telefon: ${escapeHtml(payload.phone || "—")}\n` +
+            `🌐 Språk: ${escapeHtml(payload.locale)}\n` +
+            `📍 Källa: ${escapeHtml(payload.source)}`
+        );
+    } catch (error) {
+        // Non-fatal: the request is already saved in the database.
+        console.error("Shift notification Telegram error:", error);
+    }
+}
 
 type RequestBody = {
     email?: string;
@@ -60,6 +88,8 @@ export async function POST(request: Request) {
 
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
+
+        await notifyStaffOnTelegram({ email, phone, locale, source });
 
         return NextResponse.json({
             success: true,

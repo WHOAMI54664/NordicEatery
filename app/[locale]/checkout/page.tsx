@@ -1,5 +1,6 @@
 import { CheckoutForm } from "@/components/CheckoutForm";
 import { createClient } from "@/lib/supabase/server";
+import { getPublicShiftStatus } from "@/lib/restaurant/public-shift";
 
 type CheckoutPageProps = {
     params: Promise<{
@@ -16,6 +17,8 @@ export type CheckoutSettings = {
     cash_enabled: boolean;
     card_enabled: boolean;
     swish_enabled: boolean;
+
+    pickup_address: string | null;
 };
 
 export default async function CheckoutPage({ params }: CheckoutPageProps) {
@@ -39,6 +42,8 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
         .limit(1)
         .single();
 
+    const shift = await getPublicShiftStatus();
+
     const settings: CheckoutSettings = {
         delivery_enabled: businessSettings?.delivery_enabled ?? true,
         pickup_enabled: businessSettings?.pickup_enabled ?? true,
@@ -49,6 +54,8 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
         cash_enabled: businessSettings?.cash_enabled ?? true,
         card_enabled: businessSettings?.card_enabled ?? true,
         swish_enabled: businessSettings?.swish_enabled ?? false,
+
+        pickup_address: shift.isOpen ? shift.locationAddress : null,
     };
 
     return (

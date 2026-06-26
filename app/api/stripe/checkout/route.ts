@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertRestaurantShiftIsOpen } from "@/lib/restaurant/shift";
+import { validateCartPrices } from "@/lib/orders/pricing";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -209,18 +210,30 @@ export async function POST(request: Request) {
 
     const orderDate = getOrderDate();
 
-    const normalizedItems = items.map((item) => {
-      const quantity = Math.max(1, Math.trunc(safeNumber(item.quantity, 1)));
-      const unitPriceGross = roundMoney(safeNumber(item.price));
-      const lineTotalGross = roundMoney(unitPriceGross * quantity);
+    /**
+     * Server-authoritative pricing.
+     * Unit prices are read from the database, never trusted from the client.
+     */
+    const priceCheck = await validateCartPrices(supabase, items);
 
-      const unitBreakdown = calculateVatFromGross(unitPriceGross, VAT_RATE);
+    if (!priceCheck.ok) {
+      return NextResponse.json(
+          { error: priceCheck.error },
+          { status: priceCheck.status }
+      );
+    }
+
+    const normalizedItems = priceCheck.items.map((item) => {
+      const lineTotalGross = roundMoney(item.price * item.quantity);
+
+      const unitBreakdown = calculateVatFromGross(item.price, VAT_RATE);
       const lineBreakdown = calculateVatFromGross(lineTotalGross, VAT_RATE);
 
       return {
-        ...item,
-        quantity,
-        price: unitPriceGross,
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
 
         vat_rate: VAT_RATE,
 
@@ -234,21 +247,10 @@ export async function POST(request: Request) {
       };
     });
 
-    const subtotalGross = roundMoney(
-        normalizedItems.reduce(
-            (sum, item) => sum + safeNumber(item.line_total_gross),
-            0
-        )
-    );
-
-    const inferredDeliveryFee = roundMoney(
-        Math.max(0, providedTotalPrice - subtotalGross)
-    );
+    const subtotalGross = priceCheck.subtotalGross;
 
     const deliveryFeeGross = roundMoney(
-        deliveryType === "delivery"
-            ? safeNumber(deliveryFee, inferredDeliveryFee)
-            : 0
+        deliveryType === "delivery" ? Math.max(0, safeNumber(deliveryFee)) : 0
     );
 
     const subtotalBreakdown = calculateVatFromGross(subtotalGross, VAT_RATE);

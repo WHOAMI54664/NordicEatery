@@ -579,7 +579,11 @@
       "delivery": "Dostawa",
       "deliveryTime": "30-40 min",
       "pickup": "Odbiór",
-      "pickupText": "W restauracji",
+      "pickupText": "Przy food trucku",
+      "pickupLocation": "Lokalizacja food trucka",
+      "pickupOptionTitle": "Jak chcesz odebrać zamówienie?",
+      "eatIn": "Na miejscu",
+      "takeaway": "Na wynos",
       "address": "Adres",
       "addressPlaceholder": "Ulica, mieszkanie, miasto",
       "paymentMethod": "Metoda płatności",
@@ -626,9 +630,13 @@
       "closedAt": "Zamknięto",
       "openButton": "Otwórz zmianę",
       "closeButton": "Zamknij zmianę",
+      "addressLabel": "Adres food trucka",
+      "addressPlaceholder": "Np. Kungsgatan 12, Boden",
+      "addressHint": "Adres jest widoczny dla klientów w kasie, gdy zmiana jest otwarta.",
       "errors": {
         "load": "Nie udało się załadować statusu zmiany.",
-        "update": "Nie udało się zaktualizować zmiany."
+        "update": "Nie udało się zaktualizować zmiany.",
+        "addressRequired": "Podaj adres food trucka, aby otworzyć zmianę."
       }
     },
     "businessSettingsForm": {

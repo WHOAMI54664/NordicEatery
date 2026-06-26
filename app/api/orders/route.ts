@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertRestaurantShiftIsOpen } from "@/lib/restaurant/shift";
+import { validateCartPrices } from "@/lib/orders/pricing";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -178,19 +179,30 @@ export async function POST(request: Request) {
 
         const orderDate = getOrderDate();
 
-        const normalizedItems = items.map((item) => {
-            const unitPriceGross = safeNumber(item.price);
-            const quantity = Math.max(1, Math.trunc(safeNumber(item.quantity, 1)));
+        /**
+         * Server-authoritative pricing.
+         * Unit prices are read from the database, never trusted from the client.
+         */
+        const priceCheck = await validateCartPrices(supabase, items);
 
-            const lineTotalGross = roundMoney(unitPriceGross * quantity);
+        if (!priceCheck.ok) {
+            return NextResponse.json(
+                { error: priceCheck.error },
+                { status: priceCheck.status }
+            );
+        }
 
-            const unitVatBreakdown = calculateVatFromGross(unitPriceGross, VAT_RATE);
+        const normalizedItems = priceCheck.items.map((item) => {
+            const lineTotalGross = roundMoney(item.price * item.quantity);
+
+            const unitVatBreakdown = calculateVatFromGross(item.price, VAT_RATE);
             const lineVatBreakdown = calculateVatFromGross(lineTotalGross, VAT_RATE);
 
             return {
-                ...item,
-                price: unitPriceGross,
-                quantity,
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
 
                 vat_rate: VAT_RATE,
 
@@ -204,12 +216,7 @@ export async function POST(request: Request) {
             };
         });
 
-        const subtotalGross = roundMoney(
-            normalizedItems.reduce(
-                (sum, item) => sum + safeNumber(item.line_total_gross),
-                0
-            )
-        );
+        const subtotalGross = priceCheck.subtotalGross;
 
         const providedTotalPrice = roundMoney(safeNumber(totalPrice));
 

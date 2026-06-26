@@ -570,7 +570,11 @@
       "delivery": "Leverans",
       "deliveryTime": "30-40 minuter",
       "pickup": "Pickup",
-      "pickupText": "På restaurang",
+      "pickupText": "Från foodtruck",
+      "pickupLocation": "Foodtruckens plats",
+      "pickupOptionTitle": "Hur vill du ha din beställning?",
+      "eatIn": "Äta på plats",
+      "takeaway": "Take away",
       "address": "Adress",
       "addressPlaceholder": "Gata, lägenhet, stad",
       "paymentMethod": "Betalningsmetod",
@@ -617,9 +621,13 @@
         "closedAt": "Stängt",
         "openButton": "Öppna skift",
         "closeButton": "Stäng skift",
+        "addressLabel": "Foodtruckens adress",
+        "addressPlaceholder": "T.ex. Kungsgatan 12, Boden",
+        "addressHint": "Adressen visas för kunder i kassan medan skiftet är öppet.",
         "errors": {
           "load": "Kunde inte ladda skiftstatus.",
-          "update": "Kunde inte uppdatera skiftet."
+          "update": "Kunde inte uppdatera skiftet.",
+          "addressRequired": "Ange foodtruckens adress för att öppna skiftet."
         }
       },
     "businessSettingsForm": {

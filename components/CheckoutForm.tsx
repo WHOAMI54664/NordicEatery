@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Gift, Store, Truck } from "lucide-react";
+import { Gift, MapPin, Store, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCart } from "@/components/CartProvider";
 import { PaymentIcons } from "@/components/PaymentIcons";
@@ -17,6 +17,7 @@ type CheckoutSettings = {
   cash_enabled: boolean;
   card_enabled: boolean;
   swish_enabled: boolean;
+  pickup_address?: string | null;
 };
 
 type CheckoutFormProps = {
@@ -137,6 +138,10 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
       defaultDeliveryType
   );
 
+  const [pickupOption, setPickupOption] = useState<"eat_in" | "takeaway">(
+      "takeaway"
+  );
+
   const [loyaltyOptIn, setLoyaltyOptIn] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -231,7 +236,16 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
               : String(formData.get("address") || ""),
 
       deliveryType,
-      comment: String(formData.get("comment") || ""),
+      comment: (() => {
+        const userComment = String(formData.get("comment") || "").trim();
+
+        if (deliveryType !== "pickup") return userComment;
+
+        const pickupLabel =
+            pickupOption === "eat_in" ? t("eatIn") : t("takeaway");
+
+        return [pickupLabel, userComment].filter(Boolean).join(" — ");
+      })(),
       items,
       totalPrice,
       paymentMethod,
@@ -486,6 +500,48 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
                   </div>
               )}
             </div>
+
+            {deliveryType === "pickup" && settings.pickup_address && (
+                <div className="sm:col-span-2 flex items-start gap-3 rounded-3xl border border-dark/10 bg-white/70 p-4">
+                  <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-paprika" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-dark">
+                      {t("pickupLocation")}
+                    </p>
+                    <p className="mt-0.5 text-sm leading-6 text-dark/70">
+                      {settings.pickup_address}
+                    </p>
+                  </div>
+                </div>
+            )}
+
+            {deliveryType === "pickup" && (
+                <div className="sm:col-span-2">
+            <span className="mb-2 block text-sm font-bold text-dark">
+              {t("pickupOptionTitle")}
+            </span>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { value: "eat_in" as const, label: t("eatIn") },
+                      { value: "takeaway" as const, label: t("takeaway") },
+                    ].map((option) => (
+                        <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => setPickupOption(option.value)}
+                            className={`min-w-0 rounded-3xl border p-4 text-left font-black transition ${
+                                pickupOption === option.value
+                                    ? "border-paprika bg-paprika text-white"
+                                    : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
+                            }`}
+                        >
+                          {option.label}
+                        </button>
+                    ))}
+                  </div>
+                </div>
+            )}
 
             {deliveryType === "delivery" && settings.delivery_enabled && (
                 <label className="sm:col-span-2">

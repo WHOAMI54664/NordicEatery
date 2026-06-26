@@ -14,7 +14,11 @@ import {
 
 type KitchenClosedModalProps = {
     locale: string;
-    isOpenInitially: boolean;
+    /** Uncontrolled mode: auto-opens once per day when true (used on the menu page). */
+    isOpenInitially?: boolean;
+    /** Controlled mode: when provided, visibility is driven by this prop. */
+    open?: boolean;
+    onClose?: () => void;
 };
 
 type SubmitStatus = "idle" | "loading" | "success" | "error";
@@ -112,10 +116,14 @@ function getText(locale: string) {
 export function KitchenClosedModal({
                                        locale,
                                        isOpenInitially,
+                                       open,
+                                       onClose,
                                    }: KitchenClosedModalProps) {
     const text = useMemo(() => getText(locale), [locale]);
 
-    const [isOpen, setIsOpen] = useState(false);
+    const isControlled = open !== undefined;
+
+    const [internalOpen, setInternalOpen] = useState(false);
     const [showNotifyForm, setShowNotifyForm] = useState(false);
 
     const [email, setEmail] = useState("");
@@ -124,20 +132,31 @@ export function KitchenClosedModal({
     const [status, setStatus] = useState<SubmitStatus>("idle");
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    const isOpen = isControlled ? Boolean(open) : internalOpen;
+
     useEffect(() => {
+        if (isControlled) return;
         if (!isOpenInitially) return;
 
         const storageKey = getTodayKey(locale);
         const alreadyClosedToday = window.sessionStorage.getItem(storageKey);
 
         if (!alreadyClosedToday) {
-            setIsOpen(true);
+            setInternalOpen(true);
             window.sessionStorage.setItem(storageKey, "shown");
         }
-    }, [isOpenInitially, locale]);
+    }, [isControlled, isOpenInitially, locale]);
 
     function closeModal() {
-        setIsOpen(false);
+        setShowNotifyForm(false);
+        setStatus("idle");
+        setErrorMessage(null);
+
+        if (isControlled) {
+            onClose?.();
+        } else {
+            setInternalOpen(false);
+        }
     }
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
