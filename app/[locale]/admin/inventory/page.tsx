@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { PackageSearch } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { AdminShell } from "@/components/admin/AdminShell";
 import { InventoryManager } from "@/components/admin/InventoryManager";
 import { createClient } from "@/lib/supabase/server";
 import { canManageInventory } from "@/lib/auth/roles";
@@ -45,8 +44,7 @@ export default async function InventoryPage({ params }: InventoryPageProps) {
       .order("sort_order", { ascending: true });
 
   return (
-      <AdminShell>
-        <div className="space-y-6">
+      <div className="space-y-6">
           <section className="relative overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:p-6">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
 
@@ -76,7 +74,6 @@ export default async function InventoryPage({ params }: InventoryPageProps) {
           </section>
 
           <InventoryManager products={products || []} />
-        </div>
-      </AdminShell>
+      </div>
   );
 }
