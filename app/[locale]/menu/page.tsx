@@ -47,6 +47,14 @@ const categories = [
     { id: "drinks", titleKey: "drinks" },
 ] as const;
 
+// Turns a custom category slug (e.g. "fika" / "glass-dessert") into a readable
+// title for the menu when there is no predefined translation for it.
+function humanizeCategory(id: string) {
+    const label = id.replace(/[-_]+/g, " ").trim();
+
+    return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
 function isSupportedLocale(locale: string): locale is Locale {
     return locales.includes(locale as Locale);
 }
@@ -199,6 +207,28 @@ export default async function MenuPage({
 
     const { data: menuItems } = await query;
 
+    // Known categories keep their curated order and translations; any custom
+    // category found on the products is appended so it shows up automatically.
+    const knownCategoryIds = new Set(categories.map((category) => category.id));
+
+    const extraCategoryIds = Array.from(
+        new Set(
+            (menuItems || [])
+                .map((item) => item.category)
+                .filter(
+                    (id): id is string => Boolean(id) && !knownCategoryIds.has(id)
+                )
+        )
+    );
+
+    const displayCategories: Array<{ id: string; titleKey: string | null }> = [
+        ...categories.map((category) => ({
+            id: category.id,
+            titleKey: category.titleKey as string | null,
+        })),
+        ...extraCategoryIds.map((id) => ({ id, titleKey: null })),
+    ];
+
     return (
         <>
             <MenuJsonLd products={menuItems || []} locale={currentLocale} />
@@ -277,20 +307,28 @@ export default async function MenuPage({
                 </div>
 
                 <div className="mt-10 space-y-14">
-                    {categories.map((category) => {
+                    {displayCategories.map((category) => {
                         const products =
                             menuItems?.filter((item) => item.category === category.id) || [];
 
                         if (products.length === 0) return null;
 
-                        const categoryTextKey = `menu.categories.${category.titleKey}`;
-                        const fallbackKey = `categories.${category.titleKey}`;
+                        const isKnown = Boolean(category.titleKey);
+
+                        const categoryTextKey = isKnown
+                            ? `menu.categories.${category.titleKey}`
+                            : `menu.categories.custom.${category.id}`;
+
+                        const categoryTitle = isKnown
+                            ? text(categoryTextKey, `categories.${category.titleKey}`)
+                            : content.get(categoryTextKey) ||
+                              humanizeCategory(category.id);
 
                         return (
                             <section key={category.id} id={category.id}>
                                 <h2 className="mb-6 text-3xl font-black text-dark">
                                     <EditableText
-                                        value={text(categoryTextKey, fallbackKey)}
+                                        value={categoryTitle}
                                         textKey={categoryTextKey}
                                         locale={currentLocale}
                                         page="menu"

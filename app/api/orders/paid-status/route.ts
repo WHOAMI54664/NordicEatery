@@ -23,6 +23,7 @@ type OrderRow = {
     total_gross: number | null;
     total_net: number | null;
     total_vat: number | null;
+    loyalty_reward_used: number | string | null;
 
     created_at: string | null;
     paid_at: string | null;
@@ -61,6 +62,7 @@ export async function GET(request: Request) {
         total_gross,
         total_net,
         total_vat,
+        loyalty_reward_used,
         created_at,
         paid_at
       `
@@ -80,9 +82,6 @@ export async function GET(request: Request) {
 
         const isPaid = order.payment_status === "paid";
 
-        let loyalty: Awaited<ReturnType<typeof applyLoyaltyForPaidOrder>> | null =
-            null;
-
         /**
          * Extra safety:
          * If Swish callback already made order paid but loyalty was not applied,
@@ -93,7 +92,7 @@ export async function GET(request: Request) {
          */
         if (isPaid) {
             try {
-                loyalty = await applyLoyaltyForPaidOrder({
+                await applyLoyaltyForPaidOrder({
                     id: order.id,
                     customer_name: order.customer_name,
                     customer_phone: order.customer_phone,
@@ -101,6 +100,7 @@ export async function GET(request: Request) {
                     loyalty_opt_in: order.loyalty_opt_in,
                     total_gross: order.total_gross,
                     total_price: order.total_price,
+                    loyalty_reward_used: order.loyalty_reward_used,
                     payment_status: order.payment_status,
                     paid_at: order.paid_at,
                 });
@@ -109,6 +109,12 @@ export async function GET(request: Request) {
             }
         }
 
+        /**
+         * NOTE: customer PII (name, phone, email) is intentionally NOT returned.
+         * This endpoint is public (order_number is enough to call it), so the
+         * response must not leak personal data. PII stays server-side and is
+         * only used for the loyalty flow above.
+         */
         return NextResponse.json({
             success: true,
             isPaid,
@@ -119,11 +125,6 @@ export async function GET(request: Request) {
                 orderNumber: order.order_number,
                 displayOrderNumber: order.display_order_number,
                 orderDate: order.order_date,
-
-                customerName: order.customer_name,
-                customerPhone: order.customer_phone,
-                customerEmail: order.customer_email,
-                loyaltyOptIn: order.loyalty_opt_in,
 
                 paymentMethod: order.payment_method,
                 paymentStatus: order.payment_status,
@@ -136,8 +137,6 @@ export async function GET(request: Request) {
                 createdAt: order.created_at,
                 paidAt: order.paid_at,
             },
-
-            loyalty,
         });
     } catch (error) {
         console.error("Paid status API error:", error);

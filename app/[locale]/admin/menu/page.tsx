@@ -59,6 +59,13 @@ const menuCategories: MenuCategory[] = [
     }
 ];
 
+// Readable title for a custom category slug (e.g. "fika" -> "Fika").
+function humanizeCategory(id: string) {
+    const label = id.replace(/[-_]+/g, " ").trim();
+
+    return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
 function formatCurrency(value: number, locale: string) {
     return new Intl.NumberFormat(locale === "en" ? "en-SE" : locale, {
         style: "currency",
@@ -136,6 +143,35 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
         .order("sort_order", { ascending: true });
 
     const productList = (products || []) as ProductRow[];
+
+    // Known categories keep their translated titles; any custom category found
+    // on products is appended so it shows up in the menu overview automatically.
+    const knownCategoryIds = new Set(menuCategories.map((category) => category.id));
+
+    const extraCategoryIds = Array.from(
+        new Set(
+            productList
+                .map((product) => (product.category || "").trim())
+                .filter((id) => id && !knownCategoryIds.has(id))
+        )
+    );
+
+    const displayCategories: Array<{
+        id: string;
+        title: string;
+        description: string;
+    }> = [
+        ...menuCategories.map((category) => ({
+            id: category.id,
+            title: t(`menuAdmin.${category.titleKey}`),
+            description: t(`menuAdmin.${category.descriptionKey}`),
+        })),
+        ...extraCategoryIds.map((id) => ({
+            id,
+            title: humanizeCategory(id),
+            description: "",
+        })),
+    ];
 
     const totalProducts = productList.length;
 
@@ -272,7 +308,7 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
 
             {/* Menu categories */}
             <section className="grid gap-4 xl:grid-cols-2">
-                {menuCategories.map((category) => {
+                {displayCategories.map((category) => {
                     const stats = getCategoryStats(productList, category.id);
 
                     return (
@@ -289,12 +325,14 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
                                     </div>
 
                                     <h2 className="mt-4 text-2xl font-black tracking-[-0.05em] text-[#25120F] md:mt-5 md:text-3xl">
-                                        {t(`menuAdmin.${category.titleKey}`)}
+                                        {category.title}
                                     </h2>
 
-                                    <p className="mt-2 max-w-md text-sm font-medium leading-6 text-[#7B6A61]">
-                                        {t(`menuAdmin.${category.descriptionKey}`)}
-                                    </p>
+                                    {category.description ? (
+                                        <p className="mt-2 max-w-md text-sm font-medium leading-6 text-[#7B6A61]">
+                                            {category.description}
+                                        </p>
+                                    ) : null}
                                 </div>
 
                                 <Link

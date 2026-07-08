@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@/lib/supabase/server";
 import { sendTelegramMessage } from "@/lib/telegram";
+import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -270,6 +271,13 @@ function createBookingEmailHtml({
 
 export async function POST(request: Request) {
   try {
+    // Max 5 booking requests per IP per 10 minutes.
+    const limit = rateLimit("booking", request, 5, 10 * 60 * 1000);
+
+    if (!limit.ok) {
+      return rateLimitResponse(limit.retryAfter);
+    }
+
     if (!process.env.RESEND_API_KEY) {
       return NextResponse.json(
           { error: "Missing RESEND_API_KEY" },

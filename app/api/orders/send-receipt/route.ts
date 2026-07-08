@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -79,6 +80,13 @@ function escapeHtml(value: string) {
 
 export async function POST(request: Request) {
     try {
+        // Max 5 receipt emails per IP per 10 minutes.
+        const limit = rateLimit("send-receipt", request, 5, 10 * 60 * 1000);
+
+        if (!limit.ok) {
+            return rateLimitResponse(limit.retryAfter);
+        }
+
         const resendApiKey = process.env.RESEND_API_KEY;
 
         if (!resendApiKey) {

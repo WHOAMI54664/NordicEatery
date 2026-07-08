@@ -19,8 +19,8 @@ type CustomerProfileRow = {
 
     total_orders: number | null;
     total_spent_gross: number | string | null;
-    loyalty_points: number | null;
-    discount_percent: number | null;
+    loyalty_stamps: number | null;
+    loyalty_rewards_available: number | null;
 
     last_order_at: string | null;
     created_at: string | null;
@@ -63,8 +63,8 @@ function profileResponse(profile: CustomerProfileRow) {
 
         totalOrders: Number(profile.total_orders || 0),
         totalSpentGross: safeNumber(profile.total_spent_gross),
-        loyaltyPoints: Number(profile.loyalty_points || 0),
-        discountPercent: Number(profile.discount_percent || 0),
+        loyaltyStamps: Number(profile.loyalty_stamps || 0),
+        loyaltyRewardsAvailable: Number(profile.loyalty_rewards_available || 0),
 
         lastOrderAt: profile.last_order_at,
         createdAt: profile.created_at,
@@ -141,8 +141,8 @@ export async function POST(request: Request) {
           loyalty_opt_in,
           total_orders,
           total_spent_gross,
-          loyalty_points,
-          discount_percent,
+          loyalty_stamps,
+          loyalty_rewards_available,
           last_order_at,
           created_at
         `
@@ -188,8 +188,8 @@ export async function POST(request: Request) {
 
                     total_orders: 0,
                     total_spent_gross: 0,
-                    loyalty_points: 0,
-                    discount_percent: 0,
+                    loyalty_stamps: 0,
+                    loyalty_rewards_available: 0,
 
                     last_order_at: null,
                     updated_at: now,
@@ -205,8 +205,8 @@ export async function POST(request: Request) {
           loyalty_opt_in,
           total_orders,
           total_spent_gross,
-          loyalty_points,
-          discount_percent,
+          loyalty_stamps,
+          loyalty_rewards_available,
           last_order_at,
           created_at
         `
@@ -257,8 +257,8 @@ export async function POST(request: Request) {
         loyalty_opt_in,
         total_orders,
         total_spent_gross,
-        loyalty_points,
-        discount_percent,
+        loyalty_stamps,
+        loyalty_rewards_available,
         last_order_at,
         created_at
       `

@@ -1,5 +1,21 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 
+/**
+ * Stamp-based loyalty program.
+ *
+ * - 1 stamp per paid order of at least LOYALTY_STAMP_MIN_ORDER_GROSS kr.
+ * - Every LOYALTY_STAMPS_PER_REWARD stamps convert into one reward of
+ *   LOYALTY_REWARD_VALUE kr off a future order.
+ * - The customer chooses at checkout whether to redeem an available reward.
+ *
+ * This replaces the old percent-based system (loyalty_points /
+ * discount_percent are kept in the database for history but no longer used).
+ */
+
+export const LOYALTY_STAMP_MIN_ORDER_GROSS = 150;
+export const LOYALTY_STAMPS_PER_REWARD = 10;
+export const LOYALTY_REWARD_VALUE = 100;
+
 type OrderForLoyalty = {
     id: string;
     customer_name: string | null;
@@ -8,6 +24,8 @@ type OrderForLoyalty = {
     loyalty_opt_in?: boolean | null;
     total_gross: number | string | null;
     total_price: number | string | null;
+    /** Kr of loyalty reward redeemed on this order (0 if none). */
+    loyalty_reward_used?: number | string | null;
     payment_status: string | null;
     paid_at: string | null;
 };
@@ -16,7 +34,8 @@ type CustomerProfileRow = {
     id: string;
     total_orders: number | null;
     total_spent_gross: number | string | null;
-    loyalty_points: number | null;
+    loyalty_stamps: number | null;
+    loyalty_rewards_available: number | null;
     registered_at?: string | null;
 };
 
@@ -40,18 +59,8 @@ function safeAmount(value: number | string | null | undefined) {
     return Number.isFinite(amount) ? amount : 0;
 }
 
-function calculateDiscountPercent(points: number) {
-    if (points >= 3000) return 20;
-    if (points >= 2000) return 15;
-    if (points >= 1000) return 10;
-    if (points >= 500) return 5;
-
-    return 0;
-}
-
-function calculatePointsFromOrder(totalGross: number) {
-    return Math.max(0, Math.floor(totalGross));
-}
+const PROFILE_SELECT =
+    "id, total_orders, total_spent_gross, loyalty_stamps, loyalty_rewards_available, registered_at";
 
 async function findExistingCustomer(params: {
     normalizedEmail: string | null;
@@ -62,7 +71,7 @@ async function findExistingCustomer(params: {
     if (params.normalizedEmail) {
         const { data, error } = await supabase
             .from("customer_profiles")
-            .select("id, total_orders, total_spent_gross, loyalty_points, registered_at")
+            .select(PROFILE_SELECT)
             .eq("normalized_email", params.normalizedEmail)
             .maybeSingle<CustomerProfileRow>();
 
@@ -76,7 +85,7 @@ async function findExistingCustomer(params: {
     if (params.normalizedPhone) {
         const { data, error } = await supabase
             .from("customer_profiles")
-            .select("id, total_orders, total_spent_gross, loyalty_points, registered_at")
+            .select(PROFILE_SELECT)
             .eq("normalized_phone", params.normalizedPhone)
             .maybeSingle<CustomerProfileRow>();
 
@@ -88,6 +97,35 @@ async function findExistingCustomer(params: {
     }
 
     return null;
+}
+
+/**
+ * Loyalty status lookup for checkout: how many stamps and unredeemed
+ * rewards a customer has. Returns null when no profile exists.
+ */
+export async function getLoyaltyStatusByContact(params: {
+    email?: string | null;
+    phone?: string | null;
+}) {
+    const normalizedEmail = normalizeEmail(params.email);
+    const normalizedPhone = normalizePhone(params.phone);
+
+    if (!normalizedEmail && !normalizedPhone) {
+        return null;
+    }
+
+    const customer = await findExistingCustomer({
+        normalizedEmail,
+        normalizedPhone,
+    });
+
+    if (!customer) return null;
+
+    return {
+        customerId: customer.id,
+        stamps: Number(customer.loyalty_stamps || 0),
+        rewardsAvailable: Number(customer.loyalty_rewards_available || 0),
+    };
 }
 
 async function createCustomerProfile(params: {
@@ -116,10 +154,10 @@ async function createCustomerProfile(params: {
 
             total_orders: 0,
             total_spent_gross: 0,
-            loyalty_points: 0,
-            discount_percent: 0,
+            loyalty_stamps: 0,
+            loyalty_rewards_available: 0,
         })
-        .select("id, total_orders, total_spent_gross, loyalty_points, registered_at")
+        .select(PROFILE_SELECT)
         .single<CustomerProfileRow>();
 
     if (error) {
@@ -177,7 +215,7 @@ export async function applyLoyaltyForPaidOrder(order: OrderForLoyalty) {
     }
 
     /**
-     * Protection from double points.
+     * Protection from double stamps.
      * If this order already has a loyalty event, do nothing.
      */
     const { data: existingEvent, error: existingEventError } = await supabase
@@ -218,16 +256,40 @@ export async function applyLoyaltyForPaidOrder(order: OrderForLoyalty) {
         }));
 
     const totalGross = safeAmount(order.total_gross ?? order.total_price);
-    const pointsToAdd = calculatePointsFromOrder(totalGross);
+    const rewardUsed = safeAmount(order.loyalty_reward_used);
+
+    /**
+     * Stamp eligibility is based on what the customer actually ordered,
+     * i.e. the total BEFORE the redeemed reward. Otherwise redeeming a
+     * reward could unfairly cost the customer a stamp.
+     */
+    const qualifyingGross = totalGross + rewardUsed;
+    const stampsToAdd =
+        qualifyingGross >= LOYALTY_STAMP_MIN_ORDER_GROSS ? 1 : 0;
 
     const currentTotalOrders = Number(customer.total_orders || 0);
     const currentTotalSpent = safeAmount(customer.total_spent_gross);
-    const currentPoints = Number(customer.loyalty_points || 0);
+    const currentStamps = Number(customer.loyalty_stamps || 0);
+    const currentRewards = Number(customer.loyalty_rewards_available || 0);
 
     const nextTotalOrders = currentTotalOrders + 1;
     const nextTotalSpent = Number((currentTotalSpent + totalGross).toFixed(2));
-    const nextPoints = currentPoints + pointsToAdd;
-    const nextDiscountPercent = calculateDiscountPercent(nextPoints);
+
+    let nextStamps = currentStamps + stampsToAdd;
+    let nextRewards = currentRewards;
+    let rewardEarned = false;
+
+    // A full stamp card converts into a banked reward.
+    if (nextStamps >= LOYALTY_STAMPS_PER_REWARD) {
+        nextStamps -= LOYALTY_STAMPS_PER_REWARD;
+        nextRewards += 1;
+        rewardEarned = true;
+    }
+
+    // The redeemed reward is consumed.
+    if (rewardUsed > 0) {
+        nextRewards = Math.max(0, nextRewards - 1);
+    }
 
     const { error: updateCustomerError } = await supabase
         .from("customer_profiles")
@@ -244,8 +306,8 @@ export async function applyLoyaltyForPaidOrder(order: OrderForLoyalty) {
 
             total_orders: nextTotalOrders,
             total_spent_gross: nextTotalSpent,
-            loyalty_points: nextPoints,
-            discount_percent: nextDiscountPercent,
+            loyalty_stamps: nextStamps,
+            loyalty_rewards_available: nextRewards,
 
             last_order_at: order.paid_at || now,
             updated_at: now,
@@ -257,15 +319,31 @@ export async function applyLoyaltyForPaidOrder(order: OrderForLoyalty) {
         throw new Error(updateCustomerError.message);
     }
 
+    const noteParts = [
+        stampsToAdd > 0
+            ? `Order paid. Added ${stampsToAdd} stamp.`
+            : `Order paid. Below ${LOYALTY_STAMP_MIN_ORDER_GROSS} kr, no stamp.`,
+    ];
+
+    if (rewardEarned) {
+        noteParts.push(
+            `Full stamp card: earned ${LOYALTY_REWARD_VALUE} kr reward.`
+        );
+    }
+
+    if (rewardUsed > 0) {
+        noteParts.push(`Redeemed ${rewardUsed} kr reward on this order.`);
+    }
+
     const { error: eventError } = await supabase
         .from("customer_loyalty_events")
         .insert({
             customer_id: customer.id,
             order_id: order.id,
             event_type: "order_paid",
-            points_delta: pointsToAdd,
+            points_delta: stampsToAdd,
             amount_gross: totalGross,
-            note: `Order paid. Added ${pointsToAdd} loyalty points.`,
+            note: noteParts.join(" "),
         });
 
     if (eventError) {
@@ -277,8 +355,9 @@ export async function applyLoyaltyForPaidOrder(order: OrderForLoyalty) {
         success: true,
         alreadyApplied: false,
         customerId: customer.id,
-        pointsAdded: pointsToAdd,
-        totalPoints: nextPoints,
-        discountPercent: nextDiscountPercent,
+        stampsAdded: stampsToAdd,
+        totalStamps: nextStamps,
+        rewardsAvailable: nextRewards,
+        rewardEarned,
     };
 }

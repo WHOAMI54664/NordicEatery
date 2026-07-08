@@ -3,3 +3,7 @@ node_modules
 .env
 .env.local
 .DS_Store
+# IDE / OS / build junk
+.idea/
+tsconfig.tsbuildinfo
+**/.DS_Store

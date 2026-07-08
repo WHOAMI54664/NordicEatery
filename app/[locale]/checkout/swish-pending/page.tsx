@@ -56,7 +56,7 @@ export default function SwishPendingPage() {
         }
 
         let isMounted = true;
-        let timer: window.ReturnType<typeof window.setTimeout> | null = null;
+        let timer: number | null = null;
 
         async function checkPaymentStatus(attempt: number) {
             try {
@@ -86,7 +86,7 @@ export default function SwishPendingPage() {
                     window.setTimeout(() => {
                         router.replace(
                             `/${locale}/checkout/success?order_number=${encodeURIComponent(
-                                data.order?.orderNumber || orderNumber
+                                data.order?.orderNumber || orderNumber || ""
                             )}`
                         );
                     }, 700);

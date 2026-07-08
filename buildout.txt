@@ -1,0 +1,14 @@
+   Downloading swc package @next/swc-wasm-nodejs... to /sessions/dazzling-upbeat-dijkstra/.cache/next-swc
+ ⚠ Attempted to load /sessions/dazzling-upbeat-dijkstra/mnt/mikes-food-starter/node_modules/next/next-swc-fallback/@next/swc-linux-arm64-gnu/next-swc.linux-arm64-gnu.node, but it was not installed
+ ⚠ Attempted to load /sessions/dazzling-upbeat-dijkstra/mnt/mikes-food-starter/node_modules/next/next-swc-fallback/@next/swc-linux-arm64-musl/next-swc.linux-arm64-musl.node, but it was not installed
+ ⚠ Attempted to load @next/swc-linux-arm64-gnu, but it was not installed
+ ⚠ Attempted to load @next/swc-linux-arm64-musl, but it was not installed
+ ⚠ [TypeError: fetch failed] {
+  [cause]: [Error: getaddrinfo EAI_AGAIN registry.npmjs.org] {
+    errno: -3001,
+    code: 'EAI_AGAIN',
+    syscall: 'getaddrinfo',
+    hostname: 'registry.npmjs.org'
+  }
+}
+ ⨯ Failed to load SWC binary for linux/arm64, see more info here: https://nextjs.org/docs/messages/failed-loading-swc

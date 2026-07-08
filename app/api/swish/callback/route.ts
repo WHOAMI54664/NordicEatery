@@ -38,6 +38,7 @@ type OrderForLoyalty = {
 
     total_price: number | string | null;
     total_gross: number | string | null;
+    loyalty_reward_used: number | string | null;
     paid_at: string | null;
 
     swish_payment_id: string | null;
@@ -100,6 +101,7 @@ async function findPaidSwishOrder(params: {
     payment_status,
     total_price,
     total_gross,
+    loyalty_reward_used,
     paid_at,
     swish_payment_id,
     swish_payment_reference,
@@ -218,6 +220,7 @@ export async function POST(request: Request) {
                     loyalty_opt_in: paidOrder.loyalty_opt_in,
                     total_gross: paidOrder.total_gross,
                     total_price: paidOrder.total_price,
+                    loyalty_reward_used: paidOrder.loyalty_reward_used,
                     payment_status: paidOrder.payment_status,
                     paid_at: paidOrder.paid_at,
                 });

@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { AdminTopbar } from "@/components/admin/AdminTopbar";
 import { createClient } from "@/lib/supabase/server";
+import { isStaffRole } from "@/lib/auth/roles";
 
 type AdminLayoutProps = {
   children: ReactNode;
@@ -31,9 +32,18 @@ export default async function AdminLayout({
 
   const { data: currentProfile } = await supabase
       .from("profiles")
-      .select("full_name, email")
+      .select("full_name, email, role")
       .eq("id", user.id)
       .single();
+
+  /**
+   * Central staff-role gate for the whole /admin section.
+   * Individual pages still enforce fine-grained permissions (canManageOrders
+   * etc.), but no logged-in customer should ever reach the admin shell.
+   */
+  if (!isStaffRole(currentProfile?.role)) {
+    redirect(`/${locale}`);
+  }
 
   const profileName =
       currentProfile?.full_name?.trim() ||

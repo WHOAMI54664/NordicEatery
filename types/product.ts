@@ -1,4 +1,11 @@
-export type ProductCategory = "maczanka" | "knysza" | "sides" | "drinks";
+// Known categories keep autocomplete, but custom categories (added from the
+// product form) are also allowed, so the type stays a string at its core.
+export type ProductCategory =
+  | "maczanka"
+  | "knysza"
+  | "sides"
+  | "drinks"
+  | (string & {});
 
 export type Product = {
   id: string;
@@ -9,6 +16,7 @@ export type Product = {
   category: ProductCategory;
   badge?: string;
   isPopular?: boolean;
+  image_url?: string | null;
  name_sv?: string | null;
  name_pl?: string | null;
  name_ru?: string | null;

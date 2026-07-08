@@ -5,19 +5,29 @@ import { createClient } from "@/lib/supabase/browser";
 
 type CustomerOAuthButtonsProps = {
     locale: string;
+    /** Relative path to return to after login, e.g. "/en/profile". */
+    returnTo?: string;
 };
 
 type OAuthProvider = "google" | "github" | "apple";
 
-export function CustomerOAuthButtons({ locale }: CustomerOAuthButtonsProps) {
+export function CustomerOAuthButtons({
+    locale,
+    returnTo,
+}: CustomerOAuthButtonsProps) {
     const supabase = createClient();
 
     async function signInWithProvider(provider: OAuthProvider) {
-        const redirectTo = "https://www.nordiceatery.se/auth/callback";
+        const callbackUrl = new URL("/auth/callback", window.location.origin);
 
-        console.log("Customer OAuth provider:", provider);
-        console.log("Customer OAuth locale:", locale);
-        console.log("Customer OAuth redirectTo:", redirectTo);
+        const nextPath = returnTo || `/${locale}/profile`;
+
+        // Only relative paths — prevents open-redirect.
+        if (nextPath.startsWith("/")) {
+            callbackUrl.searchParams.set("next", nextPath);
+        }
+
+        const redirectTo = callbackUrl.toString();
 
         const { error } = await supabase.auth.signInWithOAuth({
             provider,

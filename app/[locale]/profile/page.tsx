@@ -27,8 +27,8 @@ type CustomerProfile = {
     avatarUrl: string | null;
     totalOrders: number;
     totalSpentGross: number;
-    loyaltyPoints: number;
-    discountPercent: number;
+    loyaltyStamps: number;
+    loyaltyRewardsAvailable: number;
     lastOrderAt: string | null;
     createdAt: string | null;
 };
@@ -84,40 +84,12 @@ function getInitials(name: string | null, email: string | null) {
         .join("");
 }
 
-function getNextReward(points: number) {
-    if (points < 500) {
-        return {
-            label: "5%",
-            remaining: 500 - points,
-        };
-    }
-
-    if (points < 1000) {
-        return {
-            label: "10%",
-            remaining: 1000 - points,
-        };
-    }
-
-    if (points < 2000) {
-        return {
-            label: "15%",
-            remaining: 2000 - points,
-        };
-    }
-
-    if (points < 3000) {
-        return {
-            label: "20%",
-            remaining: 3000 - points,
-        };
-    }
-
-    return {
-        label: "20%",
-        remaining: 0,
-    };
-}
+/**
+ * Stamp card: 1 stamp per paid order >= 150 kr.
+ * A full card (10 stamps) becomes a 100 kr reward.
+ */
+const STAMPS_PER_REWARD = 10;
+const REWARD_VALUE = 100;
 
 function readSavedLogin(): SavedCustomerLogin | null {
     if (typeof window === "undefined") return null;
@@ -158,21 +130,13 @@ export default function CustomerProfilePage() {
         return getInitials(profile?.fullName || null, profile?.email || null);
     }, [profile?.email, profile?.fullName]);
 
-    const reward = useMemo(() => {
-        return getNextReward(profile?.loyaltyPoints || 0);
-    }, [profile?.loyaltyPoints]);
+    const stamps = profile?.loyaltyStamps || 0;
+    const rewardsAvailable = profile?.loyaltyRewardsAvailable || 0;
+    const stampsRemaining = Math.max(0, STAMPS_PER_REWARD - stamps);
 
     const progressPercent = useMemo(() => {
-        const points = profile?.loyaltyPoints || 0;
-
-        if (points >= 3000) return 100;
-
-        if (points < 500) return Math.min(100, Math.round((points / 500) * 100));
-        if (points < 1000) return Math.round(((points - 500) / 500) * 100);
-        if (points < 2000) return Math.round(((points - 1000) / 1000) * 100);
-
-        return Math.round(((points - 2000) / 1000) * 100);
-    }, [profile?.loyaltyPoints]);
+        return Math.min(100, Math.round((stamps / STAMPS_PER_REWARD) * 100));
+    }, [stamps]);
 
     async function loadProfileByAuth() {
         const response = await fetch("/api/customer-profile", {
@@ -425,20 +389,26 @@ export default function CustomerProfilePage() {
                             </h2>
 
                             <p className="mt-2 text-sm leading-6 text-dark/60">
-                                View your collected points, current discount and order activity.
+                                Collect 1 stamp for every paid order over 150 kr.
+                                A full card of {STAMPS_PER_REWARD} stamps gives you{" "}
+                                {REWARD_VALUE} kr off a future order.
                             </p>
                         </div>
 
                         <div className="mt-8 grid gap-3 sm:grid-cols-3">
                             <ProfileStatCard
-                                title="Points"
-                                value={String(profile.loyaltyPoints)}
+                                title="Stamps"
+                                value={`${stamps} / ${STAMPS_PER_REWARD}`}
                                 icon={<Gift className="h-5 w-5" />}
                             />
 
                             <ProfileStatCard
-                                title="Discount"
-                                value={`${profile.discountPercent}%`}
+                                title="Rewards to use"
+                                value={
+                                    rewardsAvailable > 0
+                                        ? `${rewardsAvailable} × ${REWARD_VALUE} kr`
+                                        : "0"
+                                }
                                 icon={<BadgePercent className="h-5 w-5" />}
                             />
 
@@ -459,13 +429,13 @@ export default function CustomerProfilePage() {
                                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                         <div>
                                             <p className="font-black text-dark">
-                                                Next reward: {reward.label}
+                                                Next reward: {REWARD_VALUE} kr off
                                             </p>
 
                                             <p className="mt-1 text-sm leading-6 text-dark/55">
-                                                {reward.remaining > 0
-                                                    ? `${reward.remaining} more points to reach ${reward.label} discount.`
-                                                    : "You have reached the maximum discount level."}
+                                                {rewardsAvailable > 0
+                                                    ? `You have ${rewardsAvailable * REWARD_VALUE} kr to use — apply it at checkout!`
+                                                    : `${stampsRemaining} more ${stampsRemaining === 1 ? "stamp" : "stamps"} to your ${REWARD_VALUE} kr reward.`}
                                             </p>
                                         </div>
 

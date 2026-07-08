@@ -24,6 +24,7 @@ type OrderRow = {
   total_gross: number | null;
   total_net: number | null;
   total_vat: number | null;
+  loyalty_reward_used: number | string | null;
 
   created_at: string | null;
   paid_at: string | null;
@@ -120,6 +121,7 @@ export async function GET(request: Request) {
         total_gross,
         total_net,
         total_vat,
+        loyalty_reward_used,
         created_at,
         paid_at
       `
@@ -156,6 +158,7 @@ export async function GET(request: Request) {
           loyalty_opt_in: order.loyalty_opt_in,
           total_gross: order.total_gross,
           total_price: order.total_price,
+          loyalty_reward_used: order.loyalty_reward_used,
           payment_status: order.payment_status,
           paid_at: order.paid_at,
         });

@@ -364,9 +364,7 @@
       "eyebrow": "Boka ditt bord",
       "title": "Bokning",
       "subtitle": "Boka bord, catering eller Mike's Food Truck så bekräftar vi din förfrågan så snart som möjligt.",
-
       "bookingType": "Typ av bokning",
-
       "bookingTypes": {
         "breakfast": {
           "title": "Frukost",
@@ -393,35 +391,24 @@
           "description": "Har du något annat i åtanke? Beskriv det så återkommer vi."
         }
       },
-
       "guestsNote": "Minsta bokning är 10 personer.",
       "guestsMinimumError": "Minsta bokning är 10 personer.",
-
       "name": "Fullständigt namn",
       "namePlaceholder": "Ditt namn",
-
       "phone": "Telefonnummer",
-
       "email": "E-post",
-
       "date": "Datum",
       "time": "Tid",
       "guests": "Gäster",
-
       "eventDetails": "Detaljer om bokningen",
       "eventDetailsPlaceholder": "Berätta gärna om plats, upplägg, tider eller särskilda önskemål",
-
       "message": "Meddelande",
       "messagePlaceholder": "Några särskilda önskemål?",
-
       "consent": "Jag godkänner att mina personuppgifter behandlas för denna bokningsförfrågan.",
-
       "button": "Skicka bokningsförfrågan",
-
       "successEyebrow": "Bokning skickad",
       "successTitle": "Tack så mycket!",
       "successText": "Vi har mottagit din bokningsförfrågan och kommer att kontakta dig inom kort.",
-
       "error": "Något gick fel. Vänligen försök igen.",
       "bookingService": "Vad vill du boka?",
       "bookingServiceError": "Välj vad du vill boka.",
@@ -603,33 +590,39 @@
       "bottomInfo": "Beräknad leveranstid: 30-40 min. För reklamation eller återbetalning, kontakta kontakt@nordiceatery.se.",
       "stripeError": "Stripe-betalningen kunde inte startas.",
       "orderError": "Order kunde inte skapas.",
-      "generalError": "Något gick fel. Vänligen försök igen."
+      "generalError": "Något gick fel. Vänligen försök igen.",
+      "loyaltyTitle": "Samla stämplar hos Nordic Eatery",
+      "loyaltyText": "1 stämpel för varje betald beställning över {min} kr. Fullt kort med {count} stämplar ger dig {value} kr rabatt på en framtida beställning.",
+      "loyaltyProgress": "Dina stämplar: {stamps} av {total}",
+      "loyaltyOptIn": "Jag vill skapa en kundprofil och samla stämplar på mina beställningar.",
+      "loyaltyUseReward": "Använd min rabatt på {value} kr på denna beställning",
+      "loyaltyDiscountLabel": "Stämpelkortsrabatt"
     }
   },
-    "admin": {
-      "shift": {
-        "eyebrow": "Köksskift",
-        "checking": "Kontrollerar",
-        "open": "Öppet",
-        "closed": "Stängt",
-        "loading": "Laddar skift...",
-        "titleOpen": "Skiftet är öppet",
-        "titleClosed": "Skiftet är stängt",
-        "descriptionOpen": "Kunder kan lägga beställningar nu. Stäng skiftet när köket slutar ta emot beställningar.",
-        "descriptionClosed": "Kunder kan inte lägga beställningar medan skiftet är stängt. Öppna skiftet för att börja ta emot beställningar.",
-        "opened": "Öppnat",
-        "closedAt": "Stängt",
-        "openButton": "Öppna skift",
-        "closeButton": "Stäng skift",
-        "addressLabel": "Foodtruckens adress",
-        "addressPlaceholder": "T.ex. Kungsgatan 12, Boden",
-        "addressHint": "Adressen visas för kunder i kassan medan skiftet är öppet.",
-        "errors": {
-          "load": "Kunde inte ladda skiftstatus.",
-          "update": "Kunde inte uppdatera skiftet.",
-          "addressRequired": "Ange foodtruckens adress för att öppna skiftet."
-        }
-      },
+  "admin": {
+    "shift": {
+      "eyebrow": "Köksskift",
+      "checking": "Kontrollerar",
+      "open": "Öppet",
+      "closed": "Stängt",
+      "loading": "Laddar skift...",
+      "titleOpen": "Skiftet är öppet",
+      "titleClosed": "Skiftet är stängt",
+      "descriptionOpen": "Kunder kan lägga beställningar nu. Stäng skiftet när köket slutar ta emot beställningar.",
+      "descriptionClosed": "Kunder kan inte lägga beställningar medan skiftet är stängt. Öppna skiftet för att börja ta emot beställningar.",
+      "opened": "Öppnat",
+      "closedAt": "Stängt",
+      "openButton": "Öppna skift",
+      "closeButton": "Stäng skift",
+      "addressLabel": "Foodtruckens adress",
+      "addressPlaceholder": "T.ex. Kungsgatan 12, Boden",
+      "addressHint": "Adressen visas för kunder i kassan medan skiftet är öppet.",
+      "errors": {
+        "load": "Kunde inte ladda skiftstatus.",
+        "update": "Kunde inte uppdatera skiftet.",
+        "addressRequired": "Ange foodtruckens adress för att öppna skiftet."
+      }
+    },
     "businessSettingsForm": {
       "business": {
         "title": "Företagsinformation",
@@ -775,7 +768,6 @@
         "item4": "Kocken ska bara ha tillgång till köksdisplayen."
       },
       "settingsSection": {
-
         "title": "Inställningar",
         "description": "Affärsinställningar lagrade i Supabase.",
         "item1": "Inställningarna lagras i tabellen business_settings.",
@@ -783,7 +775,6 @@
         "item3": "Swish är för närvarande markerat som planerat tills integrationen är klar.",
         "item4": "Dessa inställningar kan senare kopplas till kassa-, sidfot- och kontaktsidor."
       },
-
       "payments": {
         "title": "Betalningar",
         "description": "Betalningslogik för kassan och CRM.",
@@ -815,38 +806,38 @@
       "restore": "Återställ",
       "updating": "Uppdaterar..."
     },
-      "reservations": {
-        "eyebrow": "Hantering av bokningar",
-        "title": "Bokningar",
-        "subtitle": "Hantera kundbokningar, gästantal, bekräftelsestatus och bokningsanteckningar.",
-        "flow": "Reservationsflöde",
-        "pending": "Avvaktande",
-        "pendingDescription": "Väntar på bekräftelse",
+    "reservations": {
+      "eyebrow": "Hantering av bokningar",
+      "title": "Bokningar",
+      "subtitle": "Hantera kundbokningar, gästantal, bekräftelsestatus och bokningsanteckningar.",
+      "flow": "Reservationsflöde",
+      "pending": "Avvaktande",
+      "pendingDescription": "Väntar på bekräftelse",
+      "confirmed": "Bekräftad",
+      "confirmedDescription": "Godkända kommande bokningar",
+      "completed": "Färdigställd",
+      "completedDescription": "Färdiga reservationer",
+      "cancelled": "Avbruten",
+      "cancelledDescription": "Avbokade bokningar",
+      "allReservations": "Alla reservationer",
+      "allReservationsDescription": "Bokningar hämtade från Supabase.",
+      "reservationsCount": "reservationer",
+      "guestsCount": "{count} gäster",
+      "noReservationsFound": "Inga reservationer hittades",
+      "noReservationsDescription": "Här visas kundernas bokningar.",
+      "contact": "Kontakt",
+      "date": "Datum",
+      "time": "Tid",
+      "guests": "Gäster",
+      "note": "Notera",
+      "noContact": "Ingen kontakt",
+      "statuses": {
+        "new": "Ny",
         "confirmed": "Bekräftad",
-        "confirmedDescription": "Godkända kommande bokningar",
-        "completed": "Färdigställd",
-        "completedDescription": "Färdiga reservationer",
-        "cancelled": "Avbruten",
-        "cancelledDescription": "Avbokade bokningar",
-        "allReservations": "Alla reservationer",
-        "allReservationsDescription": "Bokningar hämtade från Supabase.",
-        "reservationsCount": "reservationer",
-        "guestsCount": "{count} gäster",
-        "noReservationsFound": "Inga reservationer hittades",
-        "noReservationsDescription": "Här visas kundernas bokningar.",
-        "contact": "Kontakt",
-        "date": "Datum",
-        "time": "Tid",
-        "guests": "Gäster",
-        "note": "Notera",
-        "noContact": "Ingen kontakt",
-        "statuses": {
-          "new": "Ny",
-          "confirmed": "Bekräftad",
-          "completed": "Slutförd",
-          "cancelled": "Avbokad"
-        }
-      },
+        "completed": "Slutförd",
+        "cancelled": "Avbokad"
+      }
+    },
     "menuAdmin": {
       "eyebrow": "Menyhantering",
       "title": "Meny",
@@ -962,51 +953,51 @@
       "hoursAgo": "h sedan",
       "daysAgo": "d sedan"
     },
-      "reports": {
-        "exportPdf": "Exportera PDF",
-        "exportCsv": "Exportera CSV",
-        "eyebrow": "Bokföringsrapport",
-        "title": "Rapporter för onlineförsäljning",
-        "description": "Endast betalda onlinebeställningar. Rapporten omfattar webborders som slutförts på distans och hålls separata från betalningar på plats.",
-        "period": "Period",
-        "from": "Från",
-        "to": "Till",
-        "apply": "Visa",
-        "today": "Idag",
-        "yesterday": "Igår",
-        "thisMonth": "Denna månad",
-        "grossPaidSales": "Betald försäljning inkl. moms",
-        "grossPaidSalesDescription": "Totalt betalda onlineförsäljningar inklusive moms",
-        "paidOrders": "betalda ordrar",
-        "netSalesExVat": "Försäljning exkl. moms",
-        "netSalesExVatDescription": "Beskattningsunderlag före moms",
-        "taxBase": "Beskattningsunderlag",
-        "vatAmount": "Momsbelopp",
-        "vatAmountDescription": "Moms registrerad för betalda onlineköp",
-        "vatRateSix": "Moms 6%",
-        "netAfterRefunds": "Netto efter återbetalningar",
-        "netAfterRefundsDescription": "Bruttoförsäljning minus registrerade återbetalningar",
-        "refunds": "Återbetalningar",
-        "paymentReconciliation": "Betalningsavstämning",
-        "paymentReconciliationDescription": "Belopp att stämma av mot Stripe, Swish och bankinsättningar",
-        "deliveryFees": "Leveransavgifter",
-        "vatBreakdown": "Momsöversikt",
-        "vatBreakdownDescription": "Beskattningsunderlag, moms och justeringar för återbetalningar",
-        "refundedVat": "Återbetald moms",
-        "vatAfterRefunds": "Moms efter återbetalningar",
-        "includedOrders": "Inkluderade betalda onlineordrar",
-        "includedOrdersDescription": "Endast distansbeställningar från webbplatsen med bekräftad betalning ingår",
-        "order": "Order",
-        "paidAt": "Betald",
-        "payment": "Betalning",
-        "gross": "Brutto",
-        "net": "Netto",
-        "vat": "Moms",
-        "refundStatus": "Återbetalningsstatus",
-        "reference": "Betalningsreferens",
-        "noPaidOrders": "Inga betalda onlineordrar för vald period",
-        "noPaidOrdersDescription": "Välj en annan period eller vänta tills onlinebetalningar är slutförda."
-      },
+    "reports": {
+      "exportPdf": "Exportera PDF",
+      "exportCsv": "Exportera CSV",
+      "eyebrow": "Bokföringsrapport",
+      "title": "Rapporter för onlineförsäljning",
+      "description": "Endast betalda onlinebeställningar. Rapporten omfattar webborders som slutförts på distans och hålls separata från betalningar på plats.",
+      "period": "Period",
+      "from": "Från",
+      "to": "Till",
+      "apply": "Visa",
+      "today": "Idag",
+      "yesterday": "Igår",
+      "thisMonth": "Denna månad",
+      "grossPaidSales": "Betald försäljning inkl. moms",
+      "grossPaidSalesDescription": "Totalt betalda onlineförsäljningar inklusive moms",
+      "paidOrders": "betalda ordrar",
+      "netSalesExVat": "Försäljning exkl. moms",
+      "netSalesExVatDescription": "Beskattningsunderlag före moms",
+      "taxBase": "Beskattningsunderlag",
+      "vatAmount": "Momsbelopp",
+      "vatAmountDescription": "Moms registrerad för betalda onlineköp",
+      "vatRateSix": "Moms 6%",
+      "netAfterRefunds": "Netto efter återbetalningar",
+      "netAfterRefundsDescription": "Bruttoförsäljning minus registrerade återbetalningar",
+      "refunds": "Återbetalningar",
+      "paymentReconciliation": "Betalningsavstämning",
+      "paymentReconciliationDescription": "Belopp att stämma av mot Stripe, Swish och bankinsättningar",
+      "deliveryFees": "Leveransavgifter",
+      "vatBreakdown": "Momsöversikt",
+      "vatBreakdownDescription": "Beskattningsunderlag, moms och justeringar för återbetalningar",
+      "refundedVat": "Återbetald moms",
+      "vatAfterRefunds": "Moms efter återbetalningar",
+      "includedOrders": "Inkluderade betalda onlineordrar",
+      "includedOrdersDescription": "Endast distansbeställningar från webbplatsen med bekräftad betalning ingår",
+      "order": "Order",
+      "paidAt": "Betald",
+      "payment": "Betalning",
+      "gross": "Brutto",
+      "net": "Netto",
+      "vat": "Moms",
+      "refundStatus": "Återbetalningsstatus",
+      "reference": "Betalningsreferens",
+      "noPaidOrders": "Inga betalda onlineordrar för vald period",
+      "noPaidOrdersDescription": "Välj en annan period eller vänta tills onlinebetalningar är slutförda."
+    },
     "analytics": {
       "eyebrow": "Analys av verksamheten",
       "title": "Analys",

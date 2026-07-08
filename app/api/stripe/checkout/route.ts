@@ -3,6 +3,10 @@ import Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertRestaurantShiftIsOpen } from "@/lib/restaurant/shift";
 import { validateCartPrices } from "@/lib/orders/pricing";
+import {
+  getLoyaltyStatusByContact,
+  LOYALTY_REWARD_VALUE,
+} from "@/lib/customers/loyalty";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,6 +31,7 @@ type CheckoutBody = {
 
   loyaltyOptIn?: boolean;
   marketingConsent?: boolean;
+  useLoyaltyReward?: boolean;
 
   address: string;
   deliveryType: "delivery" | "pickup";
@@ -122,6 +127,7 @@ export async function POST(request: Request) {
       customerEmail,
 
       loyaltyOptIn,
+      useLoyaltyReward,
 
       address,
       deliveryType,
@@ -259,7 +265,31 @@ export async function POST(request: Request) {
         VAT_RATE
     );
 
-    const discountGross = 0;
+    /**
+     * Loyalty reward redemption (stamp card).
+     * Server-authoritative: we verify the customer really has an
+     * unredeemed reward — the client checkbox alone is never trusted.
+     */
+    let discountGross = 0;
+
+    if (useLoyaltyReward) {
+      const loyaltyStatus = await getLoyaltyStatusByContact({
+        email: normalizedCustomerEmail,
+        phone: customerPhone,
+      });
+
+      if (!loyaltyStatus || loyaltyStatus.rewardsAvailable < 1) {
+        return NextResponse.json(
+            { error: "No loyalty reward available for this customer" },
+            { status: 400 }
+        );
+      }
+
+      discountGross = roundMoney(
+          Math.min(LOYALTY_REWARD_VALUE, subtotalGross)
+      );
+    }
+
     const discountBreakdown = calculateVatFromGross(discountGross, VAT_RATE);
 
     const totalGross = roundMoney(
@@ -334,6 +364,8 @@ export async function POST(request: Request) {
       discount_net: discountBreakdown.net,
       discount_vat: discountBreakdown.vat,
 
+      loyalty_reward_used: discountGross,
+
       total_gross: totalGross,
       total_net: totalNet,
       total_vat: totalVat,
@@ -358,7 +390,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const stripeLineItems: Stripe.Checkout.SessionCreateParams.LineItem[] =
+    type StripeLineItem = NonNullable<
+        Stripe.Checkout.SessionCreateParams["line_items"]
+    >[number];
+
+    const stripeLineItems: StripeLineItem[] =
         normalizedItems.map((item) => ({
           quantity: item.quantity,
           price_data: {
@@ -383,10 +419,31 @@ export async function POST(request: Request) {
       });
     }
 
+    /**
+     * The loyalty discount is applied in Stripe as a one-off coupon so the
+     * amount the customer pays matches the order totals in the database.
+     */
+    let stripeDiscounts:
+        | Array<{ coupon: string }>
+        | undefined = undefined;
+
+    if (discountGross > 0) {
+      const coupon = await stripe.coupons.create({
+        amount_off: Math.round(discountGross * 100),
+        currency: "sek",
+        duration: "once",
+        name: `Loyalty reward ${LOYALTY_REWARD_VALUE} kr`,
+      });
+
+      stripeDiscounts = [{ coupon: coupon.id }];
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
 
       line_items: stripeLineItems,
+
+      discounts: stripeDiscounts,
 
       metadata: {
         orderId: technicalOrderId,

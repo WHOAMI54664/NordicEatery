@@ -303,13 +303,11 @@
         "eyebrow": "Local food in Boden",
         "title": "Order food delivery, takeaway and catering in Boden",
         "description": "Nordic Eatery offers fresh Polish comfort food, burgers, crispy fries, street food, takeaway and catering in Boden.",
-
         "delivery": "Food delivery in Boden",
         "takeaway": "Takeaway in Boden",
         "burgers": "Burgers in Boden",
         "catering": "Catering in Boden",
         "menu": "View full menu",
-
         "deliveryShort": "Delivery",
         "takeawayShort": "Takeaway",
         "burgersShort": "Burgers",
@@ -332,7 +330,6 @@
     "about": {
       "title": "About Nordic Eatery",
       "subtitle": "Real food. No compromises.",
-
       "whoTitle": "Who we are",
       "whoText": {
         "title": "From Norrland, with a passion for cooking.",
@@ -342,7 +339,6 @@
           "Together we create food inspired by different cultures, always with taste, quality and creativity at the center."
         ]
       },
-
       "freshTitle": "Fresh ingredients",
       "freshText": "We mainly use fresh ingredients.",
       "fastTitle": "Fast service",
@@ -351,22 +347,17 @@
       "simpleText": "Only what really works. No unnecessary items.",
       "tasteTitle": "Unique taste",
       "tasteText": "Street food beyond the ordinary.",
-
       "finalTitle": "Built for people who value good food",
       "finalText": "No waiting. No overpricing. Just good food made the right way.",
-
       "badge": "Polish street food with a Swedish twist",
-
       "foodEyebrow": "Our food",
       "foodTitle": "Polish flavours with Swedish notes",
       "foodText": "We prepare our food from scratch as much as possible and aim to use fresh and Swedish ingredients. Mike’s dishes are inspired by classic Polish street food and ingredients from Sweden.",
-
       "ctaEyebrow": "Catering & events",
       "ctaTitle": "Need food for your event?",
       "ctaText": "Book catering, a food truck or a chef for your private party, company event, festival or special occasion. If you want a custom menu, contact us and we will do our best to meet your wishes.",
       "ctaBook": "Book us",
       "ctaContact": "Contact us",
-
       "menuCta": "View menu"
     },
     "booking": {
@@ -374,9 +365,7 @@
       "eyebrow": "Book your table",
       "title": "Booking",
       "subtitle": "Book a table, catering or Mike's Food Truck and we will confirm your request as soon as possible.",
-
       "bookingType": "Type of booking",
-
       "bookingTypes": {
         "breakfast": {
           "title": "Breakfast",
@@ -403,40 +392,28 @@
           "description": "Have something else in mind? Let us know and we’ll get back to you."
         }
       },
-
       "guestsNote": "Minimum booking is 10 people.",
       "guestsMinimumError": "Minimum booking is 10 people.",
-
       "name": "Full name",
       "namePlaceholder": "Your name",
-
       "phone": "Phone number",
-
       "email": "Email",
-
       "date": "Date",
       "time": "Time",
       "guests": "Guests",
-
       "eventDetails": "Event details",
       "eventDetailsPlaceholder": "Tell us about the location, schedule or any special requests",
-
       "message": "Message",
       "messagePlaceholder": "Any special requests?",
-
       "consent": "I agree that my personal data is processed for this booking request.",
-
       "button": "Send booking request",
-
       "successEyebrow": "Booking sent",
       "successTitle": "Thank you!",
       "successText": "We have received your booking request and will contact you shortly.",
-
       "error": "Something went wrong. Please try again.",
       "bookingService": "What would you like to book?",
       "bookingServiceError": "Please select what you would like to book.",
       "bookingTypeError": "Please select a booking type.",
-
       "bookingServices": {
         "table": {
           "title": "Table",
@@ -614,7 +591,13 @@
       "bottomInfo": "Delivery estimate: 30–40 min. For complaints or refunds, contact kontakt@nordiceatery.se.",
       "stripeError": "Stripe payment could not be started.",
       "orderError": "Order could not be created.",
-      "generalError": "Something went wrong. Please try again."
+      "generalError": "Something went wrong. Please try again.",
+      "loyaltyTitle": "Collect stamps with Nordic Eatery",
+      "loyaltyText": "1 stamp for every paid order over {min} kr. A full card of {count} stamps gives you {value} kr off a future order.",
+      "loyaltyProgress": "Your stamps: {stamps} of {total}",
+      "loyaltyOptIn": "I want to create a customer profile and collect stamps on my orders.",
+      "loyaltyUseReward": "Use my {value} kr reward on this order",
+      "loyaltyDiscountLabel": "Stamp card reward"
     }
   },
   "admin": {
@@ -1245,4 +1228,3 @@
     }
   }
 }
-

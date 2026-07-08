@@ -330,7 +330,6 @@
     "about": {
       "title": "O Nordic Eatery",
       "subtitle": "Prawdziwe jedzenie. Bez kompromisów.",
-
       "whoTitle": "Kim jesteśmy",
       "whoText": {
         "title": "Z Norrland, z pasją do gotowania.",
@@ -340,7 +339,6 @@
           "Razem tworzymy jedzenie inspirowane różnymi kulturami, zawsze stawiając smak, jakość i kreatywność w centrum."
         ]
       },
-
       "freshTitle": "Świeże składniki",
       "freshText": "Korzystamy przede wszystkim ze świeżych składników.",
       "fastTitle": "Szybka obsługa",
@@ -349,22 +347,17 @@
       "simpleText": "Tylko to, co naprawdę działa. Bez zbędnych rzeczy.",
       "tasteTitle": "Wyjątkowy smak",
       "tasteText": "Street food inny niż wszystkie.",
-
       "finalTitle": "Stworzone dla ludzi, którzy cenią dobre jedzenie",
       "finalText": "Bez czekania. Bez zawyżonych cen. Po prostu dobre jedzenie przygotowane we właściwy sposób.",
-
       "badge": "Polski street food ze szwedzkim akcentem",
-
       "foodEyebrow": "Nasze jedzenie",
       "foodTitle": "Polskie smaki ze szwedzkimi akcentami",
       "foodText": "Przygotowujemy nasze jedzenie od podstaw tak często, jak to możliwe, i staramy się korzystać ze świeżych oraz szwedzkich składników. Dania Mike’s inspirowane są klasycznym polskim street foodem i składnikami ze Szwecji.",
-
       "ctaEyebrow": "Catering i wydarzenia",
       "ctaTitle": "Potrzebujesz jedzenia na swoje wydarzenie?",
       "ctaText": "Zarezerwuj catering, food trucka lub kucharza na prywatną imprezę, wydarzenie firmowe, festiwal albo specjalną okazję. Jeśli chcesz indywidualnie dopasowane menu, skontaktuj się z nami, a zrobimy wszystko, aby spełnić Twoje oczekiwania.",
       "ctaBook": "Zarezerwuj nas",
       "ctaContact": "Skontaktuj się",
-
       "menuCta": "Zobacz menu"
     },
     "booking": {
@@ -372,9 +365,7 @@
       "eyebrow": "Zarezerwuj",
       "title": "Rezerwacja",
       "subtitle": "Zarezerwuj stolik, catering lub Mike's Food Truck, a my potwierdzimy Twoje zgłoszenie tak szybko, jak to możliwe.",
-
       "bookingType": "Rodzaj rezerwacji",
-
       "bookingTypes": {
         "breakfast": {
           "title": "Śniadanie",
@@ -401,40 +392,28 @@
           "description": "Masz coś innego na myśli? Opisz to, a skontaktujemy się z Tobą."
         }
       },
-
       "guestsNote": "Minimalna liczba to 10 osób.",
       "guestsMinimumError": "Minimalna liczba to 10 osób.",
-
       "name": "Imię i nazwisko",
       "namePlaceholder": "Twoje imię",
-
       "phone": "Numer telefonu",
-
       "email": "E-mail",
-
       "date": "Data",
       "time": "Godzina",
       "guests": "Goście",
-
       "eventDetails": "Szczegóły wydarzenia",
       "eventDetailsPlaceholder": "Opisz miejsce, plan lub specjalne życzenia",
-
       "message": "Wiadomość",
       "messagePlaceholder": "Jakieś specjalne życzenia?",
-
       "consent": "Wyrażam zgodę na przetwarzanie moich danych osobowych w celu obsługi tej rezerwacji.",
-
       "button": "Wyślij zapytanie",
-
       "successEyebrow": "Rezerwacja wysłana",
       "successTitle": "Dziękujemy!",
       "successText": "Otrzymaliśmy Twoje zgłoszenie i skontaktujemy się z Tobą wkrótce.",
-
       "error": "Coś poszło nie tak. Spróbuj ponownie.",
       "bookingService": "Co chcesz zarezerwować?",
       "bookingServiceError": "Wybierz, co chcesz zarezerwować.",
       "bookingTypeError": "Wybierz typ rezerwacji.",
-
       "bookingServices": {
         "table": {
           "title": "Stolik",
@@ -612,7 +591,13 @@
       "bottomInfo": "Szacowany czas dostawy: 30-40 min. W przypadku reklamacji lub zwrotów prosimy o kontakt pod adresem kontakt@nordiceatery.se.",
       "stripeError": "Nie można uruchomić płatności Stripe.",
       "orderError": "Nie można było utworzyć zamówienia.",
-      "generalError": "Coś poszło nie tak. Spróbuj ponownie."
+      "generalError": "Coś poszło nie tak. Spróbuj ponownie.",
+      "loyaltyTitle": "Zbieraj pieczątki w Nordic Eatery",
+      "loyaltyText": "1 pieczątka za każde opłacone zamówienie powyżej {min} kr. Pełna karta z {count} pieczątkami daje {value} kr zniżki na przyszłe zamówienie.",
+      "loyaltyProgress": "Twoje pieczątki: {stamps} z {total}",
+      "loyaltyOptIn": "Chcę utworzyć profil klienta i zbierać pieczątki za zamówienia.",
+      "loyaltyUseReward": "Wykorzystaj moją zniżkę {value} kr przy tym zamówieniu",
+      "loyaltyDiscountLabel": "Rabat z karty pieczątek"
     }
   },
   "admin": {

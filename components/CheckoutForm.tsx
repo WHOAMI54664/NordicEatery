@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Gift, MapPin, Store, Truck } from "lucide-react";
@@ -145,6 +145,67 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
   const [loyaltyOptIn, setLoyaltyOptIn] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
+  /**
+   * Stamp-card loyalty: when the customer enters their contact details we
+   * look up their stamps and unredeemed rewards, and offer to apply a
+   * reward to this order. The server re-validates everything.
+   */
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [useLoyaltyReward, setUseLoyaltyReward] = useState(false);
+
+  const [loyaltyStatus, setLoyaltyStatus] = useState<{
+    stamps: number;
+    rewardsAvailable: number;
+    stampsPerReward: number;
+    rewardValue: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const email = contactEmail.trim().toLowerCase();
+    const phone = contactPhone.trim();
+
+    if (!email.includes("@") && phone.replace(/\D/g, "").length < 8) {
+      setLoyaltyStatus(null);
+      setUseLoyaltyReward(false);
+      return;
+    }
+
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await fetch("/api/loyalty/status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, phone }),
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        setLoyaltyStatus({
+          stamps: Number(data.stamps || 0),
+          rewardsAvailable: Number(data.rewardsAvailable || 0),
+          stampsPerReward: Number(data.stampsPerReward || 10),
+          rewardValue: Number(data.rewardValue || 100),
+        });
+      } catch {
+        // Non-fatal: checkout works fine without loyalty info.
+      }
+    }, 600);
+
+    return () => window.clearTimeout(timer);
+  }, [contactEmail, contactPhone]);
+
+  const rewardValue = loyaltyStatus?.rewardValue ?? 100;
+
+  const appliedLoyaltyDiscount =
+      useLoyaltyReward && (loyaltyStatus?.rewardsAvailable ?? 0) > 0
+          ? Math.min(rewardValue, totalPrice)
+          : 0;
+
+  const totalToPay = Math.max(0, totalPrice - appliedLoyaltyDiscount);
+
   const selectedPaymentMethodIsAvailable = paymentOptions.some(
       (option) => option.value === paymentMethod
   );
@@ -229,6 +290,7 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
 
       loyaltyOptIn,
       marketingConsent: false,
+      useLoyaltyReward: appliedLoyaltyDiscount > 0,
 
       address:
           deliveryType === "pickup"
@@ -391,6 +453,7 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
             </span>
               <input
                   required
+                  onChange={(event) => setContactPhone(event.target.value)}
                   name="customerPhone"
                   className="input-field"
                   placeholder={t("phonePlaceholder")}
@@ -402,6 +465,7 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
               Email
             </span>
               <input
+                  onChange={(event) => setContactEmail(event.target.value)}
                   name="customerEmail"
                   type="email"
                   required={loyaltyOptIn}
@@ -422,28 +486,25 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
 
                 <div className="min-w-0">
                   <p className="font-black text-dark">
-                    Get discounts with Nordic Eatery
+                    {t("loyaltyTitle")}
                   </p>
 
                   <p className="mt-1 text-sm leading-6 text-dark/60">
-                    Create a free customer profile and collect points from every
-                    paid order. Your discount grows automatically.
+                    {t("loyaltyText", {
+                      min: 150,
+                      count: loyaltyStatus?.stampsPerReward ?? 10,
+                      value: rewardValue,
+                    })}
                   </p>
 
-                  <div className="mt-3 grid gap-2 text-xs font-bold text-dark/55 sm:grid-cols-4">
-                    <div className="rounded-2xl bg-cream px-3 py-2">
-                      500 pts → 5%
-                    </div>
-                    <div className="rounded-2xl bg-cream px-3 py-2">
-                      1000 pts → 10%
-                    </div>
-                    <div className="rounded-2xl bg-cream px-3 py-2">
-                      2000 pts → 15%
-                    </div>
-                    <div className="rounded-2xl bg-cream px-3 py-2">
-                      3000 pts → 20%
-                    </div>
-                  </div>
+                  {loyaltyStatus && (
+                      <div className="mt-3 rounded-2xl bg-cream px-3 py-2 text-xs font-bold text-dark/55">
+                        {t("loyaltyProgress", {
+                          stamps: loyaltyStatus.stamps,
+                          total: loyaltyStatus.stampsPerReward,
+                        })}
+                      </div>
+                  )}
 
                   <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-dark/10 bg-cream/70 p-3 text-sm leading-6 text-dark/70">
                     <input
@@ -453,11 +514,25 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
                         className="mt-1 h-4 w-4 shrink-0"
                     />
 
-                    <span>
-                    I want to create a customer profile and collect discounts
-                    from my orders.
-                  </span>
+                    <span>{t("loyaltyOptIn")}</span>
                   </label>
+
+                  {(loyaltyStatus?.rewardsAvailable ?? 0) > 0 && (
+                      <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-paprika/40 bg-paprika/5 p-3 text-sm font-bold leading-6 text-dark">
+                        <input
+                            type="checkbox"
+                            checked={useLoyaltyReward}
+                            onChange={(event) =>
+                                setUseLoyaltyReward(event.target.checked)
+                            }
+                            className="mt-1 h-4 w-4 shrink-0"
+                        />
+
+                        <span>
+                          {t("loyaltyUseReward", { value: rewardValue })}
+                        </span>
+                      </label>
+                  )}
                 </div>
               </div>
             </div>
@@ -674,9 +749,18 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
           </div>
 
           <div className="mt-6 border-t border-dark/10 pt-4">
+            {appliedLoyaltyDiscount > 0 && (
+                <div className="mb-2 flex justify-between gap-4 text-sm text-dark/60">
+                  <span className="font-bold">{t("loyaltyDiscountLabel")}</span>
+                  <span className="font-bold">
+                    −{appliedLoyaltyDiscount} kr
+                  </span>
+                </div>
+            )}
+
             <div className="flex justify-between gap-4 text-lg">
               <span className="font-black">{t("total")}</span>
-              <span className="font-black text-paprika">{totalPrice} kr</span>
+              <span className="font-black text-paprika">{totalToPay} kr</span>
             </div>
 
             <p className="mt-2 text-xs leading-5 text-dark/45">

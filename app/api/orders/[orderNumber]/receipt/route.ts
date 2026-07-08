@@ -442,7 +442,7 @@ export async function GET(_request: Request, context: RouteContext) {
         const visibleOrderNumber =
             order.display_order_number || order.order_number || order.id;
 
-        return new NextResponse(pdfBuffer, {
+        return new NextResponse(new Uint8Array(pdfBuffer), {
             status: 200,
             headers: {
                 "Content-Type": "application/pdf",

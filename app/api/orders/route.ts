@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { assertRestaurantShiftIsOpen } from "@/lib/restaurant/shift";
 import { validateCartPrices } from "@/lib/orders/pricing";
+import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import {
+    getLoyaltyStatusByContact,
+    LOYALTY_REWARD_VALUE,
+} from "@/lib/customers/loyalty";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,6 +31,7 @@ type CreateOrderBody = {
 
     loyaltyOptIn?: boolean;
     marketingConsent?: boolean;
+    useLoyaltyReward?: boolean;
 
     address?: string;
     deliveryType?: "delivery" | "pickup";
@@ -75,6 +81,13 @@ function getOrderDate() {
 
 export async function POST(request: Request) {
     try {
+        // Max 10 order attempts per IP per 5 minutes.
+        const limit = rateLimit("orders", request, 10, 5 * 60 * 1000);
+
+        if (!limit.ok) {
+            return rateLimitResponse(limit.retryAfter);
+        }
+
         const supabase = createAdminClient();
 
         const shiftCheck = await assertRestaurantShiftIsOpen();
@@ -94,6 +107,7 @@ export async function POST(request: Request) {
             customerEmail,
 
             loyaltyOptIn,
+            useLoyaltyReward,
 
             address,
             deliveryType,
@@ -234,7 +248,31 @@ export async function POST(request: Request) {
             VAT_RATE
         );
 
-        const discountGross = 0;
+        /**
+         * Loyalty reward redemption (stamp card).
+         * Server-authoritative: we verify the customer really has an
+         * unredeemed reward — the client checkbox alone is never trusted.
+         */
+        let discountGross = 0;
+
+        if (useLoyaltyReward) {
+            const loyaltyStatus = await getLoyaltyStatusByContact({
+                email: normalizedCustomerEmail,
+                phone: customerPhone,
+            });
+
+            if (!loyaltyStatus || loyaltyStatus.rewardsAvailable < 1) {
+                return NextResponse.json(
+                    { error: "No loyalty reward available for this customer" },
+                    { status: 400 }
+                );
+            }
+
+            discountGross = roundMoney(
+                Math.min(LOYALTY_REWARD_VALUE, subtotalGross)
+            );
+        }
+
         const discountBreakdown = calculateVatFromGross(discountGross, VAT_RATE);
 
         const totalGross = roundMoney(
@@ -312,6 +350,8 @@ export async function POST(request: Request) {
             discount_gross: discountBreakdown.gross,
             discount_net: discountBreakdown.net,
             discount_vat: discountBreakdown.vat,
+
+            loyalty_reward_used: discountGross,
 
             total_gross: totalGross,
             total_net: totalNet,

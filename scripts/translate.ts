@@ -14,14 +14,14 @@ if (!authKey) {
 
 const translator = new deepl.Translator(authKey);
 
-// 📂 исходный файл
-const sourceFile = path.join(process.cwd(), "messages", "en.json");
+// 📂 исходный файл — шведский главный язык сайта
+const sourceFile = path.join(process.cwd(), "messages", "sv.json");
 
 // 🌍 языки (только нужные)
 const targets = [
-  { file: "sv.json", lang: "SV" },
-  { file: "pl.json", lang: "PL" },
-  { file: "ru.json", lang: "RU" },
+  { file: "en.json", lang: "en-GB" },
+  { file: "pl.json", lang: "pl" },
+  { file: "ru.json", lang: "ru" },
 ];
 
 // 🔧 flatten (чтобы DeepL понимал структуру)
@@ -75,16 +75,18 @@ async function main() {
 
     const translated = await translator.translateText(
       texts,
-      "EN",
+      "sv",
       target.lang as deepl.TargetLanguageCode
     );
+
+    const translatedList = Array.isArray(translated)
+      ? translated
+      : [translated];
 
     const result: Record<string, string> = {};
 
     keys.forEach((key, index) => {
-      result[key] = Array.isArray(translated)
-        ? translated[index].text
-        : translated.text;
+      result[key] = translatedList[index].text;
     });
 
     const outputPath = path.join(process.cwd(), "messages", target.file);

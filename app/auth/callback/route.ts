@@ -19,7 +19,18 @@ export async function GET(request: Request) {
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get("code");
 
-    const redirectUrl = new URL("/sv/profile", requestUrl.origin);
+    /**
+     * Optional post-login destination. Only relative paths are accepted
+     * (prevents open-redirect to external sites).
+     */
+    const next = requestUrl.searchParams.get("next");
+
+    const safeNext =
+        next && next.startsWith("/") && !next.startsWith("//")
+            ? next
+            : "/sv/profile";
+
+    const redirectUrl = new URL(safeNext, requestUrl.origin);
 
     if (!code) {
         return NextResponse.redirect(
