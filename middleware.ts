@@ -1,8 +1,53 @@
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 import { routing } from "./i18n/routing";
 
 const intlMiddleware = createMiddleware(routing);
+
+/**
+ * Keeps the Supabase session fresh on every page request.
+ *
+ * Server Components cannot write cookies, so an expired access token can never
+ * be refreshed there — which is why an idle session (typical on mobile) fails
+ * the admin role check and bounces the user. Refreshing here writes the new
+ * tokens onto the response so Server Components see a valid session.
+ *
+ * Wrapped in try/catch: if anything goes wrong we return the original response
+ * untouched so routing (and the public site) never breaks.
+ */
+async function refreshSupabaseSession(
+    request: NextRequest,
+    response: NextResponse
+) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return response;
+  }
+
+  try {
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+    });
+
+    await supabase.auth.getUser();
+  } catch (error) {
+    console.error("Middleware Supabase session refresh error:", error);
+  }
+
+  return response;
+}
 
 const supportedLocales = ["en", "sv", "pl", "ru"] as const;
 
@@ -44,7 +89,7 @@ function getPreferredLocale(request: NextRequest) {
   return localeFromCountry || getLocaleFromBrowser(request);
 }
 
-export default function middleware(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Очень важно: API вообще не трогаем.
@@ -73,7 +118,9 @@ export default function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/sv", request.url));
   }
 
-  return intlMiddleware(request);
+  const response = intlMiddleware(request);
+
+  return refreshSupabaseSession(request, response);
 }
 
 export const config = {
