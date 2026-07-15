@@ -1,6 +1,6 @@
-# Mike’s Food Starter
+# NordicEatery 
 
-Starter website for ordering Polish street food: Maczanka Krakowska and Knysza.
+website for ordering Polish street food: Maczanka Krakowska and Knysza.
 
 ## Run locally
 
