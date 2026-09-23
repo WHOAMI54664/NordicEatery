@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
     CheckCircle2,
     Clock3,
@@ -30,7 +30,7 @@ type PaidStatusResponse = {
     };
 };
 
-export default function SwishPendingPage() {
+function SwishPendingContent() {
     const router = useRouter();
     const params = useParams<{ locale?: string | string[] }>();
 
@@ -40,13 +40,31 @@ export default function SwishPendingPage() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [attempts, setAttempts] = useState(0);
 
-    const orderNumber = useMemo(() => {
-        if (typeof window === "undefined") return null;
+    const searchParams = useSearchParams();
+    const orderNumber = searchParams.get("order_number");
+    const launchedToken = useRef<string | null>(null);
+    const [launchUrl, setLaunchUrl] = useState<string | null>(null);
+    const openSwishLabel = ({ sv: "Öppna Swish", en: "Open Swish", ru: "Открыть Swish", pl: "Otwórz Swish" } as Record<string, string>)[locale] || "Open Swish";
 
-        const searchParams = new URLSearchParams(window.location.search);
-
-        return searchParams.get("order_number");
-    }, []);
+    useEffect(() => {
+        const token = new URLSearchParams(window.location.hash.slice(1)).get("swish_token");
+        if (!token || !orderNumber) {
+            setLaunchUrl(null);
+            return;
+        }
+        const returnUrl = new URL(window.location.href);
+        returnUrl.hash = "";
+        const url = new URL("swish://paymentrequest");
+        url.searchParams.set("token", token);
+        url.searchParams.set("callbackurl", returnUrl.toString());
+        setLaunchUrl(url.toString());
+        if (launchedToken.current !== token) {
+            launchedToken.current = token;
+            // Same-tab app navigation avoids the blocked asynchronous popup.
+            // Returning from Swish uses the URL without the token fragment.
+            window.location.assign(url.toString());
+        }
+    }, [orderNumber]);
 
     useEffect(() => {
         if (!orderNumber) {
@@ -55,6 +73,9 @@ export default function SwishPendingPage() {
             return;
         }
 
+        setStatus("checking");
+        setErrorMessage(null);
+        setAttempts(0);
         let isMounted = true;
         let timer: number | null = null;
 
@@ -247,6 +268,12 @@ export default function SwishPendingPage() {
                             </div>
                         </>
                     )}
+                    {launchUrl && status !== "paid" && (
+                        <a href={launchUrl} className="btn-primary mt-6 inline-flex w-full items-center justify-center gap-2">
+                            <Smartphone className="h-5 w-5" />
+                            {openSwishLabel}
+                        </a>
+                    )}
                 </section>
 
                 {orderNumber ? (
@@ -257,5 +284,13 @@ export default function SwishPendingPage() {
                 ) : null}
             </div>
         </main>
+    );
+}
+
+export default function SwishPendingPage() {
+    return (
+        <Suspense fallback={<main className="min-h-[80vh] bg-cream p-12 text-center"><Loader2 className="mx-auto h-8 w-8 animate-spin" /></main>}>
+            <SwishPendingContent />
+        </Suspense>
     );
 }

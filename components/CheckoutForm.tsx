@@ -367,11 +367,14 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
 
         const swishLaunchUrl = getSwishLaunchUrl(data);
 
-        if (swishLaunchUrl) {
-          window.open(swishLaunchUrl, "_blank", "noopener,noreferrer");
-        }
-
-        router.push(pendingUrl);
+        // Keep the token in the fragment so it is not sent in server requests.
+        // The pending page opens Swish in the same tab, with a manual fallback.
+        const token = swishLaunchUrl
+          ? new URL(swishLaunchUrl).searchParams.get("token")
+          : null;
+        router.push(token
+          ? `${pendingUrl}#swish_token=${encodeURIComponent(token)}`
+          : pendingUrl);
         return;
       }
 
