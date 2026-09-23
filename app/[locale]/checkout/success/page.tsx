@@ -272,11 +272,11 @@ export default function CheckoutSuccessPage() {
                 <section className="glass-card mt-8 w-full p-6 sm:p-8">
                   <div className="text-center">
                     <p className="text-sm font-black uppercase tracking-[0.22em] text-paprika/70">
-                      Amount paid
+                      Order number
                     </p>
 
-                    <p className="mt-2 text-5xl font-black text-dark">
-                      {totalAmount.toFixed(0)} kr
+                    <p className="mt-2 break-words text-6xl font-black tabular-nums tracking-tight text-dark sm:text-7xl">
+                      {orderDisplayNumber || "—"}
                     </p>
                   </div>
 
@@ -284,8 +284,8 @@ export default function CheckoutSuccessPage() {
 
                   <div className="space-y-5">
                     <InfoRow
-                        label="Order number"
-                        value={orderDisplayNumber || "—"}
+                        label="Amount paid"
+                        value={`${totalAmount.toFixed(0)} kr`}
                         icon={<ReceiptText className="h-4 w-4" />}
                     />
 
