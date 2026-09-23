@@ -1,33 +1,31 @@
 # Email-only opening notifications
 
-Local implementation; production activation needs the steps below.
+## Configuration
 
-1. Apply `supabase-migration-opening-emails.sql` in Supabase before deploying.
-2. Configure `RESEND_API_KEY` and `RESEND_FROM_EMAIL` using an approved sender on a verified Resend domain. No fallback to the Resend test domain is used.
-3. Configure a random `CRON_SECRET`. Arrange an authenticated GET to `/api/cron/opening-emails` every minute (Authorization: Bearer <CRON_SECRET>) with your existing scheduler. No scheduler has been provisioned by this change. Each run processes up to 20 addresses; rate/capacity must match the Resend plan.
-4. Deploy, then test with an address controlled by the business: subscribe while closed, open a real shift at its actual opening time, verify the email, repeat the worker and check that no duplicate arrives, and test unsubscribe. Do not open production just for testing.
+Production project: Vercel `whoami54664s-projects/nordiceatery111`, branch `main`.
+Supabase project: `bspclxildhjnkoniiyos`.
+Resend sender: `Nordic Eatery <bokning@nordiceatery.se>` in production `RESEND_FROM_EMAIL`; domain verified. Existing `RESEND_API_KEY` is used.
 
-Opening a shift starts a batch with Next.js `after`. The scheduler drains remaining batches and retries failures. Jobs are claimed with a five-minute lease and sent with a per-job Resend idempotency key. Ambiguous jobs older than 23 hours are marked failed for review, preventing retries after Resend's 24-hour deduplication window. `sent` means accepted by Resend, not proven inbox delivery. Check Resend delivery/bounce reports separately.
+Apply `supabase-migration-opening-emails.sql`, then `supabase-schedule-opening-emails.sql`. Both were applied successfully on 2026-09-23. The latter creates a dedicated random secret in Supabase Vault and an authorization RPC accessible only to service_role. The secret never needs to leave Supabase. No Vercel CRON_SECRET is needed.
 
-The popup appears on the homepage and menu once per session/day. Email is required; telephone numbers are no longer collected. Duplicate pending subscriptions share one job. A new request after a completed send creates a new one-time notification.
+Supabase Cron job `nordic-opening-emails` runs every minute. It invokes `/api/cron/opening-emails` with a Bearer token only when the kitchen is open and queued work is due. Vercel Hobby's daily Cron limit is insufficient for this flow. The worker authenticates using the restricted database RPC, processes up to 20 addresses, and checks kitchen state before each send.
 
-Marketing consent is optional, unchecked initially, and saved with its timestamp and version `email-news-v1` in `opening_email_contacts`. Newsletter tooling must only use rows with `marketing_consent_at IS NOT NULL AND unsubscribed_at IS NULL`. An opening request without the checkbox does not grant marketing consent. This change collects consent; it does not build a campaign editor or send marketing campaigns.
+## Behavior
 
-Unsubscribe links show a confirmation form (GET is safe for email scanners). POST removes marketing consent and cancels pending opening emails. An email already in transmission may still arrive.
+The homepage and menu show the closed-kitchen popup once per browser session/day. Email is required; phone is no longer collected. A request creates one pending notification. Duplicate pending requests share a job. Opening a shift starts a batch with Next.js `after`; Cron drains the rest and retries failures.
 
-Legacy `shift_open_notifications` records are preserved and not auto-imported: old phone requests and stale email requests are not silently sent or enrolled in marketing. Review old pending requests separately before migration. Staff Telegram notifications have been removed from the new flow.
+Jobs have a five-minute lease and a per-job Resend idempotency key. Jobs with ambiguous delivery older than 23 hours become `failed` for review; they are not automatically retried beyond Resend's 24-hour deduplication window. `sent` means accepted by Resend, not proven inbox delivery. Review Resend delivery/bounce reports separately.
 
-Public request throttling uses the project's existing in-memory limiter. For production abuse controls across serverless instances, configure a shared limit or edge rate limiting. No real emails were sent during local verification.
+Marketing consent is optional, unchecked initially, stored with timestamp and version `email-news-v1`. Newsletter recipients must satisfy `marketing_consent_at IS NOT NULL AND unsubscribed_at IS NULL`. An opening request without the checkbox does not grant marketing consent. Campaign creation is outside this implementation.
 
-## Launch verification, 2026-09-23
+Unsubscribe GET shows a confirmation form so email scanners do not accidentally unsubscribe users. POST removes marketing consent and cancels queued notifications. Mail already in transmission may still arrive.
 
-- Resend API: nordiceatery.se is verified. Existing receipt sender: bokning@nordiceatery.se.
-- Production project: Vercel `whoami54664s-projects/nordiceatery111`, branch `main`.
-- Previous production deployment: `8E2avXu6Tbj9KDraJyz7H53YzEg9`, commit `cc03cd3129251a11f02e776275b40c32b8dd6875` (rollback reference).
-- Production build succeeded in an isolated directory. TypeScript and email unit tests passed.
-- SQL verified in an isolated PGlite/PostgreSQL engine: migration, pending deduplication, closed-kitchen gating, claims and leases, locale snapshot, unsubscribe cancellation and expiry of ambiguous retries.
-- Use Supabase Cron with `supabase-schedule-opening-emails.sql`; Vercel Hobby's daily schedule is insufficient. Store the dedicated CRON_SECRET in Vault under `nordic_opening_email_cron_secret` before scheduling. The schedule only invokes the API when the kitchen is open and jobs are due.
-- Local `.env.local` now has RESEND_FROM_EMAIL and a dedicated CRON_SECRET. Their values are not committed.
-- Vercel production RESEND_FROM_EMAIL was saved and read back by variable name. Dedicated CRON_SECRET import is still pending (Chrome extension file upload was unavailable).
-- Remote main was fast-forwarded to the current production commit; remote changes were README-only and preserved.
-- Supabase dashboard requires sign-in. Production database migration, Vault setup, cron scheduling, deployment and live delivery verification have not yet been performed.
+Legacy `shift_open_notifications` records are preserved, not imported. Three pending legacy requests existed at launch preflight. Do not silently send stale requests or enroll them in marketing. Staff Telegram notifications are no longer used for this form.
+
+## Checks and rollback
+
+Production build, TypeScript and email unit tests passed. Isolated PostgreSQL-compatible SQL tests passed for migration, deduplication, closed-kitchen gating, leases, locale snapshots, unsubscribe and expired retries.
+
+Previous production: deployment `8E2avXu6Tbj9KDraJyz7H53YzEg9`, commit `cc03cd3129251a11f02e776275b40c32b8dd6875`. To stop scheduled processing: `select cron.unschedule('nordic-opening-emails');`. Restore the previous Vercel deployment if needed. Leave the new tables in place to preserve requests and consent records.
+
+Supabase dashboard displayed a quota/grace-period warning, although project status was Healthy. The owner should review billing/quotas; no plan or billing changes were made.
