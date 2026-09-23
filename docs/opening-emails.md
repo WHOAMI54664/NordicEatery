@@ -29,3 +29,9 @@ Production build, TypeScript and email unit tests passed. Isolated PostgreSQL-co
 Previous production: deployment `8E2avXu6Tbj9KDraJyz7H53YzEg9`, commit `cc03cd3129251a11f02e776275b40c32b8dd6875`. To stop scheduled processing: `select cron.unschedule('nordic-opening-emails');`. Restore the previous Vercel deployment if needed. Leave the new tables in place to preserve requests and consent records.
 
 Supabase dashboard displayed a quota/grace-period warning, although project status was Healthy. The owner should review billing/quotas; no plan or billing changes were made.
+
+## Production verification, 2026-09-23
+
+Deployment `An9VUAvqr8KrsVkZw1KMCHeHMs9X` (commit `7f9a7fa`) reached Ready and was assigned www.nordiceatery.se. The live homepage shows email-only input and unchecked marketing consent. Unauthorized worker requests returned 401; invalid subscription email returned 400. A Supabase Vault-authenticated request returned 200 with `{"accepted":0}` while the kitchen remained closed. A separate test email was delivered by Resend and receipt was confirmed by the owner. Full automatic sending at a real shift opening has not yet been observed.
+
+Opening notifications now include branded HTML (logo, product image and menu button), with a plain-text alternative. Images are hosted on the production domain. A second HTML preview was explicitly requested and sent to the owner.
