@@ -83,3 +83,20 @@ body {
 .hero-image-in {
   animation: hero-image-in 1s ease-out 0.18s both;
 }
+
+.home-hero-frame {
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.home-hero-photo {
+  border-radius: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .home-hero-frame {
+    margin-right: 0;
+  }
+
+}

@@ -1,105 +1,29 @@
 import { NextResponse } from "next/server";
+import { after } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendTelegramMessage } from "@/lib/telegram";
-
+import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
+import { emailLocale, normalizeEmail } from "@/lib/notifications/opening-email";
+import { sendOpeningEmails } from "@/lib/notifications/send-opening-emails";
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
-function escapeHtml(value: unknown) {
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-}
-
-async function notifyStaffOnTelegram(payload: {
-    email: string | null;
-    phone: string | null;
-    locale: string;
-    source: string;
-}) {
-    try {
-        await sendTelegramMessage(
-            `🔔 <b>Ny avisering – köket stängt</b>\n\n` +
-            `📧 Email: ${escapeHtml(payload.email || "—")}\n` +
-            `📞 Telefon: ${escapeHtml(payload.phone || "—")}\n` +
-            `🌐 Språk: ${escapeHtml(payload.locale)}\n` +
-            `📍 Källa: ${escapeHtml(payload.source)}`
-        );
-    } catch (error) {
-        // Non-fatal: the request is already saved in the database.
-        console.error("Shift notification Telegram error:", error);
-    }
-}
-
-type RequestBody = {
-    email?: string;
-    phone?: string;
-    locale?: string;
-    source?: string;
-};
-
-function normalizeEmail(value?: string | null) {
-    const email = value?.trim().toLowerCase();
-
-    if (!email) return null;
-
-    return email;
-}
-
-function normalizePhone(value?: string | null) {
-    const phone = value?.trim();
-
-    if (!phone) return null;
-
-    return phone.replace(/[^\d+]/g, "");
-}
-
+export const maxDuration = 60;
 export async function POST(request: Request) {
-    try {
-        const body = (await request.json()) as RequestBody;
-
-        const email = normalizeEmail(body.email);
-        const phone = normalizePhone(body.phone);
-        const locale = body.locale || "sv";
-        const source = body.source || "menu_closed_modal";
-
-        if (!email && !phone) {
-            return NextResponse.json(
-                { error: "Email or phone is required" },
-                { status: 400 }
-            );
-        }
-
-        const supabase = createAdminClient();
-
-        const { error } = await supabase
-            .from("shift_open_notifications")
-            .insert({
-                email,
-                phone,
-                locale,
-                source,
-                status: "pending",
-            });
-
-        if (error) {
-            console.error("Shift notification request error:", error);
-
-            return NextResponse.json({ error: error.message }, { status: 500 });
-        }
-
-        await notifyStaffOnTelegram({ email, phone, locale, source });
-
-        return NextResponse.json({
-            success: true,
-        });
-    } catch (error) {
-        console.error("Shift notification API error:", error);
-
-        return NextResponse.json(
-            { error: "Could not save notification request" },
-            { status: 500 }
-        );
-    }
+  const limit = rateLimit("opening-email", request, 5, 10 * 60 * 1000);
+  if (!limit.ok) return rateLimitResponse(limit.retryAfter);
+  let body;
+  try { body = await request.json(); } catch { return NextResponse.json({ error: "Invalid request" }, { status: 400 }); }
+  const email = normalizeEmail(body?.email);
+  if (!email) return NextResponse.json({ error: "Valid email is required" }, { status: 400 });
+  if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL)
+    return NextResponse.json({ error: "Email notifications are temporarily unavailable" }, { status: 503 });
+  try {
+    const { error } = await createAdminClient().rpc("subscribe_opening_email", {
+      p_email: email, p_locale: emailLocale(body.locale), p_marketing: body.marketingConsent === true,
+    });
+    if (error) throw new Error("Subscription storage unavailable");
+    // Covers a visitor submitting a form just after the kitchen has opened.
+    after(async () => { try { await sendOpeningEmails(); } catch { console.error("Opening email processing needs retry"); } });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: "Could not save notification request" }, { status: 503 });
+  }
 }

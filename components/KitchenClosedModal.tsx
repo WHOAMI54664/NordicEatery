@@ -7,7 +7,6 @@ import {
     CheckCircle2,
     Clock,
     Mail,
-    Phone,
     Store,
     X,
 } from "lucide-react";
@@ -35,19 +34,20 @@ function getText(locale: string) {
             eyebrow: "Köket är stängt",
             title: "Vi tar inte emot beställningar just nu",
             description:
-                "Köket är stängt idag eller så har personalen inte öppnat skiftet ännu. Du kan lämna din email eller telefon så meddelar vi dig när vi öppnar.",
+                "Köket är stängt just nu. Lämna din e-postadress så skickar vi ett meddelande nästa gång vi öppnar.",
             notifyTitle: "Meddela mig när ni öppnar",
             email: "Email",
-            phone: "Telefon",
+            marketing: "Jag vill också få nyheter och erbjudanden från Nordic Eatery via e-post. Jag kan avsluta prenumerationen när som helst.",
+            privacy: "Integritetspolicy",
+            invalidEmail: "Ange en giltig e-postadress.",
             emailPlaceholder: "your@email.com",
-            phonePlaceholder: "073...",
             submit: "Meddela mig",
             loading: "Sparar...",
             success: "Klart! Vi meddelar dig när köket öppnar.",
             error: "Kunde inte spara. Försök igen.",
             close: "Jag förstår",
             later: "Kanske senare",
-            today: "Beställningar är pausade tills skiftet öppnas.",
+            today: "Du kan fortfarande titta på menyn.",
         };
     }
 
@@ -56,19 +56,20 @@ function getText(locale: string) {
             eyebrow: "Kuchnia zamknięta",
             title: "Nie przyjmujemy teraz zamówień",
             description:
-                "Kuchnia jest dziś zamknięta albo zmiana nie została jeszcze otwarta. Zostaw email lub telefon, a powiadomimy Cię, gdy otworzymy.",
+                "Kuchnia jest teraz zamknięta. Zostaw adres e-mail, a wyślemy jedno powiadomienie przy następnym otwarciu.",
             notifyTitle: "Powiadom mnie, gdy otworzycie",
             email: "Email",
-            phone: "Telefon",
+            marketing: "Chcę również otrzymywać wiadomości i oferty Nordic Eatery e-mailem. Mogę zrezygnować w każdej chwili.",
+            privacy: "Polityka prywatności",
+            invalidEmail: "Podaj prawidłowy adres e-mail.",
             emailPlaceholder: "your@email.com",
-            phonePlaceholder: "073...",
             submit: "Powiadom mnie",
             loading: "Zapisywanie...",
             success: "Gotowe! Powiadomimy Cię, gdy kuchnia się otworzy.",
             error: "Nie udało się zapisać. Spróbuj ponownie.",
             close: "Rozumiem",
             later: "Może później",
-            today: "Zamówienia są wstrzymane do otwarcia zmiany.",
+            today: "Nadal możesz przeglądać menu.",
         };
     }
 
@@ -77,19 +78,20 @@ function getText(locale: string) {
             eyebrow: "Кухня закрыта",
             title: "Мы сейчас не принимаем заказы",
             description:
-                "Сегодня кухня закрыта или смена ещё не открыта персоналом. Оставьте email или телефон — мы сможем уведомить вас, когда откроемся.",
+                "Сейчас кухня закрыта. Оставьте email — мы отправим одно уведомление, когда снова откроемся.",
             notifyTitle: "Уведомить меня, когда откроетесь",
             email: "Email",
-            phone: "Телефон",
+            marketing: "Хочу также получать новости и предложения Nordic Eatery по email. Отписаться можно в любой момент.",
+            privacy: "Политика конфиденциальности",
+            invalidEmail: "Введите корректный email.",
             emailPlaceholder: "your@email.com",
-            phonePlaceholder: "073...",
             submit: "Уведомить меня",
             loading: "Сохраняем...",
             success: "Готово! Мы уведомим вас, когда кухня откроется.",
             error: "Не удалось сохранить. Попробуйте ещё раз.",
             close: "Понятно",
             later: "Может позже",
-            today: "Заказы приостановлены до открытия смены.",
+            today: "Пока можно посмотреть наше меню.",
         };
     }
 
@@ -97,19 +99,20 @@ function getText(locale: string) {
         eyebrow: "Kitchen closed",
         title: "We are not accepting orders right now",
         description:
-            "The kitchen is closed today or the staff has not opened the shift yet. Leave your email or phone and we can notify you when we open.",
+            "The kitchen is closed right now. Leave your email and we will send one notification the next time we open.",
         notifyTitle: "Notify me when you open",
         email: "Email",
-        phone: "Phone",
+        marketing: "I also want email news and offers from Nordic Eatery. I can unsubscribe at any time.",
+        privacy: "Privacy policy",
+        invalidEmail: "Enter a valid email address.",
         emailPlaceholder: "your@email.com",
-        phonePlaceholder: "073...",
         submit: "Notify me",
         loading: "Saving...",
         success: "Done! We will notify you when the kitchen opens.",
         error: "Could not save. Please try again.",
         close: "I understand",
         later: "Maybe later",
-        today: "Orders are paused until the shift opens.",
+        today: "You can still browse our menu.",
     };
 }
 
@@ -127,7 +130,7 @@ export function KitchenClosedModal({
     const [showNotifyForm, setShowNotifyForm] = useState(false);
 
     const [email, setEmail] = useState("");
-    const [phone, setPhone] = useState("");
+    const [marketingConsent, setMarketingConsent] = useState(false);
 
     const [status, setStatus] = useState<SubmitStatus>("idle");
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -163,10 +166,9 @@ export function KitchenClosedModal({
         event.preventDefault();
 
         const cleanEmail = email.trim().toLowerCase();
-        const cleanPhone = phone.trim();
 
-        if (!cleanEmail && !cleanPhone) {
-            setErrorMessage("Please enter email or phone.");
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+            setErrorMessage(text.invalidEmail);
             setStatus("error");
             return;
         }
@@ -182,23 +184,21 @@ export function KitchenClosedModal({
                 },
                 body: JSON.stringify({
                     email: cleanEmail || null,
-                    phone: cleanPhone || null,
+                    marketingConsent,
                     locale,
                     source: "menu_closed_modal",
                 }),
             });
 
-            const data = await response.json();
-
             if (!response.ok) {
                 setStatus("error");
-                setErrorMessage(data.error || text.error);
+                setErrorMessage(text.error);
                 return;
             }
 
             setStatus("success");
             setEmail("");
-            setPhone("");
+            setMarketingConsent(false);
         } catch (error) {
             console.error("Shift notify form error:", error);
             setStatus("error");
@@ -214,7 +214,7 @@ export function KitchenClosedModal({
             role="dialog"
             aria-modal="true"
         >
-            <div className="relative w-full max-w-xl overflow-hidden rounded-[2rem] border border-white/70 bg-cream shadow-2xl shadow-dark/20">
+            <div className="relative max-h-[calc(100dvh-3rem)] w-full max-w-xl overflow-y-auto rounded-[2rem] border border-white/70 bg-cream shadow-2xl shadow-dark/20">
                 <div className="absolute inset-x-0 top-0 h-32 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.22),transparent_40%),radial-gradient(circle_at_top_right,rgba(224,161,43,0.25),transparent_40%)]" />
 
                 <button
@@ -285,7 +285,7 @@ export function KitchenClosedModal({
                                     {text.notifyTitle}
                                 </div>
 
-                                <div className="grid gap-3 sm:grid-cols-2">
+                                <div className="grid gap-3">
                                     <label>
                     <span className="mb-2 flex items-center gap-2 text-sm font-bold text-dark/70">
                       <Mail className="h-4 w-4 text-paprika" />
@@ -294,6 +294,9 @@ export function KitchenClosedModal({
 
                                         <input
                                             type="email"
+                                            required
+                                            autoComplete="email"
+                                            maxLength={254}
                                             value={email}
                                             onChange={(event) => setEmail(event.target.value)}
                                             placeholder={text.emailPlaceholder}
@@ -301,21 +304,17 @@ export function KitchenClosedModal({
                                         />
                                     </label>
 
-                                    <label>
-                    <span className="mb-2 flex items-center gap-2 text-sm font-bold text-dark/70">
-                      <Phone className="h-4 w-4 text-paprika" />
-                        {text.phone}
-                    </span>
 
-                                        <input
-                                            value={phone}
-                                            onChange={(event) => setPhone(event.target.value)}
-                                            placeholder={text.phonePlaceholder}
-                                            className="input-field"
-                                        />
-                                    </label>
                                 </div>
                             </div>
+
+                            <label className="flex items-start gap-3 text-sm leading-5 text-dark/70">
+                                <input type="checkbox" checked={marketingConsent}
+                                    onChange={(event) => setMarketingConsent(event.target.checked)}
+                                    className="mt-1 h-4 w-4 shrink-0 accent-paprika" />
+                                <span>{text.marketing}</span>
+                            </label>
+                            <a href={`/${locale}/privacy`} target="_blank" rel="noreferrer" className="block text-sm underline">{text.privacy}</a>
 
                             {status === "error" ? (
                                 <div className="rounded-2xl border border-paprika/15 bg-paprika/10 p-3 text-sm font-bold text-paprika">

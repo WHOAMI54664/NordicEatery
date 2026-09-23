@@ -110,20 +110,23 @@ export function HomeHeroPoster({
 
     return (
         <>
+            <div className="home-hero-photo absolute inset-0 overflow-hidden">
             <Image
                 src={activePoster.src}
                 alt="Nordic Eatery food delivery in Boden"
-                width={520}
-                height={520}
+                fill
                 priority
                 fetchPriority="high"
                 quality={80}
-                sizes="(max-width: 640px) 88vw, (max-width: 1024px) 50vw, 520px"
-                className="hero-image-in relative mx-auto h-auto w-[88%] max-w-[430px] object-contain drop-shadow-2xl transition duration-700 sm:w-[82%] sm:max-w-[520px]"
+                sizes="(max-width: 767px) calc(100vw - 40px), (max-width: 1023px) 720px, (max-width: 1279px) 59vw, 720px"
+                className={activePoster.key === "home.hero.fallback"
+                    ? "object-contain p-8 sm:p-12"
+                    : "object-cover object-bottom"}
             />
+            </div>
 
             {visiblePosters.length > 1 && (
-                <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+                <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2 rounded-full bg-black/25 px-4 py-3 backdrop-blur-md">
                     {visiblePosters.map((poster, index) => (
                         <button
                             key={poster.key}

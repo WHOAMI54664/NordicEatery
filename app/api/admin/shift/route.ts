@@ -1,9 +1,12 @@
+import { sendOpeningEmails } from "@/lib/notifications/send-opening-emails";
+import { after } from "next/server";
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { canManageOrders } from "@/lib/auth/roles";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
 type ShiftActionBody = {
@@ -160,6 +163,13 @@ export async function POST(request: Request) {
             console.error("Shift update error:", error);
 
             return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+
+        if (body.action === "open" && data?.is_open) {
+            after(async () => {
+                try { await sendOpeningEmails(); }
+                catch { console.error("Opening email processing needs retry"); }
+            });
         }
 
         return NextResponse.json({

@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { EditableText } from "@/components/EditableText";
 import { HomeHeroPoster } from "@/components/HomeHeroPoster";
+import { KitchenClosedModal } from "@/components/KitchenClosedModal";
 import { KitchenStatusProvider } from "@/components/KitchenStatusProvider";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicShiftStatus } from "@/lib/restaurant/public-shift";
@@ -261,8 +262,9 @@ export default async function HomePage({ params }: HomePageProps) {
 
   return (
       <main>
+        <KitchenClosedModal locale={locale} isOpenInitially={!shift.isOpen} />
         <section className="container-page pb-12 pt-14 sm:pb-20 sm:pt-20">
-          <div className="grid items-center gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="grid items-center gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:gap-5">
             <div className="text-center sm:text-left">
               <h1 className="mx-auto mt-6 max-w-2xl text-5xl font-black leading-[0.95] tracking-[-0.06em] text-dark sm:mx-0 sm:text-6xl lg:text-7xl">
                 <EditableText
@@ -326,12 +328,8 @@ export default async function HomePage({ params }: HomePageProps) {
               </div>
             </div>
 
-            <div className="glass-card hero-card-in relative overflow-hidden p-4 sm:p-5">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,45,45,.28),transparent_45%)]" />
-
-              <div className="relative flex min-h-[330px] items-center justify-center rounded-[1.5rem] bg-gradient-to-br from-[#FF1515] via-paprika to-cherry p-5 sm:min-h-[520px] sm:rounded-[1.7rem] sm:p-8">
-                <div className="absolute inset-x-8 top-1/2 h-24 -translate-y-1/2 rounded-full bg-white/20 blur-3xl sm:h-32" />
-
+            <div className="home-hero-frame hero-card-in relative min-w-0">
+              <div className="relative aspect-[4/5] sm:aspect-square lg:aspect-[9/8]">
                 <HomeHeroPoster
                     posters={homePosters}
                     fallbackImage="/mikes_logo.png"
