@@ -11,7 +11,7 @@ const config = {
         sans: ["var(--font-lufga)"]
       },
       colors: {
-        cream: "#FFF7EA",
+        cream: "#FFF3EF",
         paprika: "#B51F26",
         cherry: "#7B1018",
         honey: "#E0A12B",
