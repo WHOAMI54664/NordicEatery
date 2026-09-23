@@ -176,22 +176,10 @@ export async function POST(request: Request) {
             );
         }
 
-        const { data: displayOrderNumber, error: displayOrderNumberError } =
-            await supabase.rpc("generate_daily_order_number");
+        // The database assigns the shared daily number when payment is confirmed.
+    const displayOrderNumber = null;
 
-        if (displayOrderNumberError || !displayOrderNumber) {
-            console.error(
-                "Generate daily order number error:",
-                displayOrderNumberError
-            );
-
-            return NextResponse.json(
-                { error: "Could not generate order number" },
-                { status: 500 }
-            );
-        }
-
-        const orderDate = getOrderDate();
+    const orderDate = getOrderDate();
 
         /**
          * Server-authoritative pricing.
