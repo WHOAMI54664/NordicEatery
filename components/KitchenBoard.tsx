@@ -19,6 +19,9 @@ type KitchenOrderItem = {
   subtitle?: string | null;
   quantity: number;
   price: number;
+  member_id?: string;
+  member_name?: string;
+  note?: string;
 };
 
 type DbOrder = {
@@ -573,13 +576,15 @@ export function KitchenBoard() {
                                   <div className="mt-4 space-y-3">
                                     {(order.items || []).map((item) => (
                                         <div
-                                            key={item.id}
+                                            key={item.member_id ? `${item.member_id}:${item.id}` : item.id}
                                             className="flex justify-between gap-3 rounded-2xl border border-[#EADDCF] bg-[#FFF7EA]/85 px-3 py-2"
                                         >
                                           <div className="min-w-0">
                                             <p className="font-black text-[#25120F]">
                                               {item.name}
                                             </p>
+                                            {item.member_name && <p className="text-sm font-bold text-[#7B6A61]">{item.member_name}</p>}
+                                            {item.note && <p className="text-sm text-[#7B6A61]">{item.note}</p>}
 
                                             {item.subtitle ? (
                                                 <p className="text-xs font-medium text-[#7B6A61]">

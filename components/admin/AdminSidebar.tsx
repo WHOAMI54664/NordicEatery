@@ -1,323 +1,108 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
 import { useParams, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
-    BarChart3,
-    BookOpen,
-    CalendarDays,
-    ChefHat,
-    ClipboardList,
-    Flame,
-    Home,
-    LineChart,
-    MenuSquare,
-    Settings,
-    ShoppingBag,
-    Users,
+  BarChart3,
+  BookOpen,
+  CalendarDays,
+  ChefHat,
+  ClipboardList,
+  Home,
+  LineChart,
+  MenuSquare,
+  Monitor,
+  PackageSearch,
+  Settings,
+  Users,
+  UserRound,
+  type LucideIcon,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/browser";
 import type { StaffRole } from "@/lib/auth/roles";
 import {
-    canAccessKitchen,
-    canManageStaff,
-    canViewAnalytics,
-} from "@/lib/auth/roles";
+  currentAdminSection,
+  visibleAdminSections,
+} from "@/lib/admin/navigation";
 
-type SidebarProfile = {
-    full_name: string | null;
-    avatar_url: string | null;
-    email: string | null;
-    role: StaffRole;
+const icons: Record<string, LucideIcon> = {
+  overview: Home,
+  orders: ClipboardList,
+  kitchen: ChefHat,
+  "kitchen-display": Monitor,
+  reservations: CalendarDays,
+  menu: MenuSquare,
+  products: ChefHat,
+  inventory: PackageSearch,
+  analytics: LineChart,
+  reports: BarChart3,
+  staff: Users,
+  settings: Settings,
+  documentation: BookOpen,
+  account: UserRound,
 };
-
-type AdminSidebarProps = {
-    variant?: "desktop" | "mobile";
-    onNavigate?: () => void;
-};
-
-const mainNavItems = [
-    { labelKey: "dashboard", href: "/admin", icon: Home, roles: ["owner", "admin"] },
-    { labelKey: "orders", href: "/admin/orders", icon: ClipboardList, roles: ["owner", "admin"] },
-    { labelKey: "menu", href: "/admin/menu", icon: MenuSquare, roles: ["owner", "admin"] },
-    { labelKey: "products", href: "/admin/products", icon: ChefHat, roles: ["owner", "admin"] },
-    { labelKey: "kitchen", href: "/admin/kitchen", icon: ShoppingBag, roles: ["owner", "admin", "cook"] },
-    { labelKey: "reservations", href: "/admin/reservations", icon: CalendarDays, roles: ["owner", "admin"] },
-];
-
-const secondaryNavItems = [
-    { labelKey: "analytics", href: "/admin/analytics", icon: LineChart, roles: ["owner", "admin"] },
-    { labelKey: "reports", href: "/admin/reports", icon: BarChart3, roles: ["owner", "admin"] },
-    { labelKey: "staff", href: "/admin/staff", icon: Users, roles: ["owner"] },
-    { labelKey: "settings", href: "/admin/settings", icon: Settings, roles: ["owner", "admin"] },
-    { labelKey: "docs", href: "/admin/documentation", icon: BookOpen, roles: ["owner", "admin"] },
-];
-
-function cn(...classes: Array<string | false | null | undefined>) {
-    return classes.filter(Boolean).join(" ");
-}
-
-function canSeeItem(role: StaffRole, roles: string[]) {
-    if (roles.includes("cook")) return canAccessKitchen(role);
-    if (roles.includes("owner") && roles.includes("admin")) {
-        return role === "owner" || role === "admin";
-    }
-    if (roles.includes("owner")) return canManageStaff(role);
-    return false;
-}
 
 export function AdminSidebar({
-                                 variant = "desktop",
-                                 onNavigate,
-                             }: AdminSidebarProps) {
-    const t = useTranslations("admin");
-    const params = useParams();
-    const pathname = usePathname();
+  role,
+  collapsed = false,
+  onNavigate,
+}: {
+  role: StaffRole;
+  collapsed?: boolean;
+  onNavigate?: () => void;
+}) {
+  const t = useTranslations("admin");
+  const locale = String(useParams().locale || "en");
+  const current = currentAdminSection(usePathname(), locale);
+  const sections = visibleAdminSections(role);
 
-    const locale = String(params.locale || "en");
-    const supabase = useMemo(() => createClient(), []);
-
-    const [profile, setProfile] = useState<SidebarProfile | null>(null);
-
-    const role = profile?.role || "cook";
-
-    function isActive(href: string) {
-        const fullHref = `/${locale}${href}`;
-        if (href === "/admin") return pathname === fullHref;
-        return pathname.startsWith(fullHref);
-    }
-
-    function getHref(href: string) {
-        return `/${locale}${href}`;
-    }
-
-    useEffect(() => {
-        let isMounted = true;
-
-        async function loadProfile() {
-            const {
-                data: { user },
-            } = await supabase.auth.getUser();
-
-            if (!user) {
-                if (isMounted) setProfile(null);
-                return;
-            }
-
-            const { data } = await supabase
-                .from("profiles")
-                .select("full_name, avatar_url, email, role")
-                .eq("id", user.id)
-                .single();
-
-            if (!isMounted) return;
-
-            setProfile({
-                full_name: data?.full_name || null,
-                avatar_url: data?.avatar_url || null,
-                email: data?.email || user.email || null,
-                role: (data?.role || "cook") as StaffRole,
-            });
-        }
-
-        loadProfile();
-
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange(() => {
-            loadProfile();
-        });
-
-        return () => {
-            isMounted = false;
-            subscription.unsubscribe();
-        };
-    }, [supabase]);
-
-    const displayName =
-        profile?.full_name?.trim() ||
-        profile?.email?.split("@")[0] ||
-        t("sidebar.adminUser");
-
-    const visibleMainNavItems = mainNavItems.filter((item) =>
-        canSeeItem(role, item.roles)
-    );
-
-    const visibleSecondaryNavItems = secondaryNavItems.filter((item) => {
-        if (item.href === "/admin/analytics") return canViewAnalytics(role);
-        if (item.href === "/admin/reports") return canViewAnalytics(role);
-        if (item.href === "/admin/staff") return canManageStaff(role);
-        if (item.href === "/admin/settings") return role === "owner" || role === "admin";
-        if (item.href === "/admin/documentation") return role === "owner" || role === "admin";
-        return canSeeItem(role, item.roles);
-    });
-
-    const asideClassName =
-        variant === "desktop"
-            ? "hidden w-[290px] shrink-0 border-r border-[#EADDCF] bg-[#FFF4E3]/95 p-4 backdrop-blur-2xl lg:block"
-            : "w-full bg-transparent p-4";
-
-    const contentClassName =
-        variant === "desktop"
-            ? "sticky top-4 flex h-[calc(100vh-2rem)] flex-col"
-            : "flex min-h-[calc(100dvh-7.5rem)] flex-col";
-
-    return (
-        <aside className={asideClassName}>
-            <div className={contentClassName}>
-                <Link
-                    href={`/${locale}/admin/account`}
-                    onClick={onNavigate}
-                    className="group flex items-center gap-3 rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6] px-3.5 py-3 shadow-sm shadow-[#4C2314]/5 transition hover:bg-white"
-                >
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/10 text-[#C7192E]">
-                        {profile?.avatar_url ? (
-                            <Image
-                                src={profile.avatar_url}
-                                alt={displayName}
-                                fill
-                                sizes="48px"
-                                className="object-cover"
-                            />
-                        ) : (
-                            <div className="flex h-full w-full items-center justify-center">
-                                <Flame className="h-5 w-5" />
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="min-w-0">
-                        <div className="truncate text-base font-black leading-none tracking-[-0.03em] text-[#25120F]">
-                            {displayName}
-                        </div>
-
-                        <div className="mt-1 text-xs font-semibold text-[#7B6A61]">
-                            {t("sidebar.adminCrm")}
-                        </div>
-                    </div>
-                </Link>
-
-                <div className="mt-5">
-                    <p className="px-3 text-[10px] font-black uppercase tracking-[0.24em] text-[#A39388]">
-                        {t("sidebar.management")}
-                    </p>
-
-                    <nav className="mt-2.5 space-y-1">
-                        {visibleMainNavItems.map((item) => {
-                            const Icon = item.icon;
-                            const active = isActive(item.href);
-
-                            return (
-                                <Link
-                                    key={item.href}
-                                    href={getHref(item.href)}
-                                    onClick={onNavigate}
-                                    className={cn(
-                                        "group relative flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-bold transition",
-                                        active
-                                            ? "border border-[#E51B23]/20 bg-[#E51B23]/10 text-[#C7192E]"
-                                            : "text-[#6F5E55] hover:bg-white/70 hover:text-[#25120F]"
-                                    )}
-                                >
-                                    {active ? (
-                                        <span className="absolute right-3 h-1.5 w-1.5 rounded-full bg-[#E51B23]" />
-                                    ) : null}
-
-                                    <Icon
-                                        className={cn(
-                                            "h-4 w-4 transition",
-                                            active
-                                                ? "text-[#E51B23]"
-                                                : "text-[#A39388] group-hover:text-[#C7192E]"
-                                        )}
-                                    />
-
-                                    <span>{t(`common.${item.labelKey}`)}</span>
-                                </Link>
-                            );
-                        })}
-                    </nav>
-                </div>
-
-                {visibleSecondaryNavItems.length > 0 ? (
-                    <div className="mt-5">
-                        <p className="px-3 text-[10px] font-black uppercase tracking-[0.24em] text-[#A39388]">
-                            {t("sidebar.business")}
-                        </p>
-
-                        <nav className="mt-2.5 space-y-1">
-                            {visibleSecondaryNavItems.map((item) => {
-                                const Icon = item.icon;
-                                const active = isActive(item.href);
-
-                                return (
-                                    <Link
-                                        key={item.href}
-                                        href={getHref(item.href)}
-                                        onClick={onNavigate}
-                                        className={cn(
-                                            "group relative flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-bold transition",
-                                            active
-                                                ? "border border-[#E51B23]/20 bg-[#E51B23]/10 text-[#C7192E]"
-                                                : "text-[#6F5E55] hover:bg-white/70 hover:text-[#25120F]"
-                                        )}
-                                    >
-                                        {active ? (
-                                            <span className="absolute right-3 h-1.5 w-1.5 rounded-full bg-[#E51B23]" />
-                                        ) : null}
-
-                                        <Icon
-                                            className={cn(
-                                                "h-4 w-4 transition",
-                                                active
-                                                    ? "text-[#E51B23]"
-                                                    : "text-[#A39388] group-hover:text-[#C7192E]"
-                                            )}
-                                        />
-
-                                        <span>{t(`common.${item.labelKey}`)}</span>
-                                    </Link>
-                                );
-                            })}
-                        </nav>
-                    </div>
-                ) : null}
-
-                {role !== "cook" ? (
-                    <div className="mt-auto pt-4">
-                        <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[linear-gradient(180deg,rgba(255,252,246,0.98)_0%,rgba(255,247,240,0.96)_100%)] shadow-sm shadow-[#4C2314]/5">
-                            <div className="p-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#E51B23]/15 bg-[#E51B23]/8">
-                                        <BarChart3 className="h-4 w-4 text-[#C7192E]" />
-                                    </div>
-
-                                    <div>
-                                        <h3 className="text-sm font-black text-[#25120F]">
-                                            {t("common.needHelp")}
-                                        </h3>
-
-                                        <p className="mt-0.5 text-xs font-medium leading-4 text-[#7B6A61]">
-                                            {t("common.docsSupport")}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <Link
-                                    href={`/${locale}/admin/documentation`}
-                                    onClick={onNavigate}
-                                    className="mt-3 flex w-full items-center justify-center rounded-2xl bg-[#E51B23] px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-[#E51B23]/15 transition hover:bg-[#C7192E]"
-                                >
-                                    {t("common.documentation")}
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                ) : null}
+  return (
+    <nav aria-label={t("workspace.navigation")} className="space-y-3 p-2.5">
+      {(["operations", "catalog", "business", "workspace"] as const).map(
+        (group) => {
+          const items = sections.filter((section) => section.group === group);
+          if (!items.length) return null;
+          return (
+            <div key={group}>
+              <p
+                className={
+                  collapsed
+                    ? "sr-only"
+                    : "mb-2 px-3 text-[10px] font-black uppercase tracking-[0.18em] text-[#A39388]"
+                }
+              >
+                {t(`workspace.${group}`)}
+              </p>
+              <ul className="space-y-1">
+                {items.map((section) => {
+                  const Icon = icons[section.id];
+                  const active = section.id === current?.id;
+                  return (
+                    <li key={section.id}>
+                      <Link
+                        href={`/${locale}${section.href}`}
+                        onClick={onNavigate}
+                        title={collapsed ? t(section.label) : undefined}
+                        aria-current={active ? "page" : undefined}
+                        className={`flex min-h-9 items-center gap-2.5 rounded-xl border px-3 py-1.5 text-[13px] font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C7192E] ${collapsed ? "justify-center" : ""} ${active ? "border-[#E51B23]/20 bg-[#E51B23]/10 text-[#C7192E]" : "border-transparent text-[#6F5E55] hover:bg-white/80 hover:text-[#25120F]"}`}
+                      >
+                        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        <span
+                          className={
+                            collapsed ? "sr-only" : "min-w-0 break-words"
+                          }
+                        >
+                          {t(section.label)}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
-        </aside>
-    );
+          );
+        },
+      )}
+    </nav>
+  );
 }

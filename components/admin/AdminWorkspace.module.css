@@ -1,0 +1,56 @@
+/* Density is scoped to the admin workspace; public pages keep their own scale. */
+.content :where(h1, h2, h3, p, label) {
+  overflow-wrap: anywhere;
+}
+
+.content :where(h1) {
+  font-size: clamp(1.375rem, 2vw, 1.875rem);
+  line-height: 1.2;
+}
+
+.content :where(h2) {
+  font-size: 1.0625rem;
+  line-height: 1.4;
+}
+
+/* Existing pages share these card and spacing utilities. Keep one density scale. */
+.content :where([class~="rounded-[2rem]"], [class~="rounded-[1.75rem]"]) {
+  border-radius: 1.25rem;
+}
+
+.content :where([class~="p-5"], [class~="p-6"], [class~="lg:p-6"]) {
+  padding: 1rem;
+}
+
+.content :where([class~="gap-6"]) {
+  gap: 1rem;
+}
+
+.content :where([class~="space-y-6"]) > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1rem;
+}
+
+.content :where(.grid) > * {
+  min-width: 0;
+}
+
+.content :where(table) {
+  border-spacing: 0 0.25rem;
+}
+
+.content :where(th, td) {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.content :where(th) {
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 639px) {
+  .content :where([class~="grid-cols-2"]) > * {
+    overflow-wrap: anywhere;
+  }
+}

@@ -13,6 +13,7 @@ import { getTranslations } from "next-intl/server";
 import { AdminStatCard } from "@/components/admin/AdminStatCard";
 import { ShiftControlCard } from "@/components/admin/ShiftControlCard";
 import { createClient } from "@/lib/supabase/server";
+import { canManageOrders } from "@/lib/auth/roles";
 
 type AdminPageProps = {
   params: Promise<{
@@ -109,8 +110,8 @@ function getOrderStatusKey(status?: string | null) {
 }
 
 function getTimeAgo(
-    dateString: string | null | undefined,
-    t: Awaited<ReturnType<typeof getTranslations>>
+  dateString: string | null | undefined,
+  t: Awaited<ReturnType<typeof getTranslations>>,
 ) {
   if (!dateString) return t("dashboard.recently");
 
@@ -150,13 +151,11 @@ function getStatusClass(statusKey: string) {
   }
 }
 
-async function getProducts(
-    supabase: Awaited<ReturnType<typeof createClient>>
-) {
+async function getProducts(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data, error } = await supabase
-      .from("products")
-      .select("id, name, price, is_available, track_stock, stock_quantity")
-      .order("sort_order", { ascending: true });
+    .from("products")
+    .select("id, name, price, is_available, track_stock, stock_quantity")
+    .order("sort_order", { ascending: true });
 
   if (error) {
     console.warn("Products query failed:", error.message);
@@ -166,12 +165,10 @@ async function getProducts(
   return (data || []) as ProductRow[];
 }
 
-async function getProfiles(
-    supabase: Awaited<ReturnType<typeof createClient>>
-) {
+async function getProfiles(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data, error } = await supabase
-      .from("profiles")
-      .select("id, full_name, email, role");
+    .from("profiles")
+    .select("id, full_name, email, role");
 
   if (error) {
     console.warn("Profiles query failed:", error.message);
@@ -181,19 +178,17 @@ async function getProfiles(
   return (data || []) as ProfileRow[];
 }
 
-async function getOrders(
-    supabase: Awaited<ReturnType<typeof createClient>>
-) {
+async function getOrders(supabase: Awaited<ReturnType<typeof createClient>>) {
   const todayStart = getTodayStartIso();
 
   const { data, error } = await supabase
-      .from("orders")
-      .select(
-          "id, order_number, display_order_number, customer_name, customer_phone, total_price, status, delivery_type, created_at"
-      )
-      .gte("created_at", todayStart)
-      .order("created_at", { ascending: false })
-      .limit(20);
+    .from("orders")
+    .select(
+      "id, order_number, display_order_number, customer_name, customer_phone, total_price, status, delivery_type, created_at",
+    )
+    .gte("created_at", todayStart)
+    .order("created_at", { ascending: false })
+    .limit(20);
 
   if (error) {
     console.warn("Orders query failed:", error.message);
@@ -218,6 +213,13 @@ export default async function AdminPage({ params }: AdminPageProps) {
     redirect(`/${locale}/login?next=/${locale}/admin`);
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+  if (!canManageOrders(profile?.role)) redirect(`/${locale}/admin/kitchen`);
+
   const [products, profiles, orders] = await Promise.all([
     getProducts(supabase),
     getProfiles(supabase),
@@ -235,27 +237,27 @@ export default async function AdminPage({ params }: AdminPageProps) {
   const activeDeliveries = orders.filter((order) => {
     const status = String(order.status || "").toLowerCase();
     const deliveryType = String(
-        order.delivery_type || order.deliveryType || ""
+      order.delivery_type || order.deliveryType || "",
     ).toLowerCase();
 
     return (
-        deliveryType === "delivery" &&
-        ["new", "preparing", "ready"].includes(status)
+      deliveryType === "delivery" &&
+      ["new", "preparing", "ready"].includes(status)
     );
   }).length;
 
   const preparingOrders = orders.filter(
-      (order) => String(order.status || "").toLowerCase() === "preparing"
+    (order) => String(order.status || "").toLowerCase() === "preparing",
   ).length;
 
   const lowStockItems = products.filter((product) => {
     return (
-        Boolean(product.track_stock) && Number(product.stock_quantity || 0) <= 5
+      Boolean(product.track_stock) && Number(product.stock_quantity || 0) <= 5
     );
   }).length;
 
   const availableProducts = products.filter(
-      (product) => product.is_available !== false
+    (product) => product.is_available !== false,
   ).length;
 
   const staffCount = profiles.length;
@@ -279,255 +281,260 @@ export default async function AdminPage({ params }: AdminPageProps) {
   const topDishes = products.slice(0, 3).map((product) => ({
     name: product.name || t("dashboard.unnamedDish"),
     sold:
-        product.is_available === false
-            ? t("common.unavailable")
-            : t("dashboard.availableNow"),
+      product.is_available === false
+        ? t("common.unavailable")
+        : t("dashboard.availableNow"),
     revenue: product.price
-        ? formatCurrency(product.price, locale)
-        : t("dashboard.noPrice"),
+      ? formatCurrency(product.price, locale)
+      : t("dashboard.noPrice"),
   }));
 
   return (
-      <div className="space-y-6">
-        <ShiftControlCard />
+    <div className="space-y-6">
+      <div>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#A39388]">
+          Nordic Eatery
+        </p>
+        <h1 className="mt-2 text-2xl font-black tracking-tight text-[#25120F] sm:text-3xl">
+          {t("workspace.overviewTitle")}
+        </h1>
+        <p className="mt-2 text-sm text-[#7B6A61]">
+          {t("workspace.overviewSubtitle")}
+        </p>
+      </div>
+      <ShiftControlCard />
 
-        <section className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
-          <AdminStatCard
-              title={t("dashboard.todayRevenue")}
-              value={formatCurrency(todayRevenue, locale)}
-              description={t("dashboard.todayRevenueDescription")}
-              trend={orders.length > 0 ? t("dashboard.live") : t("dashboard.noOrders")}
-              icon={CreditCard}
-          />
+      <section className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
+        <AdminStatCard
+          title={t("dashboard.todayRevenue")}
+          value={formatCurrency(todayRevenue, locale)}
+          description={t("dashboard.todayRevenueDescription")}
+          trend={
+            orders.length > 0 ? t("dashboard.live") : t("dashboard.noOrders")
+          }
+          icon={CreditCard}
+        />
 
-          <AdminStatCard
-              title={t("dashboard.ordersToday")}
-              value={String(orders.length)}
-              description={t("dashboard.ordersTodayDescription")}
-              trend={t("dashboard.today")}
-              icon={ClipboardList}
-          />
+        <AdminStatCard
+          title={t("dashboard.ordersToday")}
+          value={String(orders.length)}
+          description={t("dashboard.ordersTodayDescription")}
+          trend={t("dashboard.today")}
+          icon={ClipboardList}
+        />
 
-          <AdminStatCard
-              title={t("dashboard.activeDeliveries")}
-              value={String(activeDeliveries)}
-              description={t("dashboard.activeDeliveriesDescription")}
-              trend={t("dashboard.live")}
-              icon={Truck}
-          />
+        <AdminStatCard
+          title={t("dashboard.activeDeliveries")}
+          value={String(activeDeliveries)}
+          description={t("dashboard.activeDeliveriesDescription")}
+          trend={t("dashboard.live")}
+          icon={Truck}
+        />
 
-          <AdminStatCard
-              title={t("dashboard.lowStockItems")}
-              value={String(lowStockItems)}
-              description={t("dashboard.productsAvailable", {
-                count: availableProducts,
-              })}
-              trend={t("dashboard.check")}
-              icon={Package}
-          />
-        </section>
+        <AdminStatCard
+          title={t("dashboard.lowStockItems")}
+          value={String(lowStockItems)}
+          description={t("dashboard.productsAvailable", {
+            count: availableProducts,
+          })}
+          trend={t("dashboard.check")}
+          icon={Package}
+        />
+      </section>
 
-        <section className="grid gap-6 xl:grid-cols-[1.5fr_0.85fr]">
-          <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-            <div className="flex flex-col gap-3 border-b border-[#EADDCF] pb-5 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                  {t("dashboard.recentOrders")}
-                </h2>
-                <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                  {t("dashboard.recentOrdersDescription")}
-                </p>
-              </div>
-
-              <Link
-                  href={`/${locale}/admin/orders`}
-                  className="rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 px-4 py-2 text-sm font-black text-[#C7192E] transition hover:bg-[#E51B23]/12"
-              >
-                {t("dashboard.viewAllOrders")}
-              </Link>
+      <section className="grid gap-6 xl:grid-cols-[1.5fr_0.85fr]">
+        <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+          <div className="flex flex-col gap-3 border-b border-[#EADDCF] pb-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
+                {t("dashboard.recentOrders")}
+              </h2>
+              <p className="mt-1 text-sm font-medium text-[#7B6A61]">
+                {t("dashboard.recentOrdersDescription")}
+              </p>
             </div>
 
-            <div className="mt-5 overflow-x-auto">
-              {recentOrders.length > 0 ? (
-                  <table className="w-full min-w-[720px] border-separate border-spacing-y-2 text-left">
-                    <thead>
-                    <tr className="text-xs uppercase tracking-[0.16em] text-[#A39388]">
-                      <th className="px-4 py-2 font-black">
-                        {t("table.order")}
-                      </th>
-                      <th className="px-4 py-2 font-black">
-                        {t("table.customer")}
-                      </th>
-                      <th className="px-4 py-2 font-black">
-                        {t("table.items")}
-                      </th>
-                      <th className="px-4 py-2 font-black">
-                        {t("table.total")}
-                      </th>
-                      <th className="px-4 py-2 font-black">
-                        {t("table.status")}
-                      </th>
-                      <th className="px-4 py-2 font-black">
-                        {t("table.time")}
-                      </th>
-                    </tr>
-                    </thead>
+            <Link
+              href={`/${locale}/admin/orders`}
+              className="rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 px-4 py-2 text-sm font-black text-[#C7192E] transition hover:bg-[#E51B23]/12"
+            >
+              {t("dashboard.viewAllOrders")}
+            </Link>
+          </div>
 
-                    <tbody>
-                    {recentOrders.map((order) => (
-                        <tr key={order.id} className="group">
-                          <td className="rounded-l-2xl border-y border-l border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#C7192E] group-hover:bg-[#FFF3E2]">
-                            {order.displayId}
-                          </td>
+          <div className="mt-5 overflow-x-auto">
+            {recentOrders.length > 0 ? (
+              <table className="w-full min-w-[720px] border-separate border-spacing-y-2 text-left">
+                <thead>
+                  <tr className="text-xs uppercase tracking-[0.16em] text-[#A39388]">
+                    <th className="px-4 py-2 font-black">{t("table.order")}</th>
+                    <th className="px-4 py-2 font-black">
+                      {t("table.customer")}
+                    </th>
+                    <th className="px-4 py-2 font-black">{t("table.items")}</th>
+                    <th className="px-4 py-2 font-black">{t("table.total")}</th>
+                    <th className="px-4 py-2 font-black">
+                      {t("table.status")}
+                    </th>
+                    <th className="px-4 py-2 font-black">{t("table.time")}</th>
+                  </tr>
+                </thead>
 
-                          <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-semibold text-[#25120F] group-hover:bg-[#FFF3E2]">
-                            {order.customer}
-                          </td>
+                <tbody>
+                  {recentOrders.map((order) => (
+                    <tr key={order.id} className="group">
+                      <td className="rounded-l-2xl border-y border-l border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#C7192E] group-hover:bg-[#FFF3E2]">
+                        {order.displayId}
+                      </td>
 
-                          <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-medium text-[#7B6A61] group-hover:bg-[#FFF3E2]">
-                            {order.items}
-                          </td>
+                      <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-semibold text-[#25120F] group-hover:bg-[#FFF3E2]">
+                        {order.customer}
+                      </td>
 
-                          <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#25120F] group-hover:bg-[#FFF3E2]">
-                            {order.total}
-                          </td>
+                      <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-medium text-[#7B6A61] group-hover:bg-[#FFF3E2]">
+                        {order.items}
+                      </td>
 
-                          <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
+                      <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-black text-[#25120F] group-hover:bg-[#FFF3E2]">
+                        {order.total}
+                      </td>
+
+                      <td className="border-y border-[#EADDCF] bg-white/70 px-4 py-4 group-hover:bg-[#FFF3E2]">
                         <span
-                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${getStatusClass(
-                                order.statusKey
-                            )}`}
+                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${getStatusClass(
+                            order.statusKey,
+                          )}`}
                         >
                           {order.statusLabel}
                         </span>
-                          </td>
+                      </td>
 
-                          <td className="rounded-r-2xl border-y border-r border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-medium text-[#7B6A61] group-hover:bg-[#FFF3E2]">
-                            {order.time}
-                          </td>
-                        </tr>
-                    ))}
-                    </tbody>
-                  </table>
-              ) : (
-                  <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
+                      <td className="rounded-r-2xl border-y border-r border-[#EADDCF] bg-white/70 px-4 py-4 text-sm font-medium text-[#7B6A61] group-hover:bg-[#FFF3E2]">
+                        {order.time}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="rounded-[1.5rem] border border-dashed border-[#EADDCF] bg-white/60 p-8 text-center">
+                <p className="text-sm font-black text-[#25120F]">
+                  {t("dashboard.noOrdersToday")}
+                </p>
+                <p className="mt-2 text-sm font-medium text-[#7B6A61]">
+                  {t("dashboard.noOrdersDescription")}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
+                  {t("dashboard.kitchenActivity")}
+                </h2>
+                <p className="mt-1 text-sm font-medium text-[#7B6A61]">
+                  {t("dashboard.kitchenActivityDescription")}
+                </p>
+              </div>
+
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
+                <Activity className="h-5 w-5 text-[#C7192E]" />
+              </div>
+            </div>
+
+            <div className="mt-5 space-y-3">
+              <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
+                <div className="flex items-center gap-3">
+                  <ChefHat className="h-4 w-4 text-[#C7192E]" />
+                  <span className="text-sm font-bold text-[#25120F]">
+                    {t("dashboard.preparing")}
+                  </span>
+                </div>
+                <span className="text-sm font-black text-[#C7192E]">
+                  {preparingOrders}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
+                <div className="flex items-center gap-3">
+                  <Truck className="h-4 w-4 text-emerald-700" />
+                  <span className="text-sm font-bold text-[#25120F]">
+                    {t("dashboard.onDelivery")}
+                  </span>
+                </div>
+                <span className="text-sm font-black text-emerald-700">
+                  {activeDeliveries}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
+                <div className="flex items-center gap-3">
+                  <Users className="h-4 w-4 text-[#A96800]" />
+                  <span className="text-sm font-bold text-[#25120F]">
+                    {t("dashboard.staffMembers")}
+                  </span>
+                </div>
+                <span className="text-sm font-black text-[#A96800]">
+                  {staffCount}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] border border-[#EADDCF] bg-gradient-to-br from-[#FFFCF6]/95 via-[#FFF3E2]/90 to-[#FFE4D6]/75 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
+            <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
+              {t("dashboard.menuSnapshot")}
+            </h2>
+
+            <p className="mt-1 text-sm font-medium text-[#7B6A61]">
+              {t("dashboard.menuSnapshotDescription")}
+            </p>
+
+            <div className="mt-5 space-y-3">
+              {topDishes.length > 0 ? (
+                topDishes.map((dish, index) => (
+                  <div
+                    key={`${dish.name}-${index}`}
+                    className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[#E51B23]/8 text-sm font-black text-[#C7192E]">
+                        {index + 1}
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-black text-[#25120F]">
+                          {dish.name}
+                        </p>
+                        <p className="text-xs font-medium text-[#7B6A61]">
+                          {dish.sold}
+                        </p>
+                      </div>
+                    </div>
+
                     <p className="text-sm font-black text-[#25120F]">
-                      {t("dashboard.noOrdersToday")}
-                    </p>
-                    <p className="mt-2 text-sm font-medium text-[#7B6A61]">
-                      {t("dashboard.noOrdersDescription")}
+                      {dish.revenue}
                     </p>
                   </div>
+                ))
+              ) : (
+                <div className="rounded-2xl border border-dashed border-[#EADDCF] bg-white/60 p-5">
+                  <p className="text-sm font-black text-[#25120F]">
+                    {t("dashboard.noProducts")}
+                  </p>
+                  <p className="mt-1 text-xs font-medium text-[#7B6A61]">
+                    {t("dashboard.noProductsDescription")}
+                  </p>
+                </div>
               )}
             </div>
           </div>
-
-          <div className="space-y-6">
-            <div className="rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                    {t("dashboard.kitchenActivity")}
-                  </h2>
-                  <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                    {t("dashboard.kitchenActivityDescription")}
-                  </p>
-                </div>
-
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8">
-                  <Activity className="h-5 w-5 text-[#C7192E]" />
-                </div>
-              </div>
-
-              <div className="mt-5 space-y-3">
-                <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
-                  <div className="flex items-center gap-3">
-                    <ChefHat className="h-4 w-4 text-[#C7192E]" />
-                    <span className="text-sm font-bold text-[#25120F]">
-                    {t("dashboard.preparing")}
-                  </span>
-                  </div>
-                  <span className="text-sm font-black text-[#C7192E]">
-                  {preparingOrders}
-                </span>
-                </div>
-
-                <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
-                  <div className="flex items-center gap-3">
-                    <Truck className="h-4 w-4 text-emerald-700" />
-                    <span className="text-sm font-bold text-[#25120F]">
-                    {t("dashboard.onDelivery")}
-                  </span>
-                  </div>
-                  <span className="text-sm font-black text-emerald-700">
-                  {activeDeliveries}
-                </span>
-                </div>
-
-                <div className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4">
-                  <div className="flex items-center gap-3">
-                    <Users className="h-4 w-4 text-[#A96800]" />
-                    <span className="text-sm font-bold text-[#25120F]">
-                    {t("dashboard.staffMembers")}
-                  </span>
-                  </div>
-                  <span className="text-sm font-black text-[#A96800]">
-                  {staffCount}
-                </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] border border-[#EADDCF] bg-gradient-to-br from-[#FFFCF6]/95 via-[#FFF3E2]/90 to-[#FFE4D6]/75 p-5 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl">
-              <h2 className="text-xl font-black tracking-[-0.03em] text-[#25120F]">
-                {t("dashboard.menuSnapshot")}
-              </h2>
-
-              <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                {t("dashboard.menuSnapshotDescription")}
-              </p>
-
-              <div className="mt-5 space-y-3">
-                {topDishes.length > 0 ? (
-                    topDishes.map((dish, index) => (
-                        <div
-                            key={`${dish.name}-${index}`}
-                            className="flex items-center justify-between rounded-2xl border border-[#EADDCF] bg-white/70 p-4"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[#E51B23]/8 text-sm font-black text-[#C7192E]">
-                              {index + 1}
-                            </div>
-
-                            <div>
-                              <p className="text-sm font-black text-[#25120F]">
-                                {dish.name}
-                              </p>
-                              <p className="text-xs font-medium text-[#7B6A61]">
-                                {dish.sold}
-                              </p>
-                            </div>
-                          </div>
-
-                          <p className="text-sm font-black text-[#25120F]">
-                            {dish.revenue}
-                          </p>
-                        </div>
-                    ))
-                ) : (
-                    <div className="rounded-2xl border border-dashed border-[#EADDCF] bg-white/60 p-5">
-                      <p className="text-sm font-black text-[#25120F]">
-                        {t("dashboard.noProducts")}
-                      </p>
-                      <p className="mt-1 text-xs font-medium text-[#7B6A61]">
-                        {t("dashboard.noProductsDescription")}
-                      </p>
-                    </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
+        </div>
+      </section>
+    </div>
   );
 }

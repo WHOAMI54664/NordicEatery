@@ -1,0 +1,16 @@
+Edited with the built-in image_gen tool.
+Source: public/food/caesar-salad-chicken-v2.png
+Asset: public/food/caesar-salad-chicken-v3.png
+
+Use case: precise-object-edit
+Input image: edit target, a chicken Caesar salad menu cutout. The user dislikes its uniformly rough, gritty, oversharpened surfaces.
+Primary request: Correct the unnatural rough texture. Re-photograph this same bowl of Caesar salad with a natural, soft photographic rendering. This must be a clearly visible material improvement, not a barely changed version.
+Keep the ingredients, general arrangement, ivory bowl, full-bowl framing, viewing angle and transparent background.
+Correct material appearance individually:
+- Romaine leaves should have broad smooth tender surfaces, gently curved edges and subtle natural veins. Remove the dense embossed, pebbled pattern covering every leaf. Fresh green with restrained saturation, a little natural moisture, no artificial waxiness.
+- Chicken should have smooth moist cut faces with subtle fine muscle fibers, soft ivory flesh and thin golden seared outer edges. Remove the grainy sponge-like interior and thick brittle crust. Do not make it look breaded.
+- Parmesan should be thin smooth curled shavings, with very subtle real cheese texture, not gritty fragments.
+- Caesar dressing should be smooth creamy ivory with soft broad highlights, no speckled grain.
+- Croutons alone retain a modest natural porous bread texture, not excessive coarse grit.
+Photography: large soft window light, gentle tonal transitions, restrained local contrast, no clarity or texture enhancement, no HDR, no oversharpening, no outline halos, no fake film grain. Natural lens rendering with the front and center food in focus and gentle optical falloff toward the back of the bowl. Preserve convincing edible detail without making the whole picture blurry, airbrushed, plastic, painted or CGI.
+One realistic delicious salad photographed at normal menu distance, not an extreme macro texture study. Transparent alpha background. No text, new ingredients, props, hands or utensils. Landscape composition.

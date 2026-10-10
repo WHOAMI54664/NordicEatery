@@ -1,4 +1,14 @@
 {
+  "productCard": {
+    "add": "Lägg till",
+    "details": "Produktinformation",
+    "quantity": "Antal",
+    "addToCart": "Lägg {quantity} i varukorgen",
+    "addToGroup": "Lägg {quantity} i gruppbeställningen",
+    "close": "Stäng",
+    "decrease": "Minska antal",
+    "increase": "Öka antal"
+  },
   "seo": {
     "menu": {
       "title": "Meny | Matleverans & Takeaway i Boden | Nordic Eatery",
@@ -316,6 +326,12 @@
       }
     },
     "menu": {
+      "types": {
+        "all": "Alla",
+        "standard": "Standard",
+        "vegan": "Veganskt",
+        "gluten_free": "Glutenfritt"
+      },
       "eyebrow": "Meny",
       "title": "Välj din polska mat",
       "subtitle": "Färska rätter som görs på beställning och utvalda produkter som finns i lager.",
@@ -872,7 +888,7 @@
     },
     "common": {
       "admin": "Administratör",
-      "dashboard": "Instrumentpanel",
+      "dashboard": "Översikt",
       "orders": "Beställningar",
       "menu": "Meny",
       "products": "Produkter",
@@ -950,8 +966,8 @@
       "noPrice": "Inget pris",
       "recently": "Nyligen",
       "minutesAgo": "{count} min sedan",
-      "hoursAgo": "h sedan",
-      "daysAgo": "d sedan"
+      "hoursAgo": "För {count} timmar sedan",
+      "daysAgo": "För {count} dagar sedan"
     },
     "reports": {
       "exportPdf": "Exportera PDF",
@@ -1032,7 +1048,7 @@
       "paidOrders": "Betalda order",
       "recentOrders": "Nya beställningar",
       "recentOrdersDescription": "De senaste beställningarna ingår i analyserna.",
-      "shown": "visas",
+      "shown": "{count} visas",
       "noOrdersFound": "Inga beställningar hittades",
       "noOrdersDescription": "Analytics visas när order skapas.",
       "payment": "Betalning",
@@ -1126,7 +1142,7 @@
       "eyebrow": "Lagerstyrning",
       "title": "Inventarieförteckning",
       "subtitle": "Hantera produktlager. Om det spårade lagret är 0 döljs produkten från kundmenyn.",
-      "productsCount": "produkter",
+      "productsCount": "{count} produkter",
       "searchPlaceholder": "Sök produkter...",
       "products": "Produkter",
       "quantityGreaterThanZero": "Kvantiteten måste vara större än 0.",
@@ -1166,7 +1182,7 @@
       "latestOrder": "Senaste beställning",
       "allOrders": "Alla beställningar",
       "allOrdersDescription": "Senaste kundorder från Supabase.",
-      "ordersCount": "order",
+      "ordersCount": "{count} beställningar",
       "noOrdersFound": "Inga beställningar hittades",
       "noOrdersDescription": "Nya kundorder kommer att visas här.",
       "contact": "Kontakt",
@@ -1174,7 +1190,7 @@
       "payment": "Betalning",
       "created": "Skapad",
       "actions": "Åtgärder",
-      "itemsCount": "artiklar",
+      "itemsCount": "{count} artiklar",
       "noAddress": "Ingen adress",
       "pickupOrder": "Upphämtningsorder",
       "unknown": "Okänd",
@@ -1224,6 +1240,57 @@
         "readyTitle": "Redo",
         "readyDescription": "Redo för upphämtning eller leverans."
       }
+    },
+    "workspace": {
+      "operations": "Verksamhet",
+      "catalog": "Meny & lager",
+      "business": "Företag",
+      "workspace": "Arbetsyta",
+      "inventory": "Lager",
+      "account": "Mitt konto",
+      "kitchenDisplay": "Köksskärm",
+      "navigation": "Adminnavigering",
+      "relatedSections": "Relaterade avsnitt",
+      "breadcrumbs": "Aktuellt avsnitt",
+      "openMenu": "Öppna navigering",
+      "closeMenu": "Stäng navigering",
+      "collapseMenu": "Fäll ihop sidomenyn",
+      "expandMenu": "Visa sidomenyn",
+      "skipContent": "Hoppa till innehållet",
+      "viewSite": "Visa webbplats",
+      "searchError": "Vissa resultat kunde inte hämtas. Försök igen.",
+      "overviewTitle": "Restaurangöversikt",
+      "overviewSubtitle": "Beställningar, kök och meny — samlat på ett ställe.",
+      "productsTitle": "Produkter",
+      "productsSubtitle": "Hantera rätter, priser, lagersaldo och tillgänglighet i menyn.",
+      "allProducts": "Totalt antal",
+      "activeProducts": "Tillgängliga",
+      "hiddenProducts": "Dolda",
+      "lowStock": "Lågt lagersaldo",
+      "catalogue": "Produktkatalog",
+      "catalogueSubtitle": "Hantera dina rätter och deras tillgänglighet.",
+      "itemCount": "{count, plural, one {# produkt} other {# produkter}}",
+      "searchProducts": "Sök efter namn",
+      "category": "Kategori",
+      "allCategories": "Alla kategorier",
+      "availability": "Tillgänglighet",
+      "allStatuses": "Alla statusar",
+      "sort": "Sortera efter",
+      "menuOrder": "Menyordning",
+      "nameOrder": "Namn",
+      "priceAscending": "Lägsta pris",
+      "priceDescending": "Högsta pris",
+      "applyFilters": "Tillämpa",
+      "resetFilters": "Rensa",
+      "emptyProducts": "Inga produkter hittades",
+      "emptyProductsHint": "Ändra filtren eller lägg till en ny produkt.",
+      "stock": "Lager",
+      "actions": "Åtgärder",
+      "notTracked": "Spåras inte",
+      "outOfStock": "Slut i lager",
+      "stockCount": "{count} i lager",
+      "popular": "Populär",
+      "noDescription": "Ingen beskrivning"
     }
   }
 }

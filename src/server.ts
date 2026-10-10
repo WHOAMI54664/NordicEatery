@@ -4,6 +4,7 @@ import axios from "axios";
 import https from "https";
 import fs from "fs";
 import { createClient } from "@supabase/supabase-js";
+import { swishGroupRouter } from "./swish-group";
 
 const app = express();
 app.use(express.json());
@@ -31,6 +32,21 @@ function getSwishAgent() {
 function normalizeAmount(amount: number) {
     return amount.toFixed(2);
 }
+
+app.use(swishGroupRouter({
+    secret: () => process.env.SWISH_INTERNAL_SECRET,
+    callbackUrl: () => process.env.SWISH_GROUP_CALLBACK_URL,
+    payeeAlias: () => process.env.SWISH_PAYEE_ALIAS,
+    request: async (method, path, data) => {
+        const response = await axios.request({
+            method, url: `${swishBaseUrl.replace(/\/v1$/, "")}${path}`, data,
+            httpsAgent: getSwishAgent(), timeout: 10000, maxRedirects: 0,
+            headers: { "Content-Type": method === "PATCH" ? "application/json-patch+json" : "application/json" },
+            validateStatus: () => true,
+        });
+        return { status: response.status, data: response.data };
+    },
+}));
 
 app.get("/health", (_req, res) => {
     res.json({ ok: true });

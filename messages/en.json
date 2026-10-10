@@ -1,4 +1,14 @@
 {
+  "productCard": {
+    "add": "Add",
+    "details": "Product details",
+    "quantity": "Quantity",
+    "addToCart": "Add {quantity} to cart",
+    "addToGroup": "Add {quantity} to group order",
+    "close": "Close",
+    "decrease": "Decrease quantity",
+    "increase": "Increase quantity"
+  },
   "seo": {
     "menu": {
       "title": "Menu | Food Delivery & Takeaway in Boden | Nordic Eatery",
@@ -316,6 +326,12 @@
       }
     },
     "menu": {
+      "types": {
+        "all": "All",
+        "standard": "Standard",
+        "vegan": "Vegan",
+        "gluten_free": "Gluten free"
+      },
       "eyebrow": "Menu",
       "title": "Choose your Polish food",
       "subtitle": "Fresh dishes made to order and selected items available from stock.",
@@ -1225,6 +1241,57 @@
         "readyTitle": "Ready",
         "readyDescription": "Ready for pickup or delivery."
       }
+    },
+    "workspace": {
+      "operations": "Operations",
+      "catalog": "Menu & stock",
+      "business": "Business",
+      "workspace": "Workspace",
+      "inventory": "Inventory",
+      "account": "My account",
+      "kitchenDisplay": "Kitchen display",
+      "navigation": "Admin navigation",
+      "relatedSections": "Related sections",
+      "breadcrumbs": "Current section",
+      "openMenu": "Open navigation",
+      "closeMenu": "Close navigation",
+      "collapseMenu": "Collapse sidebar",
+      "expandMenu": "Expand sidebar",
+      "skipContent": "Skip to content",
+      "viewSite": "View website",
+      "searchError": "Some results could not be loaded. Please try again.",
+      "overviewTitle": "Restaurant overview",
+      "overviewSubtitle": "Orders, kitchen and menu — all in one place.",
+      "productsTitle": "Products",
+      "productsSubtitle": "Manage dishes, prices, stock and menu availability.",
+      "allProducts": "Total products",
+      "activeProducts": "Available",
+      "hiddenProducts": "Hidden",
+      "lowStock": "Low stock",
+      "catalogue": "Product catalogue",
+      "catalogueSubtitle": "Manage your dishes and their availability.",
+      "itemCount": "{count, plural, one {# product} other {# products}}",
+      "searchProducts": "Search by name",
+      "category": "Category",
+      "allCategories": "All categories",
+      "availability": "Availability",
+      "allStatuses": "All statuses",
+      "sort": "Sort by",
+      "menuOrder": "Menu order",
+      "nameOrder": "Name",
+      "priceAscending": "Lowest price",
+      "priceDescending": "Highest price",
+      "applyFilters": "Apply",
+      "resetFilters": "Reset",
+      "emptyProducts": "No products found",
+      "emptyProductsHint": "Change the filters or add a new product.",
+      "stock": "Stock",
+      "actions": "Actions",
+      "notTracked": "Not tracked",
+      "outOfStock": "Out of stock",
+      "stockCount": "{count} in stock",
+      "popular": "Popular",
+      "noDescription": "No description"
     }
   }
 }

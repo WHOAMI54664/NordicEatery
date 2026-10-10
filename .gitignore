@@ -7,3 +7,5 @@ node_modules
 .idea/
 tsconfig.tsbuildinfo
 **/.DS_Store
+.vercel
+.env*

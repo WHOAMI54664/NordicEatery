@@ -1,0 +1,7 @@
+.env*
+.idea/
+tsconfig.tsbuildinfo
+output/
+public/food/caesar-salad-chicken.png
+public/food/caesar-salad-chicken-v2.png
+public/food/caesar-salad-chicken-v3.png

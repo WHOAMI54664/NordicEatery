@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Header } from "@/components/Header";
@@ -115,7 +116,7 @@ export default async function LocaleLayout({
         notFound();
     }
 
-    const messages = (await import(`@/messages/${locale}.json`)).default;
+    const messages = await getMessages({ locale });
 
     return (
         <NextIntlClientProvider locale={locale} messages={messages}>

@@ -222,6 +222,22 @@ export default async function HomePage({ params }: HomePageProps) {
     },
   ].filter((poster) => poster.src);
 
+  // Posters may only be configured in the site's default language.
+  if (!homePosters.length && locale !== "sv") {
+    const { data: defaultContent } = await supabase
+        .from("site_content")
+        .select("key,value")
+        .eq("locale", "sv")
+        .eq("page", "home");
+
+    homePosters.push(
+        ...(defaultContent || [])
+            .filter((item) => /^home\.hero\.poster\.[1-4]$/.test(item.key) && item.value)
+            .sort((a, b) => a.key.localeCompare(b.key))
+            .map((item) => ({ key: item.key, src: item.value }))
+    );
+  }
+
   const { data: featuredItems } = await supabase
       .from("products")
       .select("*")
@@ -332,7 +348,7 @@ export default async function HomePage({ params }: HomePageProps) {
               <div className="relative aspect-[4/5] sm:aspect-square lg:aspect-[9/8]">
                 <HomeHeroPoster
                     posters={homePosters}
-                    fallbackImage="/mikes_logo.png"
+                    fallbackImage="/logo9.png"
                     locale={locale}
                     page="home"
                     canEdit={isOwner}

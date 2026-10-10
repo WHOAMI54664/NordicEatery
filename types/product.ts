@@ -14,6 +14,7 @@ export type Product = {
   description: string;
   price: number;
   category: ProductCategory;
+  menu_type?: string | null;
   badge?: string;
   isPopular?: boolean;
   image_url?: string | null;

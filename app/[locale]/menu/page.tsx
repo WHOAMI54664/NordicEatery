@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Users } from "lucide-react";
+import { menuTypes, categories, humanizeCategory } from "@/lib/menu-display";
 import { ProductCard } from "@/components/ProductCard";
 import { MenuJsonLd } from "@/components/seo/MenuJsonLd";
 import { createClient } from "@/lib/supabase/server";
@@ -31,29 +33,6 @@ const ogLocales: Record<Locale, string> = {
     pl: "pl_PL",
     ru: "ru_RU",
 };
-
-const menuTypes = [
-    { id: "all", label: "All" },
-    { id: "standard", label: "Standard" },
-    { id: "vegan", label: "Vegan" },
-    { id: "gluten_free", label: "Gluten Free" },
-] as const;
-
-const categories = [
-    { id: "maczanka", titleKey: "maczanka" },
-    { id: "knysza", titleKey: "knysza" },
-    { id: "fries", titleKey: "fries" },
-    { id: "sauces", titleKey: "sauces" },
-    { id: "drinks", titleKey: "drinks" },
-] as const;
-
-// Turns a custom category slug (e.g. "fika" / "glass-dessert") into a readable
-// title for the menu when there is no predefined translation for it.
-function humanizeCategory(id: string) {
-    const label = id.replace(/[-_]+/g, " ").trim();
-
-    return label.charAt(0).toUpperCase() + label.slice(1);
-}
 
 function isSupportedLocale(locale: string): locale is Locale {
     return locales.includes(locale as Locale);
@@ -206,6 +185,7 @@ export default async function MenuPage({
     }
 
     const { data: menuItems } = await query;
+    const groupText = await getTranslations({ locale: currentLocale, namespace: "groupOrder" });
 
     // Known categories keep their curated order and translations; any custom
     // category found on the products is appended so it shows up automatically.
@@ -281,6 +261,12 @@ export default async function MenuPage({
                     </div>
                 ) : null}
 
+                {process.env.GROUP_ORDERS_ENABLED === "true" && (
+                    <Link href={`/${currentLocale}/group-order`} className="mt-8 inline-flex items-center gap-3 rounded-xl bg-dark px-6 py-4 font-bold text-white">
+                        <Users size={20} />{groupText("createAndInvite")}
+                    </Link>
+                )}
+
                 <div className="mt-10 flex flex-wrap gap-3">
                     {menuTypes.map((type) => {
                         const isActive = selectedMenuType === type.id;
@@ -300,7 +286,7 @@ export default async function MenuPage({
                                         : "border border-dark/10 bg-white text-dark hover:border-paprika hover:text-paprika",
                                 ].join(" ")}
                             >
-                                {type.label}
+                                {t(`types.${type.id}`)}
                             </Link>
                         );
                     })}

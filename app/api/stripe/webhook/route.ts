@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { handleGroupSession, handleFailedGroupSession } from "@/lib/group-orders/payments";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -162,7 +163,8 @@ export async function POST(request: Request) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
 
-        await markStripeOrderAsPaid(session);
+        if (session.metadata?.group_id) await handleGroupSession(session);
+        else await markStripeOrderAsPaid(session);
         break;
       }
 
@@ -174,7 +176,15 @@ export async function POST(request: Request) {
       case "checkout.session.async_payment_succeeded": {
         const session = event.data.object as Stripe.Checkout.Session;
 
-        await markStripeOrderAsPaid(session);
+        if (session.metadata?.group_id) await handleGroupSession(session);
+        else await markStripeOrderAsPaid(session);
+        break;
+      }
+
+      case "checkout.session.async_payment_failed":
+      case "checkout.session.expired": {
+        const session = event.data.object as Stripe.Checkout.Session;
+        if (session.metadata?.group_id) await handleFailedGroupSession(session);
         break;
       }
 

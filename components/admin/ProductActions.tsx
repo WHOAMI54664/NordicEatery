@@ -10,7 +10,10 @@ type ProductActionsProps = {
   isAvailable: boolean;
 };
 
-export function ProductActions({ productId, isAvailable }: ProductActionsProps) {
+export function ProductActions({
+  productId,
+  isAvailable,
+}: ProductActionsProps) {
   const router = useRouter();
 
   const supabase = useMemo(() => createClient(), []);
@@ -38,19 +41,19 @@ export function ProductActions({ productId, isAvailable }: ProductActionsProps) 
       <button
         type="button"
         onClick={toggleAvailable}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-dark/5 text-dark/60 transition hover:bg-paprika/10 hover:text-paprika"
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-dark/5 text-dark/60 transition hover:bg-paprika/10 hover:text-paprika"
         title={isAvailable ? "Hide product" : "Show product"}
       >
-        {isAvailable ? <EyeOff size={17} /> : <Eye size={17} />}
+        {isAvailable ? <EyeOff size={15} /> : <Eye size={15} />}
       </button>
 
       <button
         type="button"
         onClick={deleteProduct}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-paprika/10 text-paprika transition hover:bg-paprika hover:text-white"
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-paprika/10 text-paprika transition hover:bg-paprika hover:text-white"
         title="Delete product"
       >
-        <Minus size={20} />
+        <Minus size={17} />
       </button>
     </div>
   );

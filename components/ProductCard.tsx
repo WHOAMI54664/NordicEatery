@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Minus, Plus, X } from "lucide-react";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { Product } from "@/types/product";
 import { useCart } from "@/components/CartProvider";
@@ -11,9 +12,11 @@ import { useKitchenStatus } from "@/components/KitchenStatusProvider";
 type ProductCardProps = {
     product: Product;
     compact?: boolean;
+    groupSelection?: { disabled: boolean; remaining: number; add: (quantity: number) => void };
 };
 
-export function ProductCard({ product, compact = false }: ProductCardProps) {
+export function ProductCard({ product, compact = false, groupSelection }: ProductCardProps) {
+    const t = useTranslations("productCard");
     const { addItem } = useCart();
     const { requireShiftOpen } = useKitchenStatus();
     const params = useParams();
@@ -37,6 +40,12 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
 
     function addSelectedQuantity() {
         setIsOpen(false);
+
+        if (groupSelection) {
+            if (!groupSelection.disabled && quantity <= groupSelection.remaining) groupSelection.add(quantity);
+            setQuantity(1);
+            return;
+        }
 
         if (!requireShiftOpen()) return;
 
@@ -126,8 +135,13 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
 
                 <button
                     type="button"
+                    disabled={groupSelection && (groupSelection.disabled || groupSelection.remaining < 1)}
                     onClick={(event) => {
                         event.stopPropagation();
+                        if (groupSelection) {
+                            if (!groupSelection.disabled && groupSelection.remaining > 0) groupSelection.add(1);
+                            return;
+                        }
                         if (!requireShiftOpen()) return;
                         addItem(product);
                     }}
@@ -138,7 +152,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
                     }`}
                 >
                     <Plus size={compact ? 15 : 18} />
-                    Add
+                    {t("add")}
                 </button>
             </article>
 
@@ -147,12 +161,13 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
                     <div className="max-h-[92vh] w-full overflow-y-auto rounded-t-[2rem] bg-cream shadow-2xl sm:max-w-xl sm:rounded-[2rem]">
                         <div className="sticky top-0 z-10 flex items-center justify-between bg-cream/90 px-5 py-4 backdrop-blur">
                             <p className="text-xs font-black uppercase tracking-[0.25em] text-paprika">
-                                Product details
+                                {t("details")}
                             </p>
 
                             <button
                                 type="button"
                                 onClick={() => setIsOpen(false)}
+                                aria-label={t("close")}
                                 className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-dark shadow"
                             >
                                 <X size={20} />
@@ -207,12 +222,13 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
                                 </p>
 
                                 <div className="mt-6 rounded-3xl bg-white/70 p-4">
-                                    <p className="text-sm font-black text-dark">Quantity</p>
+                                    <p className="text-sm font-black text-dark">{t("quantity")}</p>
 
                                     <div className="mt-4 flex items-center justify-between">
                                         <div className="flex items-center gap-3">
                                             <button
                                                 type="button"
+                                                aria-label={t("decrease")}
                                                 onClick={() =>
                                                     setQuantity((value) => Math.max(1, value - 1))
                                                 }
@@ -227,6 +243,8 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
 
                                             <button
                                                 type="button"
+                                                disabled={groupSelection && quantity >= groupSelection.remaining}
+                                                aria-label={t("increase")}
                                                 onClick={() => setQuantity((value) => value + 1)}
                                                 className="flex h-11 w-11 items-center justify-center rounded-full bg-paprika text-white"
                                             >
@@ -242,10 +260,11 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
 
                                 <button
                                     type="button"
+                                    disabled={groupSelection && (groupSelection.disabled || quantity > groupSelection.remaining)}
                                     onClick={addSelectedQuantity}
                                     className="btn-primary mt-6 w-full"
                                 >
-                                    Add {quantity} to cart · {totalPrice} kr
+                                    {t(groupSelection ? "addToGroup" : "addToCart", { quantity })} · {totalPrice} kr
                                 </button>
                             </div>
                         </div>

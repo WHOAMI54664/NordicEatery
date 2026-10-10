@@ -1,0 +1,13 @@
+Edited with the built-in image_gen tool.
+Source: public/food/caesar-salad-chicken.png
+Asset: public/food/caesar-salad-chicken-v2.png
+
+Use case: precise-object-edit
+Asset type: restaurant menu food photograph, transparent cutout.
+Input image: edit target, the existing chicken Caesar salad in an ivory bowl.
+Primary request: Make this exact dish look significantly more appetizing, fresh, juicy and professionally styled for a premium restaurant menu.
+Keep: chicken Caesar salad, romaine, Parmesan, croutons and Caesar dressing; same simple ivory bowl; one centered dish; three-quarter view; fully visible bowl with comfortable margins; genuine transparent background.
+Change: restyle the overly dense, flat pile into an airy, naturally layered mound of crisp bright green romaine hearts with attractive curls and fresh pale ribs. Let the lettuce retain clean visible texture with a delicate glossy coating of dressing instead of looking heavily covered. Place thick, tender chicken slices prominently across the top in a loose natural fan, with warmly caramelized golden-brown seared edges and a subtly juicy, moist ivory interior. Add attractive irregular crunchy golden sourdough croutons, and thin, gently curled Parmesan shavings scattered naturally, with a light ribbon of creamy dressing tying the ingredients together. Keep realistic edible proportions and the same ingredients. Make the food look freshly prepared and inviting, never artificial.
+Lighting: soft directional food photography light from upper left with subtle backlight catching moist chicken and glossy leaves, gentle natural shadows, warm appetizing highlights, fresh natural greens and golden toasted tones. High-end editorial food photography with believable textures, a slightly softer more natural photographic finish than the original.
+Avoid: oversharpening, crunchy HDR, plastic shine, neon colors, dry chalky chicken, soggy lettuce, excess dressing, heavy black pepper, crowded uniform arrangement, CGI, text, props, utensils, hands, logos, watermark, additional ingredients.
+Output: landscape 4:3 PNG with genuinely transparent background, preserving alpha, and clean cutout edges.

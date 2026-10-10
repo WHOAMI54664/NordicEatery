@@ -1,0 +1,12 @@
+Generated with the built-in image_gen tool.
+Asset: public/food/caesar-salad-chicken.png
+
+Use case: product-mockup
+Asset type: restaurant menu product image
+Primary request: A beautiful photorealistic Caesar salad with grilled chicken, suitable for a restaurant menu.
+Subject: a generous but realistic portion of crisp romaine lettuce lightly coated with creamy Caesar dressing, juicy sliced grilled chicken breast with natural golden searing, rough golden toasted croutons, delicate shaved Parmesan, a touch of freshly ground black pepper, in a simple shallow matte ivory ceramic bowl.
+Style/medium: premium professional food photography, real edible textures, appetizing and natural, not CGI.
+Composition/framing: single bowl centered, three-quarter view from approximately 40 degrees above, entire bowl visible including its rim and base, comfortable clear margin on every side, landscape 4:3 composition suitable for an object-contain menu card. Food fills most of the bowl, green leaves, chicken, croutons and Parmesan clearly recognizable even as a thumbnail.
+Lighting/mood: soft warm-neutral diffused studio light from upper left, realistic gentle highlights, excellent ingredient detail, subtle contact shadow.
+Scene/backdrop: genuinely transparent background outside the bowl, clean cutout edges.
+Constraints: one dish only; no text, no logos, no watermark, no people, no hands, no cutlery, no napkins, no tabletop or background props. No tomatoes, olives, bacon or unrelated ingredients. Preserve natural ingredient colors.

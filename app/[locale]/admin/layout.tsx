@@ -2,7 +2,6 @@ import { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { AdminTopbar } from "@/components/admin/AdminTopbar";
 import { createClient } from "@/lib/supabase/server";
 import { isStaffRole } from "@/lib/auth/roles";
 
@@ -14,9 +13,9 @@ type AdminLayoutProps = {
 };
 
 export default async function AdminLayout({
-                                            children,
-                                            params,
-                                          }: AdminLayoutProps) {
+  children,
+  params,
+}: AdminLayoutProps) {
   const { locale } = await params;
 
   const t = await getTranslations("admin");
@@ -31,31 +30,30 @@ export default async function AdminLayout({
   }
 
   const { data: currentProfile } = await supabase
-      .from("profiles")
-      .select("full_name, email, role")
-      .eq("id", user.id)
-      .single();
+    .from("profiles")
+    .select("full_name, email, role")
+    .eq("id", user.id)
+    .single();
 
   /**
    * Central staff-role gate for the whole /admin section.
    * Individual pages still enforce fine-grained permissions (canManageOrders
    * etc.), but no logged-in customer should ever reach the admin shell.
    */
-  if (!isStaffRole(currentProfile?.role)) {
+  const role = currentProfile?.role?.toLowerCase();
+  if (!isStaffRole(role)) {
     redirect(`/${locale}`);
   }
 
   const profileName =
-      currentProfile?.full_name?.trim() ||
-      currentProfile?.email?.split("@")[0] ||
-      user.email?.split("@")[0] ||
-      t("sidebar.adminUser");
+    currentProfile?.full_name?.trim() ||
+    currentProfile?.email?.split("@")[0] ||
+    user.email?.split("@")[0] ||
+    t("sidebar.adminUser");
 
   return (
-      <AdminShell>
-        <AdminTopbar displayName={profileName} />
-
-        <div className="mt-6">{children}</div>
-      </AdminShell>
+    <AdminShell displayName={profileName} role={role}>
+      {children}
+    </AdminShell>
   );
 }
