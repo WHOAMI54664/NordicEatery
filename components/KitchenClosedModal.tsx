@@ -31,11 +31,10 @@ function getTodayKey(locale: string) {
 function getText(locale: string) {
     if (locale === "sv") {
         return {
-            eyebrow: "Köket är stängt",
-            title: "Vi tar inte emot beställningar just nu",
+            title: "Köket är stängt just nu",
             description:
-                "Köket är stängt just nu. Lämna din e-postadress så skickar vi ett meddelande nästa gång vi öppnar.",
-            notifyTitle: "Meddela mig när ni öppnar",
+                "Hungrig? Vi säger till när köket öppnar!",
+            notifyTitle: "Ja, meddela mig!",
             email: "Email",
             marketing: "Jag vill också få nyheter och erbjudanden från Nordic Eatery via e-post. Jag kan avsluta prenumerationen när som helst.",
             privacy: "Integritetspolicy",
@@ -45,9 +44,9 @@ function getText(locale: string) {
             loading: "Sparar...",
             success: "Klart! Vi meddelar dig när köket öppnar.",
             error: "Kunde inte spara. Försök igen.",
-            close: "Jag förstår",
+            close: "Utforska menyn",
             later: "Kanske senare",
-            today: "Du kan fortfarande titta på menyn.",
+            today: "Ta en smygtitt på menyn!",
         };
     }
 
@@ -96,7 +95,6 @@ function getText(locale: string) {
     }
 
     return {
-        eyebrow: "Kitchen closed",
         title: "We are not accepting orders right now",
         description:
             "The kitchen is closed right now. Leave your email and we will send one notification the next time we open.",
