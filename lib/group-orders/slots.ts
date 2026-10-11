@@ -1,6 +1,8 @@
 import { MAX_GROUP_SLOTS, SLOT_TIME } from "./schedule";
 export const GROUP_TIME_ZONE = "Europe/Stockholm";
 export const GROUP_SLOT_CAPACITY = 10;
+export const GROUP_ORDER_WINDOW_MS = 30 * 60 * 1000;
+export const PICKUP_COMPLETION_BUFFER_MS = 20 * 60 * 1000;
 export type GroupReservation = {
   id: string;
   version: number;
@@ -19,7 +21,11 @@ export type GroupAvailability = {
   date: string;
   slots: GroupSlot[];
   reservation?: GroupReservation | null;
+  createdGroupId?: string;
 };
+
+const GROUP_ID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export function validParticipantCount(value: unknown): value is number {
   return (
@@ -91,7 +97,8 @@ export function validPickupTime(value: unknown, now: number): value is string {
   )
     return false;
   const time = Date.parse(value);
-  if (!Number.isFinite(time) || time <= now) return false;
+  if (!Number.isFinite(time) || time - now <= PICKUP_COMPLETION_BUFFER_MS)
+    return false;
   if (
     new Date(time).toISOString().replace(".000Z", "Z") !==
     value.replace(".000Z", "Z")
@@ -123,6 +130,12 @@ export function isGroupAvailability(
     "reservation" in value &&
     value.reservation != null &&
     !isGroupReservation(value.reservation)
+  )
+    return false;
+  if (
+    "createdGroupId" in value &&
+    (typeof value.createdGroupId !== "string" ||
+      !GROUP_ID.test(value.createdGroupId))
   )
     return false;
   const seen = new Set<string>();

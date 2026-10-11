@@ -1,5 +1,10 @@
-import { priceMealCombos } from "../meal-combo";
-import { validParticipantCount, validPickupTime } from "./slots";
+import { isComboMeal, priceMealCombos } from "../meal-combo";
+import {
+  GROUP_ORDER_WINDOW_MS,
+  PICKUP_COMPLETION_BUFFER_MS,
+  validParticipantCount,
+  validPickupTime,
+} from "./slots";
 import {
   parseSelections,
   resolveSelection,
@@ -173,6 +178,24 @@ export function parseCustomer(value: unknown): GroupCustomer {
     comment: textField(data.comment, 500, false),
   };
 }
+
+export function groupDeadlineMs(
+  state: Pick<
+    GroupState,
+    "status" | "expiresAt" | "deadline" | "paymentDeadline"
+  >,
+): number {
+  const deadlines =
+    state.status === "locked" || state.status === "paying"
+      ? [state.expiresAt, state.paymentDeadline]
+      : [state.expiresAt, state.deadline, state.paymentDeadline];
+  const validDeadlines = deadlines
+    .filter((value): value is string => typeof value === "string")
+    .map(Date.parse)
+    .filter(Number.isFinite);
+  return validDeadlines.length ? Math.min(...validDeadlines) : 0;
+}
+
 export function createGroup(
   input: unknown,
   member: GroupMember,
@@ -190,20 +213,12 @@ export function createGroup(
     (!pickupAt || !validParticipantCount(data.participantCount))
   )
     throw new GroupError("invalidParticipantCount");
-  const expiresAt =
-    pickupAt || new Date(now + 24 * 60 * 60 * 1000).toISOString();
-  let deadline: string | null = null;
-  if (data.deadline) {
-    const time =
-      typeof data.deadline === "string" ? Date.parse(data.deadline) : NaN;
-    if (
-      !Number.isFinite(time) ||
-      time <= now ||
-      time > now + 24 * 60 * 60 * 1000
-    )
-      throw new GroupError("invalidDeadline");
-    deadline = new Date(Math.min(time, Date.parse(expiresAt))).toISOString();
-  }
+  const pickupDeadline = pickupAt
+    ? Date.parse(pickupAt) - PICKUP_COMPLETION_BUFFER_MS
+    : Number.POSITIVE_INFINITY;
+  const expiresAt = new Date(
+    Math.min(now + GROUP_ORDER_WINDOW_MS, pickupDeadline),
+  ).toISOString();
   const spendLimit = data.spendLimit == null ? null : Number(data.spendLimit);
   if (
     spendLimit !== null &&
@@ -224,7 +239,9 @@ export function createGroup(
       : "sv",
     hostId: member.id,
     status: "open",
-    deadline,
+    // Legacy fields share the same timestamp. New groups never get a separate
+    // selection or payment timer.
+    deadline: expiresAt,
     spendLimit,
     expiresAt,
     members: [member],
@@ -248,10 +265,7 @@ export function requireHost(state: GroupState, member: GroupMember) {
 }
 export function requireOpen(state: GroupState, now: number) {
   if (state.status !== "open") throw new GroupError("locked", 409);
-  if (
-    Date.parse(state.expiresAt) <= now ||
-    (state.deadline && Date.parse(state.deadline) <= now)
-  )
+  if (groupDeadlineMs(state) <= now)
     throw new GroupError("deadlinePassed", 409);
 }
 export function priceGroup(
@@ -336,7 +350,7 @@ export function lockGroup(
   newId: () => string,
   now: number,
 ): GroupState {
-  if (state.status !== "open" || Date.parse(state.expiresAt) <= now)
+  if (state.status !== "open" || groupDeadlineMs(state) <= now)
     throw new GroupError("locked", 409);
   if (state.members.some((member) => !member.ready))
     throw new GroupError("membersNotReady", 409);
@@ -354,6 +368,7 @@ export function lockGroup(
           ),
         ]
       : priceGroup(state.members, products, state.spendLimit);
+  validateGroupPortions(state.members, products, state.participantCount);
   validateGroupStock(state.members, products);
   validateGroupTotal(lines);
   if (!lines.length) throw new GroupError("emptyOrder");
@@ -401,9 +416,7 @@ export function lockGroup(
     customer,
     lines,
     payments,
-    paymentDeadline: new Date(
-      Math.min(now + 60 * 60 * 1000, Date.parse(state.expiresAt)),
-    ).toISOString(),
+    paymentDeadline: new Date(groupDeadlineMs(state)).toISOString(),
   };
 }
 
@@ -427,6 +440,29 @@ export function validateGroupStock(
     )
       throw new GroupError("productUnavailable", 409);
   }
+}
+
+export function validateGroupPortions(
+  members: GroupMember[],
+  products: CatalogProduct[],
+  portionLimit?: number,
+) {
+  if (!validParticipantCount(portionLimit)) return;
+  const categories = new Map(
+    products.map((product) => [String(product.id), product.category]),
+  );
+  const selected = members.reduce(
+    (total, member) =>
+      total +
+      member.items.reduce(
+        (subtotal, item) =>
+          subtotal +
+          (isComboMeal(categories.get(item.productId)) ? item.quantity : 0),
+        0,
+      ),
+    0,
+  );
+  if (selected > portionLimit) throw new GroupError("groupPortionLimit", 409);
 }
 
 export function freezeMemberSelection(

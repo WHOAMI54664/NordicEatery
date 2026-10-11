@@ -9,13 +9,8 @@ import {
   groupResponse,
   groupFailure,
   readReservationToken,
-  groupWorkerReady,
 } from "@/lib/group-orders/http";
-import {
-  isGroupAvailability,
-  validParticipantCount,
-  validPickupTime,
-} from "@/lib/group-orders/slots";
+import { isGroupAvailability } from "@/lib/group-orders/slots";
 import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
@@ -27,8 +22,8 @@ export async function POST(request: Request) {
     const body = await groupBody(request);
     const token = await readReservationToken();
     if (!token) throw new GroupError("reservationExpired", 409);
-    if (body.action !== "reserve" && body.action !== "release")
-      throw new GroupError("invalidInput");
+    if (body.action !== "release")
+      throw new GroupError("reservationDisabled", 410);
     if (
       (body.reservationId != null &&
         (typeof body.reservationId !== "string" ||
@@ -46,22 +41,9 @@ export async function POST(request: Request) {
       p_version: body.version ?? null,
     };
     let result;
-    if (body.action === "release") {
-      if (!body.reservationId || !body.version)
-        throw new GroupError("invalidInput");
-      result = await db.rpc("release_group_seats", identity);
-    } else {
-      if (!validParticipantCount(body.participantCount))
-        throw new GroupError("invalidParticipantCount");
-      if (!validPickupTime(body.pickupAt, Date.now()))
-        throw new GroupError("slotUnavailable", 409);
-      if (!(await groupWorkerReady())) throw new GroupError("unavailable", 503);
-      result = await db.rpc("reserve_group_seats", {
-        ...identity,
-        p_pickup: body.pickupAt,
-        p_count: body.participantCount,
-      });
-    }
+    if (!body.reservationId || !body.version)
+      throw new GroupError("invalidInput");
+    result = await db.rpc("release_group_seats", identity);
     if (result.error) throw groupStorageError(result.error);
     if (!isGroupAvailability(result.data))
       throw new GroupError("unavailable", 503);

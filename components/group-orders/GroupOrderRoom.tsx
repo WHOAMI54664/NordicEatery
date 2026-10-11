@@ -25,7 +25,11 @@ import {
 import type { Product } from "@/types/product";
 import type { CartAddition } from "@/lib/cart";
 import { priceMealCombos } from "@/lib/meal-combo";
-import type { GroupItem, PublicGroup } from "@/lib/group-orders/model";
+import {
+  groupDeadlineMs,
+  type GroupItem,
+  type PublicGroup,
+} from "@/lib/group-orders/model";
 import { GroupOrderReview } from "./GroupOrderReview";
 import { GroupOrderMenu } from "./GroupOrderMenu";
 import { GroupMemberPayment } from "./GroupMemberPayment";
@@ -176,17 +180,13 @@ export function GroupOrderRoom({
       </div>
     );
   const me = group.members.find((member) => member.id === group.me?.id);
-  const deadlinePassed =
-    Boolean(group.deadline && Date.parse(group.deadline) <= now) ||
-    Date.parse(group.expiresAt) <= now;
+  const deadline = groupDeadlineMs(group);
+  const timeLeft = deadline ? new Date(deadline).toISOString() : null;
+  const deadlinePassed = !timeLeft || Date.parse(timeLeft) <= now;
   const editing = group.status === "open" && !deadlinePassed && !me?.ready;
   const myPayment = group.payments.find(
     (payment) => payment.memberId === me?.id,
   );
-  const timeLeft =
-    group.status === "open"
-      ? group.deadline || group.expiresAt
-      : group.paymentDeadline || group.deadline;
   const remaining = timeLeft
     ? Math.max(0, Math.ceil((Date.parse(timeLeft) - now) / 60000))
     : null;

@@ -78,13 +78,13 @@ export function GroupOrderReview({
           <input
             type="hidden"
             name="deliveryType"
-            value={group.customer?.deliveryType}
+            value={group.customer?.deliveryType || "pickup"}
           />
         )}
         <select
           name="deliveryType"
           disabled={group.individualCheckout}
-          defaultValue={group.customer?.deliveryType}
+          defaultValue={group.customer?.deliveryType || "pickup"}
           className="input-field mt-2"
         >
           {settings.pickup_enabled && (

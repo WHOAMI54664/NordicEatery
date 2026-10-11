@@ -40,10 +40,12 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
     delivery_enabled: true,
   };
   const rows = new Map<string, GroupRow>();
+  const groupsByCreateToken = new Map<string, GroupRow>();
   const products: CatalogProduct[] = [
     {
       id: randomUUID(),
       name: "Caesar",
+      category: "sallad",
       price: 129.5,
       is_available: true,
       track_stock: true,
@@ -92,16 +94,23 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
       const method = init?.method || "GET";
       const id = url.searchParams.get("id")?.replace("eq.", "");
       let result: unknown = [];
-      if (table === "create_reserved_group") {
+      if (table === "create_group_with_capacity") {
         assert.equal(body.p_token_hash, body.p_state.members[0].tokenHash);
-        assert.equal(body.p_version, 1);
-        assert.ok(body.p_reservation_id);
-        result = {
-          id: body.p_id,
-          version: 1,
-          state: structuredClone(body.p_state),
-        };
-        rows.set(body.p_id, structuredClone(result as GroupRow));
+        assert.equal(body.p_count, body.p_state.participantCount);
+        assert.equal(body.p_pickup, body.p_state.pickupAt);
+        result = groupsByCreateToken.get(body.p_token_hash);
+        if (!result) {
+          result = {
+            id: body.p_id,
+            version: 1,
+            state: structuredClone(body.p_state),
+          };
+          groupsByCreateToken.set(
+            body.p_token_hash,
+            structuredClone(result as GroupRow),
+          );
+          rows.set(body.p_id, structuredClone(result as GroupRow));
+        }
       } else if (table === "group_orders") {
         if (method === "POST") {
           rows.set(body.id, structuredClone(body));
@@ -230,28 +239,19 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
     mode: "host" | "split",
     paymentMethod: "card" | "swish" | "cash" = "card",
   ) {
+    const hostSecret = `host-secret-${randomUUID()}`;
     const row = await newGroup(
       {
         pickupAt: "2026-10-11T08:40:00Z",
         participantCount: 3,
-        reservationId: randomUUID(),
-        reservationVersion: 1,
         name: "Lunch",
         memberName: "Host",
         mode,
-        paymentMethod,
-        customer: {
-          name: "Host",
-          phone: "0701234567",
-          email: "",
-          deliveryType: "pickup",
-          address: "Pickup",
-          comment: "",
-        },
+        ...(paymentMethod !== "card" ? { paymentMethod } : {}),
       },
-      "host-secret",
+      hostSecret,
     );
-    const host = tokenHash("host-secret"),
+    const host = tokenHash(hostSecret),
       guest = tokenHash("guest-secret");
     await actOnGroup(row.id, guest, { action: "join", name: "Guest" });
     const items = [{ productId: products[0].id, quantity: 1, note: "" }];
@@ -289,6 +289,42 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
     );
     return { id: row.id, host, guest };
   }
+
+  const portionGroup = await newGroup(
+    {
+      pickupAt: "2026-10-11T08:40:00Z",
+      participantCount: 3,
+      name: "Portions",
+      memberName: "Host",
+      mode: "host",
+    },
+    "portion-limit-host",
+  );
+  const portionHost = tokenHash("portion-limit-host"),
+    portionGuest = tokenHash("portion-limit-guest");
+  await actOnGroup(portionGroup.id, portionHost, {
+    action: "items",
+    revision: 0,
+    items: [{ productId: products[0].id, quantity: 2 }],
+  });
+  await actOnGroup(portionGroup.id, portionGuest, {
+    action: "join",
+    name: "Guest",
+  });
+  await actOnGroup(portionGroup.id, portionGuest, {
+    action: "items",
+    revision: 0,
+    items: [{ productId: products[0].id, quantity: 1 }],
+  });
+  await assert.rejects(
+    actOnGroup(portionGroup.id, portionGuest, {
+      action: "items",
+      revision: 1,
+      items: [{ productId: products[0].id, quantity: 2 }],
+    }),
+    /groupPortionLimit/,
+  );
+
   function pay(session: Stripe.Checkout.Session) {
     session.status = "complete";
     session.payment_status = "paid";
@@ -523,8 +559,6 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
     {
       pickupAt: "2026-10-11T08:40:00Z",
       participantCount: 3,
-      reservationId: randomUUID(),
-      reservationVersion: 1,
       name: "Deadline",
       memberName: "Host",
       mode: "host",
@@ -534,17 +568,11 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
   rows.get(expiredSelection.id)!.state.deadline = new Date(
     Date.now() - 1000,
   ).toISOString();
-  const confirmed = await actOnGroup(
-    expiredSelection.id,
-    tokenHash("late-host"),
-    { action: "ready", ready: true, revision: 0 },
-  );
-  assert.equal(confirmed.state.members[0].ready, true);
   await assert.rejects(
     actOnGroup(expiredSelection.id, tokenHash("late-host"), {
       action: "ready",
-      ready: false,
-      revision: 1,
+      ready: true,
+      revision: 0,
     }),
     /deadlinePassed/,
   );
@@ -553,8 +581,6 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
     {
       pickupAt: "2026-10-11T08:40:00Z",
       participantCount: 3,
-      reservationId: randomUUID(),
-      reservationVersion: 1,
       name: "Stock",
       memberName: "Host",
       mode: "host",
@@ -597,8 +623,6 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
     {
       pickupAt: "2026-10-11T08:40:00Z",
       participantCount: 3,
-      reservationId: randomUUID(),
-      reservationVersion: 1,
       name: "Choices",
       memberName: "Host",
       mode: "host",
@@ -671,21 +695,17 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
     {
       pickupAt: "2026-10-11T08:40:00Z",
       participantCount: 3,
-      reservationId: randomUUID(),
-      reservationVersion: 1,
       name: "Independent",
       memberName: "Host",
       mode: "split",
-      paymentMethod: "card",
-      customer: {
-        name: "Host",
-        phone: "0701234567",
-        email: "",
-        deliveryType: "pickup",
-      },
     },
     "early-host",
   );
+  const independentState = rows.get(independent.id)!.state;
+  assert.equal(independentState.individualCheckout, true);
+  assert.equal(independentState.customer, null);
+  assert.equal(independentState.paymentDeadline, independentState.expiresAt);
+  assert.equal(independentState.deadline, independentState.expiresAt);
   const earlyHost = tokenHash("early-host"),
     earlyGuest = tokenHash("early-guest");
   await actOnGroup(independent.id, earlyGuest, {
@@ -802,8 +822,6 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
     {
       pickupAt: "2026-10-11T09:00:00Z",
       participantCount: 3,
-      reservationId: randomUUID(),
-      reservationVersion: 1,
       name: "Cancel early",
       memberName: "Host",
       mode: "split",

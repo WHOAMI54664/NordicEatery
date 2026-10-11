@@ -11,11 +11,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import {
   GroupError,
   type GroupRow,
+  type GroupCheckoutSettings,
   type GroupPaymentMethod,
   type GroupState,
   type GroupMember,
   type CatalogProduct,
   createGroup,
+  groupDeadlineMs,
   record,
   textField,
   parseItems,
@@ -23,6 +25,7 @@ import {
   priceGroup,
   lockGroup,
   freezeMemberSelection,
+  validateGroupPortions,
   requireMember,
   requireHost,
   requireOpen,
@@ -93,7 +96,7 @@ export async function checkoutSettings(
   deliveryType: "delivery" | "pickup",
   method?: GroupPaymentMethod,
   booking = false,
-) {
+): Promise<GroupCheckoutSettings> {
   const db = groupDb();
   const [shift, settings] = await Promise.all([
     db
@@ -124,6 +127,7 @@ export async function checkoutSettings(
         ))
   )
     throw new GroupError("optionUnavailable", 409);
+  return options as GroupCheckoutSettings;
 }
 export async function newGroup(
   input: unknown,
@@ -134,13 +138,6 @@ export async function newGroup(
     throw new GroupError("slotUnavailable", 409);
   if (!validParticipantCount(data.participantCount))
     throw new GroupError("invalidParticipantCount");
-  if (
-    typeof data.reservationId !== "string" ||
-    !UUID.test(data.reservationId) ||
-    !Number.isSafeInteger(data.reservationVersion) ||
-    Number(data.reservationVersion) < 1
-  )
-    throw new GroupError("reservationExpired", 409);
   const member: GroupMember = {
     id: randomUUID(),
     tokenHash: tokenHash(token),
@@ -155,23 +152,42 @@ export async function newGroup(
     state: createGroup(input, member, randomUUID(), Date.now()),
   };
   if (row.state.mode === "split") {
-    const method = data.paymentMethod;
-    if (method !== "card" && method !== "swish" && method !== "cash")
+    const requestedMethod = data.paymentMethod;
+    if (
+      requestedMethod !== undefined &&
+      requestedMethod !== "card" &&
+      requestedMethod !== "swish" &&
+      requestedMethod !== "cash"
+    )
       throw new GroupError("invalidInput");
-    const customer = parseCustomer(data.customer);
-    await checkoutSettings(customer.deliveryType, method, true);
+    const customer =
+      data.customer === undefined ? null : parseCustomer(data.customer);
+    const options = await checkoutSettings(
+      customer?.deliveryType || "pickup",
+      requestedMethod,
+      true,
+    );
+    const method =
+      requestedMethod ||
+      (["card", "swish", "cash"] as const).find(
+        (candidate) => options[`${candidate}_enabled`],
+      );
+    if (!method) throw new GroupError("optionUnavailable", 409);
     row.state.customer = customer;
     row.state.paymentMethod = method;
     row.state.individualCheckout = true;
     row.state.paymentDeadline = row.state.expiresAt;
   }
-  const { data: saved, error } = await groupDb().rpc("create_reserved_group", {
-    p_id: row.id,
-    p_state: row.state,
-    p_token_hash: tokenHash(token),
-    p_reservation_id: data.reservationId,
-    p_version: data.reservationVersion,
-  });
+  const { data: saved, error } = await groupDb().rpc(
+    "create_group_with_capacity",
+    {
+      p_id: row.id,
+      p_state: row.state,
+      p_token_hash: tokenHash(token),
+      p_pickup: row.state.pickupAt,
+      p_count: row.state.participantCount,
+    },
+  );
   if (error) throw groupStorageError(error);
   if (!saved?.id || !saved.state) throw new GroupError("unavailable", 503);
   return saved as GroupRow;
@@ -184,6 +200,7 @@ export function groupStorageError(error: { message?: string }) {
     "reservationExpired",
     "reservationConflict",
     "groupFull",
+    "invalidSlotDeadline",
   ];
   return error.message && codes.includes(error.message)
     ? new GroupError(error.message, 409)
@@ -242,9 +259,7 @@ export async function actOnGroup(
       if (state.payments.some((p) => p.memberId === me.id && p.attemptedAt))
         throw new GroupError("selectionPaid", 409);
       if (action === "ready" && data.ready === true) {
-        // The deadline freezes dishes, but guests can still confirm that selection.
-        if (state.status !== "open" || Date.parse(state.expiresAt) <= now)
-          throw new GroupError("locked", 409);
+        requireOpen(state, now);
       } else requireOpen(state, now);
       if (me.revision !== data.revision) throw new GroupError("conflict", 409);
       if (action === "items") {
@@ -263,6 +278,11 @@ export async function actOnGroup(
         // Always allow removal, even if other dishes have since sold out.
         // Otherwise two unavailable dishes can prevent each other being removed.
         if (increasesQuantity) {
+          validateGroupPortions(
+            state.members,
+            products,
+            state.participantCount,
+          );
           priceGroup([me], products, state.spendLimit);
           const selected = new Set(me.items.map((item) => item.productId));
           priceGroup(
@@ -323,6 +343,7 @@ export async function actOnGroup(
     if (action === "reopen") {
       if (
         state.status !== "locked" ||
+        groupDeadlineMs(state) <= now ||
         state.payments.some((payment) => payment.attemptedAt)
       )
         throw new GroupError("locked", 409);
@@ -330,7 +351,9 @@ export async function actOnGroup(
       state.payments = [];
       state.lines = [];
       if (!state.individualCheckout) state.customer = null;
-      state.paymentDeadline = state.individualCheckout ? state.expiresAt : null;
+      state.paymentDeadline = state.individualCheckout
+        ? new Date(groupDeadlineMs(state)).toISOString()
+        : null;
       if (state.individualCheckout)
         state.members.forEach((member) => {
           member.ready = false;
@@ -342,8 +365,9 @@ export async function actOnGroup(
       if (
         state.individualCheckout &&
         (method !== state.paymentMethod ||
-          customer.deliveryType !== state.customer?.deliveryType ||
-          customer.address !== state.customer?.address)
+          (state.customer &&
+            (customer.deliveryType !== state.customer.deliveryType ||
+              customer.address !== state.customer.address)))
       )
         throw new GroupError("conflict", 409);
       return {

@@ -2,6 +2,7 @@ import Stripe from "stripe";
 import { groupSwish, swishPhone, type SwishStatus } from "./swish";
 import {
   GroupError,
+  groupDeadlineMs,
   requireMember,
   type GroupState,
   type GroupPayment,
@@ -122,9 +123,16 @@ export async function startGroupPayment(
 ) {
   const before = await readGroup(id);
   const member = requireMember(before.state, hash);
-  if (!before.state.customer) throw new GroupError("locked", 409);
+  if (
+    !before.state.customer &&
+    !(before.state.mode === "split" && before.state.individualCheckout)
+  )
+    throw new GroupError("locked", 409);
   const method = before.state.paymentMethod || "card";
-  await checkoutSettings(before.state.customer.deliveryType, method);
+  await checkoutSettings(
+    before.state.customer?.deliveryType || "pickup",
+    method,
+  );
   const existing = before.state.payments.find((p) => p.memberId === member.id);
   if (!existing) throw new GroupError("hostOnly", 403);
   if (
@@ -150,7 +158,7 @@ export async function startGroupPayment(
           state.individualCheckout)
       ) ||
       !state.paymentDeadline ||
-      Date.parse(state.paymentDeadline) <= Date.now()
+      groupDeadlineMs(state) <= Date.now()
     )
       throw new GroupError("paymentExpired", 409);
     const payment = state.payments.find((item) => item.memberId === member.id);
@@ -267,10 +275,7 @@ async function acceptSwish(id: string, paymentId: string, result: SwishStatus) {
 export async function reconcileGroup(id: string, stripe?: Stripe) {
   let row = await readGroup(id);
   if (row.state.status === "submitted") return;
-  const expired =
-    Date.parse(row.state.expiresAt) <= Date.now() ||
-    (row.state.paymentDeadline &&
-      Date.parse(row.state.paymentDeadline) <= Date.now());
+  const expired = groupDeadlineMs(row.state) <= Date.now();
   if (expired && row.state.status !== "cancelled") {
     row = await changeGroup(id, (state) => {
       if (state.status !== "submitted") state.status = "cancelled";

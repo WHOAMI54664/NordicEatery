@@ -1,12 +1,19 @@
 # Group ordering
 
 The menu entry opens `/{locale}/group-order`. New groups reserve a daily Stockholm
-slot (10:40 or 11:00); see the daily-slots section below. An organiser creates an invitation,
-chooses host-paid or split payment, a selection deadline and an optional budget
-per person. Up to 18 browser sessions can join; each edits only its own dishes.
-The organiser can remove a guest before locking, review contact/delivery details,
-lock the cart, or cancel before submission. A locked cart can be reopened until
-someone starts payment. All four existing site languages are supported.
+slot (10:40 or 11:00); see the daily-slots section below. The organiser chooses
+the portion count, pickup time, name and payment mode. Up to 10 portions including
+the organiser can join; each participant edits only their own dishes. All four
+existing site languages are supported.
+
+Each new group gets one shared deadline at creation:
+`min(created_at + 30 minutes, pickup_at - 20 minutes)`. The same timestamp is
+stored in the legacy deadline fields for compatibility; they do not run separate
+countdowns. PostgreSQL atomically creates the group and claims its seats. At the
+deadline, unfinished groups stop consuming slot capacity immediately. The worker
+then durably cancels them, closes pending checkouts and refunds any paid shares;
+provider failures remain recorded and are retried. A complete group is submitted
+only when every required payment/confirmation succeeds before the deadline.
 
 ## Boundaries and state
 
@@ -20,9 +27,9 @@ someone starts payment. All four existing site languages are supported.
   only the organiser sees contact details. Sessions are tied to this browser.
 - State changes use optimistic version checks. Cart changes also check the
   member's revision. A stale lock must be explicitly retried against a new review.
-- Prices and combined stock are checked on the server. A selection deadline
-  stops edits; guests can still confirm their unchanged selection. Groups expire
-  after 24 hours; locking starts a 60-minute payment window.
+- Prices and combined stock are checked on the server. The common deadline stops
+  edits and payments. Older locked groups retain their original payment deadline
+  even if their separate selection deadline has passed.
 - `open → locked → paying → submitted`, or `cancelled` before submission.
   A database function creates the kitchen order and terminal group state in
   one transaction; the existing daily receipt-number trigger remains authoritative.
@@ -100,8 +107,11 @@ isolate data or payments. Do not inherit production service-role credentials,
 email or Telegram delivery credentials. Copy only public menu/content data into
 the test database, not customers, orders, memberships or payment records.
 
-1. Back up the database and apply `supabase-migration-group-orders.sql` in staging.
-   The migration adds a private table, an optional order FK and a service-only RPC.
+1. Back up the database. Apply `supabase-migration-group-orders.sql`, the daily-slot
+   and capacity migrations, and then `supabase-migration-group-order-single-timer.sql`
+   before deploying the matching application. The last migration replaces capacity
+   availability logic and adds a service-only atomic create RPC; it preserves rows
+   already in progress and is repeatable.
 2. Set `NEXT_PUBLIC_SITE_URL` to the canonical HTTPS origin and configure the
    existing Supabase and Stripe credentials.
 3. Configure `nordic_group_order_worker_url` in Supabase Vault with this environment's
@@ -414,7 +424,7 @@ is no account verification or deposit; an abandoned group occupies its slot unti
 cancellation or expiry. The two initial daily times can now be changed through the
 admin settings described below.
 
-Apply the slot migration before the app. Once independent payments exist, do not roll
+Apply slot migrations before the app. Once independent payments exist, do not roll
 back to code that recreates split shares during locking. The database guard fails
 closed against such edits, but that older UI cannot finish these groups. To pause a
 release, disable new creation with `GROUP_ORDERS_ENABLED=false` while retaining this

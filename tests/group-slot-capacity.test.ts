@@ -111,11 +111,50 @@ test("SQL seat holds serialize capacity, expire, move, convert once and preserve
       legacyId,
       legacy,
     ]);
+    const legacyLockedId = randomUUID();
+    const legacyLocked = {
+      pickupAt: "2026-10-11T09:00:00Z",
+      participantCount: 2,
+      status: "locked",
+      expiresAt: "2026-10-11T09:00:00Z",
+      deadline: "2026-10-11T06:59:59Z",
+      paymentDeadline: "2026-10-11T07:10:00Z",
+    };
+    await db.query("INSERT INTO group_orders(id,state) VALUES($1,$2)", [
+      legacyLockedId,
+      legacyLocked,
+    ]);
     const migration = virtual(
       await readFile("supabase-migration-group-slot-capacity.sql", "utf8"),
     );
     await db.exec(migration);
     await db.exec(migration);
+    const singleTimerMigration = virtual(
+      await readFile("supabase-migration-group-order-single-timer.sql", "utf8"),
+    );
+    await db.exec(singleTimerMigration);
+    await db.exec(singleTimerMigration);
+    assert.equal(
+      (
+        await db.query<{ seats: number }>(
+          "SELECT group_booked_seats($1) seats",
+          ["2026-10-11T09:00:00Z"],
+        )
+      ).rows[0].seats,
+      2,
+      "a legacy locked group keeps its seats through its payment deadline",
+    );
+    await db.exec("SET test.clock='2026-10-11T07:10:01Z'");
+    assert.equal(
+      (
+        await db.query<{ seats: number }>(
+          "SELECT group_booked_seats($1) seats",
+          ["2026-10-11T09:00:00Z"],
+        )
+      ).rows[0].seats,
+      0,
+    );
+    await db.exec("SET test.clock='2026-10-11T07:00:00Z'");
     assert.deepEqual(
       (
         await db.query<{ state: unknown }>(
@@ -177,7 +216,11 @@ test("SQL seat holds serialize capacity, expire, move, convert once and preserve
     const staleA = a;
     a = (await reserve(hash("a"), 3, a, "2026-10-11T09:00:00Z")).reservation!;
     assert.equal((await availability()).slots[0].remaining, 3);
-    assert.equal((await availability()).slots[1].remaining, 7);
+    assert.equal(
+      (await availability()).slots[1].remaining,
+      5,
+      "the other slot still counts seats committed to an active legacy payment",
+    );
     await assert.rejects(reserve(hash("a"), 2, staleA), /reservationConflict/);
     await release(hash("a"), staleA);
     assert.equal(
@@ -282,6 +325,49 @@ test("SQL seat holds serialize capacity, expire, move, convert once and preserve
       [groupB.id],
     );
     assert.equal((await availability()).slots[0].remaining, 3);
+
+    const atomicState = createGroup(
+      {
+        name: "SSAB",
+        mode: "host",
+        pickupAt: pickup,
+        participantCount: 3,
+      },
+      member(hash("e")),
+      randomUUID(),
+      Date.parse("2026-10-11T07:10:01Z"),
+    );
+    const createAtomically = async (id = randomUUID()) =>
+      (
+        await db.query<{
+          result: { id: string; state: Record<string, unknown> };
+        }>("SELECT create_group_with_capacity($1,$2,$3,$4,$5) result", [
+          id,
+          atomicState,
+          hash("e"),
+          pickup,
+          3,
+        ])
+      ).rows[0].result;
+    const atomicallyCreated = await createAtomically();
+    assert.equal((await availability()).slots[0].remaining, 0);
+    assert.equal(
+      (await availability(hash("e"))).createdGroupId,
+      atomicallyCreated.id,
+      "availability recovers the created group after a lost create response",
+    );
+    assert.equal(
+      (await createAtomically()).id,
+      atomicallyCreated.id,
+      "a retried create returns the same group and does not claim twice",
+    );
+    await db.exec("SET test.clock='2026-10-11T07:40:02Z'");
+    assert.equal(
+      (await availability()).slots[0].remaining,
+      3,
+      "the single group deadline releases its seats without waiting for cron",
+    );
+
     const c = (await reserve(hash("c"), 3)).reservation!;
     const owner = randomUUID();
     await db.query("INSERT INTO profiles VALUES($1,'owner')", [owner]);

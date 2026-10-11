@@ -24,6 +24,10 @@ test("Stockholm daily slots honor DST, midnight, exact time and expiry", () => {
     false,
   );
   assert.equal(
+    validPickupTime("2026-10-11T07:20:00Z", Date.parse("2026-10-11T07:00:00Z")),
+    false,
+  );
+  assert.equal(
     validPickupTime("2026-10-12T08:40:00Z", Date.parse("2026-10-11T07:00:00Z")),
     false,
   );
@@ -40,7 +44,7 @@ test("Stockholm daily slots honor DST, midnight, exact time and expiry", () => {
     revision: 0,
     items: [{ productId: "dish", quantity: 1, note: "" }],
   };
-  const now = Date.parse("2026-10-11T08:30:00Z");
+  const now = Date.parse("2026-10-11T08:00:00Z");
   const group = createGroup(
     {
       name: "Lunch",
@@ -52,7 +56,7 @@ test("Stockholm daily slots honor DST, midnight, exact time and expiry", () => {
     randomUUID(),
     now,
   );
-  assert.equal(group.expiresAt, "2026-10-11T08:40:00Z");
+  assert.equal(group.expiresAt, "2026-10-11T08:20:00.000Z");
   assert.equal(Date.parse(group.deadline!), Date.parse(group.expiresAt));
   const locked = lockGroup(
     group,

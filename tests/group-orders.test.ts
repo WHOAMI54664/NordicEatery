@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import type Stripe from "stripe";
 import {
   createGroup,
+  groupDeadlineMs,
   parseItems,
   parseCustomer,
   priceGroup,
@@ -96,7 +97,7 @@ test("server prices, aggregate stock and per-member limits are enforced", () => 
     priceGroup(state.members, [{ ...product, price: NaN }], null),
   );
 });
-test("host payment and split shares preserve exact ore totals and participant attribution", () => {
+test("host payment and split shares preserve exact ore totals and use the same group deadline", () => {
   const host = lockGroup(group(), customer, [product], randomUUID, now);
   assert.equal(host.payments.length, 1);
   assert.equal(host.payments[0].amount, 38850);
@@ -107,7 +108,7 @@ test("host payment and split shares preserve exact ore totals and participant at
   );
   assert.equal(split.lines[0].note, "No croutons");
   assert.equal(split.lines[1].memberName, "Guest");
-  assert.equal(Date.parse(split.paymentDeadline!) - now, 3600000);
+  assert.equal(split.paymentDeadline, split.expiresAt);
 });
 test("guests cannot act as host; invitation responses expose no credentials or contact details", () => {
   const state = lockGroup(group(), customer, [product], randomUUID, now);
@@ -128,16 +129,69 @@ test("guests cannot act as host; invitation responses expose no credentials or c
   ])
     assert.ok(!serialized.includes(secret));
 });
-test("deadline prevents edits, but a ready group can still be locked after choosing ends", () => {
+test("the single deadline prevents edits, locking and payment completion", () => {
   const state = group();
   state.deadline = new Date(now - 1).toISOString();
   assert.throws(() => requireOpen(state, now));
-  assert.equal(
-    lockGroup(state, customer, [product], randomUUID, now).status,
-    "locked",
-  );
+  assert.throws(() => lockGroup(state, customer, [product], randomUUID, now));
   state.members[1].ready = false;
   assert.throws(() => lockGroup(state, customer, [product], randomUUID, now));
+});
+
+test("legacy locked groups retain their payment window after selection closes", () => {
+  const state = group();
+  state.status = "locked";
+  state.expiresAt = new Date(now + 90 * 60 * 1000).toISOString();
+  state.deadline = new Date(now - 1).toISOString();
+  state.paymentDeadline = new Date(now + 10 * 60 * 1000).toISOString();
+  assert.equal(groupDeadlineMs(state), now + 10 * 60 * 1000);
+
+  state.status = "open";
+  assert.equal(groupDeadlineMs(state), now - 1);
+});
+
+test("group creation fixes one 30-minute deadline, shortened to keep a 20-minute pickup buffer", () => {
+  const fixtureNow = Date.parse("2026-10-11T07:00:00Z");
+  const host = member();
+  host.items = [{ productId: product.id, quantity: 1, note: "" }];
+  const farPickup = "2026-10-11T08:40:00Z";
+  const fullWindow = createGroup(
+    {
+      name: "SSAB",
+      mode: "host",
+      pickupAt: farPickup,
+      participantCount: 3,
+      deadline: "2026-10-11T07:05:00Z",
+    },
+    host,
+    randomUUID(),
+    fixtureNow,
+  );
+  assert.equal(Date.parse(fullWindow.expiresAt), fixtureNow + 30 * 60 * 1000);
+  assert.equal(fullWindow.deadline, fullWindow.expiresAt);
+  assert.equal(fullWindow.paymentDeadline, null);
+
+  const nearPickup = createGroup(
+    {
+      name: "SSAB",
+      mode: "split",
+      pickupAt: "2026-10-11T07:40:00Z",
+      participantCount: 3,
+    },
+    host,
+    randomUUID(),
+    fixtureNow,
+  );
+  assert.equal(Date.parse(nearPickup.expiresAt), fixtureNow + 20 * 60 * 1000);
+  const locked = lockGroup(
+    nearPickup,
+    customer,
+    [product],
+    randomUUID,
+    fixtureNow,
+  );
+  assert.equal(locked.deadline, locked.expiresAt);
+  assert.equal(locked.paymentDeadline, locked.expiresAt);
 });
 test("payment confirmation rejects wrong amounts, currency, session or intent; replays preserve refunds", () => {
   const state = lockGroup(group(), customer, [product], randomUUID, now);
