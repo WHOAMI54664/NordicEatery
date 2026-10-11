@@ -63,9 +63,15 @@ export async function POST(request: Request, context: Context) {
     const row = await actOnGroup(id, hash, body);
     // A durable cancelled state is committed before contacting Stripe.
     // The worker retries refunds even if this request disconnects or times out.
-    if (body.action === "cancel") await reconcileGroup(id);
+    if (body.action === "cancel" || body.action === "lock")
+      await reconcileGroup(id);
     const response = groupResponse(
-      publicGroup(body.action === "cancel" ? await readGroup(id) : row, hash),
+      publicGroup(
+        body.action === "cancel" || body.action === "lock"
+          ? await readGroup(id)
+          : row,
+        hash,
+      ),
     );
     if (token) setMemberCookie(response, id, token);
     return response;

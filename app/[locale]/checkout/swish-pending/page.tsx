@@ -1,5 +1,7 @@
 "use client";
 
+import { EditableCopy } from "@/components/site-content/EditableCopy";
+
 import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -168,22 +170,18 @@ function SwishPendingContent() {
                             </div>
 
                             <h1 className="mt-6 text-3xl font-black tracking-tight text-dark sm:text-4xl">
-                                Waiting for Swish payment
-                            </h1>
+                                <EditableCopy value={"Waiting for Swish payment"} textKey="screen.swishPending.waiting-for-swish-payment" page="swishPending" /></h1>
 
                             <p className="mt-3 text-base leading-7 text-dark/60">
-                                Please complete the payment in your Swish app. This page will
-                                update automatically when the payment is confirmed.
-                            </p>
+                                <EditableCopy value={"Please complete the payment in your Swish app. This page will update automatically when the payment is confirmed."} textKey="screen.swishPending.please-complete-the-payment-in-your-swish-app-this-page-will-update-automatically-when-the-payment-is-confirme" page="swishPending" /></p>
 
                             <div className="mt-7 rounded-3xl border border-dark/10 bg-white/70 p-5">
                                 <div className="flex items-center justify-center gap-3 text-sm font-black text-dark">
                                     <Loader2 className="h-5 w-5 animate-spin text-paprika" />
-                                    Checking payment status...
-                                </div>
+                                    <EditableCopy value={"Checking payment status..."} textKey="screen.swishPending.checking-payment-status" page="swishPending" /></div>
 
                                 <p className="mt-3 text-xs font-bold text-dark/45">
-                                    Attempt {attempts}/60
+                                    <EditableCopy value={"Attempt"} textKey="screen.swishPending.attempt" page="swishPending" />{attempts}/60
                                 </p>
                             </div>
                         </>
@@ -196,13 +194,10 @@ function SwishPendingContent() {
                             </div>
 
                             <h1 className="mt-6 text-3xl font-black tracking-tight text-dark sm:text-4xl">
-                                Payment confirmed
-                            </h1>
+                                <EditableCopy value={"Payment confirmed"} textKey="screen.swishPending.payment-confirmed" page="swishPending" /></h1>
 
                             <p className="mt-3 text-base leading-7 text-dark/60">
-                                Swish payment has been confirmed. Redirecting you to your
-                                receipt page...
-                            </p>
+                                <EditableCopy value={"Swish payment has been confirmed. Redirecting you to your receipt page..."} textKey="screen.swishPending.swish-payment-has-been-confirmed-redirecting-you-to-your-receipt-page" page="swishPending" /></p>
                         </>
                     )}
 
@@ -213,8 +208,7 @@ function SwishPendingContent() {
                             </div>
 
                             <h1 className="mt-6 text-3xl font-black tracking-tight text-dark sm:text-4xl">
-                                Still waiting
-                            </h1>
+                                <EditableCopy value={"Still waiting"} textKey="screen.swishPending.still-waiting" page="swishPending" /></h1>
 
                             <p className="mt-3 text-base leading-7 text-dark/60">
                                 {errorMessage ||
@@ -228,12 +222,10 @@ function SwishPendingContent() {
                                     className="btn-primary inline-flex items-center justify-center gap-2"
                                 >
                                     <RefreshCw className="h-5 w-5" />
-                                    Check again
-                                </button>
+                                    <EditableCopy value={"Check again"} textKey="screen.swishPending.check-again" page="swishPending" /></button>
 
                                 <Link href={`/${locale}/checkout`} className="btn-secondary">
-                                    Back to checkout
-                                </Link>
+                                    <EditableCopy value={"Back to checkout"} textKey="screen.swishPending.back-to-checkout" page="swishPending" /></Link>
                             </div>
                         </>
                     )}
@@ -245,8 +237,7 @@ function SwishPendingContent() {
                             </div>
 
                             <h1 className="mt-6 text-3xl font-black tracking-tight text-dark sm:text-4xl">
-                                Payment not confirmed
-                            </h1>
+                                <EditableCopy value={"Payment not confirmed"} textKey="screen.swishPending.payment-not-confirmed" page="swishPending" /></h1>
 
                             <p className="mt-3 text-base leading-7 text-dark/60">
                                 {errorMessage || "Could not confirm your Swish payment."}
@@ -259,12 +250,10 @@ function SwishPendingContent() {
                                     className="btn-primary inline-flex items-center justify-center gap-2"
                                 >
                                     <RefreshCw className="h-5 w-5" />
-                                    Try again
-                                </button>
+                                    <EditableCopy value={"Try again"} textKey="screen.swishPending.try-again" page="swishPending" /></button>
 
                                 <Link href={`/${locale}/checkout`} className="btn-secondary">
-                                    Back to checkout
-                                </Link>
+                                    <EditableCopy value={"Back to checkout"} textKey="screen.swishPending.back-to-checkout" page="swishPending" /></Link>
                             </div>
                         </>
                     )}
@@ -279,7 +268,7 @@ function SwishPendingContent() {
                 {orderNumber ? (
                     <div className="mt-5 flex items-center gap-2 rounded-full border border-dark/10 bg-white/70 px-4 py-2 text-xs font-black text-dark/55">
                         <ReceiptText className="h-4 w-4 text-paprika" />
-                        Order: {orderNumber}
+                        <EditableCopy value={"Order:"} textKey="screen.swishPending.order" page="swishPending" />{orderNumber}
                     </div>
                 ) : null}
             </div>

@@ -1,20 +1,26 @@
-import { getTranslations } from "next-intl/server";
+import { publicPageMetadata } from "@/lib/public-page-metadata";
+import { EditableMessage } from "@/components/site-content/EditableMessage";
 import { CartSummary } from "@/components/CartSummary";
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  return publicPageMetadata(locale, "cart");
+}
+
 export default async function CartPage() {
-    const t = await getTranslations("pages.cart");
+  return (
+    <main className="container-page py-16">
+      <div className="mb-10">
+        <h1 className="section-title">
+          <EditableMessage namespace="pages.cart" messageKey="title" />
+        </h1>
+      </div>
 
-    return (
-        <main className="container-page py-16">
-            <div className="mb-10">
-                <p className="font-black uppercase tracking-[0.25em] text-paprika">
-                    {t("eyebrow")}
-                </p>
-
-                <h1 className="section-title mt-3">{t("title")}</h1>
-            </div>
-
-            <CartSummary />
-        </main>
-    );
+      <CartSummary />
+    </main>
+  );
 }

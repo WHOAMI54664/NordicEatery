@@ -1,6 +1,11 @@
 import { createHash } from "node:crypto";
 import { GroupError, type GroupPayment } from "./model";
 
+export function groupSwishEnabled() {
+  // The certificate-backed service is deployed independently of the website.
+  return process.env.GROUP_SWISH_ENABLED === "true";
+}
+
 export function swishInstruction(id: string, refund = false) {
   if (!refund) return id.replaceAll("-", "").toUpperCase();
   const hash = createHash("sha256").update(`group-refund:${id}`).digest("hex");

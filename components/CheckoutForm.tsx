@@ -1,11 +1,18 @@
 "use client";
 
+import { getPublicPath } from "@/i18n/paths";
+
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Gift, MapPin, Store, Truck } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { Gift, Store, Truck } from "lucide-react";
+import {
+  EditableMessage,
+  useEditableTranslations,
+} from "@/components/site-content/EditableMessage";
 import { useCart } from "@/components/CartProvider";
+import { FoodTruckLocation } from "@/components/FoodTruckLocation";
+import type { TruckCoordinates } from "@/lib/restaurant/location";
 import { PaymentIcons } from "@/components/PaymentIcons";
 import type { PaymentMethod } from "@/types/order";
 
@@ -18,6 +25,7 @@ type CheckoutSettings = {
   card_enabled: boolean;
   swish_enabled: boolean;
   pickup_address?: string | null;
+  pickup_coordinates?: TruckCoordinates | null;
 };
 
 type CheckoutFormProps = {
@@ -50,20 +58,20 @@ function createClientOrderId() {
   }
 
   return `client-${Date.now().toString(36)}-${Math.random()
-      .toString(36)
-      .slice(2)}`;
+    .toString(36)
+    .slice(2)}`;
 }
 
 function getSwishOrderNumber(data: SwishCreateResponse) {
   return (
-      data.orderNumber ||
-      data.order_number ||
-      data.order?.orderNumber ||
-      data.order?.order_number ||
-      data.orderId ||
-      data.order_id ||
-      data.order?.id ||
-      null
+    data.orderNumber ||
+    data.order_number ||
+    data.order?.orderNumber ||
+    data.order?.order_number ||
+    data.orderId ||
+    data.order_id ||
+    data.order?.id ||
+    null
   );
 }
 
@@ -72,74 +80,76 @@ function getSwishLaunchUrl(data: SwishCreateResponse) {
 }
 
 export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
-  const t = useTranslations("pages.checkout");
+  const t = useEditableTranslations("pages.checkout");
   const router = useRouter();
 
-  const { items, totalPrice, clearCart } = useCart();
+  const combo = useEditableTranslations("combo");
+  const { items, totalPrice, pricing, clearCart } = useCart();
 
   const deliveryOptions = useMemo(
-      () =>
-          [
-            {
-              value: "delivery" as const,
-              title: t("delivery"),
-              description: settings.estimated_delivery_time || t("deliveryTime"),
-              icon: Truck,
-              enabled: settings.delivery_enabled,
-            },
-            {
-              value: "pickup" as const,
-              title: t("pickup"),
-              description: t("pickupText"),
-              icon: Store,
-              enabled: settings.pickup_enabled,
-            },
-          ].filter((option) => option.enabled),
+    () =>
       [
-        settings.delivery_enabled,
-        settings.pickup_enabled,
-        settings.estimated_delivery_time,
-        t,
-      ]
+        {
+          value: "delivery" as const,
+          title: t.edit("delivery"),
+          description:
+            settings.estimated_delivery_time || t.edit("deliveryTime"),
+          icon: Truck,
+          enabled: settings.delivery_enabled,
+        },
+        {
+          value: "pickup" as const,
+          title: t.edit("pickup"),
+          description: t.edit("pickupText"),
+          icon: Store,
+          enabled: settings.pickup_enabled,
+        },
+      ].filter((option) => option.enabled),
+    [
+      settings.delivery_enabled,
+      settings.pickup_enabled,
+      settings.estimated_delivery_time,
+      t,
+    ],
   );
 
   const paymentOptions = useMemo(
-      () =>
-          [
-            {
-              value: "card" as PaymentMethod,
-              title: t("card"),
-              description: t("cardText"),
-              enabled: settings.card_enabled,
-            },
-            {
-              value: "swish" as PaymentMethod,
-              title: t("swish"),
-              description: t("swishText"),
-              enabled: settings.swish_enabled,
-            },
-            {
-              value: "cash" as PaymentMethod,
-              title: t("cash"),
-              description: t("cashText"),
-              enabled: settings.cash_enabled,
-            },
-          ].filter((option) => option.enabled),
-      [settings.card_enabled, settings.swish_enabled, settings.cash_enabled, t]
+    () =>
+      [
+        {
+          value: "card" as PaymentMethod,
+          title: t.edit("card"),
+          description: t.edit("cardText"),
+          enabled: settings.card_enabled,
+        },
+        {
+          value: "swish" as PaymentMethod,
+          title: t.edit("swish"),
+          description: t.edit("swishText"),
+          enabled: settings.swish_enabled,
+        },
+        {
+          value: "cash" as PaymentMethod,
+          title: t.edit("cash"),
+          description: t.edit("cashText"),
+          enabled: settings.cash_enabled,
+        },
+      ].filter((option) => option.enabled),
+    [settings.card_enabled, settings.swish_enabled, settings.cash_enabled, t],
   );
 
   const defaultDeliveryType = deliveryOptions[0]?.value || "delivery";
   const defaultPaymentMethod = paymentOptions[0]?.value || "card";
 
   const [paymentMethod, setPaymentMethod] =
-      useState<PaymentMethod>(defaultPaymentMethod);
+    useState<PaymentMethod>(defaultPaymentMethod);
 
   const [deliveryType, setDeliveryType] = useState<"delivery" | "pickup">(
-      defaultDeliveryType
+    defaultDeliveryType,
   );
 
   const [pickupOption, setPickupOption] = useState<"eat_in" | "takeaway">(
-      "takeaway"
+    "takeaway",
   );
 
   const [loyaltyOptIn, setLoyaltyOptIn] = useState(true);
@@ -200,18 +210,18 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
   const rewardValue = loyaltyStatus?.rewardValue ?? 100;
 
   const appliedLoyaltyDiscount =
-      useLoyaltyReward && (loyaltyStatus?.rewardsAvailable ?? 0) > 0
-          ? Math.min(rewardValue, totalPrice)
-          : 0;
+    useLoyaltyReward && (loyaltyStatus?.rewardsAvailable ?? 0) > 0
+      ? Math.min(rewardValue, totalPrice)
+      : 0;
 
   const totalToPay = Math.max(0, totalPrice - appliedLoyaltyDiscount);
 
   const selectedPaymentMethodIsAvailable = paymentOptions.some(
-      (option) => option.value === paymentMethod
+    (option) => option.value === paymentMethod,
   );
 
   const selectedDeliveryTypeIsAvailable = deliveryOptions.some(
-      (option) => option.value === deliveryType
+    (option) => option.value === deliveryType,
   );
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -268,8 +278,8 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
     const formData = new FormData(event.currentTarget);
 
     const customerEmail = String(formData.get("customerEmail") || "")
-        .trim()
-        .toLowerCase();
+      .trim()
+      .toLowerCase();
 
     if (loyaltyOptIn && !customerEmail) {
       alert("Please enter your email to create a customer profile.");
@@ -293,9 +303,9 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
       useLoyaltyReward: appliedLoyaltyDiscount > 0,
 
       address:
-          deliveryType === "pickup"
-              ? "Pickup"
-              : String(formData.get("address") || ""),
+        deliveryType === "pickup"
+          ? "Pickup"
+          : String(formData.get("address") || ""),
 
       deliveryType,
       comment: (() => {
@@ -304,7 +314,7 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
         if (deliveryType !== "pickup") return userComment;
 
         const pickupLabel =
-            pickupOption === "eat_in" ? t("eatIn") : t("takeaway");
+          pickupOption === "eat_in" ? t("eatIn") : t("takeaway");
 
         return [pickupLabel, userComment].filter(Boolean).join(" — ");
       })(),
@@ -362,7 +372,7 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
         clearCart();
 
         const pendingUrl = `/${locale}/checkout/swish-pending?order_number=${encodeURIComponent(
-            orderNumber
+          orderNumber,
         )}`;
 
         const swishLaunchUrl = getSwishLaunchUrl(data);
@@ -372,9 +382,11 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
         const token = swishLaunchUrl
           ? new URL(swishLaunchUrl).searchParams.get("token")
           : null;
-        router.push(token
-          ? `${pendingUrl}#swish_token=${encodeURIComponent(token)}`
-          : pendingUrl);
+        router.push(
+          token
+            ? `${pendingUrl}#swish_token=${encodeURIComponent(token)}`
+            : pendingUrl,
+        );
         return;
       }
 
@@ -405,394 +417,423 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
 
   if (items.length === 0) {
     return (
-        <div className="glass-card mx-auto max-w-2xl p-8 text-center">
-          <h1 className="text-3xl font-black text-dark">{t("emptyTitle")}</h1>
+      <div className="glass-card mx-auto max-w-2xl p-8 text-center">
+        <h1 className="text-3xl font-black text-dark">
+          {t.edit("emptyTitle")}
+        </h1>
 
-          <p className="mt-3 text-dark/60">{t("emptyText")}</p>
+        <p className="mt-3 text-dark/60">{t.edit("emptyText")}</p>
 
-          <Link href={`/${locale}/menu`} className="btn-primary mt-6">
-            {t("goToMenu")}
-          </Link>
-        </div>
+        <Link
+          href={getPublicPath(locale, "/menu")}
+          className="btn-primary mt-6"
+        >
+          {t.edit("goToMenu")}
+        </Link>
+      </div>
     );
   }
 
   return (
-      <form
-          onSubmit={handleSubmit}
-          className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1fr_390px]"
-      >
-        <div className="glass-card w-full min-w-0 p-5 sm:p-6">
-          <div>
-            <p className="text-sm font-black uppercase tracking-[0.25em] text-paprika/70">
-              {t("eyebrow")}
+    <form
+      onSubmit={handleSubmit}
+      className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1fr_390px]"
+    >
+      <div className="glass-card w-full min-w-0 p-5 sm:p-6">
+        <div>
+          <h1 className="text-3xl font-black text-dark sm:text-4xl">
+            {t.edit("title")}
+          </h1>
+
+          <p className="mt-2 text-sm leading-6 text-dark/60">
+            {t.edit("subtitle")}
+          </p>
+        </div>
+
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <label>
+            <span className="mb-2 block text-sm font-bold text-dark">
+              {t.edit("name")}
+              <EditableMessage
+                namespace="pages.checkout"
+                messageKey="namePlaceholder"
+                pencilOnly
+              />
+            </span>
+            <input
+              required
+              name="customerName"
+              className="input-field"
+              placeholder={t("namePlaceholder")}
+            />
+          </label>
+
+          <label>
+            <span className="mb-2 block text-sm font-bold text-dark">
+              {t.edit("phone")}
+              <EditableMessage
+                namespace="pages.checkout"
+                messageKey="phonePlaceholder"
+                pencilOnly
+              />
+            </span>
+            <input
+              required
+              onChange={(event) => setContactPhone(event.target.value)}
+              name="customerPhone"
+              className="input-field"
+              placeholder={t("phonePlaceholder")}
+            />
+          </label>
+
+          <label className="sm:col-span-2">
+            <span className="mb-2 block text-sm font-bold text-dark">
+              {t.edit("email")}
+              <EditableMessage
+                namespace="pages.checkout"
+                messageKey="emailPlaceholder"
+                pencilOnly
+              />
+            </span>
+            <input
+              onChange={(event) => setContactEmail(event.target.value)}
+              name="customerEmail"
+              type="email"
+              required={loyaltyOptIn}
+              className="input-field"
+              placeholder={t("emailPlaceholder")}
+            />
+            <p className="mt-2 text-xs leading-5 text-dark/45">
+              {t.edit("emailHelp")}
             </p>
+          </label>
 
-            <h1 className="mt-2 text-3xl font-black text-dark sm:text-4xl">
-              {t("title")}
-            </h1>
+          <div className="sm:col-span-2 overflow-hidden rounded-3xl border border-paprika/15 bg-white/75 p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-paprika/10 text-paprika">
+                <Gift className="h-5 w-5" />
+              </div>
 
-            <p className="mt-2 text-sm leading-6 text-dark/60">
-              {t("subtitle")}
+              <div className="min-w-0">
+                <p className="font-black text-dark">{t.edit("loyaltyTitle")}</p>
+
+                <p className="mt-1 text-sm leading-6 text-dark/60">
+                  {t.edit("loyaltyText", {
+                    min: 150,
+                    count: loyaltyStatus?.stampsPerReward ?? 10,
+                    value: rewardValue,
+                  })}
+                </p>
+
+                {loyaltyStatus && (
+                  <div className="mt-3 rounded-2xl bg-cream px-3 py-2 text-xs font-bold text-dark/55">
+                    {t.edit("loyaltyProgress", {
+                      stamps: loyaltyStatus.stamps,
+                      total: loyaltyStatus.stampsPerReward,
+                    })}
+                  </div>
+                )}
+
+                <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-dark/10 bg-cream/70 p-3 text-sm leading-6 text-dark/70">
+                  <input
+                    type="checkbox"
+                    checked={loyaltyOptIn}
+                    onChange={(event) => setLoyaltyOptIn(event.target.checked)}
+                    className="mt-1 h-4 w-4 shrink-0"
+                  />
+
+                  <span>{t.edit("loyaltyOptIn")}</span>
+                </label>
+
+                {(loyaltyStatus?.rewardsAvailable ?? 0) > 0 && (
+                  <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-paprika/40 bg-paprika/5 p-3 text-sm font-bold leading-6 text-dark">
+                    <input
+                      type="checkbox"
+                      checked={useLoyaltyReward}
+                      onChange={(event) =>
+                        setUseLoyaltyReward(event.target.checked)
+                      }
+                      className="mt-1 h-4 w-4 shrink-0"
+                    />
+
+                    <span>
+                      {t.edit("loyaltyUseReward", { value: rewardValue })}
+                    </span>
+                  </label>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="sm:col-span-2">
+            <span className="mb-2 block text-sm font-bold text-dark">
+              {t.edit("deliveryType")}
+            </span>
+
+            {deliveryOptions.length === 0 ? (
+              <div className="rounded-3xl border border-paprika/20 bg-paprika/10 p-4 text-sm font-bold text-paprika">
+                {t.edit("fulfillmentUnavailable")}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {deliveryOptions.map((option) => {
+                  const Icon = option.icon;
+
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setDeliveryType(option.value)}
+                      className={`min-w-0 rounded-3xl border p-4 text-left transition ${
+                        deliveryType === option.value
+                          ? "border-paprika bg-paprika text-white"
+                          : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
+                      }`}
+                    >
+                      <Icon className="h-5 w-5" />
+                      <p className="mt-2 break-words font-black">
+                        {option.title}
+                      </p>
+                      <p className="mt-1 text-xs opacity-70">
+                        {option.description}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {deliveryType === "pickup" && (
+            <FoodTruckLocation
+              address={settings.pickup_address || null}
+              coordinates={settings.pickup_coordinates || null}
+              className="sm:col-span-2"
+            />
+          )}
+
+          {deliveryType === "pickup" && (
+            <div className="sm:col-span-2">
+              <span className="mb-2 block text-sm font-bold text-dark">
+                {t.edit("pickupOptionTitle")}
+              </span>
+
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { value: "eat_in" as const, label: t.edit("eatIn") },
+                  { value: "takeaway" as const, label: t.edit("takeaway") },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setPickupOption(option.value)}
+                    className={`min-w-0 rounded-3xl border p-4 text-left font-black transition ${
+                      pickupOption === option.value
+                        ? "border-paprika bg-paprika text-white"
+                        : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {deliveryType === "delivery" && settings.delivery_enabled && (
+            <label className="sm:col-span-2">
+              <span className="mb-2 block text-sm font-bold text-dark">
+                {t.edit("address")}
+                <EditableMessage
+                  namespace="pages.checkout"
+                  messageKey="addressPlaceholder"
+                  pencilOnly
+                />
+              </span>
+              <input
+                required
+                name="address"
+                className="input-field"
+                placeholder={t("addressPlaceholder")}
+              />
+            </label>
+          )}
+
+          {deliveryType === "pickup" && (
+            <input type="hidden" name="address" value="Pickup" />
+          )}
+
+          <div className="sm:col-span-2">
+            <span className="mb-2 block text-sm font-bold text-dark">
+              {t.edit("paymentMethod")}
+            </span>
+
+            {paymentOptions.length === 0 ? (
+              <div className="rounded-3xl border border-paprika/20 bg-paprika/10 p-4 text-sm font-bold text-paprika">
+                {t.edit("paymentsUnavailable")}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                {paymentOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setPaymentMethod(option.value)}
+                    className={`min-w-0 rounded-3xl border px-3 py-4 text-left transition sm:p-4 ${
+                      paymentMethod === option.value
+                        ? "border-paprika bg-paprika text-white"
+                        : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
+                    }`}
+                  >
+                    <p className="break-words font-black">{option.title}</p>
+                    <p className="mt-1 text-xs leading-4 opacity-70">
+                      {option.description}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <input type="hidden" name="paymentMethod" value={paymentMethod} />
+          </div>
+
+          {paymentMethod === "swish" && settings.swish_enabled && (
+            <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
+              {t.edit("swishInfo")}
+            </div>
+          )}
+
+          {paymentMethod === "card" && settings.card_enabled && (
+            <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
+              {t.edit("cardInfo")}
+            </div>
+          )}
+
+          <label className="sm:col-span-2">
+            <span className="mb-2 block text-sm font-bold text-dark">
+              {t.edit("comment")}
+              <EditableMessage
+                namespace="pages.checkout"
+                messageKey="commentPlaceholder"
+                pencilOnly
+              />
+            </span>
+            <textarea
+              name="comment"
+              className="input-field min-h-28 resize-none"
+              placeholder={t("commentPlaceholder")}
+            />
+          </label>
+
+          <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4">
+            <p className="font-black text-dark">{t.edit("securePayments")}</p>
+
+            <div className="mt-3">
+              <PaymentIcons />
+            </div>
+
+            <p className="mt-3 text-sm leading-6 text-dark/60">
+              {t.edit("securePaymentsText")}
             </p>
           </div>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <label>
-            <span className="mb-2 block text-sm font-bold text-dark">
-              {t("name")}
-            </span>
-              <input
-                  required
-                  name="customerName"
-                  className="input-field"
-                  placeholder={t("namePlaceholder")}
-              />
-            </label>
+          <label className="sm:col-span-2 flex gap-3 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
+            <input required type="checkbox" className="mt-1 h-4 w-4 shrink-0" />
 
-            <label>
-            <span className="mb-2 block text-sm font-bold text-dark">
-              {t("phone")}
-            </span>
-              <input
-                  required
-                  onChange={(event) => setContactPhone(event.target.value)}
-                  name="customerPhone"
-                  className="input-field"
-                  placeholder={t("phonePlaceholder")}
-              />
-            </label>
-
-            <label className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-dark">
-              Email
-            </span>
-              <input
-                  onChange={(event) => setContactEmail(event.target.value)}
-                  name="customerEmail"
-                  type="email"
-                  required={loyaltyOptIn}
-                  className="input-field"
-                  placeholder="your@email.com"
-              />
-              <p className="mt-2 text-xs leading-5 text-dark/45">
-                Required only if you want to create a customer profile and collect
-                discounts.
-              </p>
-            </label>
-
-            <div className="sm:col-span-2 overflow-hidden rounded-3xl border border-paprika/15 bg-white/75 p-4">
-              <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-paprika/10 text-paprika">
-                  <Gift className="h-5 w-5" />
-                </div>
-
-                <div className="min-w-0">
-                  <p className="font-black text-dark">
-                    {t("loyaltyTitle")}
-                  </p>
-
-                  <p className="mt-1 text-sm leading-6 text-dark/60">
-                    {t("loyaltyText", {
-                      min: 150,
-                      count: loyaltyStatus?.stampsPerReward ?? 10,
-                      value: rewardValue,
-                    })}
-                  </p>
-
-                  {loyaltyStatus && (
-                      <div className="mt-3 rounded-2xl bg-cream px-3 py-2 text-xs font-bold text-dark/55">
-                        {t("loyaltyProgress", {
-                          stamps: loyaltyStatus.stamps,
-                          total: loyaltyStatus.stampsPerReward,
-                        })}
-                      </div>
-                  )}
-
-                  <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-dark/10 bg-cream/70 p-3 text-sm leading-6 text-dark/70">
-                    <input
-                        type="checkbox"
-                        checked={loyaltyOptIn}
-                        onChange={(event) => setLoyaltyOptIn(event.target.checked)}
-                        className="mt-1 h-4 w-4 shrink-0"
-                    />
-
-                    <span>{t("loyaltyOptIn")}</span>
-                  </label>
-
-                  {(loyaltyStatus?.rewardsAvailable ?? 0) > 0 && (
-                      <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-paprika/40 bg-paprika/5 p-3 text-sm font-bold leading-6 text-dark">
-                        <input
-                            type="checkbox"
-                            checked={useLoyaltyReward}
-                            onChange={(event) =>
-                                setUseLoyaltyReward(event.target.checked)
-                            }
-                            className="mt-1 h-4 w-4 shrink-0"
-                        />
-
-                        <span>
-                          {t("loyaltyUseReward", { value: rewardValue })}
-                        </span>
-                      </label>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-dark">
-              {t("deliveryType")}
-            </span>
-
-              {deliveryOptions.length === 0 ? (
-                  <div className="rounded-3xl border border-paprika/20 bg-paprika/10 p-4 text-sm font-bold text-paprika">
-                    Delivery and pickup are currently unavailable.
-                  </div>
-              ) : (
-                  <div className="grid grid-cols-2 gap-3">
-                    {deliveryOptions.map((option) => {
-                      const Icon = option.icon;
-
-                      return (
-                          <button
-                              key={option.value}
-                              type="button"
-                              onClick={() => setDeliveryType(option.value)}
-                              className={`min-w-0 rounded-3xl border p-4 text-left transition ${
-                                  deliveryType === option.value
-                                      ? "border-paprika bg-paprika text-white"
-                                      : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
-                              }`}
-                          >
-                            <Icon className="h-5 w-5" />
-                            <p className="mt-2 truncate font-black">
-                              {option.title}
-                            </p>
-                            <p className="mt-1 text-xs opacity-70">
-                              {option.description}
-                            </p>
-                          </button>
-                      );
-                    })}
-                  </div>
-              )}
-            </div>
-
-            {deliveryType === "pickup" && settings.pickup_address && (
-                <div className="sm:col-span-2 flex items-start gap-3 rounded-3xl border border-dark/10 bg-white/70 p-4">
-                  <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-paprika" />
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-dark">
-                      {t("pickupLocation")}
-                    </p>
-                    <p className="mt-0.5 text-sm leading-6 text-dark/70">
-                      {settings.pickup_address}
-                    </p>
-                  </div>
-                </div>
-            )}
-
-            {deliveryType === "pickup" && (
-                <div className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-dark">
-              {t("pickupOptionTitle")}
-            </span>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { value: "eat_in" as const, label: t("eatIn") },
-                      { value: "takeaway" as const, label: t("takeaway") },
-                    ].map((option) => (
-                        <button
-                            key={option.value}
-                            type="button"
-                            onClick={() => setPickupOption(option.value)}
-                            className={`min-w-0 rounded-3xl border p-4 text-left font-black transition ${
-                                pickupOption === option.value
-                                    ? "border-paprika bg-paprika text-white"
-                                    : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
-                            }`}
-                        >
-                          {option.label}
-                        </button>
-                    ))}
-                  </div>
-                </div>
-            )}
-
-            {deliveryType === "delivery" && settings.delivery_enabled && (
-                <label className="sm:col-span-2">
-              <span className="mb-2 block text-sm font-bold text-dark">
-                {t("address")}
-              </span>
-                  <input
-                      required
-                      name="address"
-                      className="input-field"
-                      placeholder={t("addressPlaceholder")}
-                  />
-                </label>
-            )}
-
-            {deliveryType === "pickup" && (
-                <input type="hidden" name="address" value="Pickup" />
-            )}
-
-            <div className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-dark">
-              {t("paymentMethod")}
-            </span>
-
-              {paymentOptions.length === 0 ? (
-                  <div className="rounded-3xl border border-paprika/20 bg-paprika/10 p-4 text-sm font-bold text-paprika">
-                    No payment methods are currently available. Please contact the
-                    restaurant.
-                  </div>
-              ) : (
-                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                    {paymentOptions.map((option) => (
-                        <button
-                            key={option.value}
-                            type="button"
-                            onClick={() => setPaymentMethod(option.value)}
-                            className={`min-w-0 rounded-3xl border px-3 py-4 text-left transition sm:p-4 ${
-                                paymentMethod === option.value
-                                    ? "border-paprika bg-paprika text-white"
-                                    : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
-                            }`}
-                        >
-                          <p className="truncate font-black">{option.title}</p>
-                          <p className="mt-1 line-clamp-2 text-xs leading-4 opacity-70">
-                            {option.description}
-                          </p>
-                        </button>
-                    ))}
-                  </div>
-              )}
-
-              <input type="hidden" name="paymentMethod" value={paymentMethod} />
-            </div>
-
-            {paymentMethod === "swish" && settings.swish_enabled && (
-                <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
-                  {t("swishInfo")}
-                </div>
-            )}
-
-            {paymentMethod === "card" && settings.card_enabled && (
-                <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
-                  {t("cardInfo")}
-                </div>
-            )}
-
-            <label className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-dark">
-              {t("comment")}
-            </span>
-              <textarea
-                  name="comment"
-                  className="input-field min-h-28 resize-none"
-                  placeholder={t("commentPlaceholder")}
-              />
-            </label>
-
-            <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4">
-              <p className="font-black text-dark">{t("securePayments")}</p>
-
-              <div className="mt-3">
-                <PaymentIcons />
-              </div>
-
-              <p className="mt-3 text-sm leading-6 text-dark/60">
-                {t("securePaymentsText")}
-              </p>
-            </div>
-
-            <label className="sm:col-span-2 flex gap-3 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
-              <input required type="checkbox" className="mt-1 h-4 w-4 shrink-0" />
-
-              <span>
-              {t("accept")}{" "}
-                <Link
-                    href={`/${locale}/terms`}
-                    className="font-black text-paprika underline"
-                >
-                {t("terms")}
+            <span>
+              {t.edit("accept")}{" "}
+              <Link
+                href={`/${locale}/terms`}
+                className="font-black text-paprika underline"
+              >
+                {t.edit("terms")}
               </Link>{" "}
-                {t("and")}{" "}
-                <Link
-                    href={`/${locale}/privacy`}
-                    className="font-black text-paprika underline"
-                >
-                {t("privacy")}
+              {t.edit("and")}{" "}
+              <Link
+                href={`/${locale}/privacy`}
+                className="font-black text-paprika underline"
+              >
+                {t.edit("privacy")}
               </Link>
               .
             </span>
-            </label>
-          </div>
+          </label>
+        </div>
+      </div>
+
+      <aside className="glass-card h-fit w-full min-w-0 p-5 sm:p-6 lg:sticky lg:top-24">
+        <h2 className="text-2xl font-black text-dark">
+          {t.edit("orderTitle")}
+        </h2>
+
+        <div className="mt-6 space-y-4">
+          {items.map((item) => (
+            <div
+              key={item.lineId}
+              className="flex justify-between gap-4 text-sm"
+            >
+              <div className="min-w-0">
+                <p className="truncate font-black text-dark">{item.name}</p>
+                <p className="text-dark/60">{item.optionSummary}</p>
+                <p className="text-dark/50">x{item.quantity}</p>
+              </div>
+
+              <p className="shrink-0 font-black">
+                {pricing.lineTotals[item.lineId] / 100} kr
+              </p>
+            </div>
+          ))}
         </div>
 
-        <aside className="glass-card h-fit w-full min-w-0 p-5 sm:p-6 lg:sticky lg:top-24">
-          <h2 className="text-2xl font-black text-dark">{t("orderTitle")}</h2>
-
-          <div className="mt-6 space-y-4">
-            {items.map((item) => (
-                <div key={item.id} className="flex justify-between gap-4 text-sm">
-                  <div className="min-w-0">
-                    <p className="truncate font-black text-dark">{item.name}</p>
-                    <p className="text-dark/50">x{item.quantity}</p>
-                  </div>
-
-                  <p className="shrink-0 font-black">
-                    {item.price * item.quantity} kr
-                  </p>
-                </div>
-            ))}
-          </div>
-
-          <div className="mt-6 border-t border-dark/10 pt-4">
-            {appliedLoyaltyDiscount > 0 && (
-                <div className="mb-2 flex justify-between gap-4 text-sm text-dark/60">
-                  <span className="font-bold">{t("loyaltyDiscountLabel")}</span>
-                  <span className="font-bold">
-                    −{appliedLoyaltyDiscount} kr
-                  </span>
-                </div>
-            )}
-
-            <div className="flex justify-between gap-4 text-lg">
-              <span className="font-black">{t("total")}</span>
-              <span className="font-black text-paprika">{totalToPay} kr</span>
-            </div>
-
-            <p className="mt-2 text-xs leading-5 text-dark/45">
-              {t("taxInfo")}
+        <div className="mt-6 border-t border-dark/10 pt-4">
+          {pricing.discountAmount > 0 && (
+            <p className="mb-3 text-sm font-bold text-paprika">
+              {combo.edit("saving", {
+                amount: `${pricing.discountAmount / 100} kr`,
+              })}
             </p>
+          )}
+          {appliedLoyaltyDiscount > 0 && (
+            <div className="mb-2 flex justify-between gap-4 text-sm text-dark/60">
+              <span className="font-bold">
+                {t.edit("loyaltyDiscountLabel")}
+              </span>
+              <span className="font-bold">−{appliedLoyaltyDiscount} kr</span>
+            </div>
+          )}
+
+          <div className="flex justify-between gap-4 text-lg">
+            <span className="font-black">{t.edit("total")}</span>
+            <span className="font-black text-paprika">{totalToPay} kr</span>
           </div>
 
-          <button
-              type="submit"
-              disabled={
-                  isLoading ||
-                  paymentOptions.length === 0 ||
-                  deliveryOptions.length === 0 ||
-                  !selectedPaymentMethodIsAvailable ||
-                  !selectedDeliveryTypeIsAvailable
-              }
-              className="btn-primary mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isLoading
-                ? t("processing")
-                : paymentMethod === "card" || paymentMethod === "swish"
-                    ? t("continuePayment")
-                    : t("placeOrder")}
-          </button>
-
-          <p className="mt-4 text-center text-xs leading-5 text-dark/45">
-            {t("bottomInfo")}
+          <p className="mt-2 text-xs leading-5 text-dark/45">
+            {t.edit("taxInfo")}
           </p>
-        </aside>
-      </form>
+        </div>
+
+        <button
+          type="submit"
+          disabled={
+            isLoading ||
+            paymentOptions.length === 0 ||
+            deliveryOptions.length === 0 ||
+            !selectedPaymentMethodIsAvailable ||
+            !selectedDeliveryTypeIsAvailable
+          }
+          className="btn-primary mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isLoading
+            ? t.edit("processing")
+            : paymentMethod === "card" || paymentMethod === "swish"
+              ? t.edit("continuePayment")
+              : t.edit("placeOrder")}
+        </button>
+
+        <p className="mt-4 text-center text-xs leading-5 text-dark/45">
+          {t.edit("bottomInfo")}
+        </p>
+      </aside>
+    </form>
   );
 }

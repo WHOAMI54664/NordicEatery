@@ -69,6 +69,41 @@ test("group migration: private access, version conflicts, atomic fulfillment and
     );
     await db.exec(migration);
     await db.exec(migration); // Additive migration can safely be re-applied.
+    const optionsMigration = await readFile(
+      "supabase-migration-menu-options.sql",
+      "utf8",
+    );
+    await db.exec(optionsMigration);
+    await db.exec(optionsMigration);
+    await db.exec(
+      "CREATE TABLE public.profiles(id uuid PRIMARY KEY, role text)",
+    );
+    for (const file of [
+      "supabase-migration-group-slots.sql",
+      "supabase-migration-group-slot-settings.sql",
+      "supabase-migration-group-slot-capacity.sql",
+    ]) {
+      await db.exec(await readFile(file, "utf8"));
+    }
+    for (const value of [
+      {},
+      [{ id: "bad", name: "Bad", min: 1, max: 1, options: [] }],
+      [
+        {
+          id: "bad",
+          name: "Bad",
+          min: 0,
+          max: 1,
+          options: [{ id: "a", name: "a", price: -1 }],
+        },
+      ],
+    ]) {
+      const valid = await db.query<{ valid: boolean }>(
+        "SELECT public.valid_menu_modifiers($1::jsonb) AS valid",
+        [JSON.stringify(value)],
+      );
+      assert.equal(valid.rows[0].valid, false);
+    }
     const product = {
       id: randomUUID(),
       name: "Caesar",
@@ -77,11 +112,10 @@ test("group migration: private access, version conflicts, atomic fulfillment and
       track_stock: true,
       stock_quantity: 10,
     };
-    await db.query("INSERT INTO products VALUES ($1,$2,$3,true,true,10)", [
-      product.id,
-      product.name,
-      product.price,
-    ]);
+    await db.query(
+      "INSERT INTO products (id,name,price,is_available,track_stock,stock_quantity) VALUES ($1,$2,$3,true,true,10)",
+      [product.id, product.name, product.price],
+    );
     function state() {
       const host = {
         id: randomUUID(),
@@ -135,7 +169,27 @@ test("group migration: private access, version conflicts, atomic fulfillment and
       ]);
       return id;
     }
+    const invalidConfig = [
+      {
+        id: "bad",
+        name: "Bad",
+        min: 2,
+        max: 1,
+        options: [{ id: "x", name: "x", price: 0 }],
+      },
+    ];
+    await assert.rejects(
+      db.query("UPDATE products SET modifier_groups=$1 WHERE id=$2", [
+        JSON.stringify(invalidConfig),
+        product.id,
+      ]),
+      /products_modifier_groups_valid/,
+    );
     const complete = state();
+    complete.lines[0].selections = [
+      { groupId: "filling", optionIds: ["no-onion"] },
+    ];
+    complete.lines[0].name = "Caesar · Filling: No onion";
     const id = await insert(complete);
     await db.exec("SET ROLE anon");
     await assert.rejects(
@@ -151,7 +205,12 @@ test("group migration: private access, version conflicts, atomic fulfillment and
     await db.query("SELECT finalize_group_order($1,1)", [id]);
     const orders = await db.query<{
       total_gross: string;
-      items: Array<{ member_name: string; note: string }>;
+      items: Array<{
+        member_name: string;
+        note: string;
+        name: string;
+        selections: unknown;
+      }>;
       display_order_number: string;
     }>("SELECT * FROM orders WHERE group_order_id=$1", [id]);
     assert.equal(orders.rows.length, 1);
@@ -162,6 +221,11 @@ test("group migration: private access, version conflicts, atomic fulfillment and
       ["Host", "Guest"],
     );
     assert.equal(orders.rows[0].items[0].note, "No croutons");
+    assert.equal(orders.rows[0].items[0].name, "Caesar · Filling: No onion");
+    assert.deepEqual(
+      orders.rows[0].items[0].selections,
+      complete.lines[0].selections,
+    );
 
     const partial = state();
     partial.payments[1].status = "pending";
@@ -288,6 +352,85 @@ test("group migration: private access, version conflicts, atomic fulfillment and
         )
       ).rows[0].status,
       "cancelled",
+    );
+    const drink = {
+      ...product,
+      id: randomUUID(),
+      name: "Cola",
+      price: 29,
+      category: "drinks",
+    };
+    await db.query(
+      "INSERT INTO products (id,name,price,is_available,track_stock,stock_quantity) VALUES ($1,$2,$3,true,true,10)",
+      [drink.id, drink.name, drink.price],
+    );
+    const comboHost = {
+      id: randomUUID(),
+      tokenHash: "combo-host",
+      name: "Combo host",
+      ready: true,
+      revision: 0,
+      items: [
+        { productId: product.id, quantity: 1, note: "" },
+        { productId: drink.id, quantity: 2, note: "" },
+      ],
+    };
+    const comboDraft = createGroup(
+      { name: "Combo lunch", mode: "host", locale: "sv" },
+      comboHost,
+      randomUUID(),
+      Date.now(),
+    );
+    const combo = lockGroup(
+      comboDraft,
+      {
+        name: "Host",
+        phone: "0701234567",
+        email: "",
+        deliveryType: "pickup",
+        address: "Pickup",
+        comment: "",
+      },
+      [{ ...product, category: "sallad" }, drink],
+      randomUUID,
+      Date.now(),
+    );
+    combo.paymentMethod = "cash";
+    combo.status = "paying";
+    combo.payments.forEach((payment) => {
+      payment.status = "pay_on_site";
+    });
+    const comboId = await insert(combo);
+    await db.query("SELECT finalize_group_order($1,1)", [comboId]);
+    const comboOrder = (
+      await db.query<{
+        total_gross: string;
+        items: Array<{
+          id: string;
+          price: number;
+          quantity: number;
+          name: string;
+        }>;
+      }>("SELECT total_gross,items FROM orders WHERE group_order_id=$1", [
+        comboId,
+      ])
+    ).rows[0];
+    assert.equal(Number(comboOrder.total_gross), 182.5);
+    assert.deepEqual(
+      comboOrder.items
+        .filter((item) => item.id === drink.id)
+        .map((item) => [item.price, item.quantity]),
+      [
+        [24, 1],
+        [29, 1],
+      ],
+    );
+    assert.equal(
+      comboOrder.items.reduce(
+        (sum, item) => sum + Math.round(item.price * 100) * item.quantity,
+        0,
+      ),
+      18250,
     );
   } finally {
     await db.close();

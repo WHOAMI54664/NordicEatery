@@ -17,6 +17,12 @@ import {
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/browser";
 
+import { EditableText } from "@/components/EditableText";
+import { useSiteContent } from "@/components/site-content/SiteContentProvider";
+import { getMenuCategories } from "@/lib/menu-display";
+import { ModifierGroupsEditor } from "@/components/admin/ModifierGroupsEditor";
+import { parseModifierGroups, type ModifierGroup } from "@/lib/menu-options";
+
 type MenuType = "standard" | "vegan" | "gluten_free";
 
 const DEFAULT_CATEGORIES = ["maczanka", "knysza", "fries", "sauces", "drinks"];
@@ -35,13 +41,8 @@ function slugifyCategory(value: string) {
       .replace(/^-|-$/g, "");
 }
 
-function titleizeCategory(value: string) {
-  const label = value.replace(/[-_]+/g, " ").trim();
-
-  return label.charAt(0).toUpperCase() + label.slice(1);
-}
-
 type ProductFormValues = {
+  modifier_groups?: ModifierGroup[] | null;
   id?: string;
   name?: string;
   subtitle?: string;
@@ -146,10 +147,13 @@ export function ProductForm({
                             }: ProductFormProps) {
   const t = useTranslations("admin.products");
   const common = useTranslations("admin.common");
+  const categoryTranslations = useTranslations("pages.menu.categories");
+  const { canEdit, content, changes, setCopy } = useSiteContent();
 
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
+  const [modifierGroups, setModifierGroups] = useState<ModifierGroup[]>(product?.modifier_groups || []);
   const [name, setName] = useState(product?.name || "");
   const [subtitle, setSubtitle] = useState(product?.subtitle || "");
   const [description, setDescription] = useState(product?.description || "");
@@ -196,6 +200,12 @@ export function ProductForm({
 
     return Array.from(new Set(merged.map((value) => value.trim()).filter(Boolean)));
   }, [existingCategories, product?.category]);
+  const categoryLabels = getMenuCategories(
+    categoryOptions.map((category) => ({ category })),
+    { ...content, ...changes },
+    (id) => categoryTranslations(id),
+  );
+  const selectedCategory = categoryLabels.find((option) => option.id === category);
   const [menuType, setMenuType] = useState<MenuType>(
       product?.menu_type || "standard"
   );
@@ -266,7 +276,14 @@ export function ProductForm({
       return;
     }
 
+    try { parseModifierGroups(modifierGroups); } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : t("saveError"));
+      setIsSaving(false);
+      return;
+    }
     const payload = {
+      locale,
+      modifier_groups: modifierGroups,
       id: productId,
       name,
       subtitle,
@@ -284,22 +301,10 @@ export function ProductForm({
           ? Math.max(0, Number(stockQuantity) || 0)
           : 0,
 
-      name_sv: name,
-      name_pl: name,
-      name_ru: name,
-
-      subtitle_sv: subtitle || null,
-      subtitle_pl: subtitle || null,
-      subtitle_ru: subtitle || null,
-
-      description_sv: description || null,
-      description_pl: description || null,
-      description_ru: description || null,
     };
 
     try {
       if (mode === "create") {
-        console.log("CREATE PAYLOAD:", payload);
 
         const res = await fetch("/api/products/create", {
           method: "POST",
@@ -309,13 +314,10 @@ export function ProductForm({
 
         const data = await res.json().catch(() => null);
 
-        console.log("CREATE RESPONSE:", res.status, data);
-
         if (!res.ok) {
           throw new Error(data?.details || data?.error || t("saveError"));
         }
       } else {
-        console.log("UPDATE PAYLOAD:", payload);
 
         const res = await fetch("/api/products/update", {
           method: "POST",
@@ -324,8 +326,6 @@ export function ProductForm({
         });
 
         const data = await res.json().catch(() => null);
-
-        console.log("UPDATE RESPONSE:", res.status, data);
 
         if (!res.ok) {
           throw new Error(data?.details || data?.error || t("saveError"));
@@ -382,12 +382,12 @@ export function ProductForm({
             </div>
 
             <div>
-              <FieldLabel>{t("subtitle")}</FieldLabel>
+              <FieldLabel>{t("subtitleOptional")}</FieldLabel>
               <input
                   className={inputClass}
                   value={subtitle}
                   onChange={(e) => setSubtitle(e.target.value)}
-                  placeholder={t("subtitle")}
+                  placeholder={t("subtitleOptional")}
               />
             </div>
 
@@ -417,9 +417,10 @@ export function ProductForm({
             </div>
 
             <div>
-              <FieldLabel>Category</FieldLabel>
+              <FieldLabel>{t("category")}</FieldLabel>
               <select
                   className={inputClass}
+                  aria-label={t("category")}
                   value={isAddingCategory ? NEW_CATEGORY_VALUE : category}
                   onChange={(e) => {
                     if (e.target.value === NEW_CATEGORY_VALUE) {
@@ -431,13 +432,33 @@ export function ProductForm({
                     }
                   }}
               >
-                {categoryOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {titleizeCategory(option)}
+                {categoryLabels.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.title}
                     </option>
                 ))}
                 <option value={NEW_CATEGORY_VALUE}>+ New category…</option>
               </select>
+
+              {!isAddingCategory && selectedCategory && canEdit ? (
+                  <div className="mt-3 text-sm text-[#7B6A61]">
+                    <p className="font-semibold">{t("editCategoryName")}</p>
+                    <EditableText
+                      key={selectedCategory.id}
+                      value={selectedCategory.title}
+                      textKey={selectedCategory.textKey}
+                      locale={locale}
+                      page="menu"
+                      canEdit
+                      className="mt-1 block font-bold text-[#25120F]"
+                      onSaved={(value) => {
+                        setCopy(selectedCategory.textKey, value);
+                        router.refresh();
+                      }}
+                    />
+                    <p className="mt-1 text-xs">{t("categoryNameHint")}</p>
+                  </div>
+              ) : null}
 
               {isAddingCategory ? (
                   <input
@@ -530,6 +551,7 @@ export function ProductForm({
                 {errorMessage}
               </div>
           ) : null}
+          <ModifierGroupsEditor value={modifierGroups} onChange={setModifierGroups} />
         </section>
 
         <aside className="rounded-[1.75rem] border border-[#EADDCF] bg-white/55 p-5 shadow-sm shadow-[#4C2314]/5 lg:p-6">

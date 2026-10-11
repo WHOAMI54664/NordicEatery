@@ -292,10 +292,7 @@ export default async function AdminPage({ params }: AdminPageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#A39388]">
-          Nordic Eatery
-        </p>
-        <h1 className="mt-2 text-2xl font-black tracking-tight text-[#25120F] sm:text-3xl">
+        <h1 className="text-2xl font-black tracking-tight text-[#25120F] sm:text-3xl">
           {t("workspace.overviewTitle")}
         </h1>
         <p className="mt-2 text-sm text-[#7B6A61]">

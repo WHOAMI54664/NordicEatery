@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -12,7 +13,7 @@ function sanitizePathPart(value: string) {
     return value
         .trim()
         .toLowerCase()
-        .replace(/[^a-z0-9-_./]/g, "-")
+        .replace(/[^a-z0-9_-]/g, "-")
         .replace(/-+/g, "-")
         .replace(/^[-/]+|[-/]+$/g, "");
 }
@@ -52,7 +53,7 @@ export async function POST(request: Request) {
         const locale = String(formData.get("locale") || "");
         const page = String(formData.get("page") || "");
 
-        if (!file || !key || !locale || !page) {
+        if (!(file instanceof File) || !key || key.length > 180 || !["sv", "en", "pl", "ru"].includes(locale) || !page || page.length > 60) {
             return NextResponse.json({ error: "Missing fields" }, { status: 400 });
         }
 
@@ -63,14 +64,19 @@ export async function POST(request: Request) {
             );
         }
 
-        if (file.size > MAX_FILE_SIZE) {
+        if (!file.size || file.size > MAX_FILE_SIZE) {
             return NextResponse.json(
                 { error: "Image is too large. Maximum size is 2 MB" },
                 { status: 400 }
             );
         }
 
-        const admin = createAdminClient();
+        const header = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+        const matches = file.type === "image/png" ? Buffer.from(header.slice(0, 8)).equals(Buffer.from([137,80,78,71,13,10,26,10]))
+          : file.type === "image/jpeg" ? header[0] === 255 && header[1] === 216 && header[2] === 255
+          : Buffer.from(header.slice(0, 4)).toString() === "RIFF" && Buffer.from(header.slice(8, 12)).toString() === "WEBP";
+        if (!matches) return NextResponse.json({ error: "Invalid image format" }, { status: 400 });
+        const admin = createAdminClient({ timeoutMs: 10000 });
 
         const extension =
             file.type === "image/png"
@@ -83,18 +89,18 @@ export async function POST(request: Request) {
         const safeKey = sanitizePathPart(key);
         const safeLocale = sanitizePathPart(locale);
 
-        const filePath = `${safePage}/${safeKey}-${safeLocale}-${Date.now()}.${extension}`;
+        const filePath = `${safePage}/${safeKey}-${safeLocale}-${randomUUID()}.${extension}`;
 
         const { error: uploadError } = await admin.storage
             .from("site-images")
             .upload(filePath, file, {
-                upsert: true,
+                upsert: false,
                 contentType: file.type,
                 cacheControl: "3600",
             });
 
         if (uploadError) {
-            return NextResponse.json({ error: uploadError.message }, { status: 500 });
+            return NextResponse.json({ error: "Could not upload image" }, { status: 500 });
         }
 
         const { data: publicUrlData } = admin.storage
@@ -118,7 +124,8 @@ export async function POST(request: Request) {
         );
 
         if (dbError) {
-            return NextResponse.json({ error: dbError.message }, { status: 500 });
+            await admin.storage.from("site-images").remove([filePath]);
+            return NextResponse.json({ error: "Could not save image" }, { status: 500 });
         }
 
         return NextResponse.json({ url });

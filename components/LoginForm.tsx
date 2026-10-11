@@ -1,5 +1,7 @@
 "use client";
 
+import { EditableCopy } from "@/components/site-content/EditableCopy";
+
 import { useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
@@ -48,16 +50,15 @@ export function LoginForm() {
             M
           </div>
 
-          <h1 className="mt-5 text-3xl font-black text-dark">Staff Login</h1>
+          <h1 className="mt-5 text-3xl font-black text-dark"><EditableCopy value={"Staff Login"} textKey="screen.staffLogin.staff-login" page="staffLogin" /></h1>
 
           <p className="mt-2 text-sm leading-6 text-dark/55">
-            Login for owner, admin and kitchen staff.
-          </p>
+            <EditableCopy value={"Login for owner, admin and kitchen staff."} textKey="screen.staffLogin.login-for-owner-admin-and-kitchen-staff" page="staffLogin" /></p>
         </div>
 
         <div className="space-y-4">
           <label>
-            <span className="mb-2 block text-sm font-bold text-dark">Email</span>
+            <span className="mb-2 block text-sm font-bold text-dark"><EditableCopy value={"Email"} textKey="screen.staffLogin.email" page="staffLogin" /></span>
             <input
                 required
                 type="email"
@@ -70,8 +71,7 @@ export function LoginForm() {
 
           <label>
           <span className="mb-2 block text-sm font-bold text-dark">
-            Password
-          </span>
+            <EditableCopy value={"Password"} textKey="screen.staffLogin.password" page="staffLogin" /></span>
             <input
                 required
                 type="password"
@@ -94,7 +94,7 @@ export function LoginForm() {
             type="submit"
             className="btn-primary mt-6 w-full"
         >
-          {isLoading ? "Logging in..." : "Login"}
+          {isLoading ? <EditableCopy value={"Logging in..."} textKey="screen.staffLogin.logging-in" page="staffLogin" /> : <EditableCopy value={"Login"} textKey="screen.staffLogin.login" page="staffLogin" />}
         </button>
       </form>
   );

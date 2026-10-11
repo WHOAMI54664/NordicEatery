@@ -1,4 +1,5 @@
 import { getRequestConfig } from "next-intl/server";
+import { loadCopyMessages } from "@/lib/site-content/server";
 import { routing } from "./routing";
 
 export default getRequestConfig(async ({ requestLocale }) => {
@@ -10,9 +11,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   return {
     locale,
-    messages: {
+    timeZone: "Europe/Stockholm",
+    messages: await loadCopyMessages(locale, {
       ...(await import(`../messages/${locale}.json`)).default,
       groupOrder: (await import(`../messages/group-orders/${locale}.json`)).default,
-    },
+    }),
   };
 });

@@ -8,6 +8,10 @@ export type ProductCategory =
   | (string & {});
 
 export type Product = {
+  is_available?: boolean;
+  track_stock?: boolean;
+  stock_quantity?: number | null;
+  modifier_groups?: import("@/lib/menu-options").ModifierGroup[] | null;
   id: string;
   name: string;
   subtitle: string;

@@ -107,10 +107,6 @@ function createBookingEmailHtml({
 }) {
   const isOwner = variant === "owner";
 
-  const eyebrow = isOwner
-      ? "New booking request"
-      : "Booking request received";
-
   const title = isOwner
       ? "New booking request"
       : "Thank you for your booking!";
@@ -151,11 +147,7 @@ function createBookingEmailHtml({
             <tr>
               <td style="border-radius: 32px; overflow: hidden; background:${brand.paper}; box-shadow: 0 20px 50px rgba(76,35,20,0.12); border: 1px solid ${brand.border};">
                 <div style="background: linear-gradient(135deg, ${brand.cherry}, ${brand.paprika}, ${brand.honey}); padding: 42px 34px; color: white;">
-                  <div style="display:inline-block; padding: 9px 14px; border-radius: 999px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.20); font-size: 11px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;">
-                    ${escapeHtml(eyebrow)}
-                  </div>
-
-                  <h1 style="margin: 22px 0 0 0; font-size: 40px; line-height: 0.95; letter-spacing: -2px; font-weight: 900;">
+                  <h1 style="margin: 0; font-size: 40px; line-height: 0.95; letter-spacing: -2px; font-weight: 900;">
                     ${escapeHtml(title)}
                   </h1>
 

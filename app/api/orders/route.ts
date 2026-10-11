@@ -202,6 +202,8 @@ export async function POST(request: Request) {
 
             return {
                 id: item.id,
+                lineId: item.lineId,
+                selections: item.selections,
                 name: item.name,
                 price: item.price,
                 quantity: item.quantity,

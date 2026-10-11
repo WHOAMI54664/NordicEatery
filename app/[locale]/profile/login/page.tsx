@@ -1,5 +1,7 @@
 "use client";
 
+import { EditableCopy } from "@/components/site-content/EditableCopy";
+
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -92,8 +94,7 @@ export default function CustomerProfileLoginPage() {
                     className="inline-flex items-center gap-2 rounded-full border border-dark/10 bg-white/70 px-4 py-2 text-sm font-black text-dark/60 transition hover:text-paprika"
                 >
                     <ArrowLeft className="h-4 w-4" />
-                    Back to home
-                </Link>
+                    <EditableCopy value={"Back to home"} textKey="screen.customerLogin.back-to-home" page="customerLogin" /></Link>
 
                 <section className="glass-card mt-8 p-6 sm:p-8">
                     <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-paprika/10 text-paprika">
@@ -101,13 +102,10 @@ export default function CustomerProfileLoginPage() {
                     </div>
 
                     <h1 className="mt-5 text-4xl font-black tracking-[-0.05em] text-dark">
-                        Login to profile
-                    </h1>
+                        <EditableCopy value={"Login to profile"} textKey="screen.customerLogin.login-to-profile" page="customerLogin" /></h1>
 
                     <p className="mt-3 text-sm leading-6 text-dark/60">
-                        Sign in to view your points, discount and Nordic Eatery customer
-                        profile.
-                    </p>
+                        <EditableCopy value={"Sign in to view your points, discount and Nordic Eatery customer profile."} textKey="screen.customerLogin.sign-in-to-view-your-points-discount-and-nordic-eatery-customer-profile" page="customerLogin" /></p>
 
                     <div className="mt-7">
                         <CustomerOAuthButtons
@@ -119,8 +117,7 @@ export default function CustomerProfileLoginPage() {
                     <div className="my-7 flex items-center gap-3">
                         <div className="h-px flex-1 bg-dark/10" />
                         <span className="text-xs font-black uppercase tracking-[0.18em] text-dark/35">
-              or
-            </span>
+              <EditableCopy value={"or"} textKey="screen.customerLogin.or" page="customerLogin" /></span>
                         <div className="h-px flex-1 bg-dark/10" />
                     </div>
 
@@ -128,8 +125,7 @@ export default function CustomerProfileLoginPage() {
                         <label>
               <span className="mb-2 flex items-center gap-2 text-sm font-bold text-dark">
                 <Mail className="h-4 w-4 text-paprika" />
-                Email
-              </span>
+                <EditableCopy value={"Email"} textKey="screen.customerLogin.email" page="customerLogin" /></span>
 
                             <input
                                 type="email"
@@ -144,8 +140,7 @@ export default function CustomerProfileLoginPage() {
                         <label>
               <span className="mb-2 flex items-center gap-2 text-sm font-bold text-dark">
                 <Phone className="h-4 w-4 text-paprika" />
-                Phone
-              </span>
+                <EditableCopy value={"Phone"} textKey="screen.customerLogin.phone" page="customerLogin" /></span>
 
                             <input
                                 required
@@ -161,7 +156,7 @@ export default function CustomerProfileLoginPage() {
                             disabled={isLoading}
                             className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                            {isLoading ? "Loading..." : "Login with email + phone"}
+                            {isLoading ? <EditableCopy value={"Loading..."} textKey="screen.customerLogin.loading" page="customerLogin" /> : <EditableCopy value={"Login with email + phone"} textKey="screen.customerLogin.login-with-email-phone" page="customerLogin" />}
                         </button>
 
                         {message ? (

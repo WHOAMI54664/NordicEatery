@@ -1,3 +1,14 @@
+import { priceMealCombos } from "../meal-combo";
+import { validParticipantCount, validPickupTime } from "./slots";
+import {
+  parseSelections,
+  resolveSelection,
+  selectionKey,
+  productUnitAmount,
+  MenuValidationError,
+  type Selection,
+  type ModifierGroup,
+} from "../menu-options";
 export type PaymentMode = "host" | "split";
 export type GroupPaymentMethod = "card" | "swish" | "cash";
 export type GroupCheckoutSettings = Record<
@@ -6,7 +17,12 @@ export type GroupCheckoutSettings = Record<
 >;
 export type GroupStatus =
   "open" | "locked" | "paying" | "submitted" | "cancelled";
-export type GroupItem = { productId: string; quantity: number; note: string };
+export type GroupItem = {
+  productId: string;
+  quantity: number;
+  note: string;
+  selections?: Selection[];
+};
 export type GroupMember = {
   id: string;
   tokenHash: string;
@@ -16,6 +32,7 @@ export type GroupMember = {
   items: GroupItem[];
 };
 export type GroupLine = GroupItem & {
+  comboDiscount?: number;
   name: string;
   unitAmount: number;
   memberId: string;
@@ -42,6 +59,10 @@ export type GroupCustomer = {
   comment: string;
 };
 export type GroupState = {
+  pickupAt?: string;
+  participantCount?: number;
+  reservationId?: string;
+  individualCheckout?: boolean;
   name: string;
   locale: string;
   mode: PaymentMode;
@@ -60,6 +81,8 @@ export type GroupState = {
 };
 export type GroupRow = { id: string; version: number; state: GroupState };
 export type CatalogProduct = {
+  category?: string;
+  modifier_groups?: ModifierGroup[] | null;
   id: string;
   name: string;
   price: number;
@@ -108,16 +131,24 @@ export function parseItems(value: unknown): GroupItem[] {
   return value.map((entry) => {
     const item = record(entry);
     const productId = textField(item.productId, 100);
+    let selections: Selection[];
+    try {
+      selections = parseSelections(item.selections);
+    } catch {
+      throw new GroupError("invalidInput");
+    }
+    const key = selectionKey(productId, selections);
     if (
-      seen.has(productId) ||
+      seen.has(key) ||
       !Number.isInteger(item.quantity) ||
       Number(item.quantity) < 1 ||
       Number(item.quantity) > 20
     )
       throw new GroupError("invalidInput");
-    seen.add(productId);
+    seen.add(key);
     return {
       productId,
+      ...(selections.length ? { selections } : {}),
       quantity: Number(item.quantity),
       note: textField(item.note, 200, false),
     };
@@ -151,14 +182,27 @@ export function createGroup(
   const data = record(input);
   if (data.mode !== "host" && data.mode !== "split")
     throw new GroupError("invalidInput");
-  const expiresAt = new Date(now + 24 * 60 * 60 * 1000).toISOString();
+  if (data.pickupAt !== undefined && !validPickupTime(data.pickupAt, now))
+    throw new GroupError("slotUnavailable", 409);
+  const pickupAt = data.pickupAt as string | undefined;
+  if (
+    data.participantCount !== undefined &&
+    (!pickupAt || !validParticipantCount(data.participantCount))
+  )
+    throw new GroupError("invalidParticipantCount");
+  const expiresAt =
+    pickupAt || new Date(now + 24 * 60 * 60 * 1000).toISOString();
   let deadline: string | null = null;
   if (data.deadline) {
     const time =
       typeof data.deadline === "string" ? Date.parse(data.deadline) : NaN;
-    if (!Number.isFinite(time) || time <= now || time > Date.parse(expiresAt))
+    if (
+      !Number.isFinite(time) ||
+      time <= now ||
+      time > now + 24 * 60 * 60 * 1000
+    )
       throw new GroupError("invalidDeadline");
-    deadline = new Date(time).toISOString();
+    deadline = new Date(Math.min(time, Date.parse(expiresAt))).toISOString();
   }
   const spendLimit = data.spendLimit == null ? null : Number(data.spendLimit);
   if (
@@ -169,6 +213,10 @@ export function createGroup(
   )
     throw new GroupError("invalidInput");
   return {
+    ...(pickupAt ? { pickupAt } : {}),
+    ...(validParticipantCount(data.participantCount)
+      ? { participantCount: data.participantCount }
+      : {}),
     name: textField(data.name, 80),
     mode: data.mode,
     locale: ["en", "sv", "ru", "pl"].includes(String(data.locale))
@@ -217,12 +265,25 @@ export function priceGroup(
   const quantities = new Map<string, number>();
   const lines: GroupLine[] = [];
   for (const member of members) {
-    let subtotal = 0;
+    const memberLines: (GroupLine & { category?: string })[] = [];
     for (const item of member.items) {
       const product = catalog.get(item.productId);
       if (!product || !product.is_available)
         throw new GroupError("productUnavailable", 409);
-      const unitAmount = Math.round(Number(product.price) * 100);
+      let unitAmount: number;
+      let summary: string;
+      try {
+        const selection = resolveSelection(
+          product.modifier_groups,
+          item.selections,
+        );
+        unitAmount = productUnitAmount(product.price, selection.extraAmount);
+        summary = selection.summary;
+      } catch (error) {
+        if (error instanceof MenuValidationError)
+          throw new GroupError("invalidSelection", 409);
+        throw error;
+      }
       if (
         !Number.isSafeInteger(unitAmount) ||
         unitAmount < 0 ||
@@ -233,25 +294,40 @@ export function priceGroup(
       quantities.set(item.productId, quantity);
       if (product.track_stock && quantity > Number(product.stock_quantity || 0))
         throw new GroupError("productUnavailable", 409);
-      subtotal += unitAmount * item.quantity;
-      lines.push({
+      memberLines.push({
         ...item,
-        name: product.name,
+        category: product.category,
+        name: [product.name, summary].filter(Boolean).join(" · "),
         unitAmount,
         memberId: member.id,
         memberName: member.name,
       });
     }
+    // A participant's food funds only their own combo, in either payment mode.
+    const pricedLines = priceMealCombos(memberLines).map(
+      ({ category: _category, ...line }) => ({
+        ...line,
+        name: line.comboDiscount ? `${line.name} · Combo (−5 kr)` : line.name,
+      }),
+    );
+    const subtotal = pricedLines.reduce(
+      (sum, line) => sum + line.unitAmount * line.quantity,
+      0,
+    );
+    lines.push(...pricedLines);
     if (limit !== null && subtotal > limit)
       throw new GroupError("spendLimitExceeded", 409);
   }
+  validateGroupTotal(lines);
+  return lines;
+}
+function validateGroupTotal(lines: GroupLine[]) {
   if (
     lines.length > 200 ||
     lines.reduce((sum, line) => sum + line.unitAmount * line.quantity, 0) >
       10000000
   )
     throw new GroupError("orderTooLarge");
-  return lines;
 }
 export function lockGroup(
   state: GroupState,
@@ -264,7 +340,22 @@ export function lockGroup(
     throw new GroupError("locked", 409);
   if (state.members.some((member) => !member.ready))
     throw new GroupError("membersNotReady", 409);
-  const lines = priceGroup(state.members, products, state.spendLimit);
+  const frozenMembers = new Set(
+    state.payments.filter((p) => p.attemptedAt).map((p) => p.memberId),
+  );
+  const lines =
+    state.mode === "split" && state.individualCheckout
+      ? [
+          ...state.lines.filter((line) => frozenMembers.has(line.memberId)),
+          ...priceGroup(
+            state.members.filter((member) => !frozenMembers.has(member.id)),
+            products,
+            state.spendLimit,
+          ),
+        ]
+      : priceGroup(state.members, products, state.spendLimit);
+  validateGroupStock(state.members, products);
+  validateGroupTotal(lines);
   if (!lines.length) throw new GroupError("emptyOrder");
   const payments =
     state.mode === "host"
@@ -281,31 +372,109 @@ export function lockGroup(
         ]
       : state.members
           .filter((member) => member.items.length)
-          .map((member) => ({
-            id: newId(),
-            memberId: member.id,
-            amount: lines
+          .map((member) => {
+            const amount = lines
               .filter((line) => line.memberId === member.id)
-              .reduce((sum, line) => sum + line.unitAmount * line.quantity, 0),
-            status: "pending" as const,
-          }));
+              .reduce((sum, line) => sum + line.unitAmount * line.quantity, 0);
+            const existing = state.payments.find(
+              (p) => p.memberId === member.id,
+            );
+            if (existing?.attemptedAt) {
+              if (existing.amount !== amount)
+                throw new GroupError("paymentMismatch", 409);
+              return existing;
+            }
+            return {
+              id: newId(),
+              memberId: member.id,
+              amount,
+              status: "pending" as const,
+            };
+          });
   if (payments.some((payment) => payment.amount < 300))
     throw new GroupError("minimumPayment");
   return {
     ...state,
-    status: "locked" as const,
+    status: payments.some((p) => p.attemptedAt)
+      ? ("paying" as const)
+      : ("locked" as const),
     customer,
     lines,
     payments,
-    paymentDeadline: new Date(now + 60 * 60 * 1000).toISOString(),
+    paymentDeadline: new Date(
+      Math.min(now + 60 * 60 * 1000, Date.parse(state.expiresAt)),
+    ).toISOString(),
   };
+}
+
+export function validateGroupStock(
+  members: GroupMember[],
+  products: CatalogProduct[],
+) {
+  const quantities = new Map<string, number>();
+  for (const member of members)
+    for (const item of member.items)
+      quantities.set(
+        item.productId,
+        (quantities.get(item.productId) || 0) + item.quantity,
+      );
+  for (const [id, quantity] of quantities) {
+    const product = products.find((p) => p.id === id);
+    if (
+      !product ||
+      !product.is_available ||
+      (product.track_stock && quantity > Number(product.stock_quantity || 0))
+    )
+      throw new GroupError("productUnavailable", 409);
+  }
+}
+
+export function freezeMemberSelection(
+  state: GroupState,
+  member: GroupMember,
+  products: CatalogProduct[],
+  newId: () => string,
+) {
+  const existing = state.payments.find((p) => p.memberId === member.id);
+  if (existing?.attemptedAt) throw new GroupError("selectionPaid", 409);
+  const lines = priceGroup([member], products, state.spendLimit);
+  const amount = lines.reduce(
+    (sum, line) => sum + line.unitAmount * line.quantity,
+    0,
+  );
+  if (lines.length && amount < 300) throw new GroupError("minimumPayment");
+  validateGroupStock(state.members, products);
+  state.lines = [
+    ...state.lines.filter((line) => line.memberId !== member.id),
+    ...lines,
+  ];
+  validateGroupTotal(state.lines);
+  state.payments = [
+    ...state.payments.filter((p) => p.memberId !== member.id),
+    ...(lines.length
+      ? [
+          {
+            id: newId(),
+            memberId: member.id,
+            amount,
+            status: "pending" as const,
+          },
+        ]
+      : []),
+  ];
 }
 export function publicGroup(row: GroupRow, tokenHash: string) {
   const state = row.state;
   const me = state.members.find((member) => member.tokenHash === tokenHash);
   const summary = {
+    pickupAt: state.pickupAt || null,
+    individualCheckout: state.individualCheckout === true,
+    deliveryType: state.customer?.deliveryType || null,
     id: row.id,
     version: row.version,
+    ...(state.participantCount !== undefined
+      ? { participantCount: state.participantCount }
+      : {}),
     name: state.name,
     mode: state.mode,
     paymentMethod: state.paymentMethod || "card",

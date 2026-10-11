@@ -1,5 +1,7 @@
 "use client";
 
+import { EditableCopy } from "@/components/site-content/EditableCopy";
+
 import { useEffect, useState } from "react";
 
 type OrderStatus = "new" | "preparing" | "ready" | "completed" | "cancelled";
@@ -75,7 +77,7 @@ export function OrderStatusTracker({ orderNumber }: { orderNumber: string }) {
         return (
             <main className="min-h-screen bg-cream px-6 py-24">
                 <section className="mx-auto max-w-xl rounded-[2rem] bg-white p-8 shadow-xl">
-                    <h1 className="text-3xl font-black text-dark">Loading order...</h1>
+                    <h1 className="text-3xl font-black text-dark"><EditableCopy value={"Loading order..."} textKey="screen.orderStatus.loading-order" page="orderStatus" /></h1>
                 </section>
             </main>
         );
@@ -86,12 +88,10 @@ export function OrderStatusTracker({ orderNumber }: { orderNumber: string }) {
             <main className="min-h-screen bg-cream px-6 py-24">
                 <section className="mx-auto max-w-xl rounded-[2rem] bg-white p-8 shadow-xl">
                     <h1 className="text-3xl font-black text-dark">
-                        Could not load order
-                    </h1>
+                        <EditableCopy value={"Could not load order"} textKey="screen.orderStatus.could-not-load-order" page="orderStatus" /></h1>
 
                     <p className="mt-3 text-dark/60">
-                        Please refresh the page in a moment.
-                    </p>
+                        <EditableCopy value={"Please refresh the page in a moment."} textKey="screen.orderStatus.please-refresh-the-page-in-a-moment" page="orderStatus" /></p>
                 </section>
             </main>
         );
@@ -101,7 +101,7 @@ export function OrderStatusTracker({ orderNumber }: { orderNumber: string }) {
         return (
             <main className="min-h-screen bg-cream px-6 py-24">
                 <section className="mx-auto max-w-xl rounded-[2rem] bg-white p-8 shadow-xl">
-                    <h1 className="text-3xl font-black text-dark">Order not found</h1>
+                    <h1 className="text-3xl font-black text-dark"><EditableCopy value={"Order not found"} textKey="screen.orderStatus.order-not-found" page="orderStatus" /></h1>
                 </section>
             </main>
         );
@@ -110,28 +110,24 @@ export function OrderStatusTracker({ orderNumber }: { orderNumber: string }) {
     return (
         <main className="min-h-screen bg-cream px-6 py-24">
             <section className="mx-auto max-w-xl rounded-[2rem] border border-dark/10 bg-white p-8 shadow-xl">
-                <p className="text-sm font-black uppercase tracking-[0.2em] text-paprika">
-                    Order status
-                </p>
-
-                <h1 className="mt-4 text-4xl font-black text-dark">
+                <h1 className="text-4xl font-black text-dark">
                     {statusText[order.status]}
                 </h1>
 
                 <p className="mt-4 text-dark/60">
-                    Order ID:{" "}
+                    <EditableCopy value={"Order ID:"} textKey="screen.orderStatus.order-id" page="orderStatus" />{" "}
                     <span className="font-bold text-dark">{order.order_number}</span>
                 </p>
 
                 <p className="mt-2 text-dark/60">
-                    Payment:{" "}
+                    <EditableCopy value={"Payment:"} textKey="screen.orderStatus.payment" page="orderStatus" />{" "}
                     <span className="font-bold text-dark">
             {order.payment_method} · {order.payment_status}
           </span>
                 </p>
 
                 <p className="mt-2 text-dark/60">
-                    Total:{" "}
+                    <EditableCopy value={"Total:"} textKey="screen.orderStatus.total" page="orderStatus" />{" "}
                     <span className="font-bold text-paprika">
             {order.total_price} kr
           </span>
@@ -164,8 +160,7 @@ export function OrderStatusTracker({ orderNumber }: { orderNumber: string }) {
                 </div>
 
                 <p className="mt-8 text-sm text-dark/50">
-                    This page updates automatically.
-                </p>
+                    <EditableCopy value={"This page updates automatically."} textKey="screen.orderStatus.this-page-updates-automatically" page="orderStatus" /></p>
             </section>
         </main>
     );

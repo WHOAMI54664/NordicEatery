@@ -7,32 +7,27 @@
     "addToGroup": "Dodaj {quantity} do zamówienia grupowego",
     "close": "Zamknij",
     "decrease": "Zmniejsz ilość",
-    "increase": "Zwiększ ilość"
+    "increase": "Zwiększ ilość",
+    "customize": "Wybierz składniki"
   },
   "seo": {
     "menu": {
-      "title": "Menu | Dostawa jedzenia i dania na wynos w Boden | Nordic Eatery",
-      "description": "Poznaj menu Nordic Eatery w Boden. Zamów polskie jedzenie typu comfort food, burgery, chrupiące frytki, napoje i street food z dostawą lub na wynos.",
-      "ogTitle": "Nordic Eatery Menu | Dostawa jedzenia do Boden",
-      "ogDescription": "Nordic Eatery w Boden oferuje polskie dania typu comfort food, burgery, frytki i street food."
-    },
-    "takeawayBoden": {
-      "title": "Dania na wynos w Boden | Zamów online | Nordic Eatery",
-      "description": "Zamów jedzenie na wynos w Boden z Nordic Eatery. Świeże polskie jedzenie typu comfort food, burgery, chrupiące frytki, napoje i street food gotowe do odbioru.",
-      "ogTitle": "Dania na wynos w Boden | Nordic Eatery",
-      "ogDescription": "Zamów polskie jedzenie typu comfort food, burgery, chrupiące frytki i street food na wynos w Boden."
+      "title": "Menu i jedzenie na wynos | Nordic Eatery",
+      "description": "Poznaj nasze menu i zamów street food, burgery, frytki i napoje z odbiorem osobistym.",
+      "ogTitle": "Menu i jedzenie na wynos | Nordic Eatery",
+      "ogDescription": "Nordic Eatery oferuje polskie dania typu comfort food, burgery, frytki i street food."
     },
     "cateringBoden": {
-      "title": "Catering w Boden | Jedzenie na imprezy | Nordic Eatery",
-      "description": "Zarezerwuj catering w Boden z Nordic Eatery. Polski comfort food, burgery, street food i niestandardowe menu na imprezy prywatne, firmowe i lokalne.",
-      "ogTitle": "Catering w Boden | Nordic Eatery",
-      "ogDescription": "Świeży catering w Boden na imprezy prywatne, firmowe i lokalne."
+      "title": "Catering | Jedzenie na imprezy | Nordic Eatery",
+      "description": "Zarezerwuj catering z Nordic Eatery. Polski comfort food, burgery, street food i niestandardowe menu na imprezy prywatne, firmowe i lokalne.",
+      "ogTitle": "Catering | Nordic Eatery",
+      "ogDescription": "Świeży catering na imprezy prywatne, firmowe i lokalne."
     },
     "polishFoodBoden": {
-      "title": "Polskie jedzenie w Boden | Maczanka & Street Food | Nordic Eatery",
-      "description": "Zamów polskie jedzenie w Boden z Nordic Eatery. Spróbuj Maczanka, Knysza, chrupiące frytki i inspirowane kuchnią polską street food z dostawą lub na wynos.",
-      "ogTitle": "Polskie jedzenie w Boden | Nordic Eatery",
-      "ogDescription": "Maczanka, Knysza, chrupiące frytki i polski street food w Boden."
+      "title": "Street food w Norrbotten | Nordic Eatery",
+      "description": "Nordycki street food inspirowany smakami świata. Poznaj food truck, menu i dania na wynos Nordic Eatery w Norrbotten.",
+      "ogTitle": "Street food w Norrbotten | Nordic Eatery",
+      "ogDescription": "Nordycki street food inspirowany smakami świata. Poznaj food truck, menu i dania na wynos Nordic Eatery w Norrbotten."
     }
   },
   "staffAccountMenu": {
@@ -62,7 +57,7 @@
     "contact": "Kontakt",
     "support": "Wsparcie",
     "cart": "Wózek",
-    "delivery": "Dostawa w ciągu 30-40 minut",
+    "delivery": "Zamów online i odbierz u nas",
     "profile": "Profil"
   },
   "footer": {
@@ -81,19 +76,18 @@
     "privacy": "Polityka prywatności",
     "refunds": "Zwroty i reklamacje",
     "businessInfo": "Informacje biznesowe",
-    "location": "Boden, Szwecja",
-    "delivery": "Dostawa: 30-40 min",
+    "location": "Szwecja",
+    "delivery": "Jedzenie na wynos z naszego food trucka",
     "payments": "Bezpieczne płatności",
     "address": "Adres"
   },
   "pages": {
     "polishFoodBoden": {
       "hero": {
-        "eyebrow": "Polskie jedzenie w Boden",
-        "title": "Polskie komfortowe jedzenie w Boden",
-        "description": "Nordic Eatery wprowadza do Boden inspirowane polską kuchnią dania typu comfort food i street food. Spróbuj Maczanki, Knyszy, chrupiących frytek i ciepłych dań przygotowywanych na świeżo na wynos i z dostawą.",
+        "title": "Polskie komfortowe jedzenie",
+        "description": "Nordic Eatery łączy nordyckie smaki z inspiracjami z całego świata. Poznaj nasz street food i zamów na wynos z naszego food trucka.",
         "primaryCta": "Wyświetl menu",
-        "secondaryCta": "Dostawa żywności"
+        "secondaryCta": "Znajdź nasz food truck"
       },
       "cards": {
         "maczanka": {
@@ -102,40 +96,37 @@
         },
         "streetFood": {
           "title": "Jedzenie uliczne",
-          "description": "Ciepłe, sycące dania na wynos, z dostawą i na co dzień."
+          "description": "Ciepłe, sycące dania na wynos i na co dzień."
         },
         "takeaway": {
-          "title": "Na wynos i z dostawą",
-          "description": "Zamów online z odbiorem lub dostawą jedzenia w Boden."
+          "title": "Smaki na kółkach",
+          "description": "Znajdź nasz food truck i odbierz świeżo przygotowane jedzenie."
         }
       },
       "content": {
-        "eyebrow": "Lokalne polskie jedzenie",
-        "title": "Polskie doświadczenie kulinarne w Boden",
-        "paragraph1": "Nordic Eatery koncentruje się na inspirowanym polską kuchnią comfort food, street food i prostych zamówieniach online. Nasze menu opiera się na ciepłych, sycących daniach, które sprawdzają się w dostawie, na wynos i jako codzienne posiłki.",
+        "title": "Polskie doświadczenie kulinarne",
+        "paragraph1": "Nordic Eatery to pełen smaku street food i proste zamawianie online. Wybierz ulubione dania i odbierz świeżo przygotowane jedzenie z naszego food trucka.",
         "paragraph2": "Zamiast być klasyczną restauracją z burgerami, Nordic Eatery jest bliższa polskiemu street foodowi z daniami takimi jak Maczanka, Knysza, chrupiące frytki i wybrane ulubione dania typu comfort food.",
-        "paragraph3": "Jeśli szukasz polskiego jedzenia w Boden, dań na wynos w pobliżu lub czegoś innego niż standardowy fast food, Nordic Eatery oferuje świeżą lokalną opcję.",
+        "paragraph3": "Jeśli szukasz polskiego jedzenia, dań na wynos w pobliżu lub czegoś innego niż standardowy fast food, Nordic Eatery oferuje świeżą lokalną opcję.",
         "menuCta": "Zobacz pełne menu",
-        "takeawayCta": "Dania na wynos w Boden",
-        "deliveryCta": "Dostawa jedzenia w Boden"
+        "deliveryCta": "Znajdź nasz food truck"
       },
       "benefits": {
         "title": "Dlaczego warto spróbować Nordic Eatery?",
         "items": {
-          "0": "Jedzenie inspirowane kuchnią polską w Boden",
+          "0": "Jedzenie inspirowane kuchnią polską",
           "1": "Maczanka, Knysza i uliczne jedzenie",
           "2": "Świeżo przygotowane dania",
           "3": "Dobre na lunch, kolację i posiłki codzienne",
-          "4": "Dostępne na wynos i z dostawą",
+          "4": "Zamów online z odbiorem osobistym",
           "5": "Łatwe zamawianie online"
         }
       }
     },
     "cateringBoden": {
       "hero": {
-        "eyebrow": "Catering w Boden",
-        "title": "Catering na imprezy w Boden",
-        "description": "Planujesz prywatne wydarzenie, firmowy lunch lub lokalne spotkanie w Boden? Nordic Eatery oferuje catering z polskim komfortowym jedzeniem, burgerami, street foodem i elastycznymi opcjami menu przygotowywanymi na świeżo dla Twoich gości.",
+        "title": "Catering na imprezy",
+        "description": "Planujesz prywatne wydarzenie, firmowy lunch lub lokalne spotkanie? Nordic Eatery oferuje catering z polskim komfortowym jedzeniem, burgerami, street foodem i elastycznymi opcjami menu przygotowywanymi na świeżo dla Twoich gości.",
         "primaryCta": "Zamów catering",
         "secondaryCta": "Skontaktuj się z nami"
       },
@@ -149,8 +140,8 @@
           "description": "Catering dla biur, zespołów, posiłki dla pracowników i imprezy biznesowe."
         },
         "delivery": {
-          "title": "Odbiór lub dostawa",
-          "description": "Wybierz opcję odbioru lub omów opcje dostawy w Boden."
+          "title": "Wygodny odbiór",
+          "description": "Ustal z nami odbiór przed swoim wydarzeniem."
         },
         "planning": {
           "title": "Łatwe planowanie",
@@ -158,38 +149,36 @@
         }
       },
       "content": {
-        "eyebrow": "Jedzenie na imprezę",
-        "title": "Świeża żywność cateringowa dla Boden",
-        "paragraph1": "Nordic Eatery ułatwia organizację imprez dzięki ciepłemu, satysfakcjonującemu jedzeniu przygotowanemu dla grup. Nasz catering nadaje się na prywatne przyjęcia, lunche biurowe, posiłki dla pracowników, małe imprezy i lokalne spotkania w Boden.",
+        "title": "Świeża żywność cateringowa",
+        "paragraph1": "Nordic Eatery ułatwia organizację imprez dzięki ciepłemu, satysfakcjonującemu jedzeniu przygotowanemu dla grup. Nasz catering nadaje się na prywatne przyjęcia, lunche biurowe, posiłki dla pracowników, małe imprezy i lokalne spotkania.",
         "paragraph2": "Menu może obejmować polski comfort food, burgery, chrupiące frytki, street food i wybrane dania w zależności od wielkości imprezy i Twoich potrzeb. Skupiamy się na jedzeniu, które jest łatwe do podania, sycące i przyjemne dla gości.",
         "paragraph3": "Niezależnie od tego, czy potrzebujesz prostego cateringu na wynos, czy bardziej zaplanowanej konfiguracji, skontaktuj się z Nordic Eatery, a pomożemy Ci znaleźć odpowiednie rozwiązanie.",
         "bookingCta": "Catering książkowy",
         "menuCta": "Wyświetl menu",
-        "deliveryCta": "Dostawa żywności"
+        "deliveryCta": "Zamów na wynos"
       },
       "benefits": {
         "title": "Dlaczego warto wybrać catering Nordic Eatery?",
         "items": {
-          "0": "Catering w Boden na imprezy prywatne i firmowe",
+          "0": "Catering na imprezy prywatne i firmowe",
           "1": "Świeży polski comfort food i street food",
           "2": "Elastyczne opcje menu dla grup",
-          "3": "Opcje odbioru lub ewentualnej dostawy",
+          "3": "Odbiór po uzgodnieniu",
           "4": "Dobry na lunch, kolację i niezobowiązujące spotkania",
           "5": "Szybka komunikacja i proste planowanie"
         }
       },
       "cta": {
-        "title": "Potrzebujesz cateringu w Boden?",
+        "title": "Potrzebujesz cateringu?",
         "description": "Wyślij nam zapytanie z datą wydarzenia, liczbą gości i preferencjami żywieniowymi. Pomożemy Ci zaplanować odpowiednią opcję cateringu.",
         "button": "Wyślij zapytanie dotyczące cateringu"
       },
       "faq": {
-        "eyebrow": "FAQ",
         "title": "Pytania dotyczące cateringu",
         "items": {
           "0": {
-            "question": "Czy oferujecie catering w Boden?",
-            "answer": "Tak. Nordic Eatery oferuje catering w Boden na prywatne imprezy, posiłki firmowe i lokalne spotkania."
+            "question": "Czy oferujecie catering?",
+            "answer": "Tak. Nordic Eatery oferuje catering na prywatne imprezy, posiłki firmowe i lokalne spotkania."
           },
           "1": {
             "question": "Jakie jedzenie mogę zamówić w ramach cateringu?",
@@ -197,7 +186,7 @@
           },
           "2": {
             "question": "Czy możesz pomóc z cateringiem firmowym?",
-            "answer": "Tak. Możemy dostarczyć catering na lunche biurowe, posiłki dla pracowników i imprezy biznesowe w Boden."
+            "answer": "Tak. Przygotowujemy catering na lunche biurowe, posiłki dla pracowników i imprezy firmowe."
           },
           "3": {
             "question": "Jak zamówić catering?",
@@ -206,86 +195,13 @@
         }
       }
     },
-    "takeawayBoden": {
-      "hero": {
-        "eyebrow": "Dania na wynos w Boden",
-        "title": "Zamów jedzenie na wynos w Boden",
-        "description": "Masz ochotę na świeże jedzenie bez czekania? Zamów jedzenie na wynos z Nordic Eatery w Boden. Wybierz Polish comfort food, burgery, chrupiące frytki, napoje i street food, a następnie odbierz zamówienie, gdy będzie gotowe.",
-        "primaryCta": "Zamówienie na wynos",
-        "secondaryCta": "Dostawa żywności"
-      },
-      "cards": {
-        "order": {
-          "title": "Zamów online",
-          "description": "Wybierz jedzenie z naszego menu online."
-        },
-        "fresh": {
-          "title": "Świeżo przygotowane",
-          "description": "Zamówienie jest przygotowywane na świeżo po dokonaniu płatności."
-        },
-        "pickup": {
-          "title": "Odbiór",
-          "description": "Odbierz jedzenie, gdy będzie gotowe."
-        },
-        "simple": {
-          "title": "Prosty proces",
-          "description": "Zamawiaj online, unikaj telefonów i odbieraj jedzenie."
-        }
-      },
-      "content": {
-        "eyebrow": "Jedzenie na wynos",
-        "title": "Świeże jedzenie na wynos w Boden",
-        "paragraph1": "Nordic Eatery sprawia, że jedzenie na wynos jest proste dla osób w Boden, które chcą ciepłego, sycącego jedzenia bez poświęcania czasu na gotowanie. Nasze menu obejmuje polskie dania typu comfort food, burgery, chrupiące frytki, napoje i street food.",
-        "paragraph2": "Jedzenie na wynos to dobry wybór na lunch, kolację, przerwę w pracy lub zwykły posiłek w domu. Zamów online, pomiń telefon i odbierz jedzenie, gdy będzie gotowe.",
-        "paragraph3": "Nasze jedzenie jest przygotowywane na świeżo po złożeniu zamówienia, dzięki czemu otrzymujesz ciepłe i spójne posiłki, które można łatwo odebrać i cieszyć się nimi.",
-        "menuCta": "Wyświetl menu",
-        "burgersCta": "Burgery w Boden",
-        "cateringCta": "Catering w Boden"
-      },
-      "benefits": {
-        "title": "Dlaczego warto zamówić jedzenie na wynos w Nordic Eatery?",
-        "items": {
-          "0": "Łatwe zamawianie online",
-          "1": "Świeże polskie comfort food",
-          "2": "Burgery, frytki i napoje",
-          "3": "Uliczne jedzenie przygotowane do odbioru",
-          "4": "Dobra opcja na lunch lub kolację",
-          "5": "Dania na wynos i dostawa dostępne w Boden"
-        }
-      },
-      "faq": {
-        "eyebrow": "FAQ",
-        "title": "Pytania na wynos",
-        "items": {
-          "0": {
-            "question": "Czy mogę zamówić jedzenie na wynos w Boden?",
-            "answer": "Tak, możesz zamówić jedzenie na wynos online w Nordic Eatery i odebrać je, gdy będzie gotowe."
-          },
-          "1": {
-            "question": "Jakie jedzenie mogę zamówić na wynos?",
-            "answer": "Można tu zamówić polski comfort food, burgery, chrupiące frytki, napoje i street food."
-          },
-          "2": {
-            "question": "Czy oferujecie również dostawę?",
-            "answer": "Tak. Nordic Eatery oferuje zarówno jedzenie na wynos, jak i jedzenie z dostawą w Boden."
-          },
-          "3": {
-            "question": "Jak zamówić jedzenie na wynos?",
-            "answer": "Otwórz menu online, wybierz pozycje i złóż zamówienie. Jedzenie zostanie przygotowane do odbioru."
-          }
-        }
-      }
-    },
     "cart": {
-      "eyebrow": "Wózek",
       "title": "Twoje zamówienie",
       "emptyTitle": "Twój koszyk jest pusty",
       "emptyText": "Wybierz z menu Maczankę lub Knyszę i dodaj do koszyka swoje ulubione danie.",
       "goToMenu": "Przejdź do menu",
       "summaryTitle": "Podsumowanie zamówienia",
       "subtotal": "Suma częściowa",
-      "delivery": "Dostawa",
-      "calculatedLater": "Obliczone później",
       "total": "Łącznie",
       "checkout": "Przejdź do kasy",
       "decreaseQuantity": "Zmniejszenie ilości",
@@ -293,14 +209,12 @@
       "removeItem": "Usuń element"
     },
     "home": {
-      "eyebrow": "Kuchnia i dostawa",
       "titleLine1": "Polskie jedzenie.",
-      "titleLine2": "Dostarczane na gorąco.",
+      "titleLine2": "Świeżo przygotowane.",
       "subtitle": "Maczanka, Knysza i domowe comfort food z kuchni Mike'a.",
       "orderNow": "Zamów teraz",
       "viewCart": "Wyświetl koszyk",
       "exploreMenu": "Poznaj menu",
-      "popular": "Popularny",
       "bestSellers": "Bestsellery",
       "fullMenu": "Pełne menu",
       "categories": {
@@ -310,19 +224,17 @@
         "drinks": "Napoje"
       },
       "seoLinks": {
-        "eyebrow": "Lokalne jedzenie w Boden",
-        "title": "Dostawa jedzenia, jedzenie na wynos i catering w Boden",
-        "description": "Nordic Eatery oferuje świeże polskie jedzenie typu comfort food, burgery, chrupiące frytki, street food, dania na wynos i catering w Boden.",
-        "delivery": "Dostawa jedzenia w Boden",
-        "takeaway": "Dania na wynos w Boden",
-        "burgers": "Burgery w Boden",
-        "catering": "Catering w Boden",
+        "title": "Zamów jedzenie na wynos i catering",
+        "description": "Nordic Eatery oferuje świeże polskie jedzenie typu comfort food, burgery, chrupiące frytki, street food, dania na wynos i catering.",
+        "takeaway": "Zamów na wynos",
+        "burgers": "Street food w Norrbotten",
+        "catering": "Catering",
         "menu": "Zobacz pełne menu",
-        "deliveryShort": "Dostawa",
-        "takeawayShort": "Na wynos",
-        "burgersShort": "Burgery",
+        "takeawayShort": "Zamów na wynos",
+        "burgersShort": "Street food w Norrbotten",
         "cateringShort": "Catering",
-        "menuShort": "Menu"
+        "menuShort": "Menu",
+        "deliveryShort": "Lunchboxy"
       }
     },
     "menu": {
@@ -332,7 +244,6 @@
         "vegan": "Wegańskie",
         "gluten_free": "Bezglutenowe"
       },
-      "eyebrow": "Menu",
       "title": "Wybierz swoje polskie jedzenie",
       "subtitle": "Świeże dania na zamówienie i wybrane pozycje dostępne od ręki.",
       "categories": {
@@ -366,10 +277,8 @@
       "finalTitle": "Stworzone dla ludzi, którzy cenią dobre jedzenie",
       "finalText": "Bez czekania. Bez zawyżonych cen. Po prostu dobre jedzenie przygotowane we właściwy sposób.",
       "badge": "Polski street food ze szwedzkim akcentem",
-      "foodEyebrow": "Nasze jedzenie",
       "foodTitle": "Polskie smaki ze szwedzkimi akcentami",
       "foodText": "Przygotowujemy nasze jedzenie od podstaw tak często, jak to możliwe, i staramy się korzystać ze świeżych oraz szwedzkich składników. Dania Mike’s inspirowane są klasycznym polskim street foodem i składnikami ze Szwecji.",
-      "ctaEyebrow": "Catering i wydarzenia",
       "ctaTitle": "Potrzebujesz jedzenia na swoje wydarzenie?",
       "ctaText": "Zarezerwuj catering, food trucka lub kucharza na prywatną imprezę, wydarzenie firmowe, festiwal albo specjalną okazję. Jeśli chcesz indywidualnie dopasowane menu, skontaktuj się z nami, a zrobimy wszystko, aby spełnić Twoje oczekiwania.",
       "ctaBook": "Zarezerwuj nas",
@@ -378,7 +287,6 @@
     },
     "booking": {
       "sending": "Wysyłanie...",
-      "eyebrow": "Zarezerwuj",
       "title": "Rezerwacja",
       "subtitle": "Zarezerwuj stolik, catering lub Mike's Food Truck, a my potwierdzimy Twoje zgłoszenie tak szybko, jak to możliwe.",
       "bookingType": "Rodzaj rezerwacji",
@@ -423,7 +331,6 @@
       "messagePlaceholder": "Jakieś specjalne życzenia?",
       "consent": "Wyrażam zgodę na przetwarzanie moich danych osobowych w celu obsługi tej rezerwacji.",
       "button": "Wyślij zapytanie",
-      "successEyebrow": "Rezerwacja wysłana",
       "successTitle": "Dziękujemy!",
       "successText": "Otrzymaliśmy Twoje zgłoszenie i skontaktujemy się z Tobą wkrótce.",
       "error": "Coś poszło nie tak. Spróbuj ponownie.",
@@ -448,7 +355,6 @@
       "tableGuestsMinimumError": "Minimalna rezerwacja stolika to 2 osoby."
     },
     "mikes": {
-      "eyebrow": "Mike's Food Truck",
       "title": "Zarezerwuj nasz food truck na swoje wydarzenie",
       "subtitle": "Zabierz Mike's Food na swoje przyjęcie, imprezę firmową, festiwal, prywatną uroczystość lub specjalną okazję.",
       "button": "Book food truck",
@@ -465,7 +371,6 @@
       "heroImage": ""
     },
     "catering": {
-      "eyebrow": "Catering",
       "title": "Jedzenie na imprezy, zespoły i uroczystości",
       "subtitle": "Świeże jedzenie na prywatne przyjęcia, lunche biznesowe, imprezy firmowe, festiwale i większe grupy.",
       "button": "Zamów catering",
@@ -479,7 +384,7 @@
       "provideTitle": "Co możemy zapewnić",
       "provideCustomMenu": "Niestandardowe opcje menu",
       "provideGroups": "Jedzenie dla małych i dużych grup",
-      "providePickup": "Opcje odbioru lub dostawy",
+      "providePickup": "Odbiór po uzgodnieniu",
       "provideFoodTruck": "Food truck na miejscu",
       "providePlanning": "Proste planowanie wydarzeń",
       "provideFastCommunication": "Szybka komunikacja",
@@ -488,7 +393,6 @@
       "ctaButton": "Wyślij zapytanie dotyczące cateringu"
     },
     "contact": {
-      "eyebrow": "Kontakt",
       "title": "Skontaktuj się z nami",
       "subtitle": "Pytania, rezerwacje, catering lub wydarzenia - skontaktuj się z Nordic Eatery, a my skontaktujemy się z Tobą.",
       "phone": "Telefon",
@@ -507,11 +411,10 @@
       "ctaButton": "Przejdź do rezerwacji"
     },
     "support": {
-      "eyebrow": "Wsparcie",
       "title": "Potrzebujesz pomocy?",
       "subtitle": "Jeśli masz pytania dotyczące zamówienia, rezerwacji lub cateringu - jesteśmy tutaj, aby pomóc.",
-      "q1": "Jak długo trwa dostawa?",
-      "a1": "Zwykle od 30 do 40 minut w zależności od zapotrzebowania.",
+      "q1": "Ile trwa przygotowanie jedzenia?",
+      "a1": "Czas przygotowania zależy od liczby zamówień i wielkości zamówienia.",
       "q2": "Czy mogę zarezerwować food trucka?",
       "a2": "Tak, przejdź do strony Mike'a lub strony rezerwacji i wyślij prośbę.",
       "q3": "Czy oferujecie catering?",
@@ -524,7 +427,6 @@
       "booking": "Rezerwacja"
     },
     "terms": {
-      "eyebrow": "Zasady i warunki",
       "title": "Zasady i warunki",
       "subtitle": "Niniejsze warunki mają zastosowanie do wszystkich zamówień składanych za pośrednictwem Nordic Eatery.",
       "orderingTitle": "Zamawianie",
@@ -533,8 +435,8 @@
       "pricesText": "Wszystkie ceny podane są w SEK i zawierają obowiązujące podatki. Ostateczna kwota zamówienia jest wyświetlana przed dokonaniem płatności.",
       "paymentTitle": "Płatność",
       "paymentText": "Akceptujemy płatności kartą, Apple Pay, Google Pay, Swish i gotówką, jeśli są dostępne. Płatności kartą są bezpiecznie przetwarzane przez Stripe. Płatności Swish są przetwarzane przez Swish.",
-      "deliveryTitle": "Dostawa i odbiór",
-      "deliveryText": "Zamówienia mogą być dostarczane lub odbierane w zależności od dostępności. Czasy dostawy są szacunkowe i mogą się różnić w zależności od zapotrzebowania, pogody i odległości.",
+      "deliveryTitle": "Odbiór",
+      "deliveryText": "Zamów online i odbierz jedzenie z naszego food trucka. Aktualna lokalizacja i godziny otwarcia są podane przy zamawianiu. Czas przygotowania zależy od liczby i wielkości zamówień.",
       "cancellationTitle": "Anulowanie",
       "cancellationText": "Zamówienia można anulować przed rozpoczęciem przygotowania. Po rozpoczęciu przygotowywania posiłków anulowanie może nie być możliwe.",
       "refundsTitle": "Zwroty i reklamacje",
@@ -543,13 +445,12 @@
       "contactText": "W przypadku pytań, reklamacji, zwrotów lub kwestii związanych z płatnościami, prosimy o kontakt pod adresem kontakt@nordiceatery.se lub telefonicznie."
     },
     "privacy": {
-      "eyebrow": "Polityka prywatności",
       "title": "Polityka prywatności",
       "subtitle": "Szanujemy prywatność użytkowników i odpowiedzialnie obchodzimy się z ich danymi osobowymi.",
       "dataTitle": "Gromadzone przez nas dane",
       "dataText": "Podczas składania zamówienia możemy gromadzić imię i nazwisko, numer telefonu, adres, szczegóły zamówienia i status płatności.",
       "usageTitle": "Jak wykorzystujemy dane użytkownika",
-      "usageText": "Używamy danych użytkownika do przetwarzania zamówień, dostarczania żywności, obsługi płatności, zapewniania obsługi klienta i ulepszania naszych usług.",
+      "usageText": "Używamy Twoich danych do przetwarzania zamówień, przygotowywania jedzenia, obsługi płatności, zapewniania wsparcia i ulepszania naszych usług.",
       "paymentsTitle": "Płatności",
       "paymentsText": "Płatności mogą być przetwarzane za pośrednictwem Stripe i Swish. Nie przechowujemy pełnych danych karty na naszej stronie internetowej.",
       "storageTitle": "Przechowywanie danych",
@@ -560,17 +461,21 @@
       "contactText": "W przypadku pytań dotyczących prywatności prosimy o kontakt pod adresem kontakt@nordiceatery.se."
     },
     "checkout": {
+      "email": "E-mail",
+      "emailPlaceholder": "twoj@email.pl",
+      "emailHelp": "Wymagany tylko, jeśli chcesz utworzyć profil klienta i zbierać rabaty.",
+      "fulfillmentUnavailable": "Odbiór jest obecnie niedostępny.",
+      "paymentsUnavailable": "Brak dostępnych metod płatności. Skontaktuj się z restauracją.",
       "emptyTitle": "Koszyk jest pusty",
       "emptyText": "Dodaj jedzenie do koszyka przed dokonaniem płatności.",
       "goToMenu": "Przejdź do menu",
-      "eyebrow": "Bezpieczne płatności",
       "title": "Kasa",
-      "subtitle": "Dodaj szczegóły dostawy i wybierz sposób płatności.",
+      "subtitle": "Podaj dane kontaktowe i wybierz sposób płatności.",
       "name": "Nazwa",
       "namePlaceholder": "Imię i nazwisko",
       "phone": "Telefon",
       "phonePlaceholder": "+46...",
-      "deliveryType": "Rodzaj dostawy",
+      "deliveryType": "Sposób odbioru",
       "delivery": "Dostawa",
       "deliveryTime": "30-40 min",
       "pickup": "Odbiór",
@@ -604,7 +509,7 @@
       "processing": "Przetwarzanie...",
       "continuePayment": "Kontynuacja płatności",
       "placeOrder": "Złóż zamówienie",
-      "bottomInfo": "Szacowany czas dostawy: 30-40 min. W przypadku reklamacji lub zwrotów prosimy o kontakt pod adresem kontakt@nordiceatery.se.",
+      "bottomInfo": "Odbierz zamówienie z naszego food trucka. W sprawie reklamacji lub zwrotu napisz na kontakt@nordiceatery.se.",
       "stripeError": "Nie można uruchomić płatności Stripe.",
       "orderError": "Nie można było utworzyć zamówienia.",
       "generalError": "Coś poszło nie tak. Spróbuj ponownie.",
@@ -618,7 +523,6 @@
   },
   "admin": {
     "shift": {
-      "eyebrow": "Zmiana kuchni",
       "checking": "Sprawdzanie",
       "open": "Otwarte",
       "closed": "Zamknięte",
@@ -633,12 +537,34 @@
       "closeButton": "Zamknij zmianę",
       "addressLabel": "Adres food trucka",
       "addressPlaceholder": "Np. Kungsgatan 12, Boden",
-      "addressHint": "Adres jest widoczny dla klientów w kasie, gdy zmiana jest otwarta.",
+      "addressHint": "GPS automatycznie uzupełnia adres. Sprawdź go i w razie potrzeby popraw przed zapisaniem.",
       "errors": {
         "load": "Nie udało się załadować statusu zmiany.",
         "update": "Nie udało się zaktualizować zmiany.",
-        "addressRequired": "Podaj adres food trucka, aby otworzyć zmianę."
-      }
+        "addressRequired": "Podaj adres food trucka, aby otworzyć zmianę.",
+        "invalidCoordinates": "Wpisz obie współrzędne: szerokość od −90 do 90, długość od −180 do 180.",
+        "locationRequired": "Podaj adres lub punkt na mapie.",
+        "invalidAddress": "Sprawdź adres: maksymalnie 300 znaków.",
+        "invalidInput": "Sprawdź wpisane dane.",
+        "geolocationUnsupported": "Przeglądarka nie obsługuje geolokalizacji. Wpisz współrzędne ręcznie.",
+        "geolocationDenied": "Odmówiono dostępu do lokalizacji. Zezwól w ustawieniach przeglądarki lub wpisz współrzędne ręcznie.",
+        "geolocationTimeout": "Przekroczono czas ustalania pozycji. Spróbuj ponownie lub wpisz współrzędne ręcznie.",
+        "geolocationUnavailable": "Nie udało się ustalić pozycji. Spróbuj ponownie lub wpisz współrzędne ręcznie.",
+        "geocodingUnavailable": "Nie udało się znaleźć adresu. Wpisz go ręcznie i zapisz."
+      },
+      "coordinatesTitle": "Lokalizacja foodtrucka",
+      "coordinatesHint": "Pobierz pozycję telefonu, będąc przy foodtrucku, lub wpisz współrzędne. Sprawdź mapę i zapisz, aby pokazać lokalizację klientom.",
+      "locateButton": "Pobierz moją lokalizację",
+      "locating": "Ustalanie lokalizacji…",
+      "cancelLocation": "Anuluj",
+      "latitude": "Szerokość geograficzna",
+      "longitude": "Długość geograficzna",
+      "accuracy": "Dokładność: około {meters} m. Sprawdź punkt na mapie.",
+      "previewMap": "Sprawdź na mapie",
+      "clearCoordinates": "Usuń współrzędne",
+      "saveLocation": "Zapisz lokalizację",
+      "locationSaved": "Lokalizacja zapisana. Status zmiany nie został zmieniony.",
+      "findAddress": "Znajdź adres ze współrzędnych"
     },
     "businessSettingsForm": {
       "business": {
@@ -740,7 +666,6 @@
       }
     },
     "documentation": {
-      "eyebrow": "Dokumentacja CRM",
       "title": "Dokumentacja",
       "subtitle": "Wewnętrzny przewodnik do zarządzania zamówieniami, produktami, ekspozycją kuchenną, rolami personelu, ustawieniami i wdrażaniem.",
       "accessBadge": "Przewodnik właściciela / administratora",
@@ -810,7 +735,6 @@
       }
     },
     "settings": {
-      "eyebrow": "Ustawienia biznesowe",
       "title": "Ustawienia",
       "subtitle": "Zarządzaj informacjami o restauracji, opcjami dostawy, ustawieniami płatności i preferencjami operacyjnymi.",
       "accessBadge": "Dostęp właściciela / administratora",
@@ -824,7 +748,6 @@
       "updating": "Aktualizacja..."
     },
     "reservations": {
-      "eyebrow": "Zarządzanie rezerwacjami",
       "title": "Rezerwacje",
       "subtitle": "Zarządzaj rezerwacjami klientów, liczbą gości, statusami potwierdzeń i notatkami.",
       "flow": "Przepływ rezerwacji",
@@ -856,7 +779,6 @@
       }
     },
     "menuAdmin": {
-      "eyebrow": "Zarządzanie menu",
       "title": "Menu",
       "subtitle": "Uporządkuj menu swojej restauracji według kategorii, dostępności, stanu magazynowego i wydajności produktów.",
       "viewProducts": "Wyświetl produkty",
@@ -973,7 +895,6 @@
     "reports": {
       "exportPdf": "Eksportuj PDF",
       "exportCsv": "Eksportuj CSV",
-      "eyebrow": "Raport księgowy",
       "title": "Raporty sprzedaży online",
       "description": "Tylko opłacone zamówienia online. Raport obejmuje zamówienia złożone i opłacone zdalnie przez stronę internetową oraz oddziela je od płatności na miejscu.",
       "period": "Okres",
@@ -1016,7 +937,6 @@
       "noPaidOrdersDescription": "Wybierz inny okres lub poczekaj na zakończenie płatności online."
     },
     "analytics": {
-      "eyebrow": "Analityka biznesowa",
       "title": "Analityka",
       "subtitle": "Śledź sprzedaż, zamówienia, przepływ dostaw, metody płatności i aktywność w kuchni na podstawie rzeczywistych danych Supabase.",
       "lastOrders": "Ostatnie {count} zamówień",
@@ -1074,7 +994,6 @@
     },
     "account": {
       "title": "Moje konto",
-      "eyebrow": "Ustawienia konta",
       "subtitle": "Wyświetl swój profil pracownika, uprawnienia do ról i dostęp do konta.",
       "staffMember": "Członek personelu",
       "noEmail": "Brak wiadomości e-mail",
@@ -1120,6 +1039,7 @@
       "formTitleEdit": "Edytuj produkt",
       "productName": "Nazwa produktu",
       "subtitle": "Podtytuł",
+      "subtitleOptional": "Podtytuł (opcjonalnie)",
       "category": "Kategoria",
       "priceKr": "Cena, kr",
       "badge": "Odznaka",
@@ -1137,10 +1057,11 @@
       "uploadPhoto": "Prześlij zdjęcie",
       "uploading": "Przesyłanie...",
       "nameRequired": "Nazwa produktu jest wymagana.",
-      "saveError": "Coś poszło nie tak"
+      "saveError": "Coś poszło nie tak",
+      "editCategoryName": "Zmień nazwę kategorii ołówkiem",
+      "categoryNameHint": "Zapisuje nazwę całej kategorii w wybranym języku."
     },
     "inventory": {
-      "eyebrow": "Kontrola zapasów",
       "title": "Inwentaryzacja",
       "subtitle": "Zarządzanie zapasami produktów. Jeśli śledzony zapas wynosi 0, produkt jest ukryty w menu klienta.",
       "productsCount": "{count} produktów",
@@ -1170,7 +1091,6 @@
       "cancel": "Anuluj"
     },
     "orders": {
-      "eyebrow": "Zamówienia",
       "title": "Zarządzanie zamówieniami",
       "subtitle": "Zarządzaj zamówieniami klientów, statusem płatności, przepływem dostaw i postępem prac kuchennych w jednym miejscu.",
       "total": "Łącznie",
@@ -1240,7 +1160,14 @@
         "preparingDescription": "Zamówienia są obecnie w kuchni.",
         "readyTitle": "Gotowy",
         "readyDescription": "Gotowy do odbioru lub dostawy."
-      }
+      },
+      "enableSound": "Włącz dźwięk",
+      "soundOn": "Dźwięk włączony · wycisz",
+      "testSound": "Sprawdź dźwięk",
+      "soundHint": "Włącz dźwięk po otwarciu strony i pozostaw ekran kuchni otwarty.",
+      "soundFailed": "Przeglądarka wstrzymała dźwięk. Naciśnij ponownie Włącz dźwięk.",
+      "loadFailed": "Nie udało się pobrać zamówień. Ponawiamy próbę.",
+      "pickupAt": "Gotowe {time}"
     },
     "workspace": {
       "operations": "Obsługa restauracji",
@@ -1292,6 +1219,116 @@
       "stockCount": "{count} w magazynie",
       "popular": "Popularne",
       "noDescription": "Brak opisu"
+    },
+    "groupSlots": {
+      "title": "Godziny zamówień grupowych SSAB",
+      "description": "Codzienne terminy według czasu szwedzkiego (Europe/Stockholm). Jedno zamówienie grupowe na termin. Dodaj, zmień lub wyłącz godziny i zapisz.",
+      "preserveBookings": "Zmiany obowiązują od razu dla nowych rezerwacji. Istniejące zamówienia zachowują zarezerwowaną godzinę.",
+      "loading": "Wczytywanie terminów…",
+      "time": "Godzina {index}",
+      "enabled": "Aktywny",
+      "removeSlot": "Usuń termin {index}",
+      "add": "Dodaj termin",
+      "save": "Zapisz terminy",
+      "saving": "Zapisywanie…",
+      "saved": "Terminy zapisane. Menu zaktualizuje się automatycznie.",
+      "empty": "Brak aktywnych terminów. Nowe zamówienia grupowe są wstrzymane, a menu wyświetla formularz powiadomienia e-mail.",
+      "invalidSchedule": "Podaj prawidłowe, niepowtarzające się godziny w formacie GG:MM. Maksymalnie 48 terminów.",
+      "scheduleConflict": "Harmonogram zmieniono w innym oknie. Wczytaj zapisane terminy przed kolejną próbą.",
+      "forbidden": "Tylko właściciel i administrator mogą zmieniać terminy.",
+      "unavailable": "Nie udało się wczytać lub zapisać terminów. Wczytaj aktualny harmonogram i spróbuj ponownie.",
+      "reload": "Wczytaj zapisane terminy"
+    }
+  },
+  "catalog": {
+    "dietaryFilters": "Preferencje żywieniowe",
+    "previous": "Poprzednie kategorie",
+    "next": "Następne kategorie",
+    "categories": "Kategorie menu",
+    "empty": "Brak dań pasujących do filtra."
+  },
+  "customization": {
+    "required": "Wymagane",
+    "optional": "Opcjonalne",
+    "chooseExact": "Wybierz {count}",
+    "chooseRange": "Wybierz {min}–{max}",
+    "included": "W cenie",
+    "clear": "Wyczyść wybór",
+    "completeRequired": "Wybierz opcje we wszystkich wymaganych grupach.",
+    "unavailable": "Tego dania nie można teraz dostosować."
+  },
+  "modifierEditor": {
+    "title": "Składniki i opcje",
+    "description": "Utwórz wymagane opcje mięsa, sosu lub nadzienia. Dodaj „Bez cebuli” lub „Bez sosu” jako osobne opcje. Ceny są doliczane do ceny bazowej. Minimum 1 oznacza wymagany wybór, a minimum 0 — opcjonalny.",
+    "group": "Grupa {number}",
+    "groupName": "Nazwa grupy",
+    "groupPlaceholder": "Mięso, sos, nadzienie…",
+    "removeGroup": "Usuń grupę",
+    "minimum": "Minimum opcji",
+    "maximum": "Maksimum opcji",
+    "optionName": "Opcja",
+    "extraPrice": "Dopłata (kr)",
+    "removeOption": "Usuń opcję",
+    "addOption": "Dodaj opcję",
+    "addGroup": "Dodaj grupę",
+    "optionPlaceholder": "Kurczak / Bez cebuli"
+  },
+  "combo": {
+    "title": "Dodać napój do dania?",
+    "description": "Wybierz zestaw: jeden napój do każdego dania głównego jest tańszy o 5 kr. Wybierz napój lub przejdź dalej bez niego.",
+    "chooseDrink": "Wybierz napój",
+    "drinkQuantity": "Liczba napojów",
+    "back": "Wróć do dania",
+    "saving": "Zestaw: oszczędzasz {amount}",
+    "addCombo": "Dodaj zestaw",
+    "skip": "Kontynuuj bez napoju",
+    "discount": "Rabat na zestaw",
+    "addFailed": "Nie udało się dodać. Sprawdź ilości i spróbuj ponownie."
+  },
+  "sauceOffer": {
+    "title": "Dodać sos?",
+    "description": "Wybierz sos do przekąski lub kontynuuj bez niego. Sos zostanie dodany w cenie z menu.",
+    "chooseSauce": "Wybierz sos",
+    "sauceQuantity": "Liczba sosów",
+    "back": "Wróć do dania",
+    "addWithSauce": "Dodaj z sosem",
+    "skip": "Kontynuuj bez sosu"
+  },
+  "truckLocation": {
+    "title": "Gdzie jest nasz foodtruck",
+    "exactPoint": "Dokładne miejsce jest zaznaczone na mapie",
+    "openMap": "Otwórz mapę",
+    "directions": "Wyznacz trasę"
+  },
+  "orderEntry": {
+    "title": "Jak chcesz zamówić?",
+    "close": "Zamknij",
+    "regularTitle": "Zwykłe zamówienie online",
+    "regularLocation": "Camp West – Minimill",
+    "regularHours": "10:30–13:30",
+    "regularDays": "Poniedziałek–piątek",
+    "regularPickup": "Odbiór przy foodtrucku w Camp West.",
+    "regularAction": "Przejdź do menu",
+    "groupTitle": "Zamówienie grupowe – SSAB",
+    "groupLocation": "Poza terenem Minimill",
+    "groupTimes": "Wyznaczone godziny odbioru · czas szwedzki",
+    "groupPickup": "Odbiór przy wyznaczonym kołowrotku.",
+    "groupAction": "Rozpocznij zamówienie grupowe",
+    "groupFull": "Dzisiejsze terminy zamówień grupowych się skończyły.",
+    "notifyAction": "Powiadom mnie o dostępnych terminach"
+  },
+  "takeawayGallery": {
+    "label": "Nasze zestawy obiadowe",
+    "carousel": "Pokaz zdjęć",
+    "previous": "Poprzednie zdjęcie",
+    "next": "Następne zdjęcie",
+    "show": "Pokaż zdjęcie {number}",
+    "position": "Zdjęcie {number} z {total}",
+    "photos": {
+      "meal-rice": "Zestawy obiadowe z ryżem i sosem",
+      "meal-potatoes": "Zestawy z ziemniakami i kremowym sosem",
+      "meal-meatballs": "Klopsiki z purée ziemniaczanym i borówkami",
+      "meal-fish": "Panierowana ryba z ziemniakami i groszkiem"
     }
   }
 }

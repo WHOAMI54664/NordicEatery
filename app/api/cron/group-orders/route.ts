@@ -6,6 +6,7 @@ import {
   validWorkerSecret,
 } from "@/lib/group-orders/http";
 import { GroupError } from "@/lib/group-orders/model";
+import { sendGroupSlotEmails } from "@/lib/notifications/send-group-slot-emails";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 export async function GET(request: Request) {
@@ -59,7 +60,19 @@ export async function GET(request: Request) {
       }
       processed++;
     }
-    return groupResponse({ processed, failed }, failed ? 503 : 200);
+    let notifications = 0;
+    if (Date.now() - started < 35000) {
+      try {
+        notifications = (await sendGroupSlotEmails()).accepted;
+      } catch {
+        failed++;
+        console.error("Group availability notifications need retry");
+      }
+    }
+    return groupResponse(
+      { processed, failed, notifications },
+      failed ? 503 : 200,
+    );
   } catch (error) {
     return groupFailure(error);
   }

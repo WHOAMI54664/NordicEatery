@@ -1,5 +1,5 @@
 "use client";
-import { useTranslations } from "next-intl";
+import { useEditableTranslations } from "@/components/site-content/EditableMessage";
 import type { PublicGroup } from "@/lib/group-orders/model";
 
 export function GroupPaymentSummary({
@@ -9,7 +9,7 @@ export function GroupPaymentSummary({
   group: PublicGroup;
   locale: string;
 }) {
-  const t = useTranslations("groupOrder");
+  const t = useEditableTranslations("groupOrder");
   const money = (amount: number) =>
     new Intl.NumberFormat(locale, {
       style: "currency",
@@ -29,7 +29,7 @@ export function GroupPaymentSummary({
             }
           </span>
           <span>
-            {money(payment.amount)} · {t(`payment.${payment.status}`)}
+            {money(payment.amount)} · {t.edit(`payment.${payment.status}`)}
           </span>
         </div>
       ))}

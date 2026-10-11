@@ -1,6 +1,7 @@
 "use client";
+import { selectionKey } from "@/lib/menu-options";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CheckCircle2,
   ChefHat,
@@ -8,9 +9,15 @@ import {
   PackageCheck,
   RefreshCw,
   Trash2,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/browser";
+import { useKitchenSound } from "./useKitchenSound";
+import { kitchenArrivals, visibleInKitchen } from "@/lib/kitchen-arrivals";
+import { formatGroupPickup } from "@/lib/group-orders/slots";
+import { useLocale } from "next-intl";
 import type { OrderStatus } from "@/types/order";
 
 type KitchenOrderItem = {
@@ -22,6 +29,7 @@ type KitchenOrderItem = {
   member_id?: string;
   member_name?: string;
   note?: string;
+  selections?: import("@/lib/menu-options").Selection[];
 };
 
 type DbOrder = {
@@ -38,12 +46,9 @@ type DbOrder = {
   status: OrderStatus;
   payment_method: "cash" | "swish" | "card";
   payment_status:
-      | "unpaid"
-      | "awaiting_payment"
-      | "paid"
-      | "failed"
-      | "refunded";
+    "unpaid" | "awaiting_payment" | "paid" | "failed" | "refunded";
   created_at: string;
+  pickup_at: string | null;
 };
 
 function formatTime(date: string) {
@@ -110,10 +115,8 @@ function getColumnStyle(status: OrderStatus) {
     case "ready":
       return {
         icon: PackageCheck,
-        iconClass:
-            "border-emerald-500/20 bg-emerald-500/10 text-emerald-700",
-        badgeClass:
-            "border-emerald-500/20 bg-emerald-500/10 text-emerald-700",
+        iconClass: "border-emerald-500/20 bg-emerald-500/10 text-emerald-700",
+        badgeClass: "border-emerald-500/20 bg-emerald-500/10 text-emerald-700",
       };
     default:
       return {
@@ -127,6 +130,12 @@ function getColumnStyle(status: OrderStatus) {
 export function KitchenBoard() {
   const t = useTranslations("admin.kitchen");
   const supabase = useMemo(() => createClient(), []);
+  const locale = useLocale();
+  const sound = useKitchenSound();
+  const { play } = sound;
+  const seen = useRef<Set<string> | null>(null);
+  const inFlight = useRef<AbortController | null>(null);
+  const mounted = useRef(true);
 
   const [orders, setOrders] = useState<DbOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -163,71 +172,72 @@ export function KitchenBoard() {
     },
   ];
 
-  async function fetchOrders(options?: { silent?: boolean }) {
-    if (!options?.silent) setIsRefreshing(true);
-
-    const { data, error } = await supabase
-        .from("orders")
-        .select(
-            "id, order_number, display_order_number, customer_name, customer_phone, address, delivery_type, comment, items, total_price, status, payment_method, payment_status, created_at"
-        )
-        .order("created_at", { ascending: true });
-
-    if (error) {
-      setErrorMessage(error.message);
-      setIsLoading(false);
-      setIsRefreshing(false);
-      return;
-    }
-
-    setOrders((data || []) as DbOrder[]);
-    setErrorMessage("");
-    setIsLoading(false);
-    setIsRefreshing(false);
-  }
+  const fetchOrders = useCallback(
+    async (options?: { silent?: boolean }) => {
+      if (inFlight.current) return;
+      const controller = new AbortController();
+      inFlight.current = controller;
+      if (!options?.silent) setIsRefreshing(true);
+      try {
+        const { data, error } = await supabase
+          .from("orders")
+          .select(
+            "id, order_number, display_order_number, customer_name, customer_phone, address, delivery_type, comment, items, total_price, status, payment_method, payment_status, created_at, pickup_at",
+          )
+          .in("status", ["new", "preparing", "ready"])
+          .order("created_at", { ascending: true })
+          .abortSignal(
+            AbortSignal.any([controller.signal, AbortSignal.timeout(10000)]),
+          );
+        if (!mounted.current || controller.signal.aborted) return;
+        if (error) {
+          setErrorMessage(error.message);
+          return;
+        }
+        const next = (data || []) as DbOrder[];
+        const arrival = kitchenArrivals(seen.current, next);
+        seen.current = arrival.ids;
+        if (arrival.arrivals.length) play();
+        setOrders(next);
+        setErrorMessage("");
+      } catch {
+        if (mounted.current && !controller.signal.aborted)
+          setErrorMessage(t("loadFailed"));
+      } finally {
+        if (inFlight.current === controller) inFlight.current = null;
+        if (mounted.current && !controller.signal.aborted) {
+          setIsLoading(false);
+          setIsRefreshing(false);
+        }
+      }
+    },
+    [supabase, play, t],
+  );
 
   useEffect(() => {
-    fetchOrders({ silent: true });
-
+    mounted.current = true;
+    void fetchOrders({ silent: true });
     const interval = window.setInterval(() => {
-      fetchOrders({ silent: true });
+      void fetchOrders({ silent: true });
     }, 3000);
-
     return () => {
+      mounted.current = false;
       window.clearInterval(interval);
+      inFlight.current?.abort();
+      inFlight.current = null;
     };
-  }, []);
+  }, [fetchOrders]);
 
-  const activeOrders = useMemo(
-      () =>
-          orders
-              .filter((order) => !["completed", "cancelled"].includes(order.status))
-              .filter((order) => {
-                // Cash is pay-on-site, so it reaches the kitchen while unpaid.
-                if (order.payment_method === "cash") {
-                  return true;
-                }
-
-                // Card and Swish must be fully paid before the kitchen sees them.
-                // Unpaid / awaiting / failed online orders are never shown.
-                return order.payment_status === "paid";
-              })
-              .sort(
-                  (a, b) =>
-                      new Date(a.created_at).getTime() -
-                      new Date(b.created_at).getTime()
-              ),
-      [orders]
-  );
+  const activeOrders = useMemo(() => orders.filter(visibleInKitchen), [orders]);
 
   async function updateStatus(orderId: string, status: OrderStatus) {
     const { error } = await supabase
-        .from("orders")
-        .update({
-          status,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", orderId);
+      .from("orders")
+      .update({
+        status,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", orderId);
 
     if (error) {
       setErrorMessage(error.message);
@@ -239,12 +249,12 @@ export function KitchenBoard() {
 
   async function deleteOrder(orderId: string) {
     const { error } = await supabase
-        .from("orders")
-        .update({
-          status: "cancelled",
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", orderId);
+      .from("orders")
+      .update({
+        status: "cancelled",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", orderId);
 
     if (error) {
       setErrorMessage(error.message);
@@ -255,116 +265,93 @@ export function KitchenBoard() {
   }
 
   const newOrdersCount = activeOrders.filter(
-      (order) => order.status === "new"
+    (order) => order.status === "new",
   ).length;
 
   const preparingOrdersCount = activeOrders.filter(
-      (order) => order.status === "preparing"
+    (order) => order.status === "preparing",
   ).length;
 
   const readyOrdersCount = activeOrders.filter(
-      (order) => order.status === "ready"
+    (order) => order.status === "ready",
   ).length;
 
   const activeRevenue = activeOrders.reduce(
-      (sum, order) => sum + Number(order.total_price || 0),
-      0
+    (sum, order) => sum + Number(order.total_price || 0),
+    0,
   );
 
   const deliveryOrdersCount = activeOrders.filter(
-      (order) => order.delivery_type === "delivery"
+    (order) => order.delivery_type === "delivery",
   ).length;
 
   const pickupOrdersCount = activeOrders.filter(
-      (order) => order.delivery_type === "pickup"
+    (order) => order.delivery_type === "pickup",
   ).length;
 
   if (isLoading) {
     return (
-        <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-8 text-center shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[2rem] sm:p-10">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 sm:h-16 sm:w-16">
-            <ChefHat className="h-6 w-6 animate-pulse text-[#C7192E] sm:h-7 sm:w-7" />
-          </div>
-
-          <p className="mt-5 text-sm font-black text-[#25120F]">
-            Loading kitchen orders...
-          </p>
+      <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-8 text-center shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[2rem] sm:p-10">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#E51B23]/15 bg-[#E51B23]/8 sm:h-16 sm:w-16">
+          <ChefHat className="h-6 w-6 animate-pulse text-[#C7192E] sm:h-7 sm:w-7" />
         </div>
+
+        <p className="mt-5 text-sm font-black text-[#25120F]">
+          Loading kitchen orders...
+        </p>
+      </div>
     );
   }
 
   return (
-      <div className="space-y-4 px-1 sm:space-y-6 sm:px-0">
-        {/* Desktop hero */}
-        <section className="relative hidden overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:block lg:p-6">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
+    <div className="space-y-4 px-1 sm:space-y-6 sm:px-0">
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-dark/10 bg-white p-4">
+        <button
+          type="button"
+          disabled={sound.busy}
+          onClick={sound.enabled ? sound.mute : sound.enable}
+          aria-pressed={sound.enabled}
+          className="inline-flex items-center gap-2 rounded-xl bg-dark px-4 py-3 text-sm font-bold text-white disabled:opacity-50"
+        >
+          {sound.enabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+          {sound.enabled ? t("soundOn") : t("enableSound")}
+        </button>
+        {sound.enabled && (
+          <button
+            type="button"
+            onClick={sound.play}
+            className="rounded-xl border border-dark/15 px-4 py-3 text-sm font-semibold"
+          >
+            {t("testSound")}
+          </button>
+        )}
+        <p role="status" className="text-sm text-dark/70">
+          {sound.failed ? t("soundFailed") : t("soundHint")}
+        </p>
+      </div>
+      {/* Desktop hero */}
+      <section className="relative hidden overflow-hidden rounded-[2rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-5 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:block lg:p-6">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,27,35,0.09),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,159,64,0.16),transparent_34%)]" />
 
-          <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
-                <ChefHat className="h-3.5 w-3.5" />
-                {t("display")}
-              </div>
-
-              <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
-                {t("title")}
-              </h1>
-
-              <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
-                {t("subtitle")}
-              </p>
+        <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
+              <ChefHat className="h-3.5 w-3.5" />
+              {t("display")}
             </div>
 
-            <div className="grid w-full grid-cols-2 gap-3 xl:w-auto xl:grid-cols-4">
-              <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
-                  {t("newNow")}
-                </p>
+            <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
+              {t("title")}
+            </h1>
 
-                <p className="mt-1 text-2xl font-black text-[#C7192E]">
-                  {newOrdersCount}
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
-                  Preparing
-                </p>
-
-                <p className="mt-1 text-2xl font-black text-[#B45309]">
-                  {preparingOrdersCount}
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
-                  Ready
-                </p>
-
-                <p className="mt-1 text-2xl font-black text-emerald-700">
-                  {readyOrdersCount}
-                </p>
-              </div>
-
-              <button
-                  type="button"
-                  onClick={() => fetchOrders()}
-                  className="flex items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-4 py-3 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E]"
-              >
-                <RefreshCw
-                    className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-                />
-                Refresh
-              </button>
-            </div>
+            <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-[#7B6A61]">
+              {t("subtitle")}
+            </p>
           </div>
-        </section>
 
-        {/* Mobile compact kitchen status */}
-        <section className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:hidden">
-          <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-3 py-3 text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#A39388]">
+          <div className="grid w-full grid-cols-2 gap-3 xl:w-auto xl:grid-cols-4">
+            <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
                 {t("newNow")}
               </p>
 
@@ -373,8 +360,8 @@ export function KitchenBoard() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-3 py-3 text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#A39388]">
+            <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
                 Preparing
               </p>
 
@@ -383,8 +370,8 @@ export function KitchenBoard() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-3 py-3 text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#A39388]">
+            <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3">
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-[#A39388]">
                 Ready
               </p>
 
@@ -392,302 +379,364 @@ export function KitchenBoard() {
                 {readyOrdersCount}
               </p>
             </div>
-          </div>
 
-          <button
+            <button
               type="button"
               onClick={() => fetchOrders()}
-              className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-4 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E]"
-          >
-            <RefreshCw
+              className="flex items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-4 py-3 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E]"
+            >
+              <RefreshCw
                 className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-            />
-            Refresh
-          </button>
-        </section>
+              />
+              Refresh
+            </button>
+          </div>
+        </div>
+      </section>
 
-        {errorMessage ? (
-            <div className="rounded-[1.25rem] border border-[#E51B23]/15 bg-[#E51B23]/8 p-4 text-sm font-bold text-[#C7192E] sm:rounded-[1.5rem]">
-              {errorMessage}
-            </div>
-        ) : null}
-
-        {/* Compact stats */}
-        <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-          <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[1.75rem] sm:p-5">
-            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
-              Active orders
+      {/* Mobile compact kitchen status */}
+      <section className="rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-2xl shadow-[#4C2314]/10 backdrop-blur-2xl lg:hidden">
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-3 py-3 text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#A39388]">
+              {t("newNow")}
             </p>
 
-            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:mt-3 sm:text-3xl">
-              {activeOrders.length}
-            </h3>
-
-            <p className="mt-2 line-clamp-2 text-[11px] font-medium leading-4 text-[#7B6A61] sm:mt-3 sm:text-xs">
-              Orders currently in kitchen flow
+            <p className="mt-1 text-2xl font-black text-[#C7192E]">
+              {newOrdersCount}
             </p>
           </div>
 
-          <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[1.75rem] sm:p-5">
-            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
-              Active revenue
+          <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-3 py-3 text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#A39388]">
+              Preparing
             </p>
 
-            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:mt-3 sm:text-3xl">
-              {formatCurrency(activeRevenue)}
-            </h3>
-
-            <p className="mt-2 line-clamp-2 text-[11px] font-medium leading-4 text-[#7B6A61] sm:mt-3 sm:text-xs">
-              Value of active orders
+            <p className="mt-1 text-2xl font-black text-[#B45309]">
+              {preparingOrdersCount}
             </p>
           </div>
 
-          <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[1.75rem] sm:p-5">
-            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
-              Delivery orders
+          <div className="rounded-2xl border border-[#EADDCF] bg-white/70 px-3 py-3 text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#A39388]">
+              Ready
             </p>
 
-            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:mt-3 sm:text-3xl">
-              {deliveryOrdersCount}
-            </h3>
-
-            <p className="mt-2 line-clamp-2 text-[11px] font-medium leading-4 text-[#7B6A61] sm:mt-3 sm:text-xs">
-              Delivery flow only
+            <p className="mt-1 text-2xl font-black text-emerald-700">
+              {readyOrdersCount}
             </p>
           </div>
+        </div>
 
-          <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[1.75rem] sm:p-5">
-            <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
-              Pickup orders
-            </p>
+        <button
+          type="button"
+          onClick={() => fetchOrders()}
+          className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#E51B23] px-4 text-sm font-black text-white shadow-lg shadow-[#E51B23]/20 transition hover:bg-[#C7192E]"
+        >
+          <RefreshCw
+            className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+          />
+          Refresh
+        </button>
+      </section>
 
-            <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:mt-3 sm:text-3xl">
-              {pickupOrdersCount}
-            </h3>
+      {errorMessage ? (
+        <div className="rounded-[1.25rem] border border-[#E51B23]/15 bg-[#E51B23]/8 p-4 text-sm font-bold text-[#C7192E] sm:rounded-[1.5rem]">
+          {errorMessage}
+        </div>
+      ) : null}
 
-            <p className="mt-2 line-clamp-2 text-[11px] font-medium leading-4 text-[#7B6A61] sm:mt-3 sm:text-xs">
-              Pickup flow only
-            </p>
+      {/* Compact stats */}
+      <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[1.75rem] sm:p-5">
+          <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+            Active orders
+          </p>
+
+          <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:mt-3 sm:text-3xl">
+            {activeOrders.length}
+          </h3>
+
+          <p className="mt-2 line-clamp-2 text-[11px] font-medium leading-4 text-[#7B6A61] sm:mt-3 sm:text-xs">
+            Orders currently in kitchen flow
+          </p>
+        </div>
+
+        <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[1.75rem] sm:p-5">
+          <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+            Active revenue
+          </p>
+
+          <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:mt-3 sm:text-3xl">
+            {formatCurrency(activeRevenue)}
+          </h3>
+
+          <p className="mt-2 line-clamp-2 text-[11px] font-medium leading-4 text-[#7B6A61] sm:mt-3 sm:text-xs">
+            Value of active orders
+          </p>
+        </div>
+
+        <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[1.75rem] sm:p-5">
+          <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+            Delivery orders
+          </p>
+
+          <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:mt-3 sm:text-3xl">
+            {deliveryOrdersCount}
+          </h3>
+
+          <p className="mt-2 line-clamp-2 text-[11px] font-medium leading-4 text-[#7B6A61] sm:mt-3 sm:text-xs">
+            Delivery flow only
+          </p>
+        </div>
+
+        <div className="rounded-[1.4rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[1.75rem] sm:p-5">
+          <p className="text-[11px] font-black leading-4 text-[#8A7A70] sm:text-sm">
+            Pickup orders
+          </p>
+
+          <h3 className="mt-2 text-2xl font-black tracking-[-0.055em] text-[#25120F] sm:mt-3 sm:text-3xl">
+            {pickupOrdersCount}
+          </h3>
+
+          <p className="mt-2 line-clamp-2 text-[11px] font-medium leading-4 text-[#7B6A61] sm:mt-3 sm:text-xs">
+            Pickup flow only
+          </p>
+        </div>
+      </section>
+
+      {activeOrders.length === 0 ? (
+        <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-8 text-center shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[2rem] sm:p-10">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 text-3xl sm:h-20 sm:w-20 sm:text-4xl">
+            👨‍🍳
           </div>
-        </section>
 
-        {activeOrders.length === 0 ? (
-            <div className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-8 text-center shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[2rem] sm:p-10">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 text-3xl sm:h-20 sm:w-20 sm:text-4xl">
-                👨‍🍳
-              </div>
+          <h2 className="mt-6 text-xl font-black text-[#25120F] sm:text-2xl">
+            {t("noActiveOrders")}
+          </h2>
 
-              <h2 className="mt-6 text-xl font-black text-[#25120F] sm:text-2xl">
-                {t("noActiveOrders")}
-              </h2>
+          <p className="mt-3 text-sm font-medium text-[#7B6A61]">
+            {t("emptyText")}
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-4 xl:grid-cols-3">
+          {statusColumns.map((column) => {
+            const columnOrders = activeOrders.filter(
+              (order) => order.status === column.status,
+            );
 
-              <p className="mt-3 text-sm font-medium text-[#7B6A61]">
-                {t("emptyText")}
-              </p>
-            </div>
-        ) : (
-            <div className="grid gap-4 xl:grid-cols-3">
-              {statusColumns.map((column) => {
-                const columnOrders = activeOrders.filter(
-                    (order) => order.status === column.status
-                );
+            const style = getColumnStyle(column.status);
+            const ColumnIcon = style.icon;
 
-                const style = getColumnStyle(column.status);
-                const ColumnIcon = style.icon;
+            return (
+              <section
+                key={column.status}
+                className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-3 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[2rem] sm:p-4"
+              >
+                <div className="mb-4 rounded-[1.25rem] border border-[#EADDCF] bg-white/70 p-4 sm:rounded-[1.5rem]">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h2 className="text-lg font-black tracking-[-0.03em] text-[#25120F] sm:text-xl">
+                        {column.title}
+                      </h2>
 
-                return (
-                    <section
-                        key={column.status}
-                        className="rounded-[1.5rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-3 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl sm:rounded-[2rem] sm:p-4"
+                      <p className="mt-1 text-sm font-medium text-[#7B6A61]">
+                        {column.description}
+                      </p>
+                    </div>
+
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border sm:h-11 sm:w-11 ${style.iconClass}`}
                     >
-                      <div className="mb-4 rounded-[1.25rem] border border-[#EADDCF] bg-white/70 p-4 sm:rounded-[1.5rem]">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <h2 className="text-lg font-black tracking-[-0.03em] text-[#25120F] sm:text-xl">
-                              {column.title}
-                            </h2>
+                      <ColumnIcon className="h-5 w-5" />
+                    </div>
+                  </div>
 
-                            <p className="mt-1 text-sm font-medium text-[#7B6A61]">
-                              {column.description}
+                  <div className="mt-4 inline-flex rounded-full border border-[#EADDCF] bg-[#FFF7EA] px-3 py-1 text-xs font-black text-[#7B6A61]">
+                    {columnOrders.length} orders
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {columnOrders.length === 0 ? (
+                    <div className="rounded-[1.25rem] border border-dashed border-[#EADDCF] bg-white/50 p-5 text-center text-sm font-bold text-[#A39388] sm:rounded-[1.5rem]">
+                      {t("empty")}
+                    </div>
+                  ) : (
+                    columnOrders.map((order) => (
+                      <article
+                        key={order.id}
+                        className="rounded-[1.4rem] border border-[#EADDCF] bg-white/75 p-3 shadow-sm shadow-[#4C2314]/5 transition hover:bg-[#FFF3E2] sm:rounded-[1.6rem] sm:p-4"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-2xl font-black uppercase tracking-[-0.04em] text-[#C7192E]">
+                              #{formatOrderNumber(order)}
                             </p>
+
+                            <h3 className="mt-1 truncate text-lg font-black tracking-[-0.03em] text-[#25120F] sm:text-xl">
+                              {order.customer_name}
+                            </h3>
                           </div>
 
                           <div
-                              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border sm:h-11 sm:w-11 ${style.iconClass}`}
+                            className={`shrink-0 rounded-full border px-3 py-1 text-xs font-black ${style.badgeClass}`}
                           >
-                            <ColumnIcon className="h-5 w-5" />
+                            {statusLabels[order.status]}
                           </div>
                         </div>
 
-                        <div className="mt-4 inline-flex rounded-full border border-[#EADDCF] bg-[#FFF7EA] px-3 py-1 text-xs font-black text-[#7B6A61]">
-                          {columnOrders.length} orders
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        {columnOrders.length === 0 ? (
-                            <div className="rounded-[1.25rem] border border-dashed border-[#EADDCF] bg-white/50 p-5 text-center text-sm font-bold text-[#A39388] sm:rounded-[1.5rem]">
-                              {t("empty")}
-                            </div>
-                        ) : (
-                            columnOrders.map((order) => (
-                                <article
-                                    key={order.id}
-                                    className="rounded-[1.4rem] border border-[#EADDCF] bg-white/75 p-3 shadow-sm shadow-[#4C2314]/5 transition hover:bg-[#FFF3E2] sm:rounded-[1.6rem] sm:p-4"
-                                >
-                                  <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                      <p className="text-2xl font-black uppercase tracking-[-0.04em] text-[#C7192E]">
-                                        #{formatOrderNumber(order)}
-                                      </p>
-
-                                      <h3 className="mt-1 truncate text-lg font-black tracking-[-0.03em] text-[#25120F] sm:text-xl">
-                                        {order.customer_name}
-                                      </h3>
-                                    </div>
-
-                                    <div
-                                        className={`shrink-0 rounded-full border px-3 py-1 text-xs font-black ${style.badgeClass}`}
-                                    >
-                                      {statusLabels[order.status]}
-                                    </div>
-                                  </div>
-
-                                  <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
+                        {order.pickup_at && (
+                          <p className="mt-3 rounded-xl bg-dark px-3 py-2 text-sm font-black text-white">
+                            {t("pickupAt", {
+                              time: formatGroupPickup(order.pickup_at, locale),
+                            })}
+                          </p>
+                        )}
+                        <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
                           <span className="rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-[#C7192E]">
                             {order.delivery_type}
                           </span>
 
-                                    <span
-                                        className={`rounded-full border px-3 py-1 ${getPaymentClass(
-                                            order.payment_status
-                                        )}`}
-                                    >
+                          <span
+                            className={`rounded-full border px-3 py-1 ${getPaymentClass(
+                              order.payment_status,
+                            )}`}
+                          >
                             {order.payment_method} · {order.payment_status}
                           </span>
 
-                                    <span className="inline-flex items-center gap-1 rounded-full border border-[#EADDCF] bg-[#FFF3E2] px-3 py-1 text-[#7B6A61]">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-[#EADDCF] bg-[#FFF3E2] px-3 py-1 text-[#7B6A61]">
                             <Clock size={13} />
-                                      {formatTime(order.created_at)} ·{" "}
-                                      {minutesAgo(order.created_at)} {t("min")}
+                            {formatTime(order.created_at)} ·{" "}
+                            {minutesAgo(order.created_at)} {t("min")}
                           </span>
-                                  </div>
+                        </div>
 
-                                  <div className="mt-4 space-y-3">
-                                    {(order.items || []).map((item) => (
-                                        <div
-                                            key={item.member_id ? `${item.member_id}:${item.id}` : item.id}
-                                            className="flex justify-between gap-3 rounded-2xl border border-[#EADDCF] bg-[#FFF7EA]/85 px-3 py-2"
-                                        >
-                                          <div className="min-w-0">
-                                            <p className="font-black text-[#25120F]">
-                                              {item.name}
-                                            </p>
-                                            {item.member_name && <p className="text-sm font-bold text-[#7B6A61]">{item.member_name}</p>}
-                                            {item.note && <p className="text-sm text-[#7B6A61]">{item.note}</p>}
+                        <div className="mt-4 space-y-3">
+                          {(order.items || []).map((item) => (
+                            <div
+                              key={`${item.member_id || ""}:${selectionKey(String(item.id), item.selections)}`}
+                              className="flex justify-between gap-3 rounded-2xl border border-[#EADDCF] bg-[#FFF7EA]/85 px-3 py-2"
+                            >
+                              <div className="min-w-0">
+                                <p className="font-black text-[#25120F]">
+                                  {item.name}
+                                </p>
+                                {item.member_name && (
+                                  <p className="text-sm font-bold text-[#7B6A61]">
+                                    {item.member_name}
+                                  </p>
+                                )}
+                                {item.note && (
+                                  <p className="text-sm text-[#7B6A61]">
+                                    {item.note}
+                                  </p>
+                                )}
 
-                                            {item.subtitle ? (
-                                                <p className="text-xs font-medium text-[#7B6A61]">
-                                                  {item.subtitle}
-                                                </p>
-                                            ) : null}
-                                          </div>
+                                {item.subtitle ? (
+                                  <p className="text-xs font-medium text-[#7B6A61]">
+                                    {item.subtitle}
+                                  </p>
+                                ) : null}
+                              </div>
 
-                                          <p className="shrink-0 text-lg font-black text-[#C7192E]">
-                                            x{item.quantity}
-                                          </p>
-                                        </div>
-                                    ))}
-                                  </div>
+                              <p className="shrink-0 text-lg font-black text-[#C7192E]">
+                                x{item.quantity}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
 
-                                  {order.comment ? (
-                                      <div className="mt-4 rounded-2xl border border-[#F6A21A]/20 bg-[#F6A21A]/12 p-3">
-                                        <p className="text-xs font-black uppercase tracking-[0.15em] text-[#A96800]">
-                                          {t("comment")}
-                                        </p>
+                        {order.comment ? (
+                          <div className="mt-4 rounded-2xl border border-[#F6A21A]/20 bg-[#F6A21A]/12 p-3">
+                            <p className="text-xs font-black uppercase tracking-[0.15em] text-[#A96800]">
+                              {t("comment")}
+                            </p>
 
-                                        <p className="mt-1 text-sm font-bold text-[#25120F]">
-                                          {order.comment}
-                                        </p>
-                                      </div>
-                                  ) : null}
+                            <p className="mt-1 text-sm font-bold text-[#25120F]">
+                              {order.comment}
+                            </p>
+                          </div>
+                        ) : null}
 
-                                  <div className="mt-4 rounded-2xl border border-[#EADDCF] bg-white/70 p-3 text-sm text-[#7B6A61]">
-                                    <p className="font-black text-[#25120F]">
-                                      {order.customer_phone}
-                                    </p>
+                        <div className="mt-4 rounded-2xl border border-[#EADDCF] bg-white/70 p-3 text-sm text-[#7B6A61]">
+                          <p className="font-black text-[#25120F]">
+                            {order.customer_phone}
+                          </p>
 
-                                    <p className="mt-1 font-medium">
-                                      {order.delivery_type === "delivery"
-                                          ? order.address
-                                          : "Pickup order"}
-                                    </p>
-                                  </div>
+                          <p className="mt-1 font-medium">
+                            {order.delivery_type === "delivery"
+                              ? order.address
+                              : "Pickup order"}
+                          </p>
+                        </div>
 
-                                  <div className="mt-4 flex items-center justify-between border-t border-[#EADDCF] pt-4">
-                                    <p className="text-sm font-black text-[#25120F]">
-                                      Total
-                                    </p>
+                        <div className="mt-4 flex items-center justify-between border-t border-[#EADDCF] pt-4">
+                          <p className="text-sm font-black text-[#25120F]">
+                            Total
+                          </p>
 
-                                    <p className="text-xl font-black text-[#C7192E]">
-                                      {formatCurrency(order.total_price)}
-                                    </p>
-                                  </div>
+                          <p className="text-xl font-black text-[#C7192E]">
+                            {formatCurrency(order.total_price)}
+                          </p>
+                        </div>
 
-                                  <div className="mt-5 grid gap-2">
-                                    {order.status === "new" ? (
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                updateStatus(order.id, "preparing")
-                                            }
-                                            className="rounded-2xl bg-[#E51B23] px-4 py-3.5 text-sm font-black text-white shadow-lg shadow-[#E51B23]/15 transition hover:bg-[#C7192E] sm:py-3"
-                                        >
-                                          {t("startPreparing")}
-                                        </button>
-                                    ) : null}
+                        <div className="mt-5 grid gap-2">
+                          {order.status === "new" ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateStatus(order.id, "preparing")
+                              }
+                              className="rounded-2xl bg-[#E51B23] px-4 py-3.5 text-sm font-black text-white shadow-lg shadow-[#E51B23]/15 transition hover:bg-[#C7192E] sm:py-3"
+                            >
+                              {t("startPreparing")}
+                            </button>
+                          ) : null}
 
-                                    {order.status === "preparing" ? (
-                                        <button
-                                            type="button"
-                                            onClick={() => updateStatus(order.id, "ready")}
-                                            className="rounded-2xl bg-[#2A1712] px-4 py-3.5 text-sm font-black text-white transition hover:opacity-90 sm:py-3"
-                                        >
-                                          {t("markReady")}
-                                        </button>
-                                    ) : null}
+                          {order.status === "preparing" ? (
+                            <button
+                              type="button"
+                              onClick={() => updateStatus(order.id, "ready")}
+                              className="rounded-2xl bg-[#2A1712] px-4 py-3.5 text-sm font-black text-white transition hover:opacity-90 sm:py-3"
+                            >
+                              {t("markReady")}
+                            </button>
+                          ) : null}
 
-                                    {order.status === "ready" ? (
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                updateStatus(order.id, "completed")
-                                            }
-                                            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3.5 text-sm font-black text-white transition hover:bg-emerald-700 sm:py-3"
-                                        >
-                                          <CheckCircle2 size={18} />
-                                          {t("completeOrder")}
-                                        </button>
-                                    ) : null}
+                          {order.status === "ready" ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateStatus(order.id, "completed")
+                              }
+                              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3.5 text-sm font-black text-white transition hover:bg-emerald-700 sm:py-3"
+                            >
+                              <CheckCircle2 size={18} />
+                              {t("completeOrder")}
+                            </button>
+                          ) : null}
 
-                                    <button
-                                        type="button"
-                                        onClick={() => deleteOrder(order.id)}
-                                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3.5 text-sm font-black text-[#7B6A61] transition hover:border-[#E51B23]/20 hover:bg-[#E51B23]/8 hover:text-[#C7192E] sm:py-3"
-                                    >
-                                      <Trash2 size={16} />
-                                      {t("remove")}
-                                    </button>
-                                  </div>
-                                </article>
-                            ))
-                        )}
-                      </div>
-                    </section>
-                );
-              })}
-            </div>
-        )}
-      </div>
+                          <button
+                            type="button"
+                            onClick={() => deleteOrder(order.id)}
+                            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#EADDCF] bg-white/70 px-4 py-3.5 text-sm font-black text-[#7B6A61] transition hover:border-[#E51B23]/20 hover:bg-[#E51B23]/8 hover:text-[#C7192E] sm:py-3"
+                          >
+                            <Trash2 size={16} />
+                            {t("remove")}
+                          </button>
+                        </div>
+                      </article>
+                    ))
+                  )}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }

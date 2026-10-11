@@ -20,3 +20,27 @@ export function humanizeCategory(id: string) {
 
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
+
+// Home links and the menu use the same order, labels and image fallback.
+export function getMenuCategories(
+  products: { category: string; image_url?: string | null }[],
+  content: Record<string, string>,
+  translate: (id: string) => string,
+) {
+  const known = new Set<string>(categories.map((category) => category.id));
+  const available = new Set(products.map((product) => product.category));
+  return [...known, ...[...available].filter((id) => id && !known.has(id))]
+    .filter((id) => available.has(id))
+    .map((id) => ({
+      id,
+      textKey: `menu.categories.${known.has(id) ? "" : "custom."}${id}`,
+      title:
+        content[`menu.categories.${known.has(id) ? "" : "custom."}${id}`] ||
+        (known.has(id) ? translate(id) : humanizeCategory(id)),
+      image:
+        content[`menu.categoryImages.${id}`] ||
+        products.find((product) => product.category === id && product.image_url)
+          ?.image_url,
+      hasCategoryImage: Boolean(content[`menu.categoryImages.${id}`]),
+    }));
+}

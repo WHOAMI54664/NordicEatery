@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { GroupOrderRoom } from "@/components/group-orders/GroupOrderRoom";
 import { UUID } from "@/lib/group-orders/model";
+import { groupSwishEnabled } from "@/lib/group-orders/swish";
 import type { Product } from "@/types/product";
 export async function generateMetadata({
   params,
@@ -30,7 +31,7 @@ export default async function GroupOrderRoomPage({
   const { data, error } = await db
     .from("products")
     .select(
-      "id, name, name_sv, name_pl, name_ru, description, description_sv, description_pl, description_ru, subtitle, subtitle_sv, subtitle_pl, subtitle_ru, badge, price, category, menu_type, image_url, is_available, track_stock, stock_quantity",
+      "id, name, name_sv, name_pl, name_ru, description, description_sv, description_pl, description_ru, subtitle, subtitle_sv, subtitle_pl, subtitle_ru, badge, price, category, menu_type, image_url, modifier_groups, is_available, track_stock, stock_quantity",
     )
     .eq("is_available", true)
     .or("track_stock.eq.false,stock_quantity.gt.0")
@@ -60,7 +61,8 @@ export default async function GroupOrderRoomPage({
         )}
         settings={{
           card_enabled: settings?.card_enabled === true,
-          swish_enabled: settings?.swish_enabled === true,
+          swish_enabled:
+            settings?.swish_enabled === true && groupSwishEnabled(),
           cash_enabled: settings?.cash_enabled === true,
           pickup_enabled: settings?.pickup_enabled === true,
           delivery_enabled: settings?.delivery_enabled === true,

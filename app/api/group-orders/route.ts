@@ -1,4 +1,4 @@
-import { newGroup, newToken, tokenHash } from "@/lib/group-orders/store";
+import { newGroup, tokenHash } from "@/lib/group-orders/store";
 import { publicGroup, GroupError } from "@/lib/group-orders/model";
 import {
   groupBody,
@@ -6,6 +6,8 @@ import {
   groupFailure,
   setMemberCookie,
   groupWorkerReady,
+  readReservationToken,
+  setReservationCookie,
 } from "@/lib/group-orders/http";
 import { groupSiteUrl } from "@/lib/group-orders/payments";
 import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
@@ -19,10 +21,12 @@ export async function POST(request: Request) {
     groupSiteUrl();
     const body = await groupBody(request);
     if (!(await groupWorkerReady())) throw new GroupError("unavailable", 503);
-    const token = newToken();
+    const token = await readReservationToken();
+    if (!token) throw new GroupError("reservationExpired", 409);
     const row = await newGroup(body, token);
     const response = groupResponse(publicGroup(row, tokenHash(token)), 201);
     setMemberCookie(response, row.id, token);
+    setReservationCookie(response, token, true);
     return response;
   } catch (error) {
     return groupFailure(error);

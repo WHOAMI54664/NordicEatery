@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
-import { Settings, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { canManageSettings } from "@/lib/auth/roles";
+import { GroupSlotSettings } from "@/components/admin/GroupSlotSettings";
 import {
     BusinessSettingsForm,
     type BusinessSettings
@@ -93,12 +94,7 @@ export default async function AdminSettingsPage({
 
                 <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
                     <div>
-                        <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
-                            <Settings className="h-3.5 w-3.5" />
-                            {t("settings.eyebrow")}
-                        </div>
-
-                        <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
+                        <h1 className="text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
                             {t("settings.title")}
                         </h1>
 
@@ -113,6 +109,8 @@ export default async function AdminSettingsPage({
                     </div>
                 </div>
             </section>
+
+            <GroupSlotSettings />
 
             {businessSettings.id ? (
                 <BusinessSettingsForm settings={businessSettings} />

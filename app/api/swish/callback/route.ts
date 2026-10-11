@@ -70,7 +70,7 @@ function getCandidateValues(
         callbackPayload?.id,
     ]
         .map((value) => (typeof value === "string" ? value.trim() : ""))
-        .filter(Boolean);
+        .filter((value) => /^[A-Za-z0-9_-]{1,100}$/.test(value));
 
     return Array.from(new Set(values));
 }
@@ -186,6 +186,8 @@ export async function POST(request: Request) {
             },
             body,
             cache: "no-store",
+            signal: AbortSignal.timeout(15000),
+            redirect: "error",
         });
 
         const text = await response.text();

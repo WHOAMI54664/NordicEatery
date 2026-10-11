@@ -27,17 +27,52 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/burgers-boden",
-        destination: "/en/polish-food-boden",
+        destination: "/en/streetfood-i-norrbotten",
         permanent: true,
       },
       {
         source: "/:locale(en|sv|pl|ru)/burgers-boden",
-        destination: "/:locale/polish-food-boden",
+        destination: "/:locale/streetfood-i-norrbotten",
+        permanent: true,
+      },
+      {
+        source: "/polish-food-boden",
+        destination: "/streetfood-i-norrbotten",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|sv|pl|ru)/polish-food-boden",
+        destination: "/:locale/streetfood-i-norrbotten",
+        permanent: true,
+      },
+      {
+        source: "/delivery-boden",
+        destination: "/bestall-takeaway",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|sv|pl|ru)/delivery-boden",
+        destination: "/:locale/bestall-takeaway",
+        permanent: true,
+      },
+      {
+        source: "/takeaway-boden",
+        destination: "/bestall-takeaway",
+        permanent: true,
+      },
+      {
+        source: "/:locale(en|sv|pl|ru)/takeaway-boden",
+        destination: "/:locale/bestall-takeaway",
+        permanent: true,
+      },
+      { source: "/catering-boden", destination: "/catering", permanent: true },
+      {
+        source: "/:locale(en|sv|pl|ru)/catering-boden",
+        destination: "/:locale/catering",
         permanent: true,
       },
     ];
   },
-
 };
 
 export default withNextIntl(nextConfig);

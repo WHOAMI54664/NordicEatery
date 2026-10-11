@@ -1,6 +1,13 @@
+import {
+    normalizeProductSubtitle,
+    productDescriptionTranslations,
+    validateProductInput,
+} from "@/lib/products-input";
+import { MenuValidationError } from "@/lib/menu-options";
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth/api-guard";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: Request) {
     try {
@@ -9,16 +16,20 @@ export async function POST(request: Request) {
         if (!guard.ok) {
             return NextResponse.json(
                 { error: guard.error },
-                { status: guard.status }
+                { status: guard.status },
             );
         }
 
         const body = await request.json();
+        if (!body || typeof body !== "object" || Array.isArray(body))
+            throw new MenuValidationError("Invalid product");
+        const modifierGroups = validateProductInput(body);
+        const subtitle = normalizeProductSubtitle(body.subtitle);
+        const clearingSubtitle = body.subtitle !== undefined && subtitle === "";
 
         const {
             id,
             name,
-            subtitle,
             description,
             price,
             category,
@@ -39,30 +50,44 @@ export async function POST(request: Request) {
             subtitle_pl,
             subtitle_ru,
 
-            description_sv,
-            description_pl,
-            description_ru,
         } = body;
 
         if (!id) {
             return NextResponse.json(
                 { error: "Missing product id" },
-                { status: 400 }
+                { status: 400 },
             );
         }
 
-        if (!name || !description || price === undefined || price === null || !category) {
+        if (
+            !name ||
+            !description ||
+            price === undefined ||
+            price === null ||
+            !category
+        ) {
             return NextResponse.json(
                 { error: "Missing required product fields" },
-                { status: 400 }
+                { status: 400 },
             );
         }
 
         const supabase = createAdminClient();
+        const { data: previous, error: readError } = await supabase
+            .from("products")
+            .select("description, description_sv, description_pl, description_ru")
+            .eq("id", id)
+            .maybeSingle();
+        if (readError) throw readError;
+        if (!previous)
+            return NextResponse.json({ error: "Product not found" }, { status: 404 });
 
         const updatePayload = {
+            ...(body.modifier_groups !== undefined
+                ? { modifier_groups: modifierGroups }
+                : {}),
             name,
-            subtitle: subtitle || null,
+            subtitle,
             description,
             price: Number(price),
             category,
@@ -80,23 +105,36 @@ export async function POST(request: Request) {
 
             sort_order: Number(sort_order || 0),
 
-            name_sv: name_sv || name,
-            name_pl: name_pl || name,
-            name_ru: name_ru || name,
+            ...(name_sv !== undefined ? { name_sv: name_sv || name } : {}),
+            ...(name_pl !== undefined ? { name_pl: name_pl || name } : {}),
+            ...(name_ru !== undefined ? { name_ru: name_ru || name } : {}),
 
-            subtitle_sv: subtitle_sv || subtitle || null,
-            subtitle_pl: subtitle_pl || subtitle || null,
-            subtitle_ru: subtitle_ru || subtitle || null,
+            ...(clearingSubtitle || subtitle_sv !== undefined
+                ? {
+                    subtitle_sv: clearingSubtitle
+                        ? null
+                        : subtitle_sv || subtitle || null,
+                }
+                : {}),
+            ...(clearingSubtitle || subtitle_pl !== undefined
+                ? {
+                    subtitle_pl: clearingSubtitle
+                        ? null
+                        : subtitle_pl || subtitle || null,
+                }
+                : {}),
+            ...(clearingSubtitle || subtitle_ru !== undefined
+                ? {
+                    subtitle_ru: clearingSubtitle
+                        ? null
+                        : subtitle_ru || subtitle || null,
+                }
+                : {}),
 
-            description_sv: description_sv || description,
-            description_pl: description_pl || description,
-            description_ru: description_ru || description,
+            ...productDescriptionTranslations(body, previous),
 
             updated_at: new Date().toISOString(),
         };
-
-        console.log("PRODUCT UPDATE ID:", id);
-        console.log("PRODUCT UPDATE PAYLOAD:", updatePayload);
 
         const { data, error } = await supabase
             .from("products")
@@ -105,31 +143,42 @@ export async function POST(request: Request) {
             .select()
             .single();
 
-        console.log("PRODUCT UPDATE RESPONSE:", { data, error });
-
         if (error) {
             console.error("Product update error:", error);
 
             return NextResponse.json(
                 {
                     error: "Failed to update product",
-                    details: error.message,
-                    code: error.code,
                 },
-                { status: 500 }
+                { status: 500 },
             );
         }
 
+        revalidatePath("/[locale]/menu", "page");
+        revalidatePath("/[locale]", "page");
+        revalidatePath("/[locale]/group-order/[id]", "page");
         return NextResponse.json({ product: data });
-    } catch (error: any) {
+    } catch (error: unknown) {
+        if (
+            error instanceof MenuValidationError ||
+            error instanceof SyntaxError
+        )
+            return NextResponse.json(
+                {
+                    error:
+                        error instanceof SyntaxError
+                            ? "Invalid JSON"
+                            : error.message,
+                },
+                { status: 400 },
+            );
         console.error("Update product API error:", error);
 
         return NextResponse.json(
             {
                 error: "Something went wrong",
-                details: error?.message || String(error),
             },
-            { status: 500 }
+            { status: 500 },
         );
     }
 }

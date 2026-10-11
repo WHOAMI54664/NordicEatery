@@ -4,6 +4,10 @@ import axios from "axios";
 import https from "https";
 import fs from "fs";
 import { createClient } from "@supabase/supabase-js";
+import {
+    internalSwishRequest,
+    verifiedSwishPayment,
+} from "./swish-verification";
 import { swishGroupRouter } from "./swish-group";
 
 const app = express();
@@ -11,7 +15,7 @@ app.use(express.json());
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
 const isTest = process.env.SWISH_ENV !== "production";
@@ -33,26 +37,44 @@ function normalizeAmount(amount: number) {
     return amount.toFixed(2);
 }
 
-app.use(swishGroupRouter({
-    secret: () => process.env.SWISH_INTERNAL_SECRET,
-    callbackUrl: () => process.env.SWISH_GROUP_CALLBACK_URL,
-    payeeAlias: () => process.env.SWISH_PAYEE_ALIAS,
-    request: async (method, path, data) => {
-        const response = await axios.request({
-            method, url: `${swishBaseUrl.replace(/\/v1$/, "")}${path}`, data,
-            httpsAgent: getSwishAgent(), timeout: 10000, maxRedirects: 0,
-            headers: { "Content-Type": method === "PATCH" ? "application/json-patch+json" : "application/json" },
-            validateStatus: () => true,
-        });
-        return { status: response.status, data: response.data };
-    },
-}));
+app.use(
+    swishGroupRouter({
+        secret: () => process.env.SWISH_INTERNAL_SECRET,
+        callbackUrl: () => process.env.SWISH_GROUP_CALLBACK_URL,
+        payeeAlias: () => process.env.SWISH_PAYEE_ALIAS,
+        request: async (method, path, data) => {
+            const response = await axios.request({
+                method,
+                url: `${swishBaseUrl.replace(/\/v1$/, "")}${path}`,
+                data,
+                httpsAgent: getSwishAgent(),
+                timeout: 10000,
+                maxRedirects: 0,
+                headers: {
+                    "Content-Type":
+                        method === "PATCH"
+                            ? "application/json-patch+json"
+                            : "application/json",
+                },
+                validateStatus: () => true,
+            });
+            return { status: response.status, data: response.data };
+        },
+    }),
+);
 
 app.get("/health", (_req, res) => {
     res.json({ ok: true });
 });
 
 app.post("/swish/create", async (req, res) => {
+    if (
+        !internalSwishRequest(
+            process.env.SWISH_INTERNAL_SECRET,
+            req.get("x-internal-secret"),
+        )
+    )
+        return res.status(401).json({ error: "Unauthorized" });
     try {
         const {
             orderNumber,
@@ -70,7 +92,7 @@ app.post("/swish/create", async (req, res) => {
             return res.status(400).json({ error: "Missing order data" });
         }
 
-        const { error: orderError } = await supabase.from("orders").upsert({
+        const { error: orderError } = await supabase.from("orders").insert({
             order_number: orderNumber,
             customer_name: customerName,
             customer_phone: customerPhone,
@@ -79,17 +101,22 @@ app.post("/swish/create", async (req, res) => {
             comment: comment || null,
             items,
             total_price: totalPrice,
+            total_gross: Number(totalPrice),
             status: "new",
             payment_method: "swish",
             payment_status: "awaiting_payment",
         });
 
         if (orderError) {
-            return res.status(500).json({ error: orderError.message });
+            return res
+                .status(orderError.code === "23505" ? 409 : 500)
+                .json({ error: "Could not create order" });
         }
 
         const paymentRequest = {
-            payeePaymentReference: orderNumber.replace(/[^a-zA-Z0-9]/g, "").slice(0, 35),
+            payeePaymentReference: orderNumber
+                .replace(/[^a-zA-Z0-9]/g, "")
+                .slice(0, 35),
             callbackUrl: process.env.SWISH_CALLBACK_URL,
             payeeAlias: process.env.SWISH_PAYEE_ALIAS,
             amount: normalizeAmount(Number(totalPrice)),
@@ -102,15 +129,17 @@ app.post("/swish/create", async (req, res) => {
             paymentRequest,
             {
                 httpsAgent: getSwishAgent(),
+                timeout: 10000,
+                maxRedirects: 0,
                 headers: {
                     "Content-Type": "application/json",
                 },
                 validateStatus: () => true,
-            }
+            },
         );
 
         if (response.status !== 201) {
-            console.error("Swish create error:", response.status, response.data);
+            console.error("Swish create failed", { status: response.status });
 
             await supabase
                 .from("orders")
@@ -122,7 +151,6 @@ app.post("/swish/create", async (req, res) => {
 
             return res.status(500).json({
                 error: "Swish payment request failed",
-                details: response.data,
             });
         }
 
@@ -146,8 +174,8 @@ app.post("/swish/create", async (req, res) => {
 
         const swishUrl = paymentRequestToken
             ? `swish://paymentrequest?token=${encodeURIComponent(
-                paymentRequestToken
-            )}&callbackurl=${encodeURIComponent(returnUrl)}`
+                  paymentRequestToken,
+              )}&callbackurl=${encodeURIComponent(returnUrl)}`
             : null;
 
         return res.json({
@@ -158,49 +186,84 @@ app.post("/swish/create", async (req, res) => {
             trackingUrl: returnUrl,
         });
     } catch (error) {
-        console.error("Swish create exception:", error);
-        return res.status(500).json({ error: "Could not create Swish payment" });
+        console.error("Swish create exception", {
+            kind: error instanceof Error ? error.name : "unknown",
+        });
+        return res
+            .status(500)
+            .json({ error: "Could not create Swish payment" });
     }
 });
 
 app.post("/swish/callback", async (req, res) => {
     try {
-        const payload = req.body;
-
-        console.log("Swish callback:", payload);
-
-        const orderReference = payload.payeePaymentReference;
-        const status = payload.status;
-
-        if (!orderReference || !status) {
-            return res.status(400).json({ error: "Invalid callback payload" });
-        }
-
+        // Callback content only identifies work; the provider GET is the payment proof.
+        const id = req.body?.id;
+        if (typeof id !== "string" || !/^[a-fA-F0-9]{32}$/.test(id))
+            return res.status(400).json({ error: "Invalid callback" });
+        const { data: order, error: lookupError } = await supabase
+            .from("orders")
+            .select(
+                "id, order_number, total_gross, total_price, payment_status",
+            )
+            .eq("swish_payment_id", id)
+            .eq("payment_method", "swish")
+            .maybeSingle();
+        if (lookupError)
+            return res.status(503).json({ error: "Order lookup failed" });
+        if (!order) return res.status(404).json({ error: "Unknown payment" });
+        if (!process.env.SWISH_PAYEE_ALIAS)
+            return res.status(503).json({ error: "Swish unavailable" });
+        const response = await axios.get(
+            `${swishBaseUrl}/paymentrequests/${id}`,
+            {
+                httpsAgent: getSwishAgent(),
+                timeout: 10000,
+                maxRedirects: 0,
+                validateStatus: () => true,
+            },
+        );
+        const payment =
+            response.status === 200
+                ? verifiedSwishPayment(response.data, {
+                      id,
+                      orderNumber: order.order_number,
+                      amount: Number(order.total_gross ?? order.total_price),
+                      payeeAlias: process.env.SWISH_PAYEE_ALIAS,
+                  })
+                : null;
+        if (!payment)
+            return res
+                .status(503)
+                .json({ error: "Payment verification failed" });
+        if (payment.status === "CREATED") return res.json({ received: true });
         const paymentStatus =
-            status === "PAID"
+            payment.status === "PAID"
                 ? "paid"
-                : status === "DECLINED" || status === "CANCELLED"
-                    ? "cancelled"
-                    : "failed";
-
+                : payment.status === "DECLINED" ||
+                    payment.status === "CANCELLED"
+                  ? "cancelled"
+                  : "failed";
         const { error } = await supabase
             .from("orders")
             .update({
                 payment_status: paymentStatus,
-                swish_payment_id: payload.id || null,
-                swish_payment_reference: payload.paymentReference || null,
+                swish_payment_reference: payment.paymentReference,
+                ...(paymentStatus === "paid"
+                    ? { paid_at: new Date().toISOString() }
+                    : {}),
                 updated_at: new Date().toISOString(),
             })
-            .eq("order_number", orderReference.startsWith("MF-") ? orderReference : null);
-
-        if (error) {
-            console.error("Supabase callback update error:", error);
-            return res.status(500).json({ error: error.message });
-        }
-
+            .eq("id", order.id)
+            .eq("swish_payment_id", id)
+            .eq("payment_status", "awaiting_payment");
+        if (error)
+            return res.status(503).json({ error: "Could not confirm payment" });
         return res.status(200).json({ received: true });
     } catch (error) {
-        console.error("Swish callback exception:", error);
+        console.error("Swish callback exception", {
+            kind: error instanceof Error ? error.name : "unknown",
+        });
         return res.status(500).json({ error: "Callback failed" });
     }
 });

@@ -2,7 +2,12 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { randomUUID } from "node:crypto";
 import type Stripe from "stripe";
-import { actOnGroup, newGroup, tokenHash } from "../lib/group-orders/store";
+import {
+  actOnGroup,
+  newGroup,
+  tokenHash,
+  checkoutSettings,
+} from "../lib/group-orders/store";
 import {
   startGroupPayment,
   handleGroupSession,
@@ -11,16 +16,18 @@ import {
 } from "../lib/group-orders/payments";
 import { swishInstruction } from "../lib/group-orders/swish";
 import { POST as swishCallback } from "../app/api/group-orders/swish-callback/route";
-import type { GroupRow } from "../lib/group-orders/model";
+import type { CatalogProduct, GroupRow } from "../lib/group-orders/model";
 import { groupBody, validWorkerSecret } from "../lib/group-orders/http";
 
 test("group service: concurrent guests, payment retries, partial payment, cancellation and late webhooks", async (t) => {
+  t.mock.method(Date, "now", () => Date.parse("2026-10-11T07:00:00Z"));
   process.env.NEXT_PUBLIC_SUPABASE_URL = "https://group-test.invalid";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "isolated-test-key";
   process.env.NEXT_PUBLIC_SITE_URL = "https://restaurant.test";
   process.env.CRON_SECRET = "a".repeat(64);
   process.env.SWISH_BACKEND_URL = "https://swish-test.invalid";
   process.env.SWISH_INTERNAL_SECRET = "internal-test-secret";
+  process.env.GROUP_SWISH_ENABLED = "true";
   const swish = new Map<string, Record<string, unknown>>();
   let swishCreates = 0,
     swishRefunds = 0,
@@ -33,7 +40,7 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
     delivery_enabled: true,
   };
   const rows = new Map<string, GroupRow>();
-  const products = [
+  const products: CatalogProduct[] = [
     {
       id: randomUUID(),
       name: "Caesar",
@@ -85,7 +92,17 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
       const method = init?.method || "GET";
       const id = url.searchParams.get("id")?.replace("eq.", "");
       let result: unknown = [];
-      if (table === "group_orders") {
+      if (table === "create_reserved_group") {
+        assert.equal(body.p_token_hash, body.p_state.members[0].tokenHash);
+        assert.equal(body.p_version, 1);
+        assert.ok(body.p_reservation_id);
+        result = {
+          id: body.p_id,
+          version: 1,
+          state: structuredClone(body.p_state),
+        };
+        rows.set(body.p_id, structuredClone(result as GroupRow));
+      } else if (table === "group_orders") {
         if (method === "POST") {
           rows.set(body.id, structuredClone(body));
           result = body;
@@ -145,6 +162,14 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
       });
     },
   );
+  delete process.env.GROUP_SWISH_ENABLED;
+  await assert.rejects(
+    checkoutSettings("pickup", "swish"),
+    /optionUnavailable/,
+  );
+  await checkoutSettings("pickup", "card");
+  process.env.GROUP_SWISH_ENABLED = "true";
+  await checkoutSettings("pickup", "swish");
   const sessions = new Map<string, Stripe.Checkout.Session>();
   const refunds = new Map<string, Stripe.Refund>();
   const byKey = new Map<string, Stripe.Checkout.Session>();
@@ -206,7 +231,24 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
     paymentMethod: "card" | "swish" | "cash" = "card",
   ) {
     const row = await newGroup(
-      { name: "Lunch", memberName: "Host", mode },
+      {
+        pickupAt: "2026-10-11T08:40:00Z",
+        participantCount: 3,
+        reservationId: randomUUID(),
+        reservationVersion: 1,
+        name: "Lunch",
+        memberName: "Host",
+        mode,
+        paymentMethod,
+        customer: {
+          name: "Host",
+          phone: "0701234567",
+          email: "",
+          deliveryType: "pickup",
+          address: "Pickup",
+          comment: "",
+        },
+      },
       "host-secret",
     );
     const host = tokenHash("host-secret"),
@@ -395,6 +437,8 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
   assert.equal(swishCreates, 1);
   const shares = rows.get(swishGroup.id)!.state.payments;
   const firstSwish = swish.get(swishInstruction(shares[0].id))!;
+  // Disabling new Swish checkout must not stop verification/refunds already in flight.
+  process.env.GROUP_SWISH_ENABLED = "false";
   // A forged callback claiming PAID must not override a provider GET returning CREATED.
   const callback = await swishCallback(
     new Request(
@@ -412,6 +456,11 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
   firstSwish.paymentReference = "SWISHFIRST";
   await reconcileGroup(swishGroup.id);
   assert.equal(rows.get(swishGroup.id)!.state.status, "paying");
+  await assert.rejects(
+    startGroupPayment(swishGroup.id, swishGroup.guest, undefined, "0701234568"),
+    /optionUnavailable/,
+  );
+  process.env.GROUP_SWISH_ENABLED = "true";
   await startGroupPayment(
     swishGroup.id,
     swishGroup.guest,
@@ -449,6 +498,7 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
     undefined,
     "0701234568",
   );
+  process.env.GROUP_SWISH_ENABLED = "false";
   await actOnGroup(swishCancel.id, swishCancel.host, { action: "cancel" });
   await reconcileGroup(swishCancel.id);
   assert.equal(rows.get(swishCancel.id)!.state.payments[0].status, "refunding");
@@ -470,7 +520,15 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
   options.card_enabled = true;
 
   const expiredSelection = await newGroup(
-    { name: "Deadline", memberName: "Host", mode: "host" },
+    {
+      pickupAt: "2026-10-11T08:40:00Z",
+      participantCount: 3,
+      reservationId: randomUUID(),
+      reservationVersion: 1,
+      name: "Deadline",
+      memberName: "Host",
+      mode: "host",
+    },
     "late-host",
   );
   rows.get(expiredSelection.id)!.state.deadline = new Date(
@@ -492,7 +550,15 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
   );
 
   const soldOut = await newGroup(
-    { name: "Stock", memberName: "Host", mode: "host" },
+    {
+      pickupAt: "2026-10-11T08:40:00Z",
+      participantCount: 3,
+      reservationId: randomUUID(),
+      reservationVersion: 1,
+      name: "Stock",
+      memberName: "Host",
+      mode: "host",
+    },
     "stock-host",
   );
   await actOnGroup(soldOut.id, tokenHash("stock-host"), {
@@ -514,6 +580,266 @@ test("group service: concurrent guests, payment retries, partial payment, cancel
   });
   assert.equal(removed.state.members[0].items.length, 0);
 
+  products[0].is_available = true;
+  products[0].modifier_groups = [
+    {
+      id: "filling",
+      name: "Filling",
+      min: 1,
+      max: 1,
+      options: [
+        { id: "plain", name: "Plain", price: 0 },
+        { id: "extra", name: "Extra", price: 3000 },
+      ],
+    },
+  ];
+  const configured = await newGroup(
+    {
+      pickupAt: "2026-10-11T08:40:00Z",
+      participantCount: 3,
+      reservationId: randomUUID(),
+      reservationVersion: 1,
+      name: "Choices",
+      memberName: "Host",
+      mode: "host",
+      spendLimit: 15000,
+    },
+    "choices-host",
+  );
+  const configuredHash = tokenHash("choices-host");
+  await assert.rejects(
+    actOnGroup(configured.id, configuredHash, {
+      action: "items",
+      revision: 0,
+      items: [{ productId: products[0].id, quantity: 1 }],
+    }),
+    /invalidSelection/,
+  );
+  await actOnGroup(configured.id, configuredHash, {
+    action: "items",
+    revision: 0,
+    items: [
+      {
+        productId: products[0].id,
+        quantity: 1,
+        selections: [{ groupId: "filling", optionIds: ["plain"] }],
+      },
+    ],
+  });
+  await assert.rejects(
+    actOnGroup(configured.id, configuredHash, {
+      action: "items",
+      revision: 1,
+      items: [
+        {
+          productId: products[0].id,
+          quantity: 1,
+          selections: [{ groupId: "filling", optionIds: ["extra"] }],
+        },
+      ],
+    }),
+    /spendLimitExceeded/,
+  );
+  const configuredRow = rows.get(configured.id)!;
+  assert.equal(
+    configuredRow.state.members[0].items[0].selections?.[0].optionIds[0],
+    "plain",
+    "same-quantity variant changes must be re-priced before saving",
+  );
+  await actOnGroup(configured.id, configuredHash, {
+    action: "items",
+    revision: 1,
+    items: [
+      {
+        productId: products[0].id,
+        quantity: 1,
+        selections: [{ groupId: "filling", optionIds: ["plain"] }],
+        note: "No onion",
+      },
+    ],
+  });
+  assert.equal(
+    rows.get(configured.id)!.state.members[0].items[0].note,
+    "No onion",
+  );
+
+  // A guest pays before the organiser is ready; payment survives the final group lock.
+  products[0].modifier_groups = [];
+  options.cash_enabled = true;
+  options.card_enabled = true;
+  const independent = await newGroup(
+    {
+      pickupAt: "2026-10-11T08:40:00Z",
+      participantCount: 3,
+      reservationId: randomUUID(),
+      reservationVersion: 1,
+      name: "Independent",
+      memberName: "Host",
+      mode: "split",
+      paymentMethod: "card",
+      customer: {
+        name: "Host",
+        phone: "0701234567",
+        email: "",
+        deliveryType: "pickup",
+      },
+    },
+    "early-host",
+  );
+  const earlyHost = tokenHash("early-host"),
+    earlyGuest = tokenHash("early-guest");
+  await actOnGroup(independent.id, earlyGuest, {
+    action: "join",
+    name: "Early guest",
+  });
+  const earlyItems = [{ productId: products[0].id, quantity: 1 }];
+  await actOnGroup(independent.id, earlyGuest, {
+    action: "items",
+    revision: 0,
+    items: earlyItems,
+  });
+  await actOnGroup(independent.id, earlyGuest, {
+    action: "ready",
+    revision: 1,
+    ready: true,
+  });
+  const earlyPayment = structuredClone(
+    rows.get(independent.id)!.state.payments[0],
+  );
+  const fulfilledBeforeEarly = fulfilled;
+  await Promise.all([
+    startGroupPayment(independent.id, earlyGuest, stripe),
+    startGroupPayment(independent.id, earlyGuest, stripe),
+  ]);
+  assert.equal(
+    rows.get(independent.id)!.state.status,
+    "open",
+    "other participants must still be able to choose",
+  );
+  assert.equal(rows.get(independent.id)!.state.members[0].ready, false);
+  const earlySession = sessions.get(
+    rows.get(independent.id)!.state.payments[0].sessionId!,
+  )!;
+  await handleGroupSession(pay(earlySession), stripe);
+  assert.equal(
+    fulfilled,
+    fulfilledBeforeEarly,
+    "an early share must not prematurely submit a partial kitchen order",
+  );
+  assert.equal(rows.get(independent.id)!.state.payments[0].status, "paid");
+  await assert.rejects(
+    actOnGroup(independent.id, earlyGuest, {
+      action: "ready",
+      revision: 2,
+      ready: false,
+    }),
+    /selectionPaid/,
+  );
+  await assert.rejects(
+    actOnGroup(independent.id, earlyGuest, {
+      action: "items",
+      revision: 2,
+      items: [],
+    }),
+    /selectionPaid/,
+  );
+  await assert.rejects(
+    actOnGroup(independent.id, earlyHost, {
+      action: "remove",
+      version: rows.get(independent.id)!.version,
+      memberId: rows.get(independent.id)!.state.members[1].id,
+    }),
+    /selectionPaid/,
+  );
+  products[0].price = 150;
+  await actOnGroup(independent.id, earlyHost, {
+    action: "items",
+    revision: 0,
+    items: earlyItems,
+  });
+  await actOnGroup(independent.id, earlyHost, {
+    action: "ready",
+    revision: 1,
+    ready: true,
+  });
+  await assert.rejects(
+    actOnGroup(independent.id, earlyHost, {
+      action: "lock",
+      version: rows.get(independent.id)!.version,
+      paymentMethod: "cash",
+      customer: { name: "Host", phone: "0701234567", deliveryType: "pickup" },
+    }),
+    /conflict/,
+  );
+  await actOnGroup(independent.id, earlyHost, {
+    action: "lock",
+    version: rows.get(independent.id)!.version,
+    paymentMethod: "card",
+    customer: { name: "Host", phone: "0701234567", deliveryType: "pickup" },
+  });
+  const frozen = rows
+    .get(independent.id)!
+    .state.payments.find((p) => p.id === earlyPayment.id)!;
+  assert.equal(
+    frozen.amount,
+    earlyPayment.amount,
+    "the paid participant's price must stay frozen after catalog changes",
+  );
+  assert.equal(frozen.status, "paid");
+  await startGroupPayment(independent.id, earlyHost, stripe);
+  const hostShare = rows
+    .get(independent.id)!
+    .state.payments.find(
+      (p) => p.memberId === rows.get(independent.id)!.state.hostId,
+    )!;
+  assert.equal(hostShare.amount, 15000);
+  await handleGroupSession(pay(sessions.get(hostShare.sessionId!)!), stripe);
+  assert.equal(fulfilled, fulfilledBeforeEarly + 1);
+  assert.equal(rows.get(independent.id)!.state.status, "submitted");
+
+  // Cancellation while only one guest paid must refund that exact share once.
+  const cancelledEarly = await newGroup(
+    {
+      pickupAt: "2026-10-11T09:00:00Z",
+      participantCount: 3,
+      reservationId: randomUUID(),
+      reservationVersion: 1,
+      name: "Cancel early",
+      memberName: "Host",
+      mode: "split",
+      paymentMethod: "card",
+      customer: { name: "Host", phone: "0701234567", deliveryType: "pickup" },
+    },
+    "cancel-early-host",
+  );
+  const cancelEarlyHash = tokenHash("cancel-early-host");
+  await actOnGroup(cancelledEarly.id, cancelEarlyHash, {
+    action: "items",
+    revision: 0,
+    items: earlyItems,
+  });
+  await actOnGroup(cancelledEarly.id, cancelEarlyHash, {
+    action: "ready",
+    revision: 1,
+    ready: true,
+  });
+  await startGroupPayment(cancelledEarly.id, cancelEarlyHash, stripe);
+  await handleGroupSession(
+    pay(
+      sessions.get(rows.get(cancelledEarly.id)!.state.payments[0].sessionId!)!,
+    ),
+    stripe,
+  );
+  await actOnGroup(cancelledEarly.id, cancelEarlyHash, { action: "cancel" });
+  const refundsBeforeEarly = refundCalls;
+  refundPending = false;
+  await reconcileGroup(cancelledEarly.id, stripe);
+  await reconcileGroup(cancelledEarly.id, stripe);
+  assert.equal(refundCalls, refundsBeforeEarly + 1);
+  assert.equal(
+    rows.get(cancelledEarly.id)!.state.payments[0].status,
+    "refunded",
+  );
   await assert.rejects(
     groupBody(
       new Request("https://restaurant.test/api/group-orders", {

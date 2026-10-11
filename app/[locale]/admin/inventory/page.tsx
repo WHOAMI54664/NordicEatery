@@ -50,12 +50,7 @@ export default async function InventoryPage({ params }: InventoryPageProps) {
 
             <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
-                  <PackageSearch className="h-3.5 w-3.5" />
-                  {t("inventory.eyebrow")}
-                </div>
-
-                <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
+                <h1 className="text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
                   {t("inventory.title")}
                 </h1>
 

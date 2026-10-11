@@ -13,6 +13,8 @@ import {
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { canManageProducts } from "@/lib/auth/roles";
+import { getMenuCategories } from "@/lib/menu-display";
+import { loadSiteContent } from "@/lib/site-content/server";
 import { ProductActions } from "@/components/admin/ProductActions";
 
 type Product = {
@@ -55,15 +57,6 @@ function getStockClass(product: Product) {
   }
 
   return "border-emerald-500/20 bg-emerald-500/10 text-emerald-700";
-}
-
-function getCategoryLabel(category?: string | null) {
-  if (!category) return "Uncategorized";
-
-  return category
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
 }
 
 export default async function AdminProductsPage({
@@ -122,6 +115,21 @@ export default async function AdminProductsPage({
     .order("sort_order", { ascending: true });
 
   const productList = (products || []) as Product[];
+  const [categoryTranslations, contentRows] = await Promise.all([
+    getTranslations("pages.menu.categories"),
+    loadSiteContent(locale),
+  ]);
+  const categoryLabels = new Map(
+    getMenuCategories(
+      productList.flatMap((product) =>
+        product.category ? [{ category: product.category }] : [],
+      ),
+      Object.fromEntries(contentRows.map((row) => [row.key, row.value])),
+      (id) => categoryTranslations(id),
+    ).map((category) => [category.id, category.title]),
+  );
+  const getCategoryLabel = (category?: string | null) =>
+    category ? categoryLabels.get(category) || category : "Uncategorized";
 
   const categories = [
     ...new Set(

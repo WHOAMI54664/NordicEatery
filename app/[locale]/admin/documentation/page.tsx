@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import {
-    BookOpen,
     ChefHat,
     ClipboardList,
     CreditCard,
@@ -99,12 +98,7 @@ export default async function DocumentationPage({
 
                 <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
                     <div>
-                        <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
-                            <BookOpen className="h-3.5 w-3.5" />
-                            {t("documentation.eyebrow")}
-                        </div>
-
-                        <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
+                        <h1 className="text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
                             {t("documentation.title")}
                         </h1>
 

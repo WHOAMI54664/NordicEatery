@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useEditableTranslations } from "@/components/site-content/EditableMessage";
 import type {
   PublicGroup,
   GroupCheckoutSettings,
@@ -17,7 +17,7 @@ export function GroupOrderReview({
   settings: GroupCheckoutSettings;
   act: (body: Record<string, unknown>) => Promise<void>;
 }) {
-  const t = useTranslations("groupOrder");
+  const t = useEditableTranslations("groupOrder");
   const canLock =
     group.members.every((member) => member.ready) &&
     group.members.some((member) => member.items.length);
@@ -35,22 +35,23 @@ export function GroupOrderReview({
         });
       }}
     >
-      <h3 className="text-xl font-bold">{t("deliveryDetails")}</h3>
+      <h3 className="text-xl font-bold">{t.edit("deliveryDetails")}</h3>
       <label className="block text-sm font-semibold">
-        {t("contactName")}
+        {t.edit("contactName")}
         <input
           name="name"
           required
           maxLength={80}
-          defaultValue={group.hostName}
+          defaultValue={group.customer?.name || group.hostName}
           autoComplete="name"
           className="input-field mt-2"
         />
       </label>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
         <label className="block text-sm font-semibold">
-          {t("phone")}
+          {t.edit("phone")}
           <input
+            defaultValue={group.customer?.phone}
             name="phone"
             type="tel"
             required
@@ -60,8 +61,9 @@ export function GroupOrderReview({
           />
         </label>
         <label className="block text-sm font-semibold">
-          {t("email")}
+          {t.edit("email")}
           <input
+            defaultValue={group.customer?.email}
             name="email"
             type="email"
             maxLength={254}
@@ -71,8 +73,20 @@ export function GroupOrderReview({
         </label>
       </div>
       <label className="block text-sm font-semibold">
-        {t("fulfillment")}
-        <select name="deliveryType" className="input-field mt-2">
+        {t.edit("fulfillment")}
+        {group.individualCheckout && (
+          <input
+            type="hidden"
+            name="deliveryType"
+            value={group.customer?.deliveryType}
+          />
+        )}
+        <select
+          name="deliveryType"
+          disabled={group.individualCheckout}
+          defaultValue={group.customer?.deliveryType}
+          className="input-field mt-2"
+        >
           {settings.pickup_enabled && (
             <option value="pickup">{t("pickup")}</option>
           )}
@@ -82,25 +96,48 @@ export function GroupOrderReview({
         </select>
       </label>
       <label className="block text-sm font-semibold">
-        {t("address")}
+        {t.edit("address")}
         <input
           name="address"
+          defaultValue={
+            group.customer?.address === "Pickup" ? "" : group.customer?.address
+          }
+          readOnly={group.individualCheckout}
           maxLength={300}
           autoComplete="street-address"
           className="input-field mt-2"
         />
         <span className="mt-1 block text-xs font-normal text-dark/70">
-          {t("addressHint")}
+          {t.edit("addressHint")}
         </span>
       </label>
       <label className="block text-sm font-semibold">
-        {t("comment")}
+        {t.edit("comment")}
         <input name="comment" maxLength={500} className="input-field mt-2" />
       </label>
-      <p className="text-sm leading-6 text-dark/70">{t("lockExplanation")}</p>
+      <p className="text-sm leading-6 text-dark/70">
+        {t.edit(
+          group.individualCheckout
+            ? "closeGroupExplanation"
+            : "lockExplanation",
+        )}
+      </p>
       <label className="block text-sm font-semibold">
-        {t("paymentMethod")}
-        <select name="paymentMethod" className="input-field mt-2" required>
+        {t.edit("paymentMethod")}
+        {group.individualCheckout && (
+          <input
+            type="hidden"
+            name="paymentMethod"
+            value={group.paymentMethod}
+          />
+        )}
+        <select
+          name="paymentMethod"
+          disabled={group.individualCheckout}
+          defaultValue={group.paymentMethod}
+          className="input-field mt-2"
+          required
+        >
           {(["card", "swish", "cash"] as const)
             .filter((method) => settings[`${method}_enabled`])
             .map((method) => (
@@ -112,7 +149,7 @@ export function GroupOrderReview({
       </label>
       {!canLock && (
         <p className="text-sm font-semibold text-paprika">
-          {t("waitingReady")}
+          {t.edit("waitingReady")}
         </p>
       )}
       <button
@@ -128,7 +165,7 @@ export function GroupOrderReview({
         }
         className="w-full rounded-xl bg-dark px-4 py-4 font-bold text-white disabled:opacity-40"
       >
-        {t("lockAndContinue")}
+        {t.edit(group.individualCheckout ? "closeGroup" : "lockAndContinue")}
       </button>
     </form>
   );

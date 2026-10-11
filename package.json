@@ -14,9 +14,11 @@
     "lint": "eslint .",
     "test": "node --import tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit --incremental false",
-    "translate": "tsx scripts/translate.ts"
+    "translate": "tsx scripts/translate.ts",
+    "typecheck:swish": "tsc --noEmit --esModuleInterop --skipLibCheck --target ES2020 --module NodeNext --moduleResolution NodeNext src/server.ts src/swish-group.ts src/swish-verification.ts"
   },
   "dependencies": {
+    "@formatjs/icu-messageformat-parser": "3.5.5",
     "@lottiefiles/dotlottie-react": "^0.19.2",
     "@next/third-parties": "^16.2.6",
     "@supabase/ssr": "^0.10.2",

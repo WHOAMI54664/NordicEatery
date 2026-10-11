@@ -7,32 +7,27 @@
     "addToGroup": "Lägg {quantity} i gruppbeställningen",
     "close": "Stäng",
     "decrease": "Minska antal",
-    "increase": "Öka antal"
+    "increase": "Öka antal",
+    "customize": "Välj innehåll"
   },
   "seo": {
     "menu": {
-      "title": "Meny | Matleverans & Takeaway i Boden | Nordic Eatery",
-      "description": "Utforska Nordic Eaterys meny i Boden. Beställ polsk comfort food, hamburgare, krispiga pommes frites, drinkar och street food för leverans eller takeaway.",
-      "ogTitle": "Nordic Eatery Meny | Matleverans i Boden",
-      "ogDescription": "Beställ polsk comfort food, hamburgare, pommes frites och street food från Nordic Eatery i Boden."
-    },
-    "takeawayBoden": {
-      "title": "Takeaway i Boden | Beställ online | Nordic Eatery",
-      "description": "Beställ takeaway i Boden från Nordic Eatery. Färsk polsk comfort food, hamburgare, krispiga pommes frites, drinkar och street food redo för avhämtning.",
-      "ogTitle": "Takeaway i Boden | Nordic Eatery",
-      "ogDescription": "Beställ polsk comfort food, hamburgare, krispiga pommes frites och street food för takeaway i Boden."
+      "title": "Meny & takeaway | Nordic Eatery",
+      "description": "Utforska vår meny och beställ street food, burgare, pommes och drycker för upphämtning.",
+      "ogTitle": "Meny & takeaway | Nordic Eatery",
+      "ogDescription": "Beställ polsk comfort food, hamburgare, pommes frites och street food från Nordic Eatery."
     },
     "cateringBoden": {
-      "title": "Catering i Boden | Mat för event | Nordic Eatery",
-      "description": "Boka catering i Boden från Nordic Eatery. Polsk comfort food, hamburgare, street food och skräddarsydda menyer för privata tillställningar, företag och lokala sammankomster.",
-      "ogTitle": "Catering i Boden | Nordic Eatery",
-      "ogDescription": "Färsk catering i Boden för privata tillställningar, företag och lokala sammankomster."
+      "title": "Catering | Mat för event | Nordic Eatery",
+      "description": "Boka catering från Nordic Eatery. Polsk comfort food, hamburgare, street food och skräddarsydda menyer för privata tillställningar, företag och lokala sammankomster.",
+      "ogTitle": "Catering | Nordic Eatery",
+      "ogDescription": "Färsk catering för privata tillställningar, företag och lokala sammankomster."
     },
     "polishFoodBoden": {
-      "title": "Polsk mat i Boden | Maczanka & Street Food | Nordic Eatery",
-      "description": "Beställ polsk mat i Boden från Nordic Eatery. Prova Maczanka, Knysza, krispiga pommes frites och polskinspirerad street food för leverans eller takeaway.",
-      "ogTitle": "Polsk mat i Boden | Nordic Eatery",
-      "ogDescription": "Maczanka, Knysza, krispiga pommes frites och polskinspirerad street food i Boden."
+      "title": "Streetfood i Norrbotten | Nordic Eatery",
+      "description": "Nordisk streetfusion med smaker från hela världen. Upptäck Nordic Eaterys foodtruck, meny och takeaway i Norrbotten.",
+      "ogTitle": "Streetfood i Norrbotten | Nordic Eatery",
+      "ogDescription": "Nordisk streetfusion med smaker från hela världen. Upptäck Nordic Eaterys foodtruck, meny och takeaway i Norrbotten."
     }
   },
   "staffAccountMenu": {
@@ -62,7 +57,7 @@
     "contact": "Kontakt",
     "support": "Stöd",
     "cart": "Vagn",
-    "delivery": "Leverans inom 30-40 min",
+    "delivery": "Beställ online och hämta hos oss",
     "profile": "Profil"
   },
   "footer": {
@@ -81,19 +76,18 @@
     "privacy": "Integritetspolicy",
     "refunds": "Återbetalningar & reklamationer",
     "businessInfo": "Information om företag",
-    "location": "Boden, Sverige",
-    "delivery": "Leverans: 30-40 minuter",
+    "location": "Sverige",
+    "delivery": "Takeaway från vår foodtruck",
     "payments": "Säkra betalningar",
     "address": "Adress"
   },
   "pages": {
     "polishFoodBoden": {
       "hero": {
-        "eyebrow": "Polsk mat i Boden",
-        "title": "Polsk comfort food i Boden",
-        "description": "Nordic Eatery tar polskinspirerad comfort food och street food till Boden. Prova Maczanka, Knysza, krispiga pommes frites och varma rätter som tillagas färska för takeaway och leverans.",
+        "title": "Polsk comfort food",
+        "description": "Nordic Eatery kombinerar nordiska smaker med inspiration från hela världen. Upptäck vår street food och beställ takeaway från vår foodtruck.",
         "primaryCta": "Visa meny",
-        "secondaryCta": "Leverans av mat"
+        "secondaryCta": "Hitta vår foodtruck"
       },
       "cards": {
         "maczanka": {
@@ -102,40 +96,37 @@
         },
         "streetFood": {
           "title": "Gatumat",
-          "description": "Varma, mättande rätter som passar för takeaway, leverans och vardagliga måltider."
+          "description": "Varma, mättande rätter för takeaway och vardagliga måltider."
         },
         "takeaway": {
-          "title": "Takeaway & leverans",
-          "description": "Beställ online för avhämtning eller matleverans i Boden."
+          "title": "Smaker på hjul",
+          "description": "Hitta vår foodtruck och hämta din nylagade mat."
         }
       },
       "content": {
-        "eyebrow": "Lokal polsk mat",
-        "title": "En polsk matupplevelse i Boden",
-        "paragraph1": "Nordic Eatery fokuserar på polskinspirerad comfort food, street food och enkel onlinebeställning. Vår meny är uppbyggd kring varma, mättande rätter som fungerar bra för leverans, takeaway och vardagsmåltider.",
+        "title": "En polsk matupplevelse",
+        "paragraph1": "Nordic Eatery fokuserar på smakrik street food och enkel onlinebeställning. Välj dina favoriter och hämta din nylagade mat från vår foodtruck.",
         "paragraph2": "Istället för att vara en klassisk hamburgerrestaurang ligger Nordic Eatery närmare polsk street food med rätter som Maczanka, Knysza, krispiga pommes frites och utvalda comfort food-favoriter.",
-        "paragraph3": "Om du letar efter polsk mat i Boden, takeaway nära dig eller något annat än vanlig snabbmat, ger Nordic Eatery dig ett fräscht lokalt alternativ.",
+        "paragraph3": "Om du letar efter polsk mat, takeaway nära dig eller något annat än vanlig snabbmat, ger Nordic Eatery dig ett fräscht lokalt alternativ.",
         "menuCta": "Visa hela menyn",
-        "takeawayCta": "Takeaway i Boden",
-        "deliveryCta": "Leverans av mat i Boden"
+        "deliveryCta": "Hitta vår foodtruck"
       },
       "benefits": {
         "title": "Varför prova Nordic Eatery?",
         "items": {
-          "0": "Polskinspirerad mat i Boden",
+          "0": "Polskinspirerad mat",
           "1": "Maczanka, Knysza och gatumat",
           "2": "Färskt tillagade rätter",
           "3": "Passar bra för lunch, middag och andra måltider",
-          "4": "Finns för takeaway och leverans",
+          "4": "Beställ online för upphämtning",
           "5": "Enkel onlinebeställning"
         }
       }
     },
     "cateringBoden": {
       "hero": {
-        "eyebrow": "Catering i Boden",
-        "title": "Catering för evenemang i Boden",
-        "description": "Planerar du ett privat event, en företagslunch eller en lokal sammankomst i Boden? Nordic Eatery erbjuder catering med polsk comfort food, hamburgare, street food och flexibla menyalternativ som tillagas färskt för dina gäster.",
+        "title": "Catering för evenemang",
+        "description": "Planerar du ett privat event, en företagslunch eller en lokal sammankomst? Nordic Eatery erbjuder catering med polsk comfort food, hamburgare, street food och flexibla menyalternativ som tillagas färskt för dina gäster.",
         "primaryCta": "Begär catering",
         "secondaryCta": "Kontakta oss"
       },
@@ -149,8 +140,8 @@
           "description": "Catering för kontor, team, personalmåltider och företagsevenemang."
         },
         "delivery": {
-          "title": "Upphämtning eller leverans",
-          "description": "Välj upphämtning eller diskutera leveransalternativ i Boden."
+          "title": "Smidig upphämtning",
+          "description": "Planera upphämtningen med oss inför ditt evenemang."
         },
         "planning": {
           "title": "Enkel planering",
@@ -158,38 +149,36 @@
         }
       },
       "content": {
-        "eyebrow": "Evenemang mat",
-        "title": "Färsk cateringmat till Boden",
-        "paragraph1": "Nordic Eatery hjälper till att göra evenemang enklare med varm, mättande mat som tillagas för grupper. Vår catering är lämplig för privata fester, kontorsluncher, personalmåltider, små evenemang och lokala sammankomster i Boden.",
+        "title": "Färsk cateringmat",
+        "paragraph1": "Nordic Eatery hjälper till att göra evenemang enklare med varm, mättande mat som tillagas för grupper. Vår catering är lämplig för privata fester, kontorsluncher, personalmåltider, små evenemang och lokala sammankomster.",
         "paragraph2": "Menyn kan innehålla polsk comfort food, hamburgare, krispiga pommes frites, street food och utvalda rätter beroende på evenemangets storlek och dina behov. Vi fokuserar på mat som är lätt att servera, mättande och njutbar för gästerna.",
         "paragraph3": "Oavsett om du behöver en enkel catering i takeaway-stil eller en mer planerad matuppsättning, kontakta Nordic Eatery så hjälper vi dig att hitta en lämplig lösning.",
         "bookingCta": "Boka catering",
         "menuCta": "Visa meny",
-        "deliveryCta": "Leverans av mat"
+        "deliveryCta": "Beställ takeaway"
       },
       "benefits": {
         "title": "Varför välja Nordic Eatery catering?",
         "items": {
-          "0": "Catering i Boden för privat- och företagsevenemang",
+          "0": "Catering för privat- och företagsevenemang",
           "1": "Färsk polsk comfort food och street food",
           "2": "Flexibla menyalternativ för grupper",
-          "3": "Upphämtning eller möjliga leveransalternativ",
+          "3": "Upphämtning enligt överenskommelse",
           "4": "Passar bra för lunch, middag och vardagliga sammankomster",
           "5": "Snabb kommunikation och enkel planering"
         }
       },
       "cta": {
-        "title": "Behöver du catering i Boden?",
+        "title": "Behöver du catering?",
         "description": "Skicka oss en förfrågan med datum för ditt evenemang, antal gäster och matpreferenser. Vi hjälper dig att planera ett lämpligt cateringalternativ.",
         "button": "Skicka cateringförfrågan"
       },
       "faq": {
-        "eyebrow": "VANLIGA FRÅGOR",
         "title": "Frågor om catering",
         "items": {
           "0": {
-            "question": "Erbjuder ni catering i Boden?",
-            "answer": "Ja, det gör vi. Nordic Eatery erbjuder catering i Boden för privata tillställningar, företagsmåltider och lokala sammankomster."
+            "question": "Erbjuder ni catering?",
+            "answer": "Ja, det gör vi. Nordic Eatery erbjuder catering för privata tillställningar, företagsmåltider och lokala sammankomster."
           },
           "1": {
             "question": "Vilken mat kan jag beställa för catering?",
@@ -197,7 +186,7 @@
           },
           "2": {
             "question": "Kan du hjälpa till med företagscatering?",
-            "answer": "Ja, det gör vi. Vi kan erbjuda catering för kontorsluncher, personalmåltider och företagsevenemang i Boden."
+            "answer": "Ja, det gör vi. Vi kan erbjuda catering för kontorsluncher, personalmåltider och företagsevenemang."
           },
           "3": {
             "question": "Hur beställer jag catering?",
@@ -206,86 +195,13 @@
         }
       }
     },
-    "takeawayBoden": {
-      "hero": {
-        "eyebrow": "Takeaway i Boden",
-        "title": "Beställ takeaway i Boden",
-        "description": "Vill du ha färsk mat utan att vänta? Beställ takeaway från Nordic Eatery i Boden. Välj polsk comfort food, hamburgare, krispiga pommes frites, drinkar och street food, och hämta sedan din beställning när den är klar.",
-        "primaryCta": "Beställ takeaway",
-        "secondaryCta": "Leverans av mat"
-      },
-      "cards": {
-        "order": {
-          "title": "Beställ online",
-          "description": "Välj din mat från vår online-meny."
-        },
-        "fresh": {
-          "title": "Färskt tillagad",
-          "description": "Din beställning tillagas färskt efter utcheckning."
-        },
-        "pickup": {
-          "title": "Pickup",
-          "description": "Hämta din mat när den är klar."
-        },
-        "simple": {
-          "title": "Enkel process",
-          "description": "Beställ online, undvik telefonsamtal och hämta din mat."
-        }
-      },
-      "content": {
-        "eyebrow": "Mat för avhämtning",
-        "title": "Färsk takeaway-mat i Boden",
-        "paragraph1": "Nordic Eatery gör takeaway enkelt för dig i Boden som vill ha varm och mättande mat utan att lägga tid på matlagning. På vår meny finns polsk comfort food, hamburgare, krispiga pommes frites, drinkar och street food.",
-        "paragraph2": "Takeaway är ett bra val för lunch, middag, raster på jobbet eller avslappnade måltider hemma. Beställ online, skippa telefonsamtalet och hämta din mat när den är klar.",
-        "paragraph3": "Vår mat tillagas direkt efter beställning, så att du får varma och jämna måltider som är lätta att hämta och njuta av.",
-        "menuCta": "Visa meny",
-        "burgersCta": "Burgare i Boden",
-        "cateringCta": "Catering i Boden"
-      },
-      "benefits": {
-        "title": "Varför beställa takeaway från Nordic Eatery?",
-        "items": {
-          "0": "Enkel onlinebeställning",
-          "1": "Färsk polsk comfort food",
-          "2": "Hamburgare, pommes frites och drycker",
-          "3": "Gatumat förberedd för upphämtning",
-          "4": "Bra alternativ för lunch eller middag",
-          "5": "Takeaway och leverans finns i Boden"
-        }
-      },
-      "faq": {
-        "eyebrow": "VANLIGA FRÅGOR",
-        "title": "Frågor att ta med sig",
-        "items": {
-          "0": {
-            "question": "Kan jag beställa hämtmat i Boden?",
-            "answer": "Ja, du kan beställa takeaway online från Nordic Eatery och hämta din mat när den är klar."
-          },
-          "1": {
-            "question": "Vilken mat kan jag beställa för avhämtning?",
-            "answer": "Du kan beställa polsk comfort food, hamburgare, krispiga pommes frites, drinkar och street food."
-          },
-          "2": {
-            "question": "Erbjuder ni även leverans?",
-            "answer": "Ja, det gör vi. Nordic Eatery erbjuder både takeaway och matleverans i Boden."
-          },
-          "3": {
-            "question": "Hur beställer jag takeaway?",
-            "answer": "Öppna online-menyn, välj dina artiklar och gör din beställning. Din mat kommer att förberedas för upphämtning."
-          }
-        }
-      }
-    },
     "cart": {
-      "eyebrow": "Vagn",
       "title": "Din beställning",
       "emptyTitle": "Din varukorg är tom",
       "emptyText": "Välj Maczanka eller Knysza från menyn och lägg din favoritmat i varukorgen.",
       "goToMenu": "Gå till menyn",
       "summaryTitle": "Sammanfattning av ordern",
       "subtotal": "Delsumma",
-      "delivery": "Leverans",
-      "calculatedLater": "Beräknas senare",
       "total": "Totalt",
       "checkout": "Fortsätt till kassan",
       "decreaseQuantity": "Minska kvantiteten",
@@ -293,14 +209,12 @@
       "removeItem": "Ta bort artikel"
     },
     "home": {
-      "eyebrow": "Kök & leverans",
       "titleLine1": "Polsk mat.",
-      "titleLine2": "Levereras varm.",
+      "titleLine2": "Nylagad mat.",
       "subtitle": "Maczanka, Knysza och hemlagad tröstmat från Mikes kök.",
       "orderNow": "Beställ nu",
       "viewCart": "Visa varukorg",
       "exploreMenu": "Utforska menyn",
-      "popular": "Populär",
       "bestSellers": "Bästsäljare",
       "fullMenu": "Hela menyn",
       "categories": {
@@ -310,19 +224,17 @@
         "drinks": "Drycker"
       },
       "seoLinks": {
-        "eyebrow": "Lokal mat i Boden",
-        "title": "Beställ matleverans, takeaway och catering i Boden",
-        "description": "Nordic Eatery erbjuder färsk polsk comfort food, hamburgare, krispiga pommes frites, street food, takeaway och catering i Boden.",
-        "delivery": "Leverans av mat i Boden",
-        "takeaway": "Takeaway i Boden",
-        "burgers": "Burgare i Boden",
-        "catering": "Catering i Boden",
+        "title": "Beställ takeaway och catering",
+        "description": "Nordic Eatery erbjuder färsk polsk comfort food, hamburgare, krispiga pommes frites, street food, takeaway och catering.",
+        "takeaway": "Beställ takeaway",
+        "burgers": "Streetfood i Norrbotten",
+        "catering": "Catering",
         "menu": "Visa hela menyn",
-        "deliveryShort": "Leverans",
-        "takeawayShort": "Takeaway",
-        "burgersShort": "Hamburgare",
+        "takeawayShort": "Beställ takeaway",
+        "burgersShort": "Streetfood i Norrbotten",
         "cateringShort": "Catering",
-        "menuShort": "Meny"
+        "menuShort": "Meny",
+        "deliveryShort": "Matlådor"
       }
     },
     "menu": {
@@ -332,7 +244,6 @@
         "vegan": "Veganskt",
         "gluten_free": "Glutenfritt"
       },
-      "eyebrow": "Meny",
       "title": "Välj din polska mat",
       "subtitle": "Färska rätter som görs på beställning och utvalda produkter som finns i lager.",
       "categories": {
@@ -366,10 +277,8 @@
       "finalTitle": "Byggd för människor som värdesätter god mat",
       "finalText": "Ingen väntan. Inga överpriser. Bara god mat gjord på rätt sätt.",
       "badge": "Polsk streetfood med en svensk twist",
-      "foodEyebrow": "Vår mat",
       "foodTitle": "Polska smaker med svenska nyanser",
       "foodText": "Vi tillagar vår mat från grunden så långt det är möjligt och strävar efter att endast använda oss av färska och svenska råvaror. Mike's maträtter är tillagade med inspiration från klassisk polsk streetfood och ingredienser från Sverige.",
-      "ctaEyebrow": "Catering & event",
       "ctaTitle": "Behöver du mat till ditt event?",
       "ctaText": "Boka catering, foodtruck eller en kock till din privata fest, företagsevent, festival eller speciella tillfälle. Vill ni ha en specialanpassad meny, kontakta oss så ska vi göra vårt bästa för att möta era önskemål.",
       "ctaBook": "Boka oss",
@@ -377,7 +286,6 @@
     },
     "booking": {
       "sending": "Skickar...",
-      "eyebrow": "Boka ditt bord",
       "title": "Bokning",
       "subtitle": "Boka bord, catering eller Mike's Food Truck så bekräftar vi din förfrågan så snart som möjligt.",
       "bookingType": "Typ av bokning",
@@ -422,7 +330,6 @@
       "messagePlaceholder": "Några särskilda önskemål?",
       "consent": "Jag godkänner att mina personuppgifter behandlas för denna bokningsförfrågan.",
       "button": "Skicka bokningsförfrågan",
-      "successEyebrow": "Bokning skickad",
       "successTitle": "Tack så mycket!",
       "successText": "Vi har mottagit din bokningsförfrågan och kommer att kontakta dig inom kort.",
       "error": "Något gick fel. Vänligen försök igen.",
@@ -447,7 +354,6 @@
       "tableGuestsMinimumError": "Minsta bokning för bord är 2 personer."
     },
     "mikes": {
-      "eyebrow": "Om Mike's Streetfood",
       "title": "Boka Mike's foodtruck till ditt event",
       "subtitle": "Mike's Bite - Hemlagad streetfood, en unik smakupplevelse. För dig som vill ha mer än bara snabbmat.",
       "button": "Boka foodtruck",
@@ -464,7 +370,6 @@
       "heroImage": ""
     },
     "catering": {
-      "eyebrow": "Catering",
       "title": "Mat för evenemang, team och firande",
       "subtitle": "Färsk mat för privata fester, affärsluncher, företagsevenemang, festivaler och större grupper.",
       "button": "Begär catering",
@@ -478,7 +383,7 @@
       "provideTitle": "Vad vi kan erbjuda",
       "provideCustomMenu": "Anpassade menyalternativ",
       "provideGroups": "Mat för små och stora grupper",
-      "providePickup": "Alternativ för upphämtning eller leverans",
+      "providePickup": "Upphämtning enligt överenskommelse",
       "provideFoodTruck": "Food truck på plats",
       "providePlanning": "Enkel planering av evenemang",
       "provideFastCommunication": "Snabb kommunikation",
@@ -487,7 +392,6 @@
       "ctaButton": "Skicka cateringförfrågan"
     },
     "contact": {
-      "eyebrow": "Kontakt",
       "title": "Ta kontakt med oss",
       "subtitle": "Frågor, bokningar, catering eller evenemang - kontakta Nordic Eatery så återkommer vi till dig.",
       "phone": "Telefon",
@@ -506,11 +410,10 @@
       "ctaButton": "Gå till bokning"
     },
     "support": {
-      "eyebrow": "Stöd",
       "title": "Behöver du hjälp?",
       "subtitle": "Om du har frågor om din beställning, bokning eller catering - vi finns här för att hjälpa dig.",
-      "q1": "Hur lång tid tar leveransen?",
-      "a1": "Vanligtvis mellan 30-40 minuter beroende på efterfrågan.",
+      "q1": "Hur lång tid tar det att laga maten?",
+      "a1": "Tillagningstiden varierar beroende på efterfrågan och beställningens storlek.",
       "q2": "Kan jag boka foodtrucken?",
       "a2": "Ja, gå till Mikes sida eller bokningssidan och skicka en förfrågan.",
       "q3": "Erbjuder du catering?",
@@ -523,7 +426,6 @@
       "booking": "Bokning"
     },
     "terms": {
-      "eyebrow": "Villkor och anvisningar",
       "title": "Villkor och anvisningar",
       "subtitle": "Dessa villkor gäller för alla beställningar som görs genom Nordic Eatery.",
       "orderingTitle": "Beställning",
@@ -532,8 +434,8 @@
       "pricesText": "Alla priser visas i SEK och inkluderar gällande skatter. Den slutliga ordersumman visas före betalning.",
       "paymentTitle": "Betalning",
       "paymentText": "Vi accepterar kortbetalningar, Apple Pay, Google Pay, Swish och kontanter när det finns tillgängligt. Kortbetalningar behandlas säkert genom Stripe. Swish-betalningar behandlas via Swish.",
-      "deliveryTitle": "Leverans och upphämtning",
-      "deliveryText": "Beställningar kan levereras eller hämtas upp beroende på tillgänglighet. Leveranstiderna är uppskattningar och kan variera beroende på efterfrågan, väder och avstånd.",
+      "deliveryTitle": "Upphämtning",
+      "deliveryText": "Beställ online och hämta maten från vår foodtruck. Aktuell plats och öppettider visas vid beställning. Tillagningstiden kan variera beroende på efterfrågan och beställningens storlek.",
       "cancellationTitle": "Avbokning",
       "cancellationText": "Beställningar kan avbeställas innan tillagningen har påbörjats. När matlagningen har påbörjats kan det hända att avbeställning inte är möjlig.",
       "refundsTitle": "Återbetalningar och reklamationer",
@@ -542,13 +444,12 @@
       "contactText": "För frågor, reklamationer, återbetalningar eller betalningsärenden, kontakta oss på kontakt@nordiceatery.se eller via telefon."
     },
     "privacy": {
-      "eyebrow": "Integritetspolicy",
       "title": "Integritetspolicy",
       "subtitle": "Vi respekterar din integritet och hanterar dina personuppgifter på ett ansvarsfullt sätt.",
       "dataTitle": "Uppgifter som vi samlar in",
       "dataText": "När du gör en beställning kan vi samla in ditt namn, telefonnummer, adress, orderinformation och betalningsstatus.",
       "usageTitle": "Hur vi använder dina uppgifter",
-      "usageText": "Vi använder dina uppgifter för att behandla beställningar, leverera mat, hantera betalningar, tillhandahålla kundsupport och förbättra vår service.",
+      "usageText": "Vi använder dina uppgifter för att behandla beställningar, tillaga mat, hantera betalningar, ge kundsupport och förbättra vår service.",
       "paymentsTitle": "Betalningar",
       "paymentsText": "Betalningar kan behandlas via Stripe och Swish. Vi lagrar inte fullständiga kortuppgifter på vår webbplats.",
       "storageTitle": "Datalagring",
@@ -559,17 +460,21 @@
       "contactText": "Om du har frågor om integritet kan du kontakta oss på kontakt@nordiceatery.se."
     },
     "checkout": {
+      "email": "E-post",
+      "emailPlaceholder": "din@epost.se",
+      "emailHelp": "Krävs bara om du vill skapa en kundprofil och samla rabatter.",
+      "fulfillmentUnavailable": "Upphämtning är inte tillgänglig just nu.",
+      "paymentsUnavailable": "Inga betalningssätt är tillgängliga just nu. Kontakta restaurangen.",
       "emptyTitle": "Vagnen är tom",
       "emptyText": "Lägg till livsmedel i din kundvagn före kassan.",
       "goToMenu": "Gå till menyn",
-      "eyebrow": "Säker utcheckning",
       "title": "Checka ut",
-      "subtitle": "Lägg till dina leveransuppgifter och välj hur du vill betala.",
+      "subtitle": "Fyll i dina kontaktuppgifter och välj hur du vill betala.",
       "name": "Namn",
       "namePlaceholder": "Ditt namn",
       "phone": "Telefon",
       "phonePlaceholder": "+46...",
-      "deliveryType": "Typ av leverans",
+      "deliveryType": "Så får du din mat",
       "delivery": "Leverans",
       "deliveryTime": "30-40 minuter",
       "pickup": "Pickup",
@@ -586,7 +491,7 @@
       "swish": "Swish",
       "swishText": "Betala efter beställning",
       "cash": "Kontanter",
-      "cashText": "Vid leverans",
+      "cashText": "Vid upphämtning",
       "swishInfo": "Betala med Swish efter att du lagt beställningen. Din order kommer att vara markerad som väntande på betalning tills betalningen är bekräftad.",
       "cardInfo": "Du kommer att omdirigeras till Stripe. Kort, Apple Pay och Google Pay behandlas på ett säkert sätt.",
       "comment": "Kommentar",
@@ -603,7 +508,7 @@
       "processing": "Bearbetning...",
       "continuePayment": "Fortsätt till betalning",
       "placeOrder": "Gör en beställning",
-      "bottomInfo": "Beräknad leveranstid: 30-40 min. För reklamation eller återbetalning, kontakta kontakt@nordiceatery.se.",
+      "bottomInfo": "Hämta din beställning från vår foodtruck. För reklamation eller återbetalning, kontakta kontakt@nordiceatery.se.",
       "stripeError": "Stripe-betalningen kunde inte startas.",
       "orderError": "Order kunde inte skapas.",
       "generalError": "Något gick fel. Vänligen försök igen.",
@@ -617,7 +522,6 @@
   },
   "admin": {
     "shift": {
-      "eyebrow": "Köksskift",
       "checking": "Kontrollerar",
       "open": "Öppet",
       "closed": "Stängt",
@@ -632,12 +536,34 @@
       "closeButton": "Stäng skift",
       "addressLabel": "Foodtruckens adress",
       "addressPlaceholder": "T.ex. Kungsgatan 12, Boden",
-      "addressHint": "Adressen visas för kunder i kassan medan skiftet är öppet.",
+      "addressHint": "GPS fyller i adressen automatiskt. Kontrollera och justera den vid behov innan du sparar.",
       "errors": {
         "load": "Kunde inte ladda skiftstatus.",
         "update": "Kunde inte uppdatera skiftet.",
-        "addressRequired": "Ange foodtruckens adress för att öppna skiftet."
-      }
+        "addressRequired": "Ange foodtruckens adress för att öppna skiftet.",
+        "invalidCoordinates": "Ange båda koordinaterna: latitud −90 till 90, longitud −180 till 180.",
+        "locationRequired": "Ange en adress eller en kartpunkt.",
+        "invalidAddress": "Kontrollera adressen: högst 300 tecken.",
+        "invalidInput": "Kontrollera uppgifterna.",
+        "geolocationUnsupported": "Webbläsaren stöder inte platsåtkomst. Ange koordinater manuellt.",
+        "geolocationDenied": "Platsåtkomst nekades. Tillåt den i webbläsaren eller ange koordinater manuellt.",
+        "geolocationTimeout": "Positionen kunde inte hämtas i tid. Försök igen eller ange koordinater manuellt.",
+        "geolocationUnavailable": "Positionen kunde inte hämtas. Försök igen eller ange koordinater manuellt.",
+        "geocodingUnavailable": "Adressen kunde inte hittas. Ange den manuellt och spara."
+      },
+      "coordinatesTitle": "Foodtruckens position",
+      "coordinatesHint": "Hämta positionen från telefonen när du är vid foodtrucken, eller ange koordinater. Kontrollera kartan och spara för att visa platsen för kunder.",
+      "locateButton": "Hämta min position",
+      "locating": "Hämtar position…",
+      "cancelLocation": "Avbryt",
+      "latitude": "Latitud",
+      "longitude": "Longitud",
+      "accuracy": "Noggrannhet: cirka {meters} m. Kontrollera punkten på kartan.",
+      "previewMap": "Kontrollera på kartan",
+      "clearCoordinates": "Ta bort koordinater",
+      "saveLocation": "Spara plats",
+      "locationSaved": "Platsen har sparats. Skiftets status är oförändrad.",
+      "findAddress": "Hämta adress från koordinater"
     },
     "businessSettingsForm": {
       "business": {
@@ -739,7 +665,6 @@
       }
     },
     "documentation": {
-      "eyebrow": "CRM-dokumentation",
       "title": "Dokumentation",
       "subtitle": "Intern guide för hantering av beställningar, produkter, köksvisning, personalroller, inställningar och driftsättning.",
       "accessBadge": "Ägare / Admin guide",
@@ -809,7 +734,6 @@
       }
     },
     "settings": {
-      "eyebrow": "Affärsinställningar",
       "title": "Inställningar",
       "subtitle": "Hantera restauranginformation, leveransalternativ, betalningsinställningar och operativa preferenser.",
       "accessBadge": "Åtkomst för ägare/administratör",
@@ -823,7 +747,6 @@
       "updating": "Uppdaterar..."
     },
     "reservations": {
-      "eyebrow": "Hantering av bokningar",
       "title": "Bokningar",
       "subtitle": "Hantera kundbokningar, gästantal, bekräftelsestatus och bokningsanteckningar.",
       "flow": "Reservationsflöde",
@@ -855,7 +778,6 @@
       }
     },
     "menuAdmin": {
-      "eyebrow": "Menyhantering",
       "title": "Meny",
       "subtitle": "Organisera din restaurangmeny efter kategorier, tillgänglighet, lager och produktprestanda.",
       "viewProducts": "Visa produkter",
@@ -972,7 +894,6 @@
     "reports": {
       "exportPdf": "Exportera PDF",
       "exportCsv": "Exportera CSV",
-      "eyebrow": "Bokföringsrapport",
       "title": "Rapporter för onlineförsäljning",
       "description": "Endast betalda onlinebeställningar. Rapporten omfattar webborders som slutförts på distans och hålls separata från betalningar på plats.",
       "period": "Period",
@@ -1015,7 +936,6 @@
       "noPaidOrdersDescription": "Välj en annan period eller vänta tills onlinebetalningar är slutförda."
     },
     "analytics": {
-      "eyebrow": "Analys av verksamheten",
       "title": "Analys",
       "subtitle": "Spåra försäljning, order, leveransflöde, betalningsmetoder och köksaktiviteter från riktiga Supabase-data.",
       "lastOrders": "Senaste {count} beställningar",
@@ -1073,7 +993,6 @@
     },
     "account": {
       "title": "Mitt konto",
-      "eyebrow": "Inställningar för konto",
       "subtitle": "Visa din personalprofil, rollbehörigheter och kontoåtkomst.",
       "staffMember": "Anställd",
       "noEmail": "Ingen e-post",
@@ -1119,6 +1038,7 @@
       "formTitleEdit": "Redigera produkt",
       "productName": "Produktens namn",
       "subtitle": "Undertitel",
+      "subtitleOptional": "Undertitel (valfri)",
       "category": "Kategori",
       "priceKr": "Pris, kr",
       "badge": "Badge",
@@ -1136,10 +1056,11 @@
       "uploadPhoto": "Ladda upp foto",
       "uploading": "Uppladdning...",
       "nameRequired": "Produktnamn är obligatoriskt.",
-      "saveError": "Något gick fel"
+      "saveError": "Något gick fel",
+      "editCategoryName": "Ändra kategorinamn med pennan",
+      "categoryNameHint": "Sparar namnet för hela kategorin på det valda språket."
     },
     "inventory": {
-      "eyebrow": "Lagerstyrning",
       "title": "Inventarieförteckning",
       "subtitle": "Hantera produktlager. Om det spårade lagret är 0 döljs produkten från kundmenyn.",
       "productsCount": "{count} produkter",
@@ -1169,7 +1090,6 @@
       "cancel": "Avbryt"
     },
     "orders": {
-      "eyebrow": "Beställningar",
       "title": "Orderhantering",
       "subtitle": "Hantera kundorder, betalningsstatus, leveransflöde och köksförlopp på ett och samma ställe.",
       "total": "Totalt",
@@ -1239,7 +1159,14 @@
         "preparingDescription": "Beställningar för närvarande i köket.",
         "readyTitle": "Redo",
         "readyDescription": "Redo för upphämtning eller leverans."
-      }
+      },
+      "enableSound": "Aktivera ljud",
+      "soundOn": "Ljud på · stäng av",
+      "testSound": "Testa ljud",
+      "soundHint": "Aktivera ljud efter att sidan öppnats och håll kökssidan öppen.",
+      "soundFailed": "Webbläsaren pausade ljudet. Tryck på Aktivera ljud igen.",
+      "loadFailed": "Kunde inte hämta beställningarna. Försöker igen.",
+      "pickupAt": "Klart {time}"
     },
     "workspace": {
       "operations": "Verksamhet",
@@ -1291,6 +1218,116 @@
       "stockCount": "{count} i lager",
       "popular": "Populär",
       "noDescription": "Ingen beskrivning"
+    },
+    "groupSlots": {
+      "title": "Tider för SSAB gruppbeställning",
+      "description": "Dagliga tider i svensk tid (Europe/Stockholm). En grupp per tid. Lägg till, ändra eller stäng av tider och spara.",
+      "preserveBookings": "Ändringar gäller nya bokningar direkt. Redan bokade beställningar behåller sin tid.",
+      "loading": "Hämtar tider…",
+      "time": "Tid {index}",
+      "enabled": "Aktiv",
+      "removeSlot": "Ta bort tid {index}",
+      "add": "Lägg till tid",
+      "save": "Spara tider",
+      "saving": "Sparar…",
+      "saved": "Tiderna är sparade. Menyn uppdateras automatiskt.",
+      "empty": "Inga aktiva tider. Nya gruppbeställningar är pausade och menyn visar formuläret för e-postavisering.",
+      "invalidSchedule": "Ange giltiga, unika tider i formatet HH:MM. Högst 48 tider.",
+      "scheduleConflict": "Tiderna ändrades i ett annat fönster. Hämta de sparade tiderna innan du försöker igen.",
+      "forbidden": "Du behöver vara ägare eller administratör för att ändra tider.",
+      "unavailable": "Kunde inte läsa eller spara tiderna. Hämta aktuella tider och försök igen.",
+      "reload": "Hämta sparade tider"
+    }
+  },
+  "catalog": {
+    "dietaryFilters": "Kostpreferenser",
+    "previous": "Föregående kategorier",
+    "next": "Nästa kategorier",
+    "categories": "Menykategorier",
+    "empty": "Inga rätter matchar detta filter."
+  },
+  "customization": {
+    "required": "Obligatoriskt",
+    "optional": "Valfritt",
+    "chooseExact": "Välj {count}",
+    "chooseRange": "Välj {min}–{max}",
+    "included": "Ingår",
+    "clear": "Rensa val",
+    "completeRequired": "Välj alternativ i alla obligatoriska grupper.",
+    "unavailable": "Rätten kan inte anpassas just nu."
+  },
+  "modifierEditor": {
+    "title": "Innehåll och tillval",
+    "description": "Skapa obligatoriska val för kött, sås eller fyllning. Lägg till ”Utan lök” eller ”Utan sås” som egna alternativ. Priser läggs till grundpriset. Minst 1 gör valet obligatoriskt; minst 0 gör det valfritt.",
+    "group": "Grupp {number}",
+    "groupName": "Gruppnamn",
+    "groupPlaceholder": "Kött, sås, fyllning…",
+    "removeGroup": "Ta bort grupp",
+    "minimum": "Minsta antal val",
+    "maximum": "Högsta antal val",
+    "optionName": "Alternativ",
+    "extraPrice": "Tillägg (kr)",
+    "removeOption": "Ta bort alternativ",
+    "addOption": "Lägg till alternativ",
+    "addGroup": "Lägg till grupp",
+    "optionPlaceholder": "Kyckling / Utan lök"
+  },
+  "combo": {
+    "title": "Vill du ha en dryck till?",
+    "description": "Gör det till en kombo: spara 5 kr på en dryck per huvudrätt. Välj en dryck eller fortsätt utan.",
+    "chooseDrink": "Välj dryck",
+    "drinkQuantity": "Antal drycker",
+    "back": "Tillbaka till maten",
+    "saving": "Kombo: du sparar {amount}",
+    "addCombo": "Lägg till kombo",
+    "skip": "Fortsätt utan dryck",
+    "discount": "Komborabatt",
+    "addFailed": "Kunde inte lägga till. Kontrollera antal och försök igen."
+  },
+  "sauceOffer": {
+    "title": "Vill du ha en dip till?",
+    "description": "Välj en sås till ditt tillbehör eller fortsätt utan. Såsen läggs till till priset i menyn.",
+    "chooseSauce": "Välj sås",
+    "sauceQuantity": "Antal såser",
+    "back": "Tillbaka till maten",
+    "addWithSauce": "Lägg till med sås",
+    "skip": "Fortsätt utan sås"
+  },
+  "truckLocation": {
+    "title": "Här finns vår foodtruck",
+    "exactPoint": "Den exakta platsen är markerad på kartan",
+    "openMap": "Öppna kartan",
+    "directions": "Hitta hit"
+  },
+  "orderEntry": {
+    "title": "Hur vill du beställa?",
+    "close": "Stäng",
+    "regularTitle": "Vanlig onlinebeställning",
+    "regularLocation": "Camp West – Minimill",
+    "regularHours": "10.30–13.30",
+    "regularDays": "Måndag–fredag",
+    "regularPickup": "Upphämtning vid foodtrucken på Camp West.",
+    "regularAction": "Till menyn",
+    "groupTitle": "Gruppbeställning – SSAB",
+    "groupLocation": "Utanför Minimillområdet",
+    "groupTimes": "Särskilda utlämningstider · svensk tid",
+    "groupPickup": "Upphämtning vid anvisad snurrgrind.",
+    "groupAction": "Starta gruppbeställning",
+    "groupFull": "Dagens tider för gruppbeställning är slut.",
+    "notifyAction": "Meddela mig när tider finns"
+  },
+  "takeawayGallery": {
+    "label": "Våra matlådor",
+    "carousel": "Bildspel",
+    "previous": "Föregående bild",
+    "next": "Nästa bild",
+    "show": "Visa bild {number}",
+    "position": "Bild {number} av {total}",
+    "photos": {
+      "meal-rice": "Matlådor med ris och sås",
+      "meal-potatoes": "Matlådor med potatis och krämig sås",
+      "meal-meatballs": "Köttbullar med potatismos och lingon",
+      "meal-fish": "Panerad fisk med potatis och ärtor"
     }
   }
 }

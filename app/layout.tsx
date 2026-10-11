@@ -9,125 +9,115 @@ import { GoogleTagManager } from "@next/third-parties/google";
 const baseUrl = "https://www.nordiceatery.se";
 
 export const metadata: Metadata = {
-    metadataBase: new URL(baseUrl),
+  metadataBase: new URL(baseUrl),
 
-    applicationName: "Nordic Eatery",
-    title: {
-        default: "Nordic Eatery | Polish Street Food in Boden",
-        template: "%s | Nordic Eatery",
-    },
+  applicationName: "Nordic Eatery",
+  title: {
+    default: "Nordic Eatery | Polish Street Food",
+    template: "%s | Nordic Eatery",
+  },
+  description:
+    "Nordic Eatery serves Polish street food, takeaway, catering and food truck service, Sweden.",
+
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+
+  manifest: "/site.webmanifest",
+
+  openGraph: {
+    type: "website",
+    siteName: "Nordic Eatery",
+    title: "Nordic Eatery | Polish Street Food",
     description:
-        "Nordic Eatery serves Polish street food, takeaway, catering and food truck service in Boden, Sweden.",
+      "Polish street food, takeaway, catering and food truck service, Sweden.",
+    url: baseUrl,
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Nordic Eatery - Polish street food",
+      },
+    ],
+  },
 
-    icons: {
-        icon: [
-            { url: "/favicon.ico", sizes: "any" },
-            { url: "/favicon.svg", type: "image/svg+xml" },
-            { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-            { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-        ],
-        shortcut: "/favicon.ico",
-        apple: "/apple-touch-icon.png",
+  twitter: {
+    card: "summary_large_image",
+    title: "Nordic Eatery | Polish Street Food",
+    description:
+      "Polish street food, takeaway, catering and food truck service, Sweden.",
+    images: ["/og-image.jpg"],
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
     },
-
-    manifest: "/site.webmanifest",
-
-    openGraph: {
-        type: "website",
-        siteName: "Nordic Eatery",
-        title: "Nordic Eatery | Polish Street Food in Boden",
-        description:
-            "Polish street food, takeaway, catering and food truck service in Boden, Sweden.",
-        url: baseUrl,
-        images: [
-            {
-                url: "/og-image.jpg",
-                width: 1200,
-                height: 630,
-                alt: "Nordic Eatery - Polish street food in Boden",
-            },
-        ],
-    },
-
-    twitter: {
-        card: "summary_large_image",
-        title: "Nordic Eatery | Polish Street Food in Boden",
-        description:
-            "Polish street food, takeaway, catering and food truck service in Boden, Sweden.",
-        images: ["/og-image.jpg"],
-    },
-
-    robots: {
-        index: true,
-        follow: true,
-        googleBot: {
-            index: true,
-            follow: true,
-            "max-image-preview": "large",
-            "max-snippet": -1,
-            "max-video-preview": -1,
-        },
-    },
+  },
 };
 
 export const viewport: Viewport = {
-    themeColor: "#B51F26",
+  themeColor: "#B51F26",
 };
 
 const restaurantJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Restaurant",
-    "@id": `${baseUrl}/#restaurant`,
-    name: "Nordic Eatery",
-    url: baseUrl,
-    logo: `${baseUrl}/logo.png`,
-    image: `${baseUrl}/og-image.jpg`,
-    telephone: "+46734218925",
-    email: "kontakt@nordiceatery.se",
-    servesCuisine: ["Polish food", "Street food", "Comfort food"],
-    priceRange: "$$",
-    address: {
-        "@type": "PostalAddress",
-        streetAddress: "Unbyn 7",
-        postalCode: "961 93",
-        addressLocality: "Boden",
-        addressCountry: "SE",
-    },
-    areaServed: {
-        "@type": "City",
-        name: "Boden",
-    },
-    sameAs: [
-        "https://www.facebook.com/people/Mikes/61578834173310/",
-        "https://www.instagram.com/mikesfry",
-        "https://www.tiktok.com/@mikes_streetfood",
-    ],
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  "@id": `${baseUrl}/#restaurant`,
+  name: "Nordic Eatery",
+  url: baseUrl,
+  logo: `${baseUrl}/logo.png`,
+  image: `${baseUrl}/og-image.jpg`,
+  telephone: "+46734218925",
+  email: "kontakt@nordiceatery.se",
+  servesCuisine: ["Polish food", "Street food", "Comfort food"],
+  priceRange: "$$",
+  areaServed: { "@type": "AdministrativeArea", name: "Norrbotten" },
+  sameAs: [
+    "https://www.facebook.com/people/Mikes/61578834173310/",
+    "https://www.instagram.com/mikesfry",
+    "https://www.tiktok.com/@mikes_streetfood",
+  ],
 };
 
 export default async function RootLayout({
-                                             children,
-                                         }: {
-    children: React.ReactNode;
+  children,
+}: {
+  children: React.ReactNode;
 }) {
-    const locale = await getLocale();
-    const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
+  const locale = await getLocale();
+  const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
 
-    return (
-        <html lang={locale} className={lufga.variable}>
-        {gtmId ? <GoogleTagManager gtmId={gtmId} /> : null}
+  return (
+    <html lang={locale} className={lufga.variable}>
+      {gtmId ? <GoogleTagManager gtmId={gtmId} /> : null}
 
-        <body className="font-sans">
+      <body className="font-sans">
         <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-                __html: JSON.stringify(restaurantJsonLd).replace(/</g, "\\u003c"),
-            }}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(restaurantJsonLd).replace(/</g, "\\u003c"),
+          }}
         />
 
         <CartProvider>{children}</CartProvider>
 
         <Analytics />
-        </body>
-        </html>
-    );
+      </body>
+    </html>
+  );
 }

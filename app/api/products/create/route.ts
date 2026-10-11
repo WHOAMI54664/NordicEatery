@@ -1,3 +1,8 @@
+import {
+    normalizeProductSubtitle,
+    validateProductInput,
+} from "@/lib/products-input";
+import { MenuValidationError } from "@/lib/menu-options";
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -10,15 +15,18 @@ export async function POST(request: Request) {
         if (!guard.ok) {
             return NextResponse.json(
                 { error: guard.error },
-                { status: guard.status }
+                { status: guard.status },
             );
         }
 
         const body = await request.json();
+        if (!body || typeof body !== "object" || Array.isArray(body))
+            throw new MenuValidationError("Invalid product");
+        const modifierGroups = validateProductInput(body);
+        const subtitle = normalizeProductSubtitle(body.subtitle);
 
         const {
             name,
-            subtitle,
             description,
             price,
             category,
@@ -32,10 +40,16 @@ export async function POST(request: Request) {
             sort_order = 0,
         } = body;
 
-        if (!name || !description || price === undefined || price === null || !category) {
+        if (
+            !name ||
+            !description ||
+            price === undefined ||
+            price === null ||
+            !category
+        ) {
             return NextResponse.json(
                 { error: "Missing required product fields" },
-                { status: 400 }
+                { status: 400 },
             );
         }
 
@@ -45,9 +59,10 @@ export async function POST(request: Request) {
             .from("products")
             .insert({
                 id: randomUUID(),
+                modifier_groups: modifierGroups,
 
                 name,
-                subtitle: subtitle || null,
+                subtitle,
                 description,
                 price: Number(price),
                 category,
@@ -82,22 +97,33 @@ export async function POST(request: Request) {
             return NextResponse.json(
                 {
                     error: "Failed to create product",
-                    details: error.message,
                 },
-                { status: 500 }
+                { status: 500 },
             );
         }
 
         return NextResponse.json({ product: data });
-    } catch (error: any) {
+    } catch (error: unknown) {
+        if (
+            error instanceof MenuValidationError ||
+            error instanceof SyntaxError
+        )
+            return NextResponse.json(
+                {
+                    error:
+                        error instanceof SyntaxError
+                            ? "Invalid JSON"
+                            : error.message,
+                },
+                { status: 400 },
+            );
         console.error("Create product API error:", error);
 
         return NextResponse.json(
             {
                 error: "Something went wrong",
-                details: error?.message || String(error),
             },
-            { status: 500 }
+            { status: 500 },
         );
     }
 }

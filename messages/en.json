@@ -7,32 +7,27 @@
     "addToGroup": "Add {quantity} to group order",
     "close": "Close",
     "decrease": "Decrease quantity",
-    "increase": "Increase quantity"
+    "increase": "Increase quantity",
+    "customize": "Choose options"
   },
   "seo": {
     "menu": {
-      "title": "Menu | Food Delivery & Takeaway in Boden | Nordic Eatery",
-      "description": "Explore the Nordic Eatery menu in Boden. Order Polish comfort food, burgers, crispy fries, drinks and street food for delivery or takeaway.",
-      "ogTitle": "Nordic Eatery Menu | Food Delivery in Boden",
-      "ogDescription": "Order Polish comfort food, burgers, fries and street food from Nordic Eatery in Boden."
-    },
-    "takeawayBoden": {
-      "title": "Takeaway in Boden | Order Online | Nordic Eatery",
-      "description": "Order takeaway in Boden from Nordic Eatery. Fresh Polish comfort food, burgers, crispy fries, drinks and street food ready for pickup.",
-      "ogTitle": "Takeaway in Boden | Nordic Eatery",
-      "ogDescription": "Order Polish comfort food, burgers, crispy fries and street food for takeaway in Boden."
+      "title": "Menu & takeaway | Nordic Eatery",
+      "description": "Explore our menu and order street food, burgers, fries and drinks for pickup.",
+      "ogTitle": "Menu & takeaway | Nordic Eatery",
+      "ogDescription": "Order Polish comfort food, burgers, fries and street food from Nordic Eatery."
     },
     "cateringBoden": {
-      "title": "Catering in Boden | Food for Events | Nordic Eatery",
-      "description": "Book catering in Boden from Nordic Eatery. Polish comfort food, burgers, street food and custom menus for private events, companies and local gatherings.",
-      "ogTitle": "Catering in Boden | Nordic Eatery",
-      "ogDescription": "Fresh catering in Boden for private events, companies and local gatherings."
+      "title": "Catering | Food for Events | Nordic Eatery",
+      "description": "Book catering from Nordic Eatery. Polish comfort food, burgers, street food and custom menus for private events, companies and local gatherings.",
+      "ogTitle": "Catering | Nordic Eatery",
+      "ogDescription": "Fresh catering for private events, companies and local gatherings."
     },
     "polishFoodBoden": {
-      "title": "Polish Food in Boden | Maczanka & Street Food | Nordic Eatery",
-      "description": "Order Polish food in Boden from Nordic Eatery. Try Maczanka, Knysza, crispy fries and Polish-inspired street food for delivery or takeaway.",
-      "ogTitle": "Polish Food in Boden | Nordic Eatery",
-      "ogDescription": "Maczanka, Knysza, crispy fries and Polish-inspired street food in Boden."
+      "title": "Street food in Norrbotten | Nordic Eatery",
+      "description": "Nordic street fusion inspired by flavours from around the world. Explore Nordic Eatery’s food truck, menu and takeaway in Norrbotten.",
+      "ogTitle": "Street food in Norrbotten | Nordic Eatery",
+      "ogDescription": "Nordic street fusion inspired by flavours from around the world. Explore Nordic Eatery’s food truck, menu and takeaway in Norrbotten."
     }
   },
   "staffAccountMenu": {
@@ -62,7 +57,7 @@
     "contact": "Contact",
     "support": "Support",
     "cart": "Cart",
-    "delivery": "Delivery in 30–40 min",
+    "delivery": "Order online and collect from us",
     "profile": "Profile"
   },
   "footer": {
@@ -81,19 +76,18 @@
     "privacy": "Privacy Policy",
     "refunds": "Refunds & Complaints",
     "businessInfo": "Business information",
-    "location": "Boden, Sweden",
-    "delivery": "Delivery: 30–40 min",
+    "location": "Sweden",
+    "delivery": "Takeaway from our food truck",
     "payments": "Secure payments",
     "address": "Address"
   },
   "pages": {
     "polishFoodBoden": {
       "hero": {
-        "eyebrow": "Polish food in Boden",
-        "title": "Polish comfort food in Boden",
-        "description": "Nordic Eatery brings Polish-inspired comfort food and street food to Boden. Try Maczanka, Knysza, crispy fries and warm dishes prepared fresh for takeaway and delivery.",
+        "title": "Polish comfort food",
+        "description": "Nordic Eatery combines Nordic flavours with inspiration from around the world. Explore our street food and order takeaway from our food truck.",
         "primaryCta": "View menu",
-        "secondaryCta": "Food delivery"
+        "secondaryCta": "Find our food truck"
       },
       "cards": {
         "maczanka": {
@@ -102,40 +96,37 @@
         },
         "streetFood": {
           "title": "Street food",
-          "description": "Warm, filling dishes made for takeaway, delivery and casual meals."
+          "description": "Warm, filling dishes for takeaway and everyday meals."
         },
         "takeaway": {
-          "title": "Takeaway & delivery",
-          "description": "Order online for pickup or food delivery in Boden."
+          "title": "Flavours on wheels",
+          "description": "Find our food truck and collect your freshly prepared food."
         }
       },
       "content": {
-        "eyebrow": "Local Polish food",
-        "title": "A Polish food experience in Boden",
-        "paragraph1": "Nordic Eatery focuses on Polish-inspired comfort food, street food and simple online ordering. Our menu is built around warm, filling dishes that work well for delivery, takeaway and everyday meals.",
+        "title": "A Polish food experience",
+        "paragraph1": "Nordic Eatery focuses on flavourful street food and easy online ordering. Choose your favourites and collect freshly prepared food from our food truck.",
         "paragraph2": "Instead of being a classic burger restaurant, Nordic Eatery is closer to Polish street food with dishes like Maczanka, Knysza, crispy fries and selected comfort food favourites.",
-        "paragraph3": "If you are looking for Polish food in Boden, takeaway near you or something different from standard fast food, Nordic Eatery gives you a fresh local option.",
+        "paragraph3": "If you are looking for Polish food, takeaway near you or something different from standard fast food, Nordic Eatery gives you a fresh local option.",
         "menuCta": "View full menu",
-        "takeawayCta": "Takeaway in Boden",
-        "deliveryCta": "Food delivery in Boden"
+        "deliveryCta": "Find our food truck"
       },
       "benefits": {
         "title": "Why try Nordic Eatery?",
         "items": [
-          "Polish-inspired food in Boden",
+          "Polish-inspired food",
           "Maczanka, Knysza and street food",
           "Freshly prepared dishes",
           "Good for lunch, dinner and casual meals",
-          "Available for takeaway and delivery",
+          "Order online for pickup",
           "Easy online ordering"
         ]
       }
     },
     "cateringBoden": {
       "hero": {
-        "eyebrow": "Catering in Boden",
-        "title": "Catering for events in Boden",
-        "description": "Planning a private event, company lunch or local gathering in Boden? Nordic Eatery offers catering with Polish comfort food, burgers, street food and flexible menu options prepared fresh for your guests.",
+        "title": "Catering for events",
+        "description": "Planning a private event, company lunch or local gathering? Nordic Eatery offers catering with Polish comfort food, burgers, street food and flexible menu options prepared fresh for your guests.",
         "primaryCta": "Request catering",
         "secondaryCta": "Contact us"
       },
@@ -149,8 +140,8 @@
           "description": "Catering for offices, teams, staff meals and business events."
         },
         "delivery": {
-          "title": "Pickup or delivery",
-          "description": "Choose pickup or discuss delivery options in Boden."
+          "title": "Easy pickup",
+          "description": "Arrange pickup with us ahead of your event."
         },
         "planning": {
           "title": "Easy planning",
@@ -158,38 +149,36 @@
         }
       },
       "content": {
-        "eyebrow": "Event food",
-        "title": "Fresh catering food for Boden",
-        "paragraph1": "Nordic Eatery helps make events easier with warm, satisfying food prepared for groups. Our catering is suitable for private parties, office lunches, staff meals, small events and local gatherings in Boden.",
+        "title": "Fresh catering food",
+        "paragraph1": "Nordic Eatery helps make events easier with warm, satisfying food prepared for groups. Our catering is suitable for private parties, office lunches, staff meals, small events and local gatherings.",
         "paragraph2": "The menu can include Polish comfort food, burgers, crispy fries, street food and selected dishes depending on the event size and your needs. We focus on food that is easy to serve, filling and enjoyable for guests.",
         "paragraph3": "Whether you need simple takeaway-style catering or a more planned food setup, contact Nordic Eatery and we will help you find a suitable solution.",
         "bookingCta": "Book catering",
         "menuCta": "View menu",
-        "deliveryCta": "Food delivery"
+        "deliveryCta": "Order takeaway"
       },
       "benefits": {
         "title": "Why choose Nordic Eatery catering?",
         "items": [
-          "Catering in Boden for private and company events",
+          "Catering for private and company events",
           "Fresh Polish comfort food and street food",
           "Flexible menu options for groups",
-          "Pickup or possible delivery options",
+          "Pickup by arrangement",
           "Good for lunch, dinner and casual gatherings",
           "Fast communication and simple planning"
         ]
       },
       "cta": {
-        "title": "Need catering in Boden?",
+        "title": "Need catering?",
         "description": "Send us a request with your event date, number of guests and food preferences. We will help you plan a suitable catering option.",
         "button": "Send catering request"
       },
       "faq": {
-        "eyebrow": "FAQ",
         "title": "Catering questions",
         "items": [
           {
-            "question": "Do you offer catering in Boden?",
-            "answer": "Yes. Nordic Eatery offers catering in Boden for private events, company meals and local gatherings."
+            "question": "Do you offer catering?",
+            "answer": "Yes. Nordic Eatery offers catering for private events, company meals and local gatherings."
           },
           {
             "question": "What food can I order for catering?",
@@ -197,7 +186,7 @@
           },
           {
             "question": "Can you help with company catering?",
-            "answer": "Yes. We can provide catering for office lunches, staff meals and business events in Boden."
+            "answer": "Yes. We can provide catering for office lunches, staff meals and business events."
           },
           {
             "question": "How do I request catering?",
@@ -206,86 +195,13 @@
         ]
       }
     },
-    "takeawayBoden": {
-      "hero": {
-        "eyebrow": "Takeaway in Boden",
-        "title": "Order takeaway in Boden",
-        "description": "Want fresh food without waiting? Order takeaway from Nordic Eatery in Boden. Choose Polish comfort food, burgers, crispy fries, drinks and street food, then pick up your order when it is ready.",
-        "primaryCta": "Order takeaway",
-        "secondaryCta": "Food delivery"
-      },
-      "cards": {
-        "order": {
-          "title": "Order online",
-          "description": "Choose your food from our online menu."
-        },
-        "fresh": {
-          "title": "Freshly prepared",
-          "description": "Your order is prepared fresh after checkout."
-        },
-        "pickup": {
-          "title": "Pickup",
-          "description": "Collect your food when it is ready."
-        },
-        "simple": {
-          "title": "Simple process",
-          "description": "Order online, avoid phone calls and pick up your food."
-        }
-      },
-      "content": {
-        "eyebrow": "Takeaway food",
-        "title": "Fresh takeaway food in Boden",
-        "paragraph1": "Nordic Eatery makes takeaway simple for people in Boden who want warm, filling food without spending time cooking. Our menu includes Polish comfort food, burgers, crispy fries, drinks and street food.",
-        "paragraph2": "Takeaway is a good choice for lunch, dinner, work breaks or casual meals at home. Order online, skip the phone call and pick up your food when it is ready.",
-        "paragraph3": "Our food is prepared fresh after you order, so you get warm and consistent meals that are easy to collect and enjoy.",
-        "menuCta": "View menu",
-        "burgersCta": "Burgers in Boden",
-        "cateringCta": "Catering in Boden"
-      },
-      "benefits": {
-        "title": "Why order takeaway from Nordic Eatery?",
-        "items": [
-          "Easy online ordering",
-          "Fresh Polish comfort food",
-          "Burgers, fries and drinks",
-          "Street food prepared for pickup",
-          "Good option for lunch or dinner",
-          "Takeaway and delivery available in Boden"
-        ]
-      },
-      "faq": {
-        "eyebrow": "FAQ",
-        "title": "Takeaway questions",
-        "items": [
-          {
-            "question": "Can I order takeaway in Boden?",
-            "answer": "Yes. You can order takeaway online from Nordic Eatery and pick up your food when it is ready."
-          },
-          {
-            "question": "What food can I order for takeaway?",
-            "answer": "You can order Polish comfort food, burgers, crispy fries, drinks and street food."
-          },
-          {
-            "question": "Do you also offer delivery?",
-            "answer": "Yes. Nordic Eatery offers both takeaway and food delivery in Boden."
-          },
-          {
-            "question": "How do I order takeaway?",
-            "answer": "Open the online menu, choose your items and place your order. Your food will be prepared for pickup."
-          }
-        ]
-      }
-    },
     "cart": {
-      "eyebrow": "Cart",
       "title": "Your order",
       "emptyTitle": "Your cart is empty",
       "emptyText": "Choose Maczanka or Knysza from the menu and add your favorite food to the cart.",
       "goToMenu": "Go to menu",
       "summaryTitle": "Order summary",
       "subtotal": "Subtotal",
-      "delivery": "Delivery",
-      "calculatedLater": "Calculated later",
       "total": "Total",
       "checkout": "Continue to checkout",
       "decreaseQuantity": "Decrease quantity",
@@ -293,14 +209,12 @@
       "removeItem": "Remove item"
     },
     "home": {
-      "eyebrow": "Kitchen & Delivery",
       "titleLine1": "Polish food.",
-      "titleLine2": "Delivered hot.",
+      "titleLine2": "Freshly prepared.",
       "subtitle": "Maczanka, Knysza and homemade comfort food from Mike’s kitchen.",
       "orderNow": "Order now",
       "viewCart": "View cart",
       "exploreMenu": "Explore menu",
-      "popular": "Popular",
       "bestSellers": "Best sellers",
       "fullMenu": "Full menu",
       "categories": {
@@ -310,19 +224,17 @@
         "drinks": "Drinks"
       },
       "seoLinks": {
-        "eyebrow": "Local food in Boden",
-        "title": "Order food delivery, takeaway and catering in Boden",
-        "description": "Nordic Eatery offers fresh Polish comfort food, burgers, crispy fries, street food, takeaway and catering in Boden.",
-        "delivery": "Food delivery in Boden",
-        "takeaway": "Takeaway in Boden",
-        "burgers": "Burgers in Boden",
-        "catering": "Catering in Boden",
+        "title": "Order takeaway and catering",
+        "description": "Nordic Eatery offers fresh Polish comfort food, burgers, crispy fries, street food, takeaway and catering.",
+        "takeaway": "Order takeaway",
+        "burgers": "Street food in Norrbotten",
+        "catering": "Catering",
         "menu": "View full menu",
-        "deliveryShort": "Delivery",
-        "takeawayShort": "Takeaway",
-        "burgersShort": "Burgers",
+        "takeawayShort": "Order takeaway",
+        "burgersShort": "Street food in Norrbotten",
         "cateringShort": "Catering",
-        "menuShort": "Menu"
+        "menuShort": "Menu",
+        "deliveryShort": "Lunch boxes"
       }
     },
     "menu": {
@@ -332,7 +244,6 @@
         "vegan": "Vegan",
         "gluten_free": "Gluten free"
       },
-      "eyebrow": "Menu",
       "title": "Choose your Polish food",
       "subtitle": "Fresh dishes made to order and selected items available from stock.",
       "categories": {
@@ -366,10 +277,8 @@
       "finalTitle": "Built for people who value good food",
       "finalText": "No waiting. No overpricing. Just good food made the right way.",
       "badge": "Polish street food with a Swedish twist",
-      "foodEyebrow": "Our food",
       "foodTitle": "Polish flavours with Swedish notes",
       "foodText": "We prepare our food from scratch as much as possible and aim to use fresh and Swedish ingredients. Mike’s dishes are inspired by classic Polish street food and ingredients from Sweden.",
-      "ctaEyebrow": "Catering & events",
       "ctaTitle": "Need food for your event?",
       "ctaText": "Book catering, a food truck or a chef for your private party, company event, festival or special occasion. If you want a custom menu, contact us and we will do our best to meet your wishes.",
       "ctaBook": "Book us",
@@ -378,7 +287,6 @@
     },
     "booking": {
       "sending": "Sending...",
-      "eyebrow": "Book your table",
       "title": "Booking",
       "subtitle": "Book a table, catering or Mike's Food Truck and we will confirm your request as soon as possible.",
       "bookingType": "Type of booking",
@@ -423,7 +331,6 @@
       "messagePlaceholder": "Any special requests?",
       "consent": "I agree that my personal data is processed for this booking request.",
       "button": "Send booking request",
-      "successEyebrow": "Booking sent",
       "successTitle": "Thank you!",
       "successText": "We have received your booking request and will contact you shortly.",
       "error": "Something went wrong. Please try again.",
@@ -448,7 +355,6 @@
       "tableGuestsMinimumError": "Minimum table booking is 2 guests."
     },
     "mikes": {
-      "eyebrow": "Mike's Food Truck",
       "title": "Book our food truck for your event",
       "subtitle": "Bring Mike's Food to your party, company event, festival, private celebration or special occasion.",
       "button": "Book food truck",
@@ -465,7 +371,6 @@
       "heroImage": ""
     },
     "catering": {
-      "eyebrow": "Catering",
       "title": "Food for events, teams and celebrations",
       "subtitle": "Fresh food for private parties, business lunches, company events, festivals and larger groups.",
       "button": "Request catering",
@@ -479,7 +384,7 @@
       "provideTitle": "What we can provide",
       "provideCustomMenu": "Custom menu options",
       "provideGroups": "Food for small and large groups",
-      "providePickup": "Pickup or delivery options",
+      "providePickup": "Pickup by arrangement",
       "provideFoodTruck": "Food truck on location",
       "providePlanning": "Simple event planning",
       "provideFastCommunication": "Fast communication",
@@ -488,7 +393,6 @@
       "ctaButton": "Send catering request"
     },
     "contact": {
-      "eyebrow": "Contact",
       "title": "Get in touch",
       "subtitle": "Questions, bookings, catering or events — contact Nordic Eatery and we’ll get back to you.",
       "phone": "Phone",
@@ -507,11 +411,10 @@
       "ctaButton": "Go to booking"
     },
     "support": {
-      "eyebrow": "Support",
       "title": "Need help?",
       "subtitle": "If you have questions about your order, booking or catering — we are here to help.",
-      "q1": "How long does delivery take?",
-      "a1": "Usually between 30–40 minutes depending on demand.",
+      "q1": "How long does food preparation take?",
+      "a1": "Preparation time varies depending on demand and the size of your order.",
       "q2": "Can I book the food truck?",
       "a2": "Yes, go to the Mike’s page or Booking page and send a request.",
       "q3": "Do you offer catering?",
@@ -524,7 +427,6 @@
       "booking": "Booking"
     },
     "terms": {
-      "eyebrow": "Terms and Conditions",
       "title": "Terms and Conditions",
       "subtitle": "These terms apply to all orders made through Nordic Eatery.",
       "orderingTitle": "Ordering",
@@ -533,8 +435,8 @@
       "pricesText": "All prices are shown in SEK and include applicable taxes. The final order total is shown before payment.",
       "paymentTitle": "Payment",
       "paymentText": "We accept card payments, Apple Pay, Google Pay, Swish and cash when available. Card payments are processed securely through Stripe. Swish payments are processed through Swish.",
-      "deliveryTitle": "Delivery and pickup",
-      "deliveryText": "Orders can be delivered or picked up depending on availability. Delivery times are estimates and may vary depending on demand, weather and distance.",
+      "deliveryTitle": "Pickup",
+      "deliveryText": "Order online and collect your food from our food truck. Check the current location and opening hours when ordering. Preparation time varies depending on demand and order size.",
       "cancellationTitle": "Cancellation",
       "cancellationText": "Orders can be cancelled before preparation has started. Once food preparation has started, cancellation may not be possible.",
       "refundsTitle": "Refunds and complaints",
@@ -543,13 +445,12 @@
       "contactText": "For questions, complaints, refunds or payment issues, contact us at kontakt@nordiceatery.se or by phone."
     },
     "privacy": {
-      "eyebrow": "Privacy Policy",
       "title": "Privacy Policy",
       "subtitle": "We respect your privacy and handle your personal data responsibly.",
       "dataTitle": "Data we collect",
       "dataText": "When you place an order, we may collect your name, phone number, address, order details and payment status.",
       "usageTitle": "How we use your data",
-      "usageText": "We use your data to process orders, deliver food, handle payments, provide customer support and improve our service.",
+      "usageText": "We use your data to process orders, prepare food, handle payments, provide customer support and improve our service.",
       "paymentsTitle": "Payments",
       "paymentsText": "Payments may be processed through Stripe and Swish. We do not store full card details on our website.",
       "storageTitle": "Data storage",
@@ -560,17 +461,21 @@
       "contactText": "For privacy questions, contact us at kontakt@nordiceatery.se."
     },
     "checkout": {
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "emailHelp": "Required only if you want to create a customer profile and collect discounts.",
+      "fulfillmentUnavailable": "Pickup is currently unavailable.",
+      "paymentsUnavailable": "No payment methods are currently available. Please contact the restaurant.",
       "emptyTitle": "Cart is empty",
       "emptyText": "Add food to your cart before checkout.",
       "goToMenu": "Go to menu",
-      "eyebrow": "Secure checkout",
       "title": "Checkout",
-      "subtitle": "Add your delivery details and choose how you want to pay.",
+      "subtitle": "Add your contact details and choose how you want to pay.",
       "name": "Name",
       "namePlaceholder": "Your name",
       "phone": "Phone",
       "phonePlaceholder": "+46...",
-      "deliveryType": "Delivery type",
+      "deliveryType": "How to get your food",
       "delivery": "Delivery",
       "deliveryTime": "30–40 min",
       "pickup": "Pickup",
@@ -587,7 +492,7 @@
       "swish": "Swish",
       "swishText": "Pay after order",
       "cash": "Cash",
-      "cashText": "On delivery",
+      "cashText": "At pickup",
       "swishInfo": "Pay with Swish after placing the order. Your order will be marked as awaiting payment until the payment is confirmed.",
       "cardInfo": "You will be redirected to Stripe. Card, Apple Pay and Google Pay are processed securely.",
       "comment": "Comment",
@@ -604,7 +509,7 @@
       "processing": "Processing...",
       "continuePayment": "Continue to payment",
       "placeOrder": "Place order",
-      "bottomInfo": "Delivery estimate: 30–40 min. For complaints or refunds, contact kontakt@nordiceatery.se.",
+      "bottomInfo": "Collect your order from our food truck. For complaints or refunds, contact kontakt@nordiceatery.se.",
       "stripeError": "Stripe payment could not be started.",
       "orderError": "Order could not be created.",
       "generalError": "Something went wrong. Please try again.",
@@ -618,7 +523,6 @@
   },
   "admin": {
     "shift": {
-      "eyebrow": "Kitchen shift",
       "checking": "Checking",
       "open": "Open",
       "closed": "Closed",
@@ -633,12 +537,34 @@
       "closeButton": "Close shift",
       "addressLabel": "Food truck address",
       "addressPlaceholder": "E.g. Kungsgatan 12, Boden",
-      "addressHint": "Shown to customers at checkout while the shift is open.",
+      "addressHint": "GPS fills in the address automatically. Check and adjust it if needed before saving.",
       "errors": {
         "load": "Could not load shift state.",
         "update": "Could not update shift.",
-        "addressRequired": "Enter the food truck address to open the shift."
-      }
+        "addressRequired": "Enter the food truck address to open the shift.",
+        "invalidCoordinates": "Enter both coordinates: latitude −90 to 90, longitude −180 to 180.",
+        "locationRequired": "Enter an address or a map point.",
+        "invalidAddress": "Check the address: maximum 300 characters.",
+        "invalidInput": "Check the entered details.",
+        "geolocationUnsupported": "This browser does not support geolocation. Enter coordinates manually.",
+        "geolocationDenied": "Location access was denied. Allow it in browser settings or enter coordinates manually.",
+        "geolocationTimeout": "Finding your location took too long. Try again or enter coordinates manually.",
+        "geolocationUnavailable": "Your location could not be found. Try again or enter coordinates manually.",
+        "geocodingUnavailable": "The address could not be found. Enter it manually and save."
+      },
+      "coordinatesTitle": "Foodtruck location",
+      "coordinatesHint": "Get your phone’s position while at the foodtruck, or enter coordinates. Check the map and save to show the location to customers.",
+      "locateButton": "Use my current location",
+      "locating": "Finding location…",
+      "cancelLocation": "Cancel",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "accuracy": "Accuracy: about {meters} m. Check the point on the map.",
+      "previewMap": "Preview on map",
+      "clearCoordinates": "Remove coordinates",
+      "saveLocation": "Save location",
+      "locationSaved": "Location saved. Shift status has not changed.",
+      "findAddress": "Find address from coordinates"
     },
     "businessSettingsForm": {
       "business": {
@@ -740,7 +666,6 @@
       }
     },
     "documentation": {
-      "eyebrow": "CRM documentation",
       "title": "Documentation",
       "subtitle": "Internal guide for managing orders, products, kitchen display, staff roles, settings and deployment.",
       "accessBadge": "Owner / Admin guide",
@@ -810,7 +735,6 @@
       }
     },
     "settings": {
-      "eyebrow": "Business settings",
       "title": "Settings",
       "subtitle": "Manage restaurant information, delivery options, payment settings and operational preferences.",
       "accessBadge": "Owner / Admin access",
@@ -824,7 +748,6 @@
       "updating": "Updating..."
     },
     "reservations": {
-      "eyebrow": "Reservation management",
       "title": "Reservations",
       "subtitle": "Manage customer bookings, guest counts, confirmation statuses and reservation notes.",
       "flow": "Reservation flow",
@@ -856,7 +779,6 @@
       }
     },
     "menuAdmin": {
-      "eyebrow": "Menu Management",
       "title": "Menu",
       "subtitle": "Organize your restaurant menu by categories, availability, stock and product performance.",
       "viewProducts": "View Products",
@@ -971,7 +893,6 @@
       "daysAgo": "{count} d ago"
     },
     "analytics": {
-      "eyebrow": "Business analytics",
       "title": "Analytics",
       "subtitle": "Track sales, orders, delivery flow, payment methods and kitchen activity from real Supabase data.",
       "lastOrders": "Last {count} orders",
@@ -1015,7 +936,6 @@
     "reports": {
       "exportPdf": "Export PDF",
       "exportCsv": "Export CSV",
-      "eyebrow": "Accounting report",
       "title": "Online Sales Reports",
       "description": "Paid online orders only. This report includes website orders completed remotely and keeps them separate from payments handled on site.",
       "period": "Period",
@@ -1074,7 +994,6 @@
     },
     "account": {
       "title": "My account",
-      "eyebrow": "Account settings",
       "subtitle": "View your staff profile, role permissions and account access.",
       "staffMember": "Staff member",
       "noEmail": "No email",
@@ -1120,6 +1039,7 @@
       "formTitleEdit": "Edit product",
       "productName": "Product name",
       "subtitle": "Subtitle",
+      "subtitleOptional": "Subtitle (optional)",
       "category": "Category",
       "priceKr": "Price, kr",
       "badge": "Badge",
@@ -1137,10 +1057,11 @@
       "uploadPhoto": "Upload photo",
       "uploading": "Uploading...",
       "nameRequired": "Product name is required.",
-      "saveError": "Something went wrong"
+      "saveError": "Something went wrong",
+      "editCategoryName": "Rename category with the pencil",
+      "categoryNameHint": "Saves the name for the whole category in the selected language."
     },
     "inventory": {
-      "eyebrow": "Inventory control",
       "title": "Inventory",
       "subtitle": "Manage product stock. If tracked stock is 0, the product is hidden from the customer menu.",
       "productsCount": "{count} products",
@@ -1170,7 +1091,6 @@
       "cancel": "Cancel"
     },
     "orders": {
-      "eyebrow": "Orders",
       "title": "Order management",
       "subtitle": "Manage customer orders, payment status, delivery flow and kitchen progress in one place.",
       "total": "Total",
@@ -1240,7 +1160,14 @@
         "preparingDescription": "Orders currently in the kitchen.",
         "readyTitle": "Ready",
         "readyDescription": "Ready for pickup or delivery."
-      }
+      },
+      "enableSound": "Enable sound",
+      "soundOn": "Sound on · mute",
+      "testSound": "Test sound",
+      "soundHint": "Enable sound after opening this page and keep the kitchen page open.",
+      "soundFailed": "Your browser paused audio. Press Enable sound again.",
+      "loadFailed": "Could not load orders. Retrying.",
+      "pickupAt": "Ready {time}"
     },
     "workspace": {
       "operations": "Operations",
@@ -1292,6 +1219,116 @@
       "stockCount": "{count} in stock",
       "popular": "Popular",
       "noDescription": "No description"
+    },
+    "groupSlots": {
+      "title": "SSAB group order times",
+      "description": "Daily slots in Swedish time (Europe/Stockholm). One group per slot. Add, change or disable times, then save.",
+      "preserveBookings": "Changes apply immediately to new bookings. Existing orders keep their reserved time.",
+      "loading": "Loading slots…",
+      "time": "Time {index}",
+      "enabled": "Enabled",
+      "removeSlot": "Remove slot {index}",
+      "add": "Add slot",
+      "save": "Save slots",
+      "saving": "Saving…",
+      "saved": "Slots saved. The menu updates automatically.",
+      "empty": "No active slots. New group orders are paused and the menu shows the email notification form.",
+      "invalidSchedule": "Enter valid, unique times in HH:MM format. Maximum 48 slots.",
+      "scheduleConflict": "The schedule changed in another window. Reload the saved slots before trying again.",
+      "forbidden": "Only owners and administrators can change slots.",
+      "unavailable": "Could not load or save slots. Reload the current schedule and try again.",
+      "reload": "Reload saved slots"
+    }
+  },
+  "catalog": {
+    "dietaryFilters": "Dietary preferences",
+    "previous": "Previous categories",
+    "next": "Next categories",
+    "categories": "Menu categories",
+    "empty": "No dishes match this filter."
+  },
+  "customization": {
+    "required": "Required",
+    "optional": "Optional",
+    "chooseExact": "Choose {count}",
+    "chooseRange": "Choose {min}–{max}",
+    "included": "Included",
+    "clear": "Clear choice",
+    "completeRequired": "Choose an option in every required group to continue.",
+    "unavailable": "This dish cannot be customized right now."
+  },
+  "modifierEditor": {
+    "title": "Ingredients & choices",
+    "description": "Create required choices for meat, sauce or filling. Add “No onion” or “No sauce” as explicit options. Prices are additions to the base price. Minimum 1 makes a choice required; minimum 0 makes it optional.",
+    "group": "Group {number}",
+    "groupName": "Group name",
+    "groupPlaceholder": "Meat, sauce, filling…",
+    "removeGroup": "Remove group",
+    "minimum": "Minimum choices",
+    "maximum": "Maximum choices",
+    "optionName": "Option",
+    "extraPrice": "Extra (kr)",
+    "removeOption": "Remove option",
+    "addOption": "Add option",
+    "addGroup": "Add group",
+    "optionPlaceholder": "Chicken / No onion"
+  },
+  "combo": {
+    "title": "Add a drink to your meal?",
+    "description": "Make it a combo: save 5 kr on one drink per main dish. Choose a drink or continue without one.",
+    "chooseDrink": "Choose a drink",
+    "drinkQuantity": "Number of drinks",
+    "back": "Back to your meal",
+    "saving": "Combo: you save {amount}",
+    "addCombo": "Add combo",
+    "skip": "Continue without a drink",
+    "discount": "Combo discount",
+    "addFailed": "Could not add your selection. Check quantities and try again."
+  },
+  "sauceOffer": {
+    "title": "Would you like a dip?",
+    "description": "Choose a sauce for your side or continue without one. The sauce is added at its menu price.",
+    "chooseSauce": "Choose a sauce",
+    "sauceQuantity": "Number of sauces",
+    "back": "Back to food",
+    "addWithSauce": "Add with sauce",
+    "skip": "Continue without sauce"
+  },
+  "truckLocation": {
+    "title": "Find our foodtruck",
+    "exactPoint": "The exact location is marked on the map",
+    "openMap": "Open map",
+    "directions": "Get directions"
+  },
+  "orderEntry": {
+    "title": "How would you like to order?",
+    "close": "Close",
+    "regularTitle": "Regular online order",
+    "regularLocation": "Camp West – Minimill",
+    "regularHours": "10:30–13:30",
+    "regularDays": "Monday–Friday",
+    "regularPickup": "Pick up at the foodtruck at Camp West.",
+    "regularAction": "View menu",
+    "groupTitle": "Group order – SSAB",
+    "groupLocation": "Outside the Minimill area",
+    "groupTimes": "Scheduled pickup times · Swedish time",
+    "groupPickup": "Pick up at the designated turnstile.",
+    "groupAction": "Start group order",
+    "groupFull": "Today’s group order slots have ended.",
+    "notifyAction": "Notify me when slots are available"
+  },
+  "takeawayGallery": {
+    "label": "Our meal boxes",
+    "carousel": "Slideshow",
+    "previous": "Previous photo",
+    "next": "Next photo",
+    "show": "Show photo {number}",
+    "position": "Photo {number} of {total}",
+    "photos": {
+      "meal-rice": "Meal boxes with rice and sauce",
+      "meal-potatoes": "Meal boxes with potatoes and creamy sauce",
+      "meal-meatballs": "Meatballs with mashed potatoes and lingonberries",
+      "meal-fish": "Breaded fish with potatoes and peas"
     }
   }
 }

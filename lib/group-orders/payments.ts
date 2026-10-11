@@ -143,7 +143,12 @@ export async function startGroupPayment(
   const row = await changeGroup(id, (state) => {
     requireMember(state, hash);
     if (
-      !["locked", "paying"].includes(state.status) ||
+      !(
+        ["locked", "paying"].includes(state.status) ||
+        (state.status === "open" &&
+          state.mode === "split" &&
+          state.individualCheckout)
+      ) ||
       !state.paymentDeadline ||
       Date.parse(state.paymentDeadline) <= Date.now()
     )
@@ -163,7 +168,7 @@ export async function startGroupPayment(
     }
     if (method === "cash") payment.status = "pay_on_site";
     payment.attemptedAt ||= new Date().toISOString();
-    state.status = "paying";
+    if (state.status !== "open") state.status = "paying";
     return state;
   });
   const payment = row.state.payments.find(

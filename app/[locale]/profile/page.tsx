@@ -1,5 +1,7 @@
 "use client";
 
+import { EditableCopy } from "@/components/site-content/EditableCopy";
+
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -270,12 +272,10 @@ export default function CustomerProfilePage() {
                     <RefreshCw className="mx-auto h-10 w-10 animate-spin text-paprika" />
 
                     <h1 className="mt-5 text-3xl font-black text-dark">
-                        Loading profile...
-                    </h1>
+                        <EditableCopy value={"Loading profile..."} textKey="screen.profile.loading-profile" page="profile" /></h1>
 
                     <p className="mt-2 text-sm leading-6 text-dark/55">
-                        Please wait while we load your customer profile.
-                    </p>
+                        <EditableCopy value={"Please wait while we load your customer profile."} textKey="screen.profile.please-wait-while-we-load-your-customer-profile" page="profile" /></p>
                 </section>
             </main>
         );
@@ -288,8 +288,7 @@ export default function CustomerProfilePage() {
                     <UserRound className="mx-auto h-12 w-12 text-paprika" />
 
                     <h1 className="mt-5 text-3xl font-black text-dark">
-                        Profile not found
-                    </h1>
+                        <EditableCopy value={"Profile not found"} textKey="screen.profile.profile-not-found" page="profile" /></h1>
 
                     <p className="mt-3 text-sm leading-6 text-dark/60">
                         {message ||
@@ -297,8 +296,7 @@ export default function CustomerProfilePage() {
                     </p>
 
                     <Link href={`/${locale}/profile/login`} className="btn-primary mt-6">
-                        Login again
-                    </Link>
+                        <EditableCopy value={"Login again"} textKey="screen.profile.login-again" page="profile" /></Link>
                 </section>
             </main>
         );
@@ -312,8 +310,7 @@ export default function CustomerProfilePage() {
                     className="inline-flex items-center gap-2 rounded-full border border-dark/10 bg-white/70 px-4 py-2 text-sm font-black text-dark/60 transition hover:text-paprika"
                 >
                     <ArrowLeft className="h-4 w-4" />
-                    Back to home
-                </Link>
+                    <EditableCopy value={"Back to home"} textKey="screen.profile.back-to-home" page="profile" /></Link>
 
                 <div className="mt-8 grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
                     <section className="glass-card p-6 sm:p-8">
@@ -330,11 +327,7 @@ export default function CustomerProfilePage() {
                                 </div>
                             )}
 
-                            <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-paprika/70">
-                                Nordic Eatery member
-                            </p>
-
-                            <h1 className="mt-2 text-3xl font-black tracking-[-0.04em] text-dark">
+                            <h1 className="mt-5 text-3xl font-black tracking-[-0.04em] text-dark">
                                 {profile.fullName || "Customer"}
                             </h1>
 
@@ -352,8 +345,7 @@ export default function CustomerProfilePage() {
 
                             {authEmail ? (
                                 <p className="mt-4 rounded-full bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700">
-                                    Social login active
-                                </p>
+                                    <EditableCopy value={"Social login active"} textKey="screen.profile.social-login-active" page="profile" /></p>
                             ) : null}
                         </div>
 
@@ -364,8 +356,7 @@ export default function CustomerProfilePage() {
                                 className="btn-secondary flex w-full items-center justify-center gap-2"
                             >
                                 <RefreshCw className="h-5 w-5" />
-                                Refresh profile
-                            </button>
+                                <EditableCopy value={"Refresh profile"} textKey="screen.profile.refresh-profile" page="profile" /></button>
 
                             <button
                                 type="button"
@@ -373,26 +364,18 @@ export default function CustomerProfilePage() {
                                 className="flex w-full items-center justify-center gap-2 rounded-2xl border border-paprika/15 bg-paprika/10 px-5 py-3 font-black text-paprika transition hover:bg-paprika hover:text-white"
                             >
                                 <LogOut className="h-5 w-5" />
-                                Logout
-                            </button>
+                                <EditableCopy value={"Logout"} textKey="screen.profile.logout" page="profile" /></button>
                         </div>
                     </section>
 
                     <section className="glass-card p-6 sm:p-8">
                         <div>
-                            <p className="text-sm font-black uppercase tracking-[0.22em] text-paprika/70">
-                                My rewards
-                            </p>
-
-                            <h2 className="mt-2 text-3xl font-black tracking-[-0.04em] text-dark">
-                                Your loyalty profile
-                            </h2>
+                            <h2 className="text-3xl font-black tracking-[-0.04em] text-dark">
+                                <EditableCopy value={"Your loyalty profile"} textKey="screen.profile.your-loyalty-profile" page="profile" /></h2>
 
                             <p className="mt-2 text-sm leading-6 text-dark/60">
-                                Collect 1 stamp for every paid order over 150 kr.
-                                A full card of {STAMPS_PER_REWARD} stamps gives you{" "}
-                                {REWARD_VALUE} kr off a future order.
-                            </p>
+                                <EditableCopy value={"Collect 1 stamp for every paid order over 150 kr. A full card of"} textKey="screen.profile.collect-1-stamp-for-every-paid-order-over-150-kr-a-full-card-of" page="profile" />{STAMPS_PER_REWARD} <EditableCopy value={"stamps gives you"} textKey="screen.profile.stamps-gives-you" page="profile" />{" "}
+                                {REWARD_VALUE} <EditableCopy value={"kr off a future order."} textKey="screen.profile.kr-off-a-future-order" page="profile" /></p>
                         </div>
 
                         <div className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -429,8 +412,7 @@ export default function CustomerProfilePage() {
                                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                         <div>
                                             <p className="font-black text-dark">
-                                                Next reward: {REWARD_VALUE} kr off
-                                            </p>
+                                                <EditableCopy value={"Next reward:"} textKey="screen.profile.next-reward" page="profile" />{REWARD_VALUE} <EditableCopy value={"kr off"} textKey="screen.profile.kr-off" page="profile" /></p>
 
                                             <p className="mt-1 text-sm leading-6 text-dark/55">
                                                 {rewardsAvailable > 0
@@ -441,8 +423,7 @@ export default function CustomerProfilePage() {
 
                                         <div className="text-left sm:text-right">
                                             <p className="text-xs font-bold text-dark/45">
-                                                Total spent
-                                            </p>
+                                                <EditableCopy value={"Total spent"} textKey="screen.profile.total-spent" page="profile" /></p>
                                             <p className="font-black text-dark">
                                                 {formatCurrency(profile.totalSpentGross, locale)}
                                             </p>
@@ -461,14 +442,14 @@ export default function CustomerProfilePage() {
 
                         <div className="mt-5 grid gap-3 rounded-[2rem] border border-dark/10 bg-white/60 p-5 text-sm sm:grid-cols-2">
                             <div>
-                                <p className="font-bold text-dark/45">Last order</p>
+                                <p className="font-bold text-dark/45"><EditableCopy value={"Last order"} textKey="screen.profile.last-order" page="profile" /></p>
                                 <p className="mt-1 font-black text-dark">
                                     {formatDate(profile.lastOrderAt, locale)}
                                 </p>
                             </div>
 
                             <div>
-                                <p className="font-bold text-dark/45">Member since</p>
+                                <p className="font-bold text-dark/45"><EditableCopy value={"Member since"} textKey="screen.profile.member-since" page="profile" /></p>
                                 <p className="mt-1 font-black text-dark">
                                     {formatDate(profile.createdAt, locale)}
                                 </p>
@@ -477,9 +458,7 @@ export default function CustomerProfilePage() {
 
                         {!profile.phone ? (
                             <div className="mt-5 rounded-3xl border border-paprika/15 bg-paprika/10 p-4 text-sm font-bold leading-6 text-paprika">
-                                Add your phone later to connect orders made with phone number to
-                                this profile.
-                            </div>
+                                <EditableCopy value={"Add your phone later to connect orders made with phone number to this profile."} textKey="screen.profile.add-your-phone-later-to-connect-orders-made-with-phone-number-to-this-profile" page="profile" /></div>
                         ) : null}
                     </section>
                 </div>

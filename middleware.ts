@@ -2,6 +2,7 @@ import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { routing } from "./i18n/routing";
+import { getPublicPath } from "./i18n/paths";
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -17,8 +18,8 @@ const intlMiddleware = createMiddleware(routing);
  * untouched so routing (and the public site) never breaks.
  */
 async function refreshSupabaseSession(
-    request: NextRequest,
-    response: NextResponse
+  request: NextRequest,
+  response: NextResponse,
 ) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -73,16 +74,16 @@ function getPreferredLocale(request: NextRequest) {
   const savedLocale = request.cookies.get("NEXT_LOCALE")?.value;
 
   if (
-      savedLocale &&
-      supportedLocales.includes(savedLocale as (typeof supportedLocales)[number])
+    savedLocale &&
+    supportedLocales.includes(savedLocale as (typeof supportedLocales)[number])
   ) {
     return savedLocale;
   }
 
   const country =
-      request.headers.get("x-vercel-ip-country") ||
-      request.headers.get("cf-ipcountry") ||
-      null;
+    request.headers.get("x-vercel-ip-country") ||
+    request.headers.get("cf-ipcountry") ||
+    null;
 
   const localeFromCountry = getLocaleFromCountry(country);
 
@@ -94,14 +95,14 @@ export default async function middleware(request: NextRequest) {
 
   // Очень важно: API вообще не трогаем.
   if (
-      pathname.startsWith("/api/") ||
-      pathname === "/api" ||
-      pathname.startsWith("/_next") ||
-      pathname.startsWith("/_vercel") ||
-      pathname.includes(".") ||
-      pathname === "/favicon.ico" ||
-      pathname === "/robots.txt" ||
-      pathname === "/sitemap.xml"
+    pathname.startsWith("/api/") ||
+    pathname === "/api" ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/_vercel") ||
+    pathname.includes(".") ||
+    pathname === "/favicon.ico" ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml"
   ) {
     return NextResponse.next();
   }
@@ -116,6 +117,17 @@ export default async function middleware(request: NextRequest) {
 
   if (!hasLocale && pathname === "/") {
     return NextResponse.redirect(new URL("/sv", request.url));
+  }
+
+  // Redirect the visitor's URL before rewriting to an internal App Router page.
+  if (hasLocale) {
+    const locale = pathname.split("/")[1];
+    const canonicalPath = getPublicPath(locale, pathname);
+    if (canonicalPath !== pathname) {
+      const url = request.nextUrl.clone();
+      url.pathname = canonicalPath;
+      return NextResponse.redirect(url, 308);
+    }
   }
 
   const response = intlMiddleware(request);

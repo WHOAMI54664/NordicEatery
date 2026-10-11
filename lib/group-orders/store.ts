@@ -1,3 +1,11 @@
+import { selectionKey } from "../menu-options";
+import {
+  validPickupTime,
+  validParticipantCount,
+  isGroupAvailability,
+  type GroupAvailability,
+} from "./slots";
+import { groupSwishEnabled } from "./swish";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
@@ -14,6 +22,7 @@ import {
   parseCustomer,
   priceGroup,
   lockGroup,
+  freezeMemberSelection,
   requireMember,
   requireHost,
   requireOpen,
@@ -73,7 +82,9 @@ export async function changeGroup(
 export async function catalog(): Promise<CatalogProduct[]> {
   const { data, error } = await groupDb()
     .from("products")
-    .select("id, name, price, is_available, track_stock, stock_quantity")
+    .select(
+      "id, name, price, category, is_available, track_stock, stock_quantity, modifier_groups",
+    )
     .limit(1000);
   if (error) throw new GroupError("unavailable", 503);
   return data || [];
@@ -81,6 +92,7 @@ export async function catalog(): Promise<CatalogProduct[]> {
 export async function checkoutSettings(
   deliveryType: "delivery" | "pickup",
   method?: GroupPaymentMethod,
+  booking = false,
 ) {
   const db = groupDb();
   const [shift, settings] = await Promise.all([
@@ -99,8 +111,10 @@ export async function checkoutSettings(
   ]);
   if (shift.error || settings.error || !shift.data || !settings.data)
     throw new GroupError("unavailable", 503);
-  if (!shift.data.is_open) throw new GroupError("kitchenClosed", 409);
+  if (!booking && !shift.data.is_open)
+    throw new GroupError("kitchenClosed", 409);
   const options = settings.data;
+  options.swish_enabled = options.swish_enabled && groupSwishEnabled();
   if (
     !options[`${deliveryType}_enabled`] ||
     (method
@@ -116,6 +130,17 @@ export async function newGroup(
   token: string,
 ): Promise<GroupRow> {
   const data = record(input);
+  if (!validPickupTime(data.pickupAt, Date.now()))
+    throw new GroupError("slotUnavailable", 409);
+  if (!validParticipantCount(data.participantCount))
+    throw new GroupError("invalidParticipantCount");
+  if (
+    typeof data.reservationId !== "string" ||
+    !UUID.test(data.reservationId) ||
+    !Number.isSafeInteger(data.reservationVersion) ||
+    Number(data.reservationVersion) < 1
+  )
+    throw new GroupError("reservationExpired", 409);
   const member: GroupMember = {
     id: randomUUID(),
     tokenHash: tokenHash(token),
@@ -129,9 +154,52 @@ export async function newGroup(
     version: 1,
     state: createGroup(input, member, randomUUID(), Date.now()),
   };
-  const { error } = await groupDb().from("group_orders").insert(row);
-  if (error) throw new GroupError("unavailable", 503);
-  return row;
+  if (row.state.mode === "split") {
+    const method = data.paymentMethod;
+    if (method !== "card" && method !== "swish" && method !== "cash")
+      throw new GroupError("invalidInput");
+    const customer = parseCustomer(data.customer);
+    await checkoutSettings(customer.deliveryType, method, true);
+    row.state.customer = customer;
+    row.state.paymentMethod = method;
+    row.state.individualCheckout = true;
+    row.state.paymentDeadline = row.state.expiresAt;
+  }
+  const { data: saved, error } = await groupDb().rpc("create_reserved_group", {
+    p_id: row.id,
+    p_state: row.state,
+    p_token_hash: tokenHash(token),
+    p_reservation_id: data.reservationId,
+    p_version: data.reservationVersion,
+  });
+  if (error) throw groupStorageError(error);
+  if (!saved?.id || !saved.state) throw new GroupError("unavailable", 503);
+  return saved as GroupRow;
+}
+
+export function groupStorageError(error: { message?: string }) {
+  const codes = [
+    "slotUnavailable",
+    "capacityExhausted",
+    "reservationExpired",
+    "reservationConflict",
+    "groupFull",
+  ];
+  return error.message && codes.includes(error.message)
+    ? new GroupError(error.message, 409)
+    : new GroupError("unavailable", 503);
+}
+
+export async function groupAvailability(
+  db = groupDb(),
+  reservationHash?: string,
+): Promise<GroupAvailability> {
+  const { data, error } = reservationHash
+    ? await db.rpc("group_slot_availability", { p_token_hash: reservationHash })
+    : await db.rpc("group_pickup_availability");
+  if (error || !isGroupAvailability(data))
+    throw new GroupError("unavailable", 503);
+  return data as GroupAvailability;
 }
 
 export async function actOnGroup(
@@ -141,7 +209,9 @@ export async function actOnGroup(
 ): Promise<GroupRow> {
   const data = record(input);
   const action = textField(data.action, 30);
-  const products = ["items", "lock"].includes(action) ? await catalog() : [];
+  const products = ["items", "lock", "ready"].includes(action)
+    ? await catalog()
+    : [];
   const customer = action === "lock" ? parseCustomer(data.customer) : null;
   const method = data.paymentMethod ?? "card";
   if (customer) {
@@ -155,7 +225,7 @@ export async function actOnGroup(
       if (state.members.some((member) => member.tokenHash === hash))
         return state;
       requireOpen(state, now);
-      if (state.members.length >= MAX_MEMBERS)
+      if (state.members.length >= (state.participantCount ?? MAX_MEMBERS))
         throw new GroupError("groupFull", 409);
       state.members.push({
         id: randomUUID(),
@@ -169,6 +239,8 @@ export async function actOnGroup(
     }
     const me = requireMember(state, hash);
     if (action === "items" || action === "ready") {
+      if (state.payments.some((p) => p.memberId === me.id && p.attemptedAt))
+        throw new GroupError("selectionPaid", 409);
       if (action === "ready" && data.ready === true) {
         // The deadline freezes dishes, but guests can still confirm that selection.
         if (state.status !== "open" || Date.parse(state.expiresAt) <= now)
@@ -181,8 +253,11 @@ export async function actOnGroup(
         const increasesQuantity = items.some(
           (item) =>
             item.quantity >
-            (me.items.find((previous) => previous.productId === item.productId)
-              ?.quantity || 0),
+            (me.items.find(
+              (previous) =>
+                selectionKey(previous.productId, previous.selections) ===
+                selectionKey(item.productId, item.selections),
+            )?.quantity || 0),
         );
         me.items = items;
         // Always allow removal, even if other dishes have since sold out.
@@ -204,6 +279,14 @@ export async function actOnGroup(
       } else {
         if (typeof data.ready !== "boolean")
           throw new GroupError("invalidInput");
+        if (state.individualCheckout && state.mode === "split") {
+          if (data.ready)
+            freezeMemberSelection(state, me, products, randomUUID);
+          else {
+            state.lines = state.lines.filter((line) => line.memberId !== me.id);
+            state.payments = state.payments.filter((p) => p.memberId !== me.id);
+          }
+        }
         me.ready = data.ready;
       }
       me.revision++;
@@ -220,8 +303,20 @@ export async function actOnGroup(
     if (action === "remove") {
       if (state.status !== "open") throw new GroupError("locked", 409);
       if (data.memberId === state.hostId) throw new GroupError("invalidInput");
+      if (
+        state.payments.some(
+          (p) => p.memberId === data.memberId && p.attemptedAt,
+        )
+      )
+        throw new GroupError("selectionPaid", 409);
       state.members = state.members.filter(
         (member) => member.id !== data.memberId,
+      );
+      state.payments = state.payments.filter(
+        (p) => p.memberId !== data.memberId,
+      );
+      state.lines = state.lines.filter(
+        (line) => line.memberId !== data.memberId,
       );
       return state;
     }
@@ -234,15 +329,28 @@ export async function actOnGroup(
       state.status = "open";
       state.payments = [];
       state.lines = [];
-      state.customer = null;
-      state.paymentDeadline = null;
+      if (!state.individualCheckout) state.customer = null;
+      state.paymentDeadline = state.individualCheckout ? state.expiresAt : null;
+      if (state.individualCheckout)
+        state.members.forEach((member) => {
+          member.ready = false;
+          member.revision++;
+        });
       return state;
     }
-    if (action === "lock" && customer)
+    if (action === "lock" && customer) {
+      if (
+        state.individualCheckout &&
+        (method !== state.paymentMethod ||
+          customer.deliveryType !== state.customer?.deliveryType ||
+          customer.address !== state.customer?.address)
+      )
+        throw new GroupError("conflict", 409);
       return {
         ...lockGroup(state, customer, products, randomUUID, now),
         paymentMethod: method as GroupPaymentMethod,
       };
+    }
     throw new GroupError("invalidInput");
   });
 }

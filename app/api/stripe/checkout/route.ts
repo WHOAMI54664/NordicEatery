@@ -225,6 +225,8 @@ export async function POST(request: Request) {
 
       return {
         id: item.id,
+                lineId: item.lineId,
+                selections: item.selections,
         name: item.name,
         quantity: item.quantity,
         price: item.price,
@@ -246,6 +248,15 @@ export async function POST(request: Request) {
     const deliveryFeeGross = roundMoney(
         deliveryType === "delivery" ? Math.max(0, safeNumber(deliveryFee)) : 0
     );
+
+    // Combo pricing can split a drink into full-price and discounted portions.
+    // Reject an oversized Stripe session before creating its pending order.
+    if (normalizedItems.length + (deliveryFeeGross > 0 ? 1 : 0) > 100) {
+      return NextResponse.json(
+          { error: "Too many items for card checkout. Reduce the number of different selections." },
+          { status: 400 }
+      );
+    }
 
     const subtotalBreakdown = calculateVatFromGross(subtotalGross, VAT_RATE);
     const deliveryFeeBreakdown = calculateVatFromGross(

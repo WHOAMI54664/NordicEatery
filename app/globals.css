@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes ssab-group-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(190 24 36 / 0.12); }
+  50% { box-shadow: 0 0 0 9px rgb(190 24 36 / 0.03), 0 8px 24px rgb(190 24 36 / 0.2); }
+}
+.ssab-group-cta { animation: ssab-group-pulse 2.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .ssab-group-cta { animation: none; }
+}
+
 :root {
   --background: #fff3ef;
   --foreground: #24140f;
@@ -100,3 +109,8 @@ body {
   }
 
 }
+
+.product-dialog { width: 100%; max-width: 600px; max-height: 92dvh; padding: 0; border: 0; border-radius: 2rem; background: transparent; color: var(--foreground); }
+.product-dialog::backdrop { background: rgba(25, 15, 12, .62); backdrop-filter: blur(4px); }
+@media (max-width: 639px) { .product-dialog { margin: auto 0 0; max-width: none; border-radius: 2rem 2rem 0 0; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

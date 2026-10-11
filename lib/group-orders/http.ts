@@ -97,3 +97,22 @@ export async function validWorkerSecret(request: Request) {
     timingSafeEqual(providedBytes, expectedBytes),
   );
 }
+
+export const reservationCookie = "ne_group_slot_reservation";
+export async function readReservationToken() {
+  const token = (await cookies()).get(reservationCookie)?.value;
+  return token && /^[a-f0-9]{64}$/.test(token) ? token : null;
+}
+export function setReservationCookie(
+  response: NextResponse,
+  token: string,
+  clear = false,
+) {
+  response.cookies.set(reservationCookie, clear ? "" : token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/api/group-orders",
+    maxAge: clear ? 0 : 24 * 60 * 60,
+  });
+}

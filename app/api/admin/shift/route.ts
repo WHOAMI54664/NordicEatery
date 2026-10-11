@@ -1,195 +1,255 @@
 import { sendOpeningEmails } from "@/lib/notifications/send-opening-emails";
-import { after } from "next/server";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { addressForCoordinates } from "@/lib/restaurant/geocoding";
+import { completeShiftLocation } from "@/lib/restaurant/location-update";
+import { rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { canManageOrders } from "@/lib/auth/roles";
+import {
+  parseCoordinates,
+  parseShiftUpdate,
+  shiftUpdatePayload,
+} from "@/lib/restaurant/location";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-type ShiftActionBody = {
-    action?: "open" | "close";
-    address?: string;
-};
+const fields =
+  "id, is_open, opened_at, closed_at, updated_at, location_address, location_latitude, location_longitude";
+
+async function authorizeManager() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user)
+    return {
+      response: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    };
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+  if (error)
+    return {
+      response: NextResponse.json(
+        { error: "Could not verify user role" },
+        { status: 503 },
+      ),
+    };
+  if (!canManageOrders(profile?.role))
+    return {
+      response: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+    };
+  return { userId: user.id };
+}
+
+function responseShift(data: {
+  is_open: boolean | null;
+  opened_at: string | null;
+  closed_at: string | null;
+  updated_at: string | null;
+  location_address: string | null;
+  location_latitude: number | null;
+  location_longitude: number | null;
+}) {
+  return {
+    isOpen: Boolean(data.is_open),
+    openedAt: data.opened_at || null,
+    closedAt: data.closed_at || null,
+    updatedAt: data.updated_at || null,
+    locationAddress: data.location_address || null,
+    coordinates:
+      data.location_latitude == null && data.location_longitude == null
+        ? null
+        : parseCoordinates({
+            latitude: data.location_latitude,
+            longitude: data.location_longitude,
+          }),
+  };
+}
 
 export async function GET() {
-    try {
-        const supabase = createAdminClient();
-
-        let { data, error } = await supabase
-            .from("restaurant_shift_state")
-            .select("id, is_open, opened_at, closed_at, opened_by, closed_by, updated_at, location_address")
-            .eq("id", 1)
-            .maybeSingle();
-
-        if (error) {
-            // Fallback for before the location_address migration is applied.
-            const fallback = await supabase
-                .from("restaurant_shift_state")
-                .select("id, is_open, opened_at, closed_at, opened_by, closed_by, updated_at")
-                .eq("id", 1)
-                .maybeSingle();
-
-            data = fallback.data as typeof data;
-            error = fallback.error;
-        }
-
-        if (error) {
-            console.error("Shift state fetch error:", error);
-
-            return NextResponse.json({ error: error.message }, { status: 500 });
-        }
-
-        return NextResponse.json({
-            success: true,
-            shift: {
-                isOpen: Boolean(data?.is_open),
-                openedAt: data?.opened_at || null,
-                closedAt: data?.closed_at || null,
-                updatedAt: data?.updated_at || null,
-                locationAddress:
-                    (data as { location_address?: string | null })
-                        ?.location_address || null,
-            },
-        });
-    } catch (error) {
-        console.error("Shift GET error:", error);
-
-        return NextResponse.json(
-            { error: "Could not load shift state" },
-            { status: 500 }
-        );
+  try {
+    const access = await authorizeManager();
+    if (access.response) return access.response;
+    const { data, error } = await createAdminClient({ timeoutMs: 10000 })
+      .from("restaurant_shift_state")
+      .select(fields)
+      .eq("id", 1)
+      .maybeSingle();
+    if (error || !data) {
+      console.error("Shift state fetch failed", {
+        code: error?.code || "missing_shift",
+      });
+      return NextResponse.json(
+        { error: "Could not load shift state" },
+        { status: 503 },
+      );
     }
+    return NextResponse.json({ success: true, shift: responseShift(data) });
+  } catch {
+    console.error("Shift state fetch failed");
+    return NextResponse.json(
+      { error: "Could not load shift state" },
+      { status: 503 },
+    );
+  }
 }
 
 export async function POST(request: Request) {
-    try {
-        const authSupabase = await createClient();
-
-        const {
-            data: { user },
-        } = await authSupabase.auth.getUser();
-
-        if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
-        const { data: profile, error: profileError } = await authSupabase
-            .from("profiles")
-            .select("role")
-            .eq("id", user.id)
-            .single();
-
-        if (profileError) {
-            console.error("Shift profile error:", profileError);
-
-            return NextResponse.json(
-                { error: "Could not verify user role" },
-                { status: 500 }
-            );
-        }
-
-        if (!canManageOrders(profile?.role)) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
-        const body = (await request.json()) as ShiftActionBody;
-
-        if (body.action !== "open" && body.action !== "close") {
-            return NextResponse.json(
-                { error: "Invalid shift action" },
-                { status: 400 }
-            );
-        }
-
-        const locationAddress = (body.address || "").trim();
-
-        if (body.action === "open" && !locationAddress) {
-            return NextResponse.json(
-                { error: "Foodtruck address is required to open the shift" },
-                { status: 400 }
-            );
-        }
-
-        const adminSupabase = createAdminClient();
-        const now = new Date().toISOString();
-
-        const basePayload =
-            body.action === "open"
-                ? {
-                    is_open: true,
-                    opened_at: now,
-                    opened_by: user.id,
-                    updated_at: now,
-                }
-                : {
-                    is_open: false,
-                    closed_at: now,
-                    closed_by: user.id,
-                    updated_at: now,
-                };
-
-        const updatePayload =
-            body.action === "open"
-                ? { ...basePayload, location_address: locationAddress }
-                : basePayload;
-
-        let { data, error } = await adminSupabase
-            .from("restaurant_shift_state")
-            .update(updatePayload)
-            .eq("id", 1)
-            .select("id, is_open, opened_at, closed_at, updated_at, location_address")
-            .maybeSingle();
-
-        if (error && body.action === "open") {
-            /**
-             * Fallback for before the location_address migration is applied:
-             * still allow opening the shift (address simply won't persist yet).
-             */
-            const fallback = await adminSupabase
-                .from("restaurant_shift_state")
-                .update(basePayload)
-                .eq("id", 1)
-                .select("id, is_open, opened_at, closed_at, updated_at")
-                .maybeSingle();
-
-            data = fallback.data as typeof data;
-            error = fallback.error;
-        }
-
-        if (error) {
-            console.error("Shift update error:", error);
-
-            return NextResponse.json({ error: error.message }, { status: 500 });
-        }
-
-        if (body.action === "open" && data?.is_open) {
-            after(async () => {
-                try { await sendOpeningEmails(); }
-                catch { console.error("Opening email processing needs retry"); }
-            });
-        }
-
-        return NextResponse.json({
-            success: true,
-            shift: {
-                isOpen: Boolean(data?.is_open),
-                openedAt: data?.opened_at || null,
-                closedAt: data?.closed_at || null,
-                updatedAt: data?.updated_at || null,
-                locationAddress:
-                    (data as { location_address?: string | null })
-                        ?.location_address || null,
-            },
-        });
-    } catch (error) {
-        console.error("Shift POST error:", error);
-
-        return NextResponse.json(
-            { error: "Could not update shift state" },
-            { status: 500 }
-        );
+  try {
+    const origin = request.headers.get("origin");
+    const allowedOrigins = [
+      new URL(request.url).origin,
+      new URL(process.env.NEXT_PUBLIC_SITE_URL || request.url).origin,
+    ];
+    if (
+      (origin && !allowedOrigins.includes(origin)) ||
+      !request.headers.get("content-type")?.includes("application/json")
+    ) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+    const access = await authorizeManager();
+    if (access.response) return access.response;
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "invalidInput" }, { status: 400 });
+    }
+    if (body?.action === "resolve-location") {
+      let coordinates;
+      try {
+        coordinates = parseCoordinates(body.coordinates);
+      } catch {
+        return NextResponse.json(
+          { error: "invalidCoordinates" },
+          { status: 400 },
+        );
+      }
+      if (!coordinates)
+        return NextResponse.json(
+          { error: "invalidCoordinates" },
+          { status: 400 },
+        );
+      const limit = rateLimit(
+        `truck-geocoding:${access.userId}`,
+        request,
+        10,
+        60000,
+      );
+      if (!limit.ok) return rateLimitResponse(limit.retryAfter);
+      try {
+        return NextResponse.json(
+          { address: await addressForCoordinates(coordinates) },
+          { headers: { "Cache-Control": "no-store" } },
+        );
+      } catch {
+        return NextResponse.json(
+          { error: "geocodingUnavailable" },
+          { status: 503 },
+        );
+      }
+    }
+    let update;
+    try {
+      update = parseShiftUpdate(body);
+    } catch (error) {
+      return NextResponse.json(
+        {
+          error:
+            error instanceof Error &&
+            [
+              "invalidInput",
+              "invalidAddress",
+              "invalidCoordinates",
+              "locationRequired",
+            ].includes(error.message)
+              ? error.message
+              : "invalidInput",
+        },
+        { status: 400 },
+      );
+    }
+    if (update.action !== "close" && update.coordinates) {
+      const { data: current, error: readError } = await createAdminClient({
+        timeoutMs: 10000,
+      })
+        .from("restaurant_shift_state")
+        .select(fields)
+        .eq("id", 1)
+        .maybeSingle();
+      if (readError || !current)
+        return NextResponse.json(
+          { error: "Could not load shift state" },
+          { status: 503 },
+        );
+      try {
+        const previous = responseShift(current);
+        update = await completeShiftLocation(
+          update,
+          {
+            address: previous.locationAddress,
+            coordinates: previous.coordinates,
+          },
+          async (coordinates) => {
+            const limit = rateLimit(
+              `truck-geocoding:${access.userId}`,
+              request,
+              10,
+              60000,
+            );
+            if (!limit.ok) throw new Error("geocodingUnavailable");
+            return addressForCoordinates(coordinates);
+          },
+        );
+      } catch {
+        return NextResponse.json(
+          { error: "geocodingUnavailable" },
+          { status: 503 },
+        );
+      }
+    }
+    const payload = shiftUpdatePayload(
+      update,
+      access.userId!,
+      new Date().toISOString(),
+    );
+    const { data, error } = await createAdminClient({ timeoutMs: 10000 })
+      .from("restaurant_shift_state")
+      .update(payload)
+      .eq("id", 1)
+      .select(fields)
+      .maybeSingle();
+    if (error || !data) {
+      // Never retry an open operation without its address/coordinates.
+      console.error("Shift update failed", {
+        code: error?.code || "missing_shift",
+      });
+      return NextResponse.json(
+        { error: "Could not save shift. Please try again." },
+        { status: 503 },
+      );
+    }
+    if (update.action === "open" && data.is_open) {
+      after(async () => {
+        try {
+          await sendOpeningEmails();
+        } catch {
+          console.error("Opening email processing needs retry");
+        }
+      });
+    }
+    return NextResponse.json({ success: true, shift: responseShift(data) });
+  } catch {
+    console.error("Shift update failed");
+    return NextResponse.json(
+      { error: "Could not update shift state" },
+      { status: 503 },
+    );
+  }
 }

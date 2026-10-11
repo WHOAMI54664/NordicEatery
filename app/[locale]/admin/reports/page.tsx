@@ -264,12 +264,7 @@ export default async function OnlineSalesReportsPage({
                 {/* Desktop title */}
                 <div className="hidden flex-col gap-5 lg:flex xl:flex-row xl:items-end xl:justify-between">
                     <div>
-                        <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-[#C7192E]">
-                            <FileBarChart2 className="h-3.5 w-3.5" />
-                            {t("reports.eyebrow")}
-                        </div>
-
-                        <h1 className="mt-4 text-3xl font-black tracking-[-0.05em] text-[#25120F] sm:text-4xl">
+                        <h1 className="text-3xl font-black tracking-[-0.05em] text-[#25120F] sm:text-4xl">
                             {t("reports.title")}
                         </h1>
 

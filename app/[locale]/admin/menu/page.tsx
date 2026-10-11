@@ -1,3 +1,6 @@
+import { EditableImage } from "@/components/EditableImage";
+import { EditableText } from "@/components/EditableText";
+import { categories as publicCategories } from "@/lib/menu-display";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
@@ -5,7 +8,6 @@ import {
     ChefHat,
     Eye,
     EyeOff,
-    Layers3,
     Package,
     Plus,
     Utensils
@@ -21,6 +23,7 @@ type MenuPageProps = {
 };
 
 type ProductRow = {
+    image_url: string | null;
     id: string;
     name: string | null;
     price: number | null;
@@ -138,10 +141,12 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
     const { data: products } = await supabase
         .from("products")
         .select(
-            "id, name, price, category, is_available, track_stock, stock_quantity"
+            "id, name, price, category, image_url, is_available, track_stock, stock_quantity"
         )
         .order("sort_order", { ascending: true });
 
+    const { data: menuContent } = await supabase.from("site_content").select("key,value").eq("page", "menu").eq("locale", locale);
+    const content = Object.fromEntries((menuContent || []).map((item) => [item.key, item.value]));
     const productList = (products || []) as ProductRow[];
 
     // Known categories keep their translated titles; any custom category found
@@ -197,12 +202,7 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
 
                 <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
                     <div>
-                        <div className="inline-flex items-center gap-2 rounded-full border border-[#E51B23]/15 bg-[#E51B23]/8 px-3 py-1 text-xs font-black text-[#C7192E]">
-                            <Layers3 className="h-3.5 w-3.5" />
-                            {t("menuAdmin.eyebrow")}
-                        </div>
-
-                        <h1 className="mt-4 text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
+                        <h1 className="text-4xl font-black tracking-[-0.055em] text-[#25120F] md:text-5xl">
                             {t("menuAdmin.title")}
                         </h1>
 
@@ -310,12 +310,14 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
             <section className="grid gap-4 xl:grid-cols-2">
                 {displayCategories.map((category) => {
                     const stats = getCategoryStats(productList, category.id);
+                    const titleKey = `menu.categories.${publicCategories.some((value) => value.id === category.id) ? "" : "custom."}${category.id}`;
 
                     return (
                         <article
                             key={category.id}
                             className="relative overflow-hidden rounded-[1.75rem] border border-[#EADDCF] bg-[#FFFCF6]/88 p-4 shadow-xl shadow-[#4C2314]/8 backdrop-blur-2xl transition hover:-translate-y-0.5 hover:bg-white md:rounded-[2rem] md:p-5"
                         >
+                            <EditableImage src={content[`menu.categoryImages.${category.id}`] || productList.find((product) => product.category === category.id && product.image_url)?.image_url || ""} alt={category.title} imageKey={`menu.categoryImages.${category.id}`} locale={locale} page="menu" canEdit fill sizes="(max-width: 768px) 100vw, 50vw" className="mb-5 aspect-[2/1] overflow-hidden rounded-2xl" imageClassName="object-cover" />
                             <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#E51B23]/8 blur-3xl" />
 
                             <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between md:gap-5">
@@ -325,7 +327,7 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
                                     </div>
 
                                     <h2 className="mt-4 text-2xl font-black tracking-[-0.05em] text-[#25120F] md:mt-5 md:text-3xl">
-                                        {category.title}
+                                        <EditableText value={content[titleKey] || category.title} textKey={titleKey} locale={locale} page="menu" canEdit as="span" />
                                     </h2>
 
                                     {category.description ? (

@@ -155,6 +155,8 @@ export async function POST(request: Request) {
             },
             body: JSON.stringify(forwardedBody),
             cache: "no-store",
+            signal: AbortSignal.timeout(15000),
+            redirect: "error",
         });
 
         const text = await response.text();

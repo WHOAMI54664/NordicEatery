@@ -10,7 +10,7 @@ export const menuItems: Product[] = [
     price: 129,
     category: "maczanka",
     badge: "Signature",
-    isPopular: true
+    isPopular: true,
   },
   {
     id: "maczanka-extra",
@@ -20,7 +20,7 @@ export const menuItems: Product[] = [
       "Extra slow-cooked pork, warm gravy, pickles, onion and toasted bun.",
     price: 159,
     category: "maczanka",
-    badge: "Hungry choice"
+    badge: "Hungry choice",
   },
   {
     id: "knysza-classic",
@@ -31,7 +31,7 @@ export const menuItems: Product[] = [
     price: 119,
     category: "knysza",
     badge: "Vegetarian",
-    isPopular: true
+    isPopular: true,
   },
   {
     id: "knysza-chicken",
@@ -41,7 +41,7 @@ export const menuItems: Product[] = [
       "Chicken, fresh vegetables, crispy onion and creamy garlic sauce.",
     price: 139,
     category: "knysza",
-    isPopular: true
+    isPopular: true,
   },
   {
     id: "knysza-pork",
@@ -50,7 +50,7 @@ export const menuItems: Product[] = [
     description:
       "Juicy pork, fresh vegetables, crispy onion and Mike’s house sauce.",
     price: 145,
-    category: "knysza"
+    category: "knysza",
   },
   {
     id: "fries",
@@ -58,7 +58,7 @@ export const menuItems: Product[] = [
     subtitle: "Side",
     description: "Golden crispy fries with salt and optional garlic sauce.",
     price: 49,
-    category: "sides"
+    category: "sides",
   },
   {
     id: "garlic-sauce",
@@ -66,16 +66,16 @@ export const menuItems: Product[] = [
     subtitle: "Homemade sauce",
     description: "Creamy homemade garlic sauce for extra flavor.",
     price: 15,
-    category: "sides"
+    category: "sides",
   },
   {
     id: "drink",
     name: "Soft Drink",
     subtitle: "Cold drink",
-    description: "Choose your cold drink at pickup or delivery.",
+    description: "Choose your cold drink at pickup.",
     price: 29,
-    category: "drinks"
-  }
+    category: "drinks",
+  },
 ];
 
 export const featuredItems = menuItems.filter((item) => item.isPopular);

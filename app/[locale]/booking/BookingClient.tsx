@@ -145,18 +145,7 @@ export default function BookingClient({
         return (
             <main className="min-h-screen px-6 py-24">
                 <div className="mx-auto max-w-3xl rounded-3xl bg-white/80 p-10 text-center shadow-xl backdrop-blur">
-                    <p className="text-sm font-black uppercase tracking-[0.3em] text-paprika">
-                        <EditableText
-                            value={text("booking.successEyebrow", "successEyebrow")}
-                            textKey="booking.successEyebrow"
-                            locale={locale}
-                            page="booking"
-                            canEdit={canEdit}
-                            as="span"
-                        />
-                    </p>
-
-                    <h1 className="mt-4 text-4xl font-black text-dark">
+                    <h1 className="mt-5 text-4xl font-black text-dark">
                         <EditableText
                             value={text("booking.successTitle", "successTitle")}
                             textKey="booking.successTitle"
@@ -192,18 +181,7 @@ export default function BookingClient({
         <main className="min-h-screen px-6 py-24">
             <div className="mx-auto max-w-5xl">
                 <div className="mb-12 text-center">
-                    <p className="text-sm font-black uppercase tracking-[0.3em] text-paprika">
-                        <EditableText
-                            value={text("booking.eyebrow", "eyebrow")}
-                            textKey="booking.eyebrow"
-                            locale={locale}
-                            page="booking"
-                            canEdit={canEdit}
-                            as="span"
-                        />
-                    </p>
-
-                    <h1 className="mt-4 text-5xl font-black text-dark">
+                    <h1 className="text-5xl font-black text-dark">
                         <EditableText
                             value={text("booking.title", "title")}
                             textKey="booking.title"
