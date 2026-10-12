@@ -11,6 +11,11 @@ import { KitchenStatusProvider } from "@/components/KitchenStatusProvider";
 import { KitchenClosedModal } from "@/components/KitchenClosedModal";
 import { getPublicShiftStatus } from "@/lib/restaurant/public-shift";
 import { FoodTruckLocation } from "@/components/FoodTruckLocation";
+import {
+  MENU_CATEGORY_ORDER_KEY,
+  MENU_CATEGORY_ORDER_LOCALE,
+  parseMenuCategoryOrder,
+} from "@/lib/menu-display";
 
 type Locale = "sv" | "en" | "pl" | "ru";
 
@@ -176,6 +181,19 @@ export default async function MenuPage({
     (siteContent || []).map((item) => [item.key, item.value]),
   );
 
+  let savedCategoryOrder = content.get(MENU_CATEGORY_ORDER_KEY) || "";
+  if (currentLocale !== MENU_CATEGORY_ORDER_LOCALE) {
+    const { data: defaultOrder } = await supabase
+      .from("site_content")
+      .select("value")
+      .eq("page", "menu")
+      .eq("key", MENU_CATEGORY_ORDER_KEY)
+      .eq("locale", MENU_CATEGORY_ORDER_LOCALE)
+      .maybeSingle();
+    savedCategoryOrder = defaultOrder?.value || "";
+  }
+  const categoryOrder = parseMenuCategoryOrder(savedCategoryOrder);
+
   function text(key: string, fallbackKey: string) {
     return content.get(key) || t(fallbackKey);
   }
@@ -260,6 +278,7 @@ export default async function MenuPage({
                 key={`${selectedMenuType}:${selectedCategory}`}
                 products={menuItems || []}
                 content={Object.fromEntries(content)}
+                categoryOrder={categoryOrder}
                 initialType={selectedMenuType}
                 initialCategory={selectedCategory}
               />

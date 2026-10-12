@@ -15,12 +15,14 @@ import {
 export function MenuCatalog({
   products,
   content,
+  categoryOrder = [],
   initialType = "all",
   initialCategory = "",
   groupSelection,
 }: {
   products: Product[];
   content: Record<string, string>;
+  categoryOrder?: string[];
   initialType?: string;
   initialCategory?: string;
   groupSelection?: (product: Product) => GroupProductSelection;
@@ -34,8 +36,11 @@ export function MenuCatalog({
   const filtered = products.filter(
     (product) => type === "all" || product.menu_type === type,
   );
-  const menuCategories = getMenuCategories(products, content, (id) =>
-    t(`categories.${id}`),
+  const menuCategories = getMenuCategories(
+    products,
+    content,
+    (id) => t(`categories.${id}`),
+    categoryOrder,
   ).filter((category) =>
     filtered.some((product) => product.category === category.id),
   );

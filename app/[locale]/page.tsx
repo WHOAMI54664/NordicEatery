@@ -1,12 +1,11 @@
 import { getPublicPath } from "@/i18n/paths";
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowRight, UtensilsCrossed } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { isSauceCategory } from "@/lib/menu-offers";
 import { ProductCard } from "@/components/ProductCard";
 import { EditableText } from "@/components/EditableText";
-import { EditableCopy } from "@/components/site-content/EditableCopy";
+import { EditableCategoryTiles } from "@/components/menu/EditableCategoryTiles";
 import { HomeHeroPoster } from "@/components/HomeHeroPoster";
 import { KitchenClosedModal } from "@/components/KitchenClosedModal";
 import { OrderEntryModal } from "@/components/OrderEntryModal";
@@ -15,7 +14,12 @@ import { createClient } from "@/lib/supabase/server";
 import { getPublicShiftStatus } from "@/lib/restaurant/public-shift";
 import { HomeFoodTruckLocation } from "@/components/HomeFoodTruckLocation";
 import { getTranslations } from "next-intl/server";
-import { getMenuCategories } from "@/lib/menu-display";
+import {
+  getMenuCategories,
+  MENU_CATEGORY_ORDER_KEY,
+  MENU_CATEGORY_ORDER_LOCALE,
+  parseMenuCategoryOrder,
+} from "@/lib/menu-display";
 
 type HomePageProps = {
   params: Promise<{
@@ -265,6 +269,23 @@ export default async function HomePage({ params }: HomePageProps) {
 
   const shift = await getPublicShiftStatus();
 
+  let savedCategoryOrder =
+    (siteContent || []).find(
+      (item) => item.page === "menu" && item.key === MENU_CATEGORY_ORDER_KEY,
+    )?.value || "";
+
+  if (locale !== MENU_CATEGORY_ORDER_LOCALE) {
+    const { data: defaultOrder } = await supabase
+      .from("site_content")
+      .select("value")
+      .eq("page", "menu")
+      .eq("key", MENU_CATEGORY_ORDER_KEY)
+      .eq("locale", MENU_CATEGORY_ORDER_LOCALE)
+      .maybeSingle();
+    savedCategoryOrder = defaultOrder?.value || "";
+  }
+
+  const categoryOrder = parseMenuCategoryOrder(savedCategoryOrder);
   const menuCategories = getMenuCategories(
     menuItems || [],
     Object.fromEntries(
@@ -273,6 +294,7 @@ export default async function HomePage({ params }: HomePageProps) {
         .map((item) => [item.key, item.value]),
     ),
     (id) => menuText(`categories.${id}`),
+    categoryOrder,
   );
 
   return (
@@ -359,49 +381,12 @@ export default async function HomePage({ params }: HomePageProps) {
       />
 
       <section className="container-page pb-12 sm:pb-14">
-        <nav
-          aria-label={catalogText("categories")}
-          className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-4 pt-1"
-        >
-          {menuCategories.map((category) => (
-            <Link
-              key={category.id}
-              href={`${getPublicPath(locale, "/menu")}?category=${encodeURIComponent(category.id)}#menu-catalog`}
-              className="glass-card group w-36 shrink-0 snap-start overflow-hidden shadow-none transition hover:-translate-y-1 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-paprika sm:w-40"
-            >
-              <div className="relative aspect-[4/3] bg-honey/15">
-                {category.image ? (
-                  <Image
-                    src={category.image}
-                    alt=""
-                    fill
-                    sizes="160px"
-                    className={
-                      category.hasCategoryImage
-                        ? "object-cover"
-                        : "object-contain p-2"
-                    }
-                    unoptimized
-                  />
-                ) : (
-                  <span className="flex h-full items-center justify-center text-paprika/60">
-                    <UtensilsCrossed size={32} />
-                  </span>
-                )}
-              </div>
-
-              <div className="px-3 py-4 text-center">
-                <p className="font-black text-dark">
-                  <EditableCopy
-                    value={category.title}
-                    textKey={category.textKey}
-                    page="menu"
-                  />
-                </p>
-              </div>
-            </Link>
-          ))}
-        </nav>
+        <EditableCategoryTiles
+          categories={menuCategories}
+          locale={locale}
+          canEdit={isOwner}
+          ariaLabel={catalogText("categories")}
+        />
       </section>
 
       <section className="container-page pb-20 sm:pb-24">
