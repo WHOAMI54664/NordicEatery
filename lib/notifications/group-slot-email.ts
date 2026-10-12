@@ -3,8 +3,10 @@ import { emailLocale } from "./opening-email";
 const copy = {
   sv: {
     subject: "Lediga tider för gruppbeställningar",
-    body: "Du bad oss meddela när gruppbeställningar blir tillgängliga. Nu finns lediga tider! Först till kvarn — tiden bokas när du skapar gruppen.",
-    action: "Boka gruppbeställning",
+    body: "Hej!\n\nDet finns nu lediga tider för\ngruppbeställningar hos Nordic Eatery!\n\nVälj en tillgänglig upphämtningstid och\nförbeställ lunch till dig och dina kollegor.\n\nUpphämtning: SSAB, vid snurrgrinden till\nMinimillområdet, i anslutning till Camp West.",
+    action: "Boka här",
+    afterAction:
+      "\n\nAntalet portioner per upphämtningstid är\nbegränsat, så först till kvarn gäller!\n\nMed vänliga hälsningar,\nNordic Eatery\nLocal Soul, Global Taste.",
     stop: "Avsluta denna avisering",
   },
   en: {
@@ -37,6 +39,6 @@ export function groupSlotMessage(
   const unsubscribe = `${origin}/api/group-order-notifications/unsubscribe?token=${encodeURIComponent(token)}`;
   return {
     subject: text.subject,
-    text: `${text.body}\n\n${text.action}: ${url}\n\n${text.stop}: ${unsubscribe}`,
+    text: `${text.body}\n\n${text.action}: ${url}${"afterAction" in text ? text.afterAction : ""}\n\n${text.stop}: ${unsubscribe}`,
   };
 }

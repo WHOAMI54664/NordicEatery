@@ -140,4 +140,35 @@ test("availability emails are one-shot, bounded, private and idempotent across u
     );
     assert.ok(!message.text.includes(job.email));
   }
+  const swedish = groupSlotMessage(
+    "sv",
+    job.unsubscribe_token,
+    "https://restaurant.test",
+  );
+  assert.equal(
+    swedish.text,
+    [
+      "Hej!",
+      "",
+      "Det finns nu lediga tider för",
+      "gruppbeställningar hos Nordic Eatery!",
+      "",
+      "Välj en tillgänglig upphämtningstid och",
+      "förbeställ lunch till dig och dina kollegor.",
+      "",
+      "Upphämtning: SSAB, vid snurrgrinden till",
+      "Minimillområdet, i anslutning till Camp West.",
+      "",
+      "Boka här: https://restaurant.test/sv/group-order",
+      "",
+      "Antalet portioner per upphämtningstid är",
+      "begränsat, så först till kvarn gäller!",
+      "",
+      "Med vänliga hälsningar,",
+      "Nordic Eatery",
+      "Local Soul, Global Taste.",
+      "",
+      `Avsluta denna avisering: https://restaurant.test/api/group-order-notifications/unsubscribe?token=${job.unsubscribe_token}`,
+    ].join("\n"),
+  );
 });
