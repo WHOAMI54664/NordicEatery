@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { CheckCircle2, RefreshCw } from "lucide-react";
+import { ArrowRight, CheckCircle2, RefreshCw } from "lucide-react";
 import { useEditableTranslations } from "@/components/site-content/EditableMessage";
 import { ReceiptActions } from "@/components/ReceiptActions";
 import { getPublicPath } from "@/i18n/paths";
@@ -97,18 +97,21 @@ export default function CheckoutSuccessPage() {
                 currency: "SEK",
               }).format(Number(order.totalGross ?? order.totalPrice ?? 0))}
             </p>
-            <ReceiptActions
-              initialEmail={order.customerEmail || ""}
-              downloadUrl={`/api/orders/${encodeURIComponent(order.orderNumber)}/receipt${sessionId ? `?session_id=${encodeURIComponent(sessionId)}` : ""}`}
-              emailUrl="/api/orders/send-receipt"
-              emailBody={{ orderNumber: order.orderNumber, sessionId }}
-            />
             <Link
               href={`/${locale}/order/${encodeURIComponent(order.orderNumber)}`}
-              className="mt-6 block text-center text-sm font-semibold underline"
+              className="btn-secondary mt-6 w-full gap-2"
             >
               {t.edit("track")}
+              <ArrowRight size={18} aria-hidden="true" />
             </Link>
+            <div className="mt-4">
+              <ReceiptActions
+                initialEmail={order.customerEmail || ""}
+                downloadUrl={`/api/orders/${encodeURIComponent(order.orderNumber)}/receipt${sessionId ? `?session_id=${encodeURIComponent(sessionId)}` : ""}`}
+                emailUrl="/api/orders/send-receipt"
+                emailBody={{ orderNumber: order.orderNumber, sessionId }}
+              />
+            </div>
           </>
         ) : (
           <div className="py-6 text-center" role="status">
