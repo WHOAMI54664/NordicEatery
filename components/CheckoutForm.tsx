@@ -5,7 +5,7 @@ import { getPublicPath } from "@/i18n/paths";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Gift, Store, Truck } from "lucide-react";
+import { Store, Truck } from "lucide-react";
 import {
   EditableMessage,
   useEditableTranslations,
@@ -13,7 +13,6 @@ import {
 import { useCart } from "@/components/CartProvider";
 import { FoodTruckLocation } from "@/components/FoodTruckLocation";
 import type { TruckCoordinates } from "@/lib/restaurant/location";
-import { PaymentIcons } from "@/components/PaymentIcons";
 import type { PaymentMethod } from "@/types/order";
 
 type CheckoutSettings = {
@@ -437,17 +436,13 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1fr_390px]"
+      className="mx-auto grid w-full max-w-xl gap-4"
     >
       <div className="glass-card w-full min-w-0 p-5 sm:p-6">
         <div>
           <h1 className="text-3xl font-black text-dark sm:text-4xl">
             {t.edit("title")}
           </h1>
-
-          <p className="mt-2 text-sm leading-6 text-dark/60">
-            {t.edit("subtitle")}
-          </p>
         </div>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -503,20 +498,14 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
               className="input-field"
               placeholder={t("emailPlaceholder")}
             />
-            <p className="mt-2 text-xs leading-5 text-dark/45">
-              {t.edit("emailHelp")}
-            </p>
           </label>
 
-          <div className="sm:col-span-2 overflow-hidden rounded-3xl border border-paprika/15 bg-white/75 p-4">
+          <details className="sm:col-span-2 text-sm">
+            <summary className="cursor-pointer font-semibold">
+              {t.edit("loyaltyTitle")}
+            </summary>
             <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-paprika/10 text-paprika">
-                <Gift className="h-5 w-5" />
-              </div>
-
               <div className="min-w-0">
-                <p className="font-black text-dark">{t.edit("loyaltyTitle")}</p>
-
                 <p className="mt-1 text-sm leading-6 text-dark/60">
                   {t.edit("loyaltyText", {
                     min: 150,
@@ -563,46 +552,48 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
                 )}
               </div>
             </div>
-          </div>
+          </details>
 
-          <div className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-dark">
-              {t.edit("deliveryType")}
-            </span>
+          {deliveryOptions.length !== 1 && (
+            <div className="sm:col-span-2">
+              <span className="mb-2 block text-sm font-bold text-dark">
+                {t.edit("deliveryType")}
+              </span>
 
-            {deliveryOptions.length === 0 ? (
-              <div className="rounded-3xl border border-paprika/20 bg-paprika/10 p-4 text-sm font-bold text-paprika">
-                {t.edit("fulfillmentUnavailable")}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-3">
-                {deliveryOptions.map((option) => {
-                  const Icon = option.icon;
+              {deliveryOptions.length === 0 ? (
+                <div className="rounded-3xl border border-paprika/20 bg-paprika/10 p-4 text-sm font-bold text-paprika">
+                  {t.edit("fulfillmentUnavailable")}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {deliveryOptions.map((option) => {
+                    const Icon = option.icon;
 
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setDeliveryType(option.value)}
-                      className={`min-w-0 rounded-3xl border p-4 text-left transition ${
-                        deliveryType === option.value
-                          ? "border-paprika bg-paprika text-white"
-                          : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
-                      }`}
-                    >
-                      <Icon className="h-5 w-5" />
-                      <p className="mt-2 break-words font-black">
-                        {option.title}
-                      </p>
-                      <p className="mt-1 text-xs opacity-70">
-                        {option.description}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setDeliveryType(option.value)}
+                        className={`min-w-0 rounded-3xl border p-4 text-left transition ${
+                          deliveryType === option.value
+                            ? "border-paprika bg-paprika text-white"
+                            : "border-dark/10 bg-white/70 text-dark hover:border-paprika/40"
+                        }`}
+                      >
+                        <Icon className="h-5 w-5" />
+                        <p className="mt-2 break-words font-black">
+                          {option.title}
+                        </p>
+                        <p className="mt-1 text-xs opacity-70">
+                          {option.description}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
 
           {deliveryType === "pickup" && (
             <FoodTruckLocation
@@ -672,6 +663,8 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
               <div className="rounded-3xl border border-paprika/20 bg-paprika/10 p-4 text-sm font-bold text-paprika">
                 {t.edit("paymentsUnavailable")}
               </div>
+            ) : paymentOptions.length === 1 ? (
+              <p className="text-sm">{paymentOptions[0].title}</p>
             ) : (
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {paymentOptions.map((option) => (
@@ -686,9 +679,6 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
                     }`}
                   >
                     <p className="break-words font-black">{option.title}</p>
-                    <p className="mt-1 text-xs leading-4 opacity-70">
-                      {option.description}
-                    </p>
                   </button>
                 ))}
               </div>
@@ -703,40 +693,26 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
             </div>
           )}
 
-          {paymentMethod === "card" && settings.card_enabled && (
-            <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
-              {t.edit("cardInfo")}
-            </div>
-          )}
-
-          <label className="sm:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-dark">
+          <details className="sm:col-span-2 text-sm">
+            <summary className="cursor-pointer font-semibold">
               {t.edit("comment")}
-              <EditableMessage
-                namespace="pages.checkout"
-                messageKey="commentPlaceholder"
-                pencilOnly
+            </summary>
+            <label className="sm:col-span-2">
+              <span className="mb-2 block text-sm font-bold text-dark">
+                {t.edit("comment")}
+                <EditableMessage
+                  namespace="pages.checkout"
+                  messageKey="commentPlaceholder"
+                  pencilOnly
+                />
+              </span>
+              <textarea
+                name="comment"
+                className="input-field min-h-28 resize-none"
+                placeholder={t("commentPlaceholder")}
               />
-            </span>
-            <textarea
-              name="comment"
-              className="input-field min-h-28 resize-none"
-              placeholder={t("commentPlaceholder")}
-            />
-          </label>
-
-          <div className="sm:col-span-2 rounded-3xl bg-white/70 p-4">
-            <p className="font-black text-dark">{t.edit("securePayments")}</p>
-
-            <div className="mt-3">
-              <PaymentIcons />
-            </div>
-
-            <p className="mt-3 text-sm leading-6 text-dark/60">
-              {t.edit("securePaymentsText")}
-            </p>
-          </div>
-
+            </label>
+          </details>
           <label className="sm:col-span-2 flex gap-3 rounded-3xl bg-white/70 p-4 text-sm leading-6 text-dark/60">
             <input required type="checkbox" className="mt-1 h-4 w-4 shrink-0" />
 
@@ -761,31 +737,31 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
         </div>
       </div>
 
-      <aside className="glass-card h-fit w-full min-w-0 p-5 sm:p-6 lg:sticky lg:top-24">
-        <h2 className="text-2xl font-black text-dark">
-          {t.edit("orderTitle")}
-        </h2>
+      <aside className="glass-card h-fit w-full min-w-0 p-5 sm:p-6 ">
+        <details>
+          <summary className="cursor-pointer text-lg font-bold text-dark">
+            {t.edit("orderTitle")}
+          </summary>
+          <div className="mt-4 space-y-4">
+            {items.map((item) => (
+              <div
+                key={item.lineId}
+                className="flex justify-between gap-4 text-sm"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-black text-dark">{item.name}</p>
+                  <p className="text-dark/60">{item.optionSummary}</p>
+                  <p className="text-dark/50">x{item.quantity}</p>
+                </div>
 
-        <div className="mt-6 space-y-4">
-          {items.map((item) => (
-            <div
-              key={item.lineId}
-              className="flex justify-between gap-4 text-sm"
-            >
-              <div className="min-w-0">
-                <p className="truncate font-black text-dark">{item.name}</p>
-                <p className="text-dark/60">{item.optionSummary}</p>
-                <p className="text-dark/50">x{item.quantity}</p>
+                <p className="shrink-0 font-black">
+                  {pricing.lineTotals[item.lineId] / 100} kr
+                </p>
               </div>
-
-              <p className="shrink-0 font-black">
-                {pricing.lineTotals[item.lineId] / 100} kr
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-6 border-t border-dark/10 pt-4">
+            ))}
+          </div>
+        </details>
+        <div className="mt-4 border-t border-dark/10 pt-4">
           {pricing.discountAmount > 0 && (
             <p className="mb-3 text-sm font-bold text-paprika">
               {combo.edit("saving", {
@@ -829,10 +805,6 @@ export function CheckoutForm({ locale, settings }: CheckoutFormProps) {
               ? t.edit("continuePayment")
               : t.edit("placeOrder")}
         </button>
-
-        <p className="mt-4 text-center text-xs leading-5 text-dark/45">
-          {t.edit("bottomInfo")}
-        </p>
       </aside>
     </form>
   );

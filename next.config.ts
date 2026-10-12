@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["pdfkit"],
 
   outputFileTracingIncludes: {
+    "/api/orders/*/receipt": ["./node_modules/pdfkit/js/data/*.afm"],
+    "/api/orders/send-receipt": ["./node_modules/pdfkit/js/data/*.afm"],
+    "/api/group-orders/*/receipt": ["./node_modules/pdfkit/js/data/*.afm"],
     "/api/admin/reports/online-sales/pdf": [
       "./node_modules/pdfkit/js/data/*.afm",
     ],

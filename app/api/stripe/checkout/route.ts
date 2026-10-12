@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getPublicShiftStatus } from "@/lib/restaurant/public-shift";
 import { assertRestaurantShiftIsOpen } from "@/lib/restaurant/shift";
 import { validateCartPrices } from "@/lib/orders/pricing";
 import {
@@ -323,6 +324,12 @@ export async function POST(request: Request) {
     const safeLocale = getSafeLocale(locale);
     const now = new Date().toISOString();
 
+    // Preserve the pickup point at purchase; later truck moves must not rewrite receipts.
+    const pickupAddress =
+      deliveryType === "pickup"
+        ? (await getPublicShiftStatus()).locationAddress || "Pickup"
+        : address.trim();
+
     const { error: orderError } = await supabase.from("orders").upsert({
       id: technicalOrderId,
       order_number: technicalOrderId,
@@ -335,7 +342,7 @@ export async function POST(request: Request) {
 
       loyalty_opt_in: shouldCreateLoyaltyProfile,
 
-      address: address.trim(),
+      address: pickupAddress,
       delivery_type: deliveryType,
       comment: comment?.trim() || null,
 

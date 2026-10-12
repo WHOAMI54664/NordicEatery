@@ -1330,5 +1330,24 @@
       "meal-meatballs": "Meatballs with mashed potatoes and lingonberries",
       "meal-fish": "Breaded fish with potatoes and peas"
     }
+  },
+  "receipt": {
+    "title": "Payment successful",
+    "checking": "Checking payment…",
+    "failed": "Payment is not confirmed yet",
+    "retry": "Check again",
+    "order": "Order number",
+    "download": "Download receipt",
+    "email": "Receipt by email",
+    "emailLabel": "Email address",
+    "send": "Send receipt",
+    "sending": "Sending…",
+    "sent": "Your receipt has been sent.",
+    "error": "Could not download the receipt. Please try again.",
+    "emailError": "Could not send the receipt. Try again or download it.",
+    "emailUnavailable": "Email is temporarily unavailable. You can download your receipt.",
+    "track": "View order",
+    "back": "Back to menu",
+    "details": "Contact details (optional)"
   }
 }

@@ -1,523 +1,140 @@
 "use client";
-
-import { getPublicPath } from "@/i18n/paths";
-
-import { EditableCopy } from "@/components/site-content/EditableCopy";
-
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import {
-  CheckCircle2,
-  Clock3,
-  CreditCard,
-  Download,
-  Home,
-  Mail,
-  ReceiptText,
-  RefreshCw,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle2, RefreshCw } from "lucide-react";
+import { useEditableTranslations } from "@/components/site-content/EditableMessage";
+import { ReceiptActions } from "@/components/ReceiptActions";
+import { getPublicPath } from "@/i18n/paths";
 
-type PaymentStatus = "checking" | "paid" | "failed";
-
-type SuccessOrder = {
+type Order = {
   id: string;
-  orderId: string;
-  orderNumber: string | null;
+  orderNumber: string;
   displayOrderNumber: string | null;
-  orderDate: string | null;
-
-  customerName: string | null;
-  customerPhone: string | null;
   customerEmail?: string | null;
-
-  paymentMethod: string | null;
-  paymentStatus: string | null;
-
-  totalPrice: number | null;
+  paymentStatus: string;
   totalGross: number | null;
-  totalNet: number | null;
-  totalVat: number | null;
-
-  createdAt: string | null;
-  paidAt: string | null;
+  totalPrice: number | null;
 };
-
-type StripeSessionResponse = {
-  success?: boolean;
-  error?: string;
-  stripe?: {
-    id: string;
-    paymentStatus: string;
-    status: string | null;
-    paymentIntentId: string | null;
-  };
-  order?: SuccessOrder;
-};
-
-type PaidStatusResponse = {
-  success?: boolean;
-  error?: string;
-  isPaid?: boolean;
-  order?: SuccessOrder;
-};
-
 export default function CheckoutSuccessPage() {
-  const params = useParams<{ locale?: string | string[] }>();
-
-  const locale = typeof params?.locale === "string" ? params.locale : "sv";
-
-  const [status, setStatus] = useState<PaymentStatus>("checking");
-  const [order, setOrder] = useState<SuccessOrder | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const [email, setEmail] = useState("");
-  const [isSendingReceipt, setIsSendingReceipt] = useState(false);
-  const [receiptMessage, setReceiptMessage] = useState<string | null>(null);
-
-  const orderDisplayNumber = useMemo(() => {
-    if (!order) return null;
-
-    return order.displayOrderNumber
-      ? `#${order.displayOrderNumber}`
-      : order.orderNumber
-        ? `#${order.orderNumber}`
-        : null;
-  }, [order]);
-
-  const totalAmount = useMemo(() => {
-    if (!order) return 0;
-
-    return Number(order.totalGross ?? order.totalPrice ?? 0);
-  }, [order]);
-
-  const paidDate = useMemo(() => {
-    const dateValue = order?.paidAt || order?.createdAt;
-
-    if (!dateValue) return null;
-
-    try {
-      return new Intl.DateTimeFormat(locale, {
-        timeZone: "Europe/Stockholm",
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(new Date(dateValue));
-    } catch {
-      return new Intl.DateTimeFormat("sv-SE", {
-        timeZone: "Europe/Stockholm",
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(new Date(dateValue));
-    }
-  }, [locale, order?.createdAt, order?.paidAt]);
-
-  useEffect(() => {
-    async function verifyPayment() {
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const sessionId = urlParams.get("session_id");
-        const orderNumber = urlParams.get("order_number");
-
-        if (sessionId) {
-          const response = await fetch(
-            `/api/stripe/session?session_id=${encodeURIComponent(sessionId)}`,
-            {
-              method: "GET",
-              cache: "no-store",
-            },
-          );
-
-          const data = (await response.json()) as StripeSessionResponse;
-
-          if (!response.ok) {
-            setErrorMessage(data.error || "Could not verify payment.");
-            setStatus("failed");
-            return;
-          }
-
-          if (data.stripe?.paymentStatus !== "paid" || !data.order) {
-            setErrorMessage("Payment was not confirmed.");
-            setStatus("failed");
-            return;
-          }
-
-          setOrder(data.order);
-          setStatus("paid");
-          return;
-        }
-
-        if (orderNumber) {
-          const response = await fetch(
-            `/api/orders/paid-status?order_number=${encodeURIComponent(
-              orderNumber,
-            )}`,
-            {
-              method: "GET",
-              cache: "no-store",
-            },
-          );
-
-          const data = (await response.json()) as PaidStatusResponse;
-
-          if (!response.ok) {
-            setErrorMessage(data.error || "Could not verify payment.");
-            setStatus("failed");
-            return;
-          }
-
-          if (!data.isPaid || !data.order) {
-            setErrorMessage("Payment was not confirmed.");
-            setStatus("failed");
-            return;
-          }
-
-          setOrder(data.order);
-          setStatus("paid");
-          return;
-        }
-
-        setErrorMessage("Missing payment reference.");
-        setStatus("failed");
-      } catch (error) {
-        console.error("Payment verification error:", error);
-        setErrorMessage("Could not verify payment.");
-        setStatus("failed");
-      }
-    }
-
-    verifyPayment();
-  }, []);
-
-  async function handleSendReceipt(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!order?.orderNumber) {
-      setReceiptMessage("Order number is missing.");
-      return;
-    }
-
-    if (!email.trim()) {
-      setReceiptMessage("Please enter your email address.");
-      return;
-    }
-
-    setIsSendingReceipt(true);
-    setReceiptMessage(null);
-
-    try {
-      const response = await fetch("/api/orders/send-receipt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          orderNumber: order.orderNumber,
-          email: email.trim(),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setReceiptMessage(data.error || "Could not send receipt.");
-        return;
-      }
-
-      setReceiptMessage("Receipt has been sent to your email.");
-    } catch (error) {
-      console.error("Send receipt error:", error);
-      setReceiptMessage("Could not send receipt.");
-    } finally {
-      setIsSendingReceipt(false);
-    }
-  }
-
-  return (
-    <main className="min-h-[80vh] bg-cream px-4 py-12 text-dark sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-2xl flex-col items-center">
-        {status === "checking" && (
-          <div className="glass-card w-full p-8 text-center">
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white/80">
-              <RefreshCw className="h-9 w-9 animate-spin text-paprika" />
-            </div>
-
-            <h1 className="mt-6 text-3xl font-black text-dark">
-              <EditableCopy
-                value={"Checking payment..."}
-                textKey="screen.checkoutSuccess.checking-payment"
-                page="checkoutSuccess"
-              />
-            </h1>
-
-            <p className="mt-3 text-dark/60">
-              <EditableCopy
-                value={"Please wait while we confirm your payment."}
-                textKey="screen.checkoutSuccess.please-wait-while-we-confirm-your-payment"
-                page="checkoutSuccess"
-              />
-            </p>
-          </div>
-        )}
-
-        {status === "paid" && order && (
-          <>
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 shadow-xl">
-              <CheckCircle2 className="h-11 w-11" />
-            </div>
-
-            <h1 className="mt-6 text-center text-3xl font-black tracking-tight text-dark sm:text-4xl">
-              <EditableCopy
-                value={"Payment successful"}
-                textKey="screen.checkoutSuccess.payment-successful"
-                page="checkoutSuccess"
-              />
-            </h1>
-
-            <p className="mt-3 text-center text-base leading-7 text-dark/60">
-              <EditableCopy
-                value={
-                  "Your payment has been confirmed and your order has been sent to the kitchen."
-                }
-                textKey="screen.checkoutSuccess.your-payment-has-been-confirmed-and-your-order-has-been-sent-to-the-kitchen"
-                page="checkoutSuccess"
-              />
-            </p>
-
-            <section className="glass-card mt-8 w-full p-6 sm:p-8">
-              <div className="text-center">
-                <p className="text-sm font-black uppercase tracking-[0.22em] text-paprika/70">
-                  <EditableCopy
-                    value={"Order number"}
-                    textKey="screen.checkoutSuccess.order-number"
-                    page="checkoutSuccess"
-                  />
-                </p>
-
-                <p className="mt-2 break-words text-6xl font-black tabular-nums tracking-tight text-dark sm:text-7xl">
-                  {orderDisplayNumber || "—"}
-                </p>
-              </div>
-
-              <div className="my-7 h-px bg-dark/10" />
-
-              <div className="space-y-5">
-                <InfoRow
-                  label="Amount paid"
-                  value={`${totalAmount.toFixed(0)} kr`}
-                  icon={<ReceiptText className="h-4 w-4" />}
-                />
-
-                <InfoRow label="Merchant" value="Nordic Eatery" />
-
-                <InfoRow
-                  label="Payment method"
-                  value={
-                    order.paymentMethod === "card"
-                      ? "Card"
-                      : order.paymentMethod === "swish"
-                        ? "Swish"
-                        : order.paymentMethod || "—"
-                  }
-                  icon={<CreditCard className="h-4 w-4" />}
-                />
-
-                <InfoRow
-                  label="Status"
-                  value="Paid"
-                  icon={<CheckCircle2 className="h-4 w-4" />}
-                />
-
-                <InfoRow
-                  label="Date"
-                  value={paidDate || "—"}
-                  icon={<Clock3 className="h-4 w-4" />}
-                />
-              </div>
-
-              <div className="mt-7 rounded-3xl bg-emerald-50 px-4 py-4 text-center text-sm font-black text-emerald-700">
-                <EditableCopy
-                  value={"Payment confirmed"}
-                  textKey="screen.checkoutSuccess.payment-confirmed"
-                  page="checkoutSuccess"
-                />
-              </div>
-            </section>
-
-            <section className="glass-card mt-5 w-full p-6 sm:p-7">
-              <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-paprika/10 text-paprika">
-                  <Mail className="h-5 w-5" />
-                </div>
-
-                <div>
-                  <h2 className="text-lg font-black text-dark">
-                    <EditableCopy
-                      value={"Receipt by email"}
-                      textKey="screen.checkoutSuccess.receipt-by-email"
-                      page="checkoutSuccess"
-                    />
-                  </h2>
-
-                  <p className="mt-1 text-sm leading-6 text-dark/60">
-                    <EditableCopy
-                      value={
-                        "Enter your email address if you want to receive a receipt for this payment."
-                      }
-                      textKey="screen.checkoutSuccess.enter-your-email-address-if-you-want-to-receive-a-receipt-for-this-payment"
-                      page="checkoutSuccess"
-                    />
-                  </p>
-                </div>
-              </div>
-
-              <form onSubmit={handleSendReceipt} className="mt-5 space-y-3">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  className="input-field"
-                  placeholder="your@email.com"
-                />
-
-                <button
-                  type="submit"
-                  disabled={isSendingReceipt}
-                  className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isSendingReceipt ? (
-                    <EditableCopy
-                      value={"Sending..."}
-                      textKey="screen.checkoutSuccess.sending"
-                      page="checkoutSuccess"
-                    />
-                  ) : (
-                    <EditableCopy
-                      value={"Send receipt to email"}
-                      textKey="screen.checkoutSuccess.send-receipt-to-email"
-                      page="checkoutSuccess"
-                    />
-                  )}
-                </button>
-
-                {receiptMessage && (
-                  <p className="text-center text-sm font-bold text-dark/60">
-                    {receiptMessage}
-                  </p>
-                )}
-              </form>
-            </section>
-
-            <div className="mt-5 grid w-full gap-3">
-              {order.orderNumber && (
-                <a
-                  href={`/api/orders/${order.orderNumber}/receipt`}
-                  className="flex h-14 items-center justify-center gap-3 rounded-2xl border border-dark/10 bg-white/80 font-black text-dark transition hover:scale-[1.01]"
-                >
-                  <Download className="h-5 w-5" />
-                  <EditableCopy
-                    value={"Download receipt"}
-                    textKey="screen.checkoutSuccess.download-receipt"
-                    page="checkoutSuccess"
-                  />
-                </a>
-              )}
-
-              <Link
-                href={`/${locale}/order/${order.orderNumber || order.id}`}
-                className="flex h-14 items-center justify-center gap-3 rounded-2xl bg-dark font-black text-white transition hover:scale-[1.01]"
-              >
-                <ReceiptText className="h-5 w-5" />
-                <EditableCopy
-                  value={"Track order"}
-                  textKey="screen.checkoutSuccess.track-order"
-                  page="checkoutSuccess"
-                />
-              </Link>
-
-              <Link
-                href={`/${locale}`}
-                className="flex h-14 items-center justify-center gap-3 rounded-2xl border border-dark/10 bg-white/80 font-black text-dark transition hover:scale-[1.01]"
-              >
-                <Home className="h-5 w-5" />
-                <EditableCopy
-                  value={"Back to home"}
-                  textKey="screen.checkoutSuccess.back-to-home"
-                  page="checkoutSuccess"
-                />
-              </Link>
-            </div>
-          </>
-        )}
-
-        {status === "failed" && (
-          <div className="glass-card w-full p-8 text-center">
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-paprika/10 text-paprika">
-              <XCircle className="h-10 w-10" />
-            </div>
-
-            <h1 className="mt-6 text-3xl font-black text-dark">
-              <EditableCopy
-                value={"Payment not confirmed"}
-                textKey="screen.checkoutSuccess.payment-not-confirmed"
-                page="checkoutSuccess"
-              />
-            </h1>
-
-            <p className="mt-3 text-dark/60">
-              {errorMessage || "We could not confirm your payment."}
-            </p>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <Link href={`/${locale}/checkout`} className="btn-primary">
-                <EditableCopy
-                  value={"Back to checkout"}
-                  textKey="screen.checkoutSuccess.back-to-checkout"
-                  page="checkoutSuccess"
-                />
-              </Link>
-
-              <Link
-                href={getPublicPath(locale, "/menu")}
-                className="btn-secondary"
-              >
-                <EditableCopy
-                  value={"Back to menu"}
-                  textKey="screen.checkoutSuccess.back-to-menu"
-                  page="checkoutSuccess"
-                />
-              </Link>
-            </div>
-          </div>
-        )}
-      </div>
-    </main>
+  const { locale } = useParams<{ locale: string }>();
+  const t = useEditableTranslations("receipt");
+  const [status, setStatus] = useState<"checking" | "paid" | "failed">(
+    "checking",
   );
-}
-
-function InfoRow({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string;
-  icon?: React.ReactNode;
-}) {
+  const [order, setOrder] = useState<Order | null>(null);
+  const [sessionId, setSessionId] = useState("");
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    const abort = new AbortController();
+    let timer: ReturnType<typeof setTimeout>;
+    const query = new URLSearchParams(window.location.search);
+    const session = query.get("session_id") || "";
+    const number = query.get("order_number") || "";
+    setSessionId(session);
+    setStatus("checking");
+    let retries = 0;
+    async function verify() {
+      try {
+        if (!session && !number) {
+          setStatus("failed");
+          return;
+        }
+        const url = session
+          ? `/api/stripe/session?session_id=${encodeURIComponent(session)}`
+          : `/api/orders/paid-status?order_number=${encodeURIComponent(number)}`;
+        const response = await fetch(url, {
+          cache: "no-store",
+          referrerPolicy: "no-referrer",
+          signal: abort.signal,
+        });
+        const data = await response.json();
+        if (
+          response.ok &&
+          data.order?.paymentStatus === "paid" &&
+          (session ? data.stripe?.paymentStatus === "paid" : data.isPaid)
+        ) {
+          setOrder(data.order);
+          setStatus("paid");
+          return;
+        }
+        if (retries++ < 10 && (response.ok || response.status >= 500)) {
+          timer = setTimeout(verify, 2000);
+          return;
+        }
+        setStatus("failed");
+      } catch {
+        if (!abort.signal.aborted) setStatus("failed");
+      }
+    }
+    void verify();
+    return () => {
+      abort.abort();
+      clearTimeout(timer);
+    };
+  }, [attempt]);
   return (
-    <div className="flex items-center justify-between gap-4">
-      <div className="flex items-center gap-2 text-sm font-bold text-dark/55">
-        {icon}
-        {label}
-      </div>
-
-      <div className="text-right text-sm font-black text-dark">{value}</div>
-    </div>
+    <main className="bg-cream px-4 py-10 text-dark sm:py-16">
+      <section className="mx-auto max-w-lg rounded-3xl bg-white p-6 sm:p-8">
+        {status === "paid" && order ? (
+          <>
+            <CheckCircle2
+              className="mx-auto h-12 w-12 text-emerald-600"
+              aria-hidden="true"
+            />
+            <h1 className="mt-4 text-center text-3xl font-black">
+              {t.edit("title")}
+            </h1>
+            <p className="mt-5 text-center text-sm text-dark/60">
+              {t.edit("order")}
+            </p>
+            <p className="mt-1 break-words text-center text-3xl font-black">
+              #{order.displayOrderNumber || order.orderNumber}
+            </p>
+            <p className="mb-6 mt-3 text-center text-lg font-semibold">
+              {new Intl.NumberFormat(locale, {
+                style: "currency",
+                currency: "SEK",
+              }).format(Number(order.totalGross ?? order.totalPrice ?? 0))}
+            </p>
+            <ReceiptActions
+              initialEmail={order.customerEmail || ""}
+              downloadUrl={`/api/orders/${encodeURIComponent(order.orderNumber)}/receipt${sessionId ? `?session_id=${encodeURIComponent(sessionId)}` : ""}`}
+              emailUrl="/api/orders/send-receipt"
+              emailBody={{ orderNumber: order.orderNumber, sessionId }}
+            />
+            <Link
+              href={`/${locale}/order/${encodeURIComponent(order.orderNumber)}`}
+              className="mt-6 block text-center text-sm font-semibold underline"
+            >
+              {t.edit("track")}
+            </Link>
+          </>
+        ) : (
+          <div className="py-6 text-center" role="status">
+            {status === "checking" && (
+              <RefreshCw className="mx-auto mb-4 animate-spin text-paprika" />
+            )}
+            <h1 className="text-2xl font-bold">
+              {t.edit(status === "checking" ? "checking" : "failed")}
+            </h1>
+            {status === "failed" && (
+              <button
+                onClick={() => setAttempt((value) => value + 1)}
+                className="btn-primary mt-5"
+              >
+                {t.edit("retry")}
+              </button>
+            )}
+          </div>
+        )}
+        <Link
+          href={getPublicPath(locale, "/menu")}
+          className="mt-5 block text-center text-sm text-dark/60 underline"
+        >
+          {t.edit("back")}
+        </Link>
+      </section>
+    </main>
   );
 }

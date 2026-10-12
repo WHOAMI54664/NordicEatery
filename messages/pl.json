@@ -1330,5 +1330,24 @@
       "meal-meatballs": "Klopsiki z purée ziemniaczanym i borówkami",
       "meal-fish": "Panierowana ryba z ziemniakami i groszkiem"
     }
+  },
+  "receipt": {
+    "title": "Płatność zakończona",
+    "checking": "Sprawdzamy płatność…",
+    "failed": "Płatność nie została jeszcze potwierdzona",
+    "retry": "Sprawdź ponownie",
+    "order": "Numer zamówienia",
+    "download": "Pobierz potwierdzenie",
+    "email": "Potwierdzenie e-mailem",
+    "emailLabel": "Adres e-mail",
+    "send": "Wyślij potwierdzenie",
+    "sending": "Wysyłanie…",
+    "sent": "Potwierdzenie zostało wysłane.",
+    "error": "Nie udało się pobrać potwierdzenia. Spróbuj ponownie.",
+    "emailError": "Nie udało się wysłać potwierdzenia. Spróbuj ponownie lub pobierz je.",
+    "emailUnavailable": "Wysyłanie e-maili jest chwilowo niedostępne. Możesz pobrać potwierdzenie.",
+    "track": "Zobacz zamówienie",
+    "back": "Wróć do menu",
+    "details": "Dane kontaktowe (opcjonalnie)"
   }
 }

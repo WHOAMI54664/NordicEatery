@@ -1329,5 +1329,24 @@
       "meal-meatballs": "Köttbullar med potatismos och lingon",
       "meal-fish": "Panerad fisk med potatis och ärtor"
     }
+  },
+  "receipt": {
+    "title": "Betalningen är klar",
+    "checking": "Kontrollerar betalningen…",
+    "failed": "Betalningen är inte bekräftad ännu",
+    "retry": "Kontrollera igen",
+    "order": "Ordernummer",
+    "download": "Ladda ner kvitto",
+    "email": "Kvitto via e-post",
+    "emailLabel": "E-postadress",
+    "send": "Skicka kvitto",
+    "sending": "Skickar…",
+    "sent": "Kvittot har skickats.",
+    "error": "Kvittot kunde inte hämtas. Försök igen.",
+    "emailError": "Kvittot kunde inte skickas. Försök igen eller ladda ner det.",
+    "emailUnavailable": "E-post är tillfälligt otillgänglig. Du kan ladda ner kvittot.",
+    "track": "Visa beställningen",
+    "back": "Till menyn",
+    "details": "Kontaktuppgifter (valfritt)"
   }
 }

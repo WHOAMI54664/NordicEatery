@@ -30,6 +30,7 @@ import {
   type GroupItem,
   type PublicGroup,
 } from "@/lib/group-orders/model";
+import { ReceiptActions } from "@/components/ReceiptActions";
 import { GroupOrderReview } from "./GroupOrderReview";
 import { GroupOrderMenu } from "./GroupOrderMenu";
 import { GroupMemberPayment } from "./GroupMemberPayment";
@@ -400,6 +401,20 @@ export function GroupOrderRoom({
         <div className="grid items-start gap-7 lg:grid-cols-[minmax(0,1fr)_390px]">
           <section className="min-w-0">
             <GroupPickupDirections group={group} />
+            {group.paymentMethod === "card" &&
+              group.payments.some(
+                (payment) =>
+                  payment.memberId === group.me?.id &&
+                  payment.status === "paid",
+              ) && (
+                <section className="mb-5 rounded-3xl bg-white p-6">
+                  <ReceiptActions
+                    downloadUrl={`${endpoint}/receipt`}
+                    emailUrl={`${endpoint}/receipt`}
+                    initialEmail={group.customer?.email || ""}
+                  />
+                </section>
+              )}
             {group.status === "submitted" ? (
               <div className="rounded-3xl bg-white p-8">
                 <Check size={40} className="text-emerald-600" />
