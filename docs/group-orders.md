@@ -51,11 +51,18 @@ No loyalty discounts or separate delivery fees are applied in this flow.
 
 Swish uses `/swish/group` on the existing backend (`SWISH_BACKEND_URL` and
 `SWISH_INTERNAL_SECRET`), using its current environment, certificates and merchant
-alias. Deploy the additive `src/swish-group.ts` router with `src/server.ts`; set
+alias. Mount `swishGroupService()` after the backend's JSON parser and deploy
+`src/swish-group.ts`, `src/swish-group-service.ts` and `src/swish-verification.ts`; set
 `SWISH_GROUP_CALLBACK_URL` on that backend to the target environment's HTTPS
-`/api/group-orders/swish-callback`. **The existing deployed backend has not been
-verified to contain these new routes.** Do not enable group Swish until the backend,
+`/api/group-orders/swish-callback`. The 2026-10-13 SSH audit confirmed that the
+running backend has no group route and differs materially from this repository's
+`src/server.ts`. Do not replace that entrypoint wholesale: use the reviewed
+[additive rollout](swish-group-rollout.md). Do not enable group Swish until the backend,
 callback and reconciliation worker have been verified in the isolated environment.
+The group transport requires an explicit `SWISH_MODE` or `SWISH_ENV` of
+`production` or `test`; contradictory settings fail closed. It supports the running
+PEM certificate/key pair and legacy PFX certificates, retains TLS verification,
+and gives all provider calls in one operation a shared 12-second deadline.
 The ordinary `/swish/create` endpoint now enforces the internal proxy secret;
 `/swish/callback` confirms status with a provider GET. Deploy `src/swish-verification.ts`
 with the service and validate both ordinary and group payment paths.

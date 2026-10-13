@@ -6,9 +6,10 @@ import fs from "fs";
 import { createClient } from "@supabase/supabase-js";
 import {
     internalSwishRequest,
+    validSwishCallbackId,
     verifiedSwishPayment,
 } from "./swish-verification";
-import { swishGroupRouter } from "./swish-group";
+import { swishGroupService } from "./swish-group-service";
 
 const app = express();
 app.use(express.json());
@@ -37,31 +38,7 @@ function normalizeAmount(amount: number) {
     return amount.toFixed(2);
 }
 
-app.use(
-    swishGroupRouter({
-        secret: () => process.env.SWISH_INTERNAL_SECRET,
-        callbackUrl: () => process.env.SWISH_GROUP_CALLBACK_URL,
-        payeeAlias: () => process.env.SWISH_PAYEE_ALIAS,
-        request: async (method, path, data) => {
-            const response = await axios.request({
-                method,
-                url: `${swishBaseUrl.replace(/\/v1$/, "")}${path}`,
-                data,
-                httpsAgent: getSwishAgent(),
-                timeout: 10000,
-                maxRedirects: 0,
-                headers: {
-                    "Content-Type":
-                        method === "PATCH"
-                            ? "application/json-patch+json"
-                            : "application/json",
-                },
-                validateStatus: () => true,
-            });
-            return { status: response.status, data: response.data };
-        },
-    }),
-);
+app.use(swishGroupService());
 
 app.get("/health", (_req, res) => {
     res.json({ ok: true });
@@ -199,7 +176,7 @@ app.post("/swish/callback", async (req, res) => {
     try {
         // Callback content only identifies work; the provider GET is the payment proof.
         const id = req.body?.id;
-        if (typeof id !== "string" || !/^[a-fA-F0-9]{32}$/.test(id))
+        if (!validSwishCallbackId(id))
             return res.status(400).json({ error: "Invalid callback" });
         const { data: order, error: lookupError } = await supabase
             .from("orders")

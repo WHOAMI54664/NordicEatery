@@ -166,7 +166,10 @@ export function BusinessSettingsForm({ settings }: BusinessSettingsFormProps) {
     const t = useTranslations("admin.businessSettingsForm");
     const supabase = useMemo(() => createClient(), []);
 
-    const [form, setForm] = useState<BusinessSettings>(settings);
+    const [form, setForm] = useState<BusinessSettings>(() => ({
+        ...settings,
+        business_name: settings.business_name || settings.brand_name || "",
+    }));
     const [isSaving, setIsSaving] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -190,7 +193,8 @@ export function BusinessSettingsForm({ settings }: BusinessSettingsFormProps) {
             .from("business_settings")
             .update({
                 business_name: form.business_name,
-                brand_name: form.brand_name,
+                // Keep existing consumers in sync with the single company-name field.
+                brand_name: form.business_name,
 
                 organization_number: form.organization_number || null,
                 vat_number: form.vat_number || null,
@@ -262,17 +266,13 @@ export function BusinessSettingsForm({ settings }: BusinessSettingsFormProps) {
                     description={t("business.description")}
                 >
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <TextField
-                            label={t("fields.businessName")}
-                            value={form.business_name}
-                            onChange={(value) => updateField("business_name", value)}
-                        />
-
-                        <TextField
-                            label={t("fields.brandName")}
-                            value={form.brand_name}
-                            onChange={(value) => updateField("brand_name", value)}
-                        />
+                        <div className="sm:col-span-2">
+                            <TextField
+                                label={t("fields.businessName")}
+                                value={form.business_name}
+                                onChange={(value) => updateField("business_name", value)}
+                            />
+                        </div>
 
                         <TextField
                             label={t("fields.location")}

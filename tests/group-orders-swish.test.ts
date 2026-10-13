@@ -113,6 +113,7 @@ test("Swish gateway: authorization, immutable instructions, uncertain create, ca
   assert.equal((await call(refund)).data.status, "DEBITED");
   assert.equal(refunds, 1);
   payments.get(refund.id)!.status = "PAID";
+  payments.get(refund.id)!.paymentReference = "VERIFIEDREFUND";
   assert.equal((await call(refund)).data.status, "PAID");
 });
 

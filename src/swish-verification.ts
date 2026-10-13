@@ -1,4 +1,8 @@
 import { timingSafeEqual } from "node:crypto";
+export function validSwishCallbackId(value: unknown): value is string {
+  return typeof value === "string" && /^[a-fA-F0-9]{32}$/.test(value);
+}
+
 export function internalSwishRequest(
   secret: string | undefined,
   supplied: string | undefined,

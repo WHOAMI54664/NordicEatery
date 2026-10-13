@@ -6,7 +6,8 @@ type Options = {
   request: (
     method: "GET" | "PUT" | "PATCH",
     path: string,
-    body?: unknown,
+    body: unknown,
+    signal: AbortSignal,
   ) => Promise<Result>;
   secret: () => string | undefined;
   callbackUrl: () => string | undefined;
@@ -42,8 +43,13 @@ export function swishGroupHandler(options: Options) {
       } = req.body || {};
       if (
         !["create", "read", "cancel", "refund"].includes(operation) ||
+        typeof id !== "string" ||
+        typeof groupId !== "string" ||
+        typeof reference !== "string" ||
         !/^[A-F0-9]{32}$/.test(id || "") ||
-        !/^[0-9a-f-]{36}$/.test(groupId || "") ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(
+          groupId || "",
+        ) ||
         !/^[A-F0-9]{32}$/.test(reference || "") ||
         !Number.isSafeInteger(amount) ||
         amount < 300 ||
@@ -53,8 +59,9 @@ export function swishGroupHandler(options: Options) {
       const refund = operation === "refund";
       if (
         refund
-          ? !/^[A-Za-z0-9]{1,64}$/.test(originalPaymentReference || "")
-          : !/^46\d{9}$/.test(payerAlias || "")
+          ? typeof originalPaymentReference !== "string" ||
+            !/^[A-Za-z0-9]{1,64}$/.test(originalPaymentReference)
+          : typeof payerAlias !== "string" || !/^46\d{9}$/.test(payerAlias)
       )
         return res.status(400).json({ error: "invalidInput" });
       const callbackBase = options.callbackUrl();
@@ -62,15 +69,27 @@ export function swishGroupHandler(options: Options) {
       if (!callbackBase || !alias)
         return res.status(503).json({ error: "unavailable" });
       const callback = new URL(callbackBase);
-      if (callback.protocol !== "https:")
+      if (
+        callback.protocol !== "https:" ||
+        callback.username ||
+        callback.password ||
+        callback.hash
+      )
         return res.status(503).json({ error: "unavailable" });
       callback.searchParams.set("groupId", groupId);
       const resource = refund ? "refunds" : "paymentrequests";
       const path = `/v1/${resource}/${id}`;
-      let result = await options.request("GET", path);
+      // One bounded gateway operation, shorter than the website's 15s timeout.
+      const signal = AbortSignal.timeout(12000);
+      const request = (
+        method: "GET" | "PUT" | "PATCH",
+        resource: string,
+        body?: unknown,
+      ) => options.request(method, resource, body, signal);
+      let result = await request("GET", path);
       // Retry uses the SAME instruction UUID after an uncertain network result.
       if (result.status === 404 && (operation === "create" || refund)) {
-        await options.request("PUT", `/v2/${resource}/${id}`, {
+        await request("PUT", `/v2/${resource}/${id}`, {
           amount: (amount / 100).toFixed(2),
           currency: "SEK",
           callbackUrl: callback.toString(),
@@ -86,7 +105,7 @@ export function swishGroupHandler(options: Options) {
             : "Nordic Eatery group order",
         });
         // GET also recovers a duplicate PUT. No callback payload is trusted as proof of payment.
-        result = await options.request("GET", path);
+        result = await request("GET", path);
       }
       const matches = (value: unknown): value is Record<string, unknown> => {
         if (!value || typeof value !== "object") return false;
@@ -96,6 +115,14 @@ export function swishGroupHandler(options: Options) {
           p.currency === "SEK" &&
           /^\d+(\.\d{1,2})?$/.test(String(p.amount)) &&
           Math.round(Number(p.amount) * 100) === amount &&
+          (refund
+            ? ["CREATED", "DEBITED", "PAID", "ERROR"].includes(String(p.status))
+            : ["CREATED", "PAID", "DECLINED", "CANCELLED", "ERROR"].includes(
+                String(p.status),
+              )) &&
+          (p.status !== "PAID" ||
+            (typeof p.paymentReference === "string" &&
+              /^[A-Za-z0-9]{1,64}$/.test(p.paymentReference))) &&
           (refund
             ? p.originalPaymentReference === originalPaymentReference &&
               p.payerAlias === alias
@@ -107,11 +134,11 @@ export function swishGroupHandler(options: Options) {
       if (result.status !== 200 || !matches(result.data))
         return res.status(503).json({ error: "paymentMismatch" });
       if (operation === "cancel" && result.data.status === "CREATED") {
-        await options.request("PATCH", path, [
+        await request("PATCH", path, [
           { op: "replace", path: "/status", value: "cancelled" },
         ]);
         // Payment may win the race against cancellation; retrieve its authoritative status.
-        result = await options.request("GET", path);
+        result = await request("GET", path);
       }
       if (result.status !== 200 || !matches(result.data))
         return res.status(503).json({ error: "paymentMismatch" });

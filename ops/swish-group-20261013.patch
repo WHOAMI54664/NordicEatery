@@ -1,0 +1,60 @@
+--- src/server.ts
++++ src/server.ts
+@@ -1,0 +2,2 @@
++import { swishGroupService } from "./swish-group-service";
++import { internalSwishRequest, validSwishCallbackId } from "./swish-verification";
+@@ -13,0 +16 @@
++app.use(swishGroupService());
+@@ -76 +79 @@
+-    if (!secret || secret !== internalSecret) {
++    if (!internalSwishRequest(internalSecret, secret)) {
+@@ -241,0 +245,2 @@
++            timeout: 10000,
++            maxRedirects: 0,
+@@ -412,3 +416,0 @@
+-        console.log("SWISH API URL:", `${swishApiUrl}/${instructionUUID}`);
+-        console.log("SWISH PAYEE ALIAS:", swishPayeeAlias);
+-        console.log("SWISH PAYLOAD:", paymentPayload);
+@@ -420,0 +423,2 @@
++                timeout: 10000,
++                maxRedirects: 0,
+@@ -429,2 +432,0 @@
+-        console.log("SWISH RESPONSE DATA:", swishResponse.data);
+-        console.log("SWISH RESPONSE HEADERS:", swishResponse.headers);
+@@ -522 +524 @@
+-        console.error("Swish create error:", error);
++        console.error("Swish create error:", { kind: error instanceof Error ? error.name : "unknown" });
+@@ -535,2 +537,7 @@
+-        const callback = request.body as SwishPaymentRequestObject;
+-
++        const incoming = request.body as SwishPaymentRequestObject;
++        if (swishMode !== "mock" && !validSwishCallbackId(incoming?.id)) {
++            return response.status(400).json({ error: "Invalid callback" });
++        }
++        // Only the ID may identify production work; payment data comes from Swish.
++        const callback: SwishPaymentRequestObject =
++            swishMode === "mock" ? incoming : { id: incoming.id };
+@@ -545,0 +553,13 @@
++            if (
++                verifiedPayment.id !== callback.id ||
++                verifiedPayment.payeeAlias !== swishPayeeAlias ||
++                verifiedPayment.currency !== "SEK" ||
++                !verifiedPayment.payeePaymentReference ||
++                !["CREATED", "PAID", "DECLINED", "CANCELLED", "ERROR"].includes(verifiedPayment.status || "") ||
++                (verifiedPayment.status === "PAID" && !verifiedPayment.paymentReference)
++            ) {
++                return response.status(503).json({ error: "Payment verification failed" });
++            }
++            if (verifiedPayment.status === "CREATED") {
++                return response.json({ received: true, updatedOrders: 0 });
++            }
+@@ -655,3 +674,0 @@
+-            payeePaymentReference,
+-            bankPaymentReference,
+-            paymentRequestId,
+@@ -667 +684 @@
+-        console.error("Swish callback error:", error);
++        console.error("Swish callback error:", { kind: error instanceof Error ? error.name : "unknown" });
+@@ -716 +733 @@
+-        console.error("Swish status error:", error);
++        console.error("Swish status error:", { kind: error instanceof Error ? error.name : "unknown" });
