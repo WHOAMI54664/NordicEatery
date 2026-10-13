@@ -572,6 +572,7 @@
         "description": "Public information used across the website and order flow."
       },
       "contact": {
+        "zReportDescription": "The Z-report is emailed as a PDF when the shift closes.",
         "title": "Contact details",
         "description": "Customer support and booking contact channels."
       },
@@ -592,6 +593,7 @@
         "description": "Operational alerts for orders and staff activity."
       },
       "fields": {
+        "zReportEmail": "Z-report email",
         "businessName": "Business name",
         "brandName": "Brand name",
         "location": "Location",
@@ -658,10 +660,13 @@
         "description": "Changes are saved directly to Supabase."
       },
       "buttons": {
+        "saveReportEmail": "Save email",
         "save": "Save settings",
         "saving": "Saving..."
       },
       "messages": {
+        "reportEmailFailed": "Could not save the email address.",
+        "invalidReportEmail": "Enter a valid email address for the Z-report.",
         "success": "Settings saved successfully."
       }
     },

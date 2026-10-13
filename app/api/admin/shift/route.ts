@@ -1,3 +1,4 @@
+import { sendZReportEmail } from "@/lib/reports/send-z-reports";
 import { sendOpeningEmails } from "@/lib/notifications/send-opening-emails";
 import { after, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -241,6 +242,15 @@ export async function POST(request: Request) {
           await sendOpeningEmails();
         } catch {
           console.error("Opening email processing needs retry");
+        }
+      });
+    }
+    if (update.action === "close" && !data.is_open) {
+      after(async () => {
+        try {
+          await sendZReportEmail();
+        } catch {
+          console.error("Z-report delivery needs retry");
         }
       });
     }

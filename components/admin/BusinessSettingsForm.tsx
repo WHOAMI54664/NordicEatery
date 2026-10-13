@@ -12,6 +12,7 @@ import {
     Save,
     Truck,
 } from "lucide-react";
+import { ZReportEmailField } from "@/components/admin/ZReportEmailField";
 import { createClient } from "@/lib/supabase/browser";
 
 export type BusinessSettings = {
@@ -52,6 +53,7 @@ export type BusinessSettings = {
 
 type BusinessSettingsFormProps = {
     settings: BusinessSettings;
+    zReportEmail?: string | null;
 };
 
 function SectionCard({
@@ -162,7 +164,7 @@ function ToggleRow({
     );
 }
 
-export function BusinessSettingsForm({ settings }: BusinessSettingsFormProps) {
+export function BusinessSettingsForm({ settings, zReportEmail }: BusinessSettingsFormProps) {
     const t = useTranslations("admin.businessSettingsForm");
     const supabase = useMemo(() => createClient(), []);
 
@@ -322,6 +324,8 @@ export function BusinessSettingsForm({ settings }: BusinessSettingsFormProps) {
                             value={form.booking_email || ""}
                             onChange={(value) => updateField("booking_email", value)}
                         />
+
+                        <ZReportEmailField initialEmail={zReportEmail || null} />
 
                         <TextField
                             label={t("fields.phone")}

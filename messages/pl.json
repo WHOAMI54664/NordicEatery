@@ -572,6 +572,7 @@
         "description": "Publiczne informacje używane na stronie i w procesie zamówień."
       },
       "contact": {
+        "zReportDescription": "Raport Z jest wysyłany jako PDF po zamknięciu zmiany.",
         "title": "Dane kontaktowe",
         "description": "Kanały kontaktu dla obsługi klienta i rezerwacji."
       },
@@ -592,6 +593,7 @@
         "description": "Powiadomienia operacyjne dotyczące zamówień i aktywności personelu."
       },
       "fields": {
+        "zReportEmail": "E-mail raportu Z",
         "businessName": "Nazwa firmy",
         "brandName": "Nazwa marki",
         "location": "Lokalizacja",
@@ -658,10 +660,13 @@
         "description": "Zmiany są zapisywane bezpośrednio w Supabase."
       },
       "buttons": {
+        "saveReportEmail": "Zapisz e-mail",
         "save": "Zapisz ustawienia",
         "saving": "Zapisywanie..."
       },
       "messages": {
+        "reportEmailFailed": "Nie udało się zapisać adresu e-mail.",
+        "invalidReportEmail": "Podaj prawidłowy adres e-mail dla raportu Z.",
         "success": "Ustawienia zostały zapisane."
       }
     },

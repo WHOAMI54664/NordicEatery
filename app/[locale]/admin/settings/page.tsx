@@ -84,6 +84,8 @@ export default async function AdminSettingsPage({
         .limit(1)
         .single();
 
+    const { data: reportSettings } = await supabase.from("z_report_settings").select("email").eq("id", 1).maybeSingle();
+
     const businessSettings = (settings || fallbackSettings) as BusinessSettings;
 
     return (
@@ -113,7 +115,7 @@ export default async function AdminSettingsPage({
             <GroupSlotSettings />
 
             {businessSettings.id ? (
-                <BusinessSettingsForm settings={businessSettings} />
+                <BusinessSettingsForm settings={businessSettings} zReportEmail={reportSettings?.email || null} />
             ) : (
                 <section className="rounded-[2rem] border border-[#E51B23]/15 bg-[#E51B23]/8 p-5 text-sm font-bold text-[#C7192E] sm:p-6">
                     {t("settings.emptyTable")}

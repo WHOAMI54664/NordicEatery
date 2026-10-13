@@ -571,6 +571,7 @@
         "description": "Offentlig information som används på webbplatsen och i beställningsflödet."
       },
       "contact": {
+        "zReportDescription": "Z-rapporten skickas som PDF när skiftet stängs.",
         "title": "Kontaktuppgifter",
         "description": "Kontaktkanaler för kundsupport och bokningar."
       },
@@ -591,6 +592,7 @@
         "description": "Operativa aviseringar för beställningar och personalaktivitet."
       },
       "fields": {
+        "zReportEmail": "E-post för Z-rapport",
         "businessName": "Företagsnamn",
         "brandName": "Varumärkesnamn",
         "location": "Plats",
@@ -657,10 +659,13 @@
         "description": "Ändringar sparas direkt i Supabase."
       },
       "buttons": {
+        "saveReportEmail": "Spara e-post",
         "save": "Spara inställningar",
         "saving": "Sparar..."
       },
       "messages": {
+        "reportEmailFailed": "Det gick inte att spara e-postadressen.",
+        "invalidReportEmail": "Ange en giltig e-postadress för Z-rapporten.",
         "success": "Inställningarna har sparats."
       }
     },

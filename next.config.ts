@@ -18,6 +18,8 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["pdfkit"],
 
   outputFileTracingIncludes: {
+    "/api/admin/shift": ["./node_modules/pdfkit/js/data/*.afm"],
+    "/api/cron/z-reports": ["./node_modules/pdfkit/js/data/*.afm"],
     "/api/orders/*/receipt": ["./node_modules/pdfkit/js/data/*.afm"],
     "/api/orders/send-receipt": ["./node_modules/pdfkit/js/data/*.afm"],
     "/api/group-orders/*/receipt": ["./node_modules/pdfkit/js/data/*.afm"],
