@@ -1,3 +1,4 @@
+import { DeleteCategoryButton } from "@/components/admin/DeleteCategoryButton";
 import { EditableImage } from "@/components/EditableImage";
 import { EditableText } from "@/components/EditableText";
 import { categories as publicCategories } from "@/lib/menu-display";
@@ -148,6 +149,8 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
     const { data: menuContent } = await supabase.from("site_content").select("key,value").eq("page", "menu").eq("locale", locale);
     const content = Object.fromEntries((menuContent || []).map((item) => [item.key, item.value]));
     const productList = (products || []) as ProductRow[];
+    const { data: deletedCategories } = await supabase.from("deleted_menu_categories").select("id");
+    const deletedIds = new Set((deletedCategories || []).map((row) => row.id));
 
     // Known categories keep their translated titles; any custom category found
     // on products is appended so it shows up in the menu overview automatically.
@@ -161,7 +164,7 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
         )
     );
 
-    const displayCategories: Array<{
+    const allCategories: Array<{
         id: string;
         title: string;
         description: string;
@@ -177,6 +180,12 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
             description: "",
         })),
     ];
+
+    const displayCategories = allCategories.filter((category) => !deletedIds.has(category.id));
+    const deletionOptions = displayCategories.map((category) => {
+        const key = `menu.categories.${publicCategories.some((item) => item.id === category.id) ? "" : "custom."}${category.id}`;
+        return { id: category.id, title: content[key] || category.title };
+    });
 
     const totalProducts = productList.length;
 
@@ -345,6 +354,12 @@ export default async function AdminMenuPage({ params }: MenuPageProps) {
                                     <ArrowRight className="h-4 w-4" />
                                 </Link>
                             </div>
+
+                            <DeleteCategoryButton
+                                category={{ id: category.id, title: content[titleKey] || category.title }}
+                                categories={deletionOptions}
+                                locale={locale}
+                            />
 
                             <div className="relative mt-5 grid grid-cols-2 gap-2.5 md:mt-6 md:gap-3 xl:grid-cols-4">
                                 <div className="rounded-2xl border border-[#EADDCF] bg-white/70 p-3 md:p-4">

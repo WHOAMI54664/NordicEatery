@@ -17,7 +17,7 @@ import {
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/browser";
 
-import { EditableText } from "@/components/EditableText";
+import { CategorySelect } from "@/components/admin/CategorySelect";
 import { useSiteContent } from "@/components/site-content/SiteContentProvider";
 import { getMenuCategories } from "@/lib/menu-display";
 import { ModifierGroupsEditor } from "@/components/admin/ModifierGroupsEditor";
@@ -26,8 +26,6 @@ import { parseModifierGroups, type ModifierGroup } from "@/lib/menu-options";
 type MenuType = "standard" | "vegan" | "gluten_free";
 
 const DEFAULT_CATEGORIES = ["maczanka", "knysza", "fries", "sauces", "drinks"];
-
-const NEW_CATEGORY_VALUE = "__new__";
 
 // Normalizes a typed category name into a stable slug, e.g. "Fika" -> "fika",
 // "Glass & Dessert" -> "glass-dessert". Matches the menu's category ids.
@@ -160,6 +158,7 @@ export function ProductForm({
   const [price, setPrice] = useState(String(product?.price || ""));
   const [category, setCategory] = useState(product?.category || "maczanka");
   const [existingCategories, setExistingCategories] = useState<string[]>([]);
+  const [deletedCategories, setDeletedCategories] = useState<string[]>([]);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCategory, setNewCategory] = useState("");
 
@@ -169,7 +168,10 @@ export function ProductForm({
     let isMounted = true;
 
     async function loadCategories() {
-      const { data } = await supabase.from("products").select("category");
+      const [{ data }, { data: deleted }] = await Promise.all([
+        supabase.from("products").select("id,category"),
+        supabase.from("deleted_menu_categories").select("id"),
+      ]);
 
       if (!isMounted || !data) return;
 
@@ -182,6 +184,13 @@ export function ProductForm({
       );
 
       setExistingCategories(unique);
+      const removed = (deleted || []).map((row) => row.id as string);
+      setDeletedCategories(removed);
+      setCategory((current) => {
+        if (!removed.includes(current)) return current;
+        return data.find((row) => row.id === product?.id)?.category ||
+          [...DEFAULT_CATEGORIES, ...unique].find((id) => !removed.includes(id)) || "";
+      });
     }
 
     loadCategories();
@@ -189,7 +198,7 @@ export function ProductForm({
     return () => {
       isMounted = false;
     };
-  }, [supabase]);
+  }, [supabase, product?.id]);
 
   const categoryOptions = useMemo(() => {
     const merged = [
@@ -198,14 +207,13 @@ export function ProductForm({
       ...(product?.category ? [product.category] : []),
     ];
 
-    return Array.from(new Set(merged.map((value) => value.trim()).filter(Boolean)));
-  }, [existingCategories, product?.category]);
+    return Array.from(new Set(merged.map((value) => value.trim()).filter((id) => id && !deletedCategories.includes(id))));
+  }, [existingCategories, product?.category, deletedCategories]);
   const categoryLabels = getMenuCategories(
     categoryOptions.map((category) => ({ category })),
     { ...content, ...changes },
     (id) => categoryTranslations(id),
   );
-  const selectedCategory = categoryLabels.find((option) => option.id === category);
   const [menuType, setMenuType] = useState<MenuType>(
       product?.menu_type || "standard"
   );
@@ -418,47 +426,24 @@ export function ProductForm({
 
             <div>
               <FieldLabel>{t("category")}</FieldLabel>
-              <select
-                  className={inputClass}
-                  aria-label={t("category")}
-                  value={isAddingCategory ? NEW_CATEGORY_VALUE : category}
-                  onChange={(e) => {
-                    if (e.target.value === NEW_CATEGORY_VALUE) {
-                      setIsAddingCategory(true);
-                      setNewCategory("");
-                    } else {
-                      setIsAddingCategory(false);
-                      setCategory(e.target.value);
-                    }
-                  }}
-              >
-                {categoryLabels.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.title}
-                    </option>
-                ))}
-                <option value={NEW_CATEGORY_VALUE}>+ New category…</option>
-              </select>
-
-              {!isAddingCategory && selectedCategory && canEdit ? (
-                  <div className="mt-3 text-sm text-[#7B6A61]">
-                    <p className="font-semibold">{t("editCategoryName")}</p>
-                    <EditableText
-                      key={selectedCategory.id}
-                      value={selectedCategory.title}
-                      textKey={selectedCategory.textKey}
-                      locale={locale}
-                      page="menu"
-                      canEdit
-                      className="mt-1 block font-bold text-[#25120F]"
-                      onSaved={(value) => {
-                        setCopy(selectedCategory.textKey, value);
-                        router.refresh();
-                      }}
-                    />
-                    <p className="mt-1 text-xs">{t("categoryNameHint")}</p>
-                  </div>
-              ) : null}
+              <CategorySelect
+                categories={categoryLabels}
+                value={category}
+                adding={isAddingCategory}
+                label={t("category")}
+                editLabel={t("editCategoryName")}
+                locale={locale}
+                canEdit={canEdit}
+                onChange={(id) => { setIsAddingCategory(false); setCategory(id); }}
+                onAdd={() => { setIsAddingCategory(true); setNewCategory(""); }}
+                onRenamed={(key, title) => { setCopy(key, title); router.refresh(); }}
+                onDeleted={(id, target) => {
+                  setDeletedCategories((current) => [...current, id]);
+                  setCategory((current) => current === id
+                    ? target || categoryLabels.find((item) => item.id !== id)?.id || ""
+                    : current);
+                }}
+              />
 
               {isAddingCategory ? (
                   <input

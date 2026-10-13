@@ -20,7 +20,7 @@ type EditableTextProps = {
   onSaved?: (value: string) => void;
 };
 
-function TextEditor({
+export function TextEditor({
   value,
   textKey,
   locale,
