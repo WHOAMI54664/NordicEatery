@@ -211,6 +211,29 @@ export default async function MenuPage({
     locale: currentLocale,
     namespace: "groupOrder",
   });
+  const catalog = (
+    <div id="menu-catalog" className="mt-7 scroll-mt-28">
+      {catalogError ? (
+        <p role="alert" className="rounded-2xl bg-white p-6">
+          {groupText("errors.unavailable")}
+        </p>
+      ) : (
+        <KitchenStatusProvider
+          locale={currentLocale}
+          isShiftOpen={shiftStatus.isOpen}
+        >
+          <MenuCatalog
+            key={`${selectedMenuType}:${selectedCategory}`}
+            products={menuItems || []}
+            content={Object.fromEntries(content)}
+            categoryOrder={categoryOrder}
+            initialType={selectedMenuType}
+            initialCategory={selectedCategory}
+          />
+        </KitchenStatusProvider>
+      )}
+    </div>
+  );
 
   return (
     <>
@@ -260,31 +283,11 @@ export default async function MenuPage({
           </div>
         ) : null}
 
-        {process.env.GROUP_ORDERS_ENABLED === "true" && (
-          <GroupOrderEntry locale={currentLocale} />
+        {process.env.GROUP_ORDERS_ENABLED === "true" ? (
+          <GroupOrderEntry locale={currentLocale}>{catalog}</GroupOrderEntry>
+        ) : (
+          catalog
         )}
-
-        <div id="menu-catalog" className="mt-7 scroll-mt-28">
-          {catalogError ? (
-            <p role="alert" className="rounded-2xl bg-white p-6">
-              {groupText("errors.unavailable")}
-            </p>
-          ) : (
-            <KitchenStatusProvider
-              locale={currentLocale}
-              isShiftOpen={shiftStatus.isOpen}
-            >
-              <MenuCatalog
-                key={`${selectedMenuType}:${selectedCategory}`}
-                products={menuItems || []}
-                content={Object.fromEntries(content)}
-                categoryOrder={categoryOrder}
-                initialType={selectedMenuType}
-                initialCategory={selectedCategory}
-              />
-            </KitchenStatusProvider>
-          )}
-        </div>
       </main>
     </>
   );

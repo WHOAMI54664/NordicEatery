@@ -1,20 +1,29 @@
 "use client";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Users } from "lucide-react";
 import { useEditableTranslations } from "@/components/site-content/EditableMessage";
 import { useGroupAvailability } from "./useGroupAvailability";
 import { GroupSlotWaitlist } from "./GroupSlotWaitlist";
 
-export function GroupOrderEntry({ locale }: { locale: string }) {
+export function GroupOrderEntry({
+  locale,
+  children,
+}: {
+  locale: string;
+  children: ReactNode;
+}) {
   const t = useEditableTranslations("groupOrder");
   const { availability, failed } = useGroupAvailability();
-  return (
+  const hasAvailableSlots =
+    !failed && availability?.slots.some((slot) => slot.available);
+  const entry = (
     <div className="mx-auto mt-8 max-w-2xl text-center">
       {failed ? (
         <p role="status">{t.edit("errors.unavailable")}</p>
       ) : !availability ? (
         <p role="status">{t.edit("loadingSlots")}</p>
-      ) : availability.slots.some((slot) => slot.available) ? (
+      ) : hasAvailableSlots ? (
         <div>
           <Link
             href={`/${locale}/group-order`}
@@ -35,5 +44,13 @@ export function GroupOrderEntry({ locale }: { locale: string }) {
         <GroupSlotWaitlist locale={locale} />
       )}
     </div>
+  );
+
+  return (
+    <>
+      {hasAvailableSlots ? entry : null}
+      {children}
+      {!hasAvailableSlots ? entry : null}
+    </>
   );
 }

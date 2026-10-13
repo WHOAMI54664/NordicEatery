@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { priceMealCombos } from "../lib/meal-combo";
+import { getAddonKind } from "../lib/menu-offers";
 import { addCartItems, cartItem, cartPricing, restoreCart } from "../lib/cart";
 import { validateCartPrices } from "../lib/orders/pricing";
 import {
@@ -38,6 +39,34 @@ const db = (products = catalog) =>
   }) as unknown as SupabaseClient;
 const sum = (lines: { unitAmount: number; quantity: number }[]) =>
   lines.reduce((total, line) => total + line.unitAmount * line.quantity, 0);
+
+test("Varma rätter offers drinks and discounts one drink per main in cart and checkout", async () => {
+  for (const category of ["varma-rtter", "varma-ratter", "varma-rätter"]) {
+    const hotMeal = { ...meal, category };
+    assert.equal(getAddonKind(category), "drink");
+    const cart = addCartItems(
+      [],
+      [
+        { product: hotMeal, quantity: 1 },
+        { product: drink, quantity: 2 },
+      ],
+    );
+    assert.equal(cartPricing(cart).discountAmount, 500);
+    assert.equal(cartPricing(restoreCart(cart)).totalAmount, 16800);
+    const checkout = await validateCartPrices(db([hotMeal, drink]), [
+      { id: hotMeal.id, quantity: 1 },
+      { id: drink.id, quantity: 2 },
+    ]);
+    assert.ok(checkout.ok);
+    assert.equal(checkout.subtotalGross, 168);
+    assert.deepEqual(
+      checkout.items
+        .filter((item) => item.id === drink.id)
+        .map((item) => item.price),
+      [24, 29],
+    );
+  }
+});
 
 test("combo discounts one drink per main, splitting partial quantities without losing ore", () => {
   const lines = [

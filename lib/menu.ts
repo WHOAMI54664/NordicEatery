@@ -25,7 +25,7 @@ export const menuItems: Product[] = [
   {
     id: "knysza-classic",
     name: "Knysza Classic",
-    subtitle: "Polish street food bun",
+    subtitle: "Local Soul, Global Taste.",
     description:
       "Warm bun filled with fresh vegetables, crispy onion and homemade sauce.",
     price: 119,

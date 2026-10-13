@@ -278,7 +278,8 @@ one cart update / one version-checked group request. Quantities can differ, up t
 one offered drink per chosen meal. Homepage popular cards use the same flow.
 
 `lib/meal-combo.ts` owns the promotion: one drink receives exactly 500 öre off per
-main dish in categories `maczanka`, `knysza`, `burgare`, `sallad`, `fries`. The owner
+main dish in categories `maczanka`, `knysza`, `burgare`, `sallad`, `fries`, and
+`varma-rtter` (also `varma-ratter` / `varma-rätter`). The owner
 confirmed that sides and sauces do not qualify. Drinks priced below 5 SEK are not
 eligible. Category display names/photos can still be changed in menu admin.
 

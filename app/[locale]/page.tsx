@@ -57,7 +57,7 @@ const homeSeo = {
     keywords: [
       "takeaway",
       "Polish food",
-      "Polish street food",
+      "Local Soul, Global Taste.",
       "food",
       "Maczanka",
       "Knysza",

@@ -6,6 +6,11 @@ const mealCategories = new Set([
   "burgare",
   "sallad",
   "fries",
+  // The live menu moved kebab, wraps and loaded fries into Varma rätter.
+  // Keep the legacy admin slug (which dropped ä) alongside spelling variants.
+  "varma-rtter",
+  "varma-ratter",
+  "varma-rätter",
 ]);
 
 export function isComboMeal(category: string | undefined): boolean {

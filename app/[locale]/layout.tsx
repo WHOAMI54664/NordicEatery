@@ -18,27 +18,27 @@ type LocaleLayoutProps = {
 
 const localeSeo = {
   sv: {
-    title: "Nordic Eatery | Polsk mat, takeaway & catering",
+    title: "Nordic Eatery | Local Soul, Global Taste.",
     description:
-      "Nordic Eatery erbjuder polskinspirerad comfort food, street food, takeaway och catering.",
+      "Nordic Eatery – Local Soul, Global Taste. Street food, takeaway och catering.",
     ogLocale: "sv_SE",
   },
   en: {
-    title: "Nordic Eatery | Polish food, takeaway & catering",
+    title: "Nordic Eatery | Local Soul, Global Taste.",
     description:
-      "Nordic Eatery offers Polish-inspired comfort food, street food, takeaway and catering.",
+      "Nordic Eatery – Local Soul, Global Taste. Street food, takeaway and catering.",
     ogLocale: "en_US",
   },
   pl: {
-    title: "Nordic Eatery | Polskie jedzenie, odbiór i catering",
+    title: "Nordic Eatery | Local Soul, Global Taste.",
     description:
-      "Nordic Eatery oferuje polskie comfort food, street food, jedzenie na wynos i catering.",
+      "Nordic Eatery – Local Soul, Global Taste. Street food, jedzenie na wynos i catering.",
     ogLocale: "pl_PL",
   },
   ru: {
-    title: "Nordic Eatery | Польская еда, самовывоз и кейтеринг",
+    title: "Nordic Eatery | Local Soul, Global Taste.",
     description:
-      "Nordic Eatery предлагает польскую comfort food, street food, еду навынос и кейтеринг.",
+      "Nordic Eatery – Local Soul, Global Taste. Стритфуд, еда навынос и кейтеринг.",
     ogLocale: "ru_RU",
   },
 } as const;

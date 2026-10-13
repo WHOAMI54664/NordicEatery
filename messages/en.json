@@ -92,7 +92,7 @@
       "cards": {
         "maczanka": {
           "title": "Maczanka",
-          "description": "A Polish-inspired street food favourite with rich flavour and satisfying ingredients."
+          "description": "Local Soul, Global Taste. A street food favourite with rich flavour and satisfying ingredients."
         },
         "streetFood": {
           "title": "Street food",
@@ -106,7 +106,7 @@
       "content": {
         "title": "A Polish food experience",
         "paragraph1": "Nordic Eatery focuses on flavourful street food and easy online ordering. Choose your favourites and collect freshly prepared food from our food truck.",
-        "paragraph2": "Instead of being a classic burger restaurant, Nordic Eatery is closer to Polish street food with dishes like Maczanka, Knysza, crispy fries and selected comfort food favourites.",
+        "paragraph2": "Local Soul, Global Taste. At Nordic Eatery you will find dishes like Maczanka, Knysza, crispy fries and selected comfort food favourites.",
         "paragraph3": "If you are looking for Polish food, takeaway near you or something different from standard fast food, Nordic Eatery gives you a fresh local option.",
         "menuCta": "View full menu",
         "deliveryCta": "Find our food truck"
@@ -276,9 +276,9 @@
       "tasteText": "Street food beyond the ordinary.",
       "finalTitle": "Built for people who value good food",
       "finalText": "No waiting. No overpricing. Just good food made the right way.",
-      "badge": "Polish street food with a Swedish twist",
+      "badge": "Local Soul, Global Taste.",
       "foodTitle": "Polish flavours with Swedish notes",
-      "foodText": "We prepare our food from scratch as much as possible and aim to use fresh and Swedish ingredients. Mike’s dishes are inspired by classic Polish street food and ingredients from Sweden.",
+      "foodText": "We prepare our food from scratch as much as possible and aim to use fresh and Swedish ingredients. Local Soul, Global Taste.",
       "ctaTitle": "Need food for your event?",
       "ctaText": "Book catering, a food truck or a chef for your private party, company event, festival or special occasion. If you want a custom menu, contact us and we will do our best to meet your wishes.",
       "ctaBook": "Book us",
@@ -793,7 +793,7 @@
       "categories": {
         "maczanka": {
           "title": "Maczanka",
-          "description": "Polish street food and hot main courses."
+          "description": "Local Soul, Global Taste."
         },
         "knysza": {
           "title": "Knysza",

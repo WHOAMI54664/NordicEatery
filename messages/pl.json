@@ -92,7 +92,7 @@
       "cards": {
         "maczanka": {
           "title": "Maczanka",
-          "description": "Inspirowany polską kuchnią uliczną faworyt o bogatym smaku i satysfakcjonujących składnikach."
+          "description": "Local Soul, Global Taste. Ulubione danie street food o bogatym smaku i sycących składnikach."
         },
         "streetFood": {
           "title": "Jedzenie uliczne",
@@ -106,7 +106,7 @@
       "content": {
         "title": "Polskie doświadczenie kulinarne",
         "paragraph1": "Nordic Eatery to pełen smaku street food i proste zamawianie online. Wybierz ulubione dania i odbierz świeżo przygotowane jedzenie z naszego food trucka.",
-        "paragraph2": "Zamiast być klasyczną restauracją z burgerami, Nordic Eatery jest bliższa polskiemu street foodowi z daniami takimi jak Maczanka, Knysza, chrupiące frytki i wybrane ulubione dania typu comfort food.",
+        "paragraph2": "Local Soul, Global Taste. W Nordic Eatery znajdziesz dania takie jak Maczanka, Knysza, chrupiące frytki i wybrane dania typu comfort food.",
         "paragraph3": "Jeśli szukasz polskiego jedzenia, dań na wynos w pobliżu lub czegoś innego niż standardowy fast food, Nordic Eatery oferuje świeżą lokalną opcję.",
         "menuCta": "Zobacz pełne menu",
         "deliveryCta": "Znajdź nasz food truck"
@@ -276,9 +276,9 @@
       "tasteText": "Street food inny niż wszystkie.",
       "finalTitle": "Stworzone dla ludzi, którzy cenią dobre jedzenie",
       "finalText": "Bez czekania. Bez zawyżonych cen. Po prostu dobre jedzenie przygotowane we właściwy sposób.",
-      "badge": "Polski street food ze szwedzkim akcentem",
+      "badge": "Local Soul, Global Taste.",
       "foodTitle": "Polskie smaki ze szwedzkimi akcentami",
-      "foodText": "Przygotowujemy nasze jedzenie od podstaw tak często, jak to możliwe, i staramy się korzystać ze świeżych oraz szwedzkich składników. Dania Mike’s inspirowane są klasycznym polskim street foodem i składnikami ze Szwecji.",
+      "foodText": "Przygotowujemy nasze jedzenie od podstaw tak często, jak to możliwe, i staramy się korzystać ze świeżych oraz szwedzkich składników. Local Soul, Global Taste.",
       "ctaTitle": "Potrzebujesz jedzenia na swoje wydarzenie?",
       "ctaText": "Zarezerwuj catering, food trucka lub kucharza na prywatną imprezę, wydarzenie firmowe, festiwal albo specjalną okazję. Jeśli chcesz indywidualnie dopasowane menu, skontaktuj się z nami, a zrobimy wszystko, aby spełnić Twoje oczekiwania.",
       "ctaBook": "Zarezerwuj nas",
@@ -793,7 +793,7 @@
       "categories": {
         "maczanka": {
           "title": "Maczanka",
-          "description": "Polskie jedzenie uliczne i gorące dania główne."
+          "description": "Local Soul, Global Taste."
         },
         "knysza": {
           "title": "Knysza",

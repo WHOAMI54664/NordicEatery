@@ -92,7 +92,7 @@
       "cards": {
         "maczanka": {
           "title": "Maczanka",
-          "description": "En polskinspirerad street food-favorit med rik smak och mättande ingredienser."
+          "description": "Local Soul, Global Taste. En street food-favorit med rik smak och mättande ingredienser."
         },
         "streetFood": {
           "title": "Gatumat",
@@ -106,7 +106,7 @@
       "content": {
         "title": "En polsk matupplevelse",
         "paragraph1": "Nordic Eatery fokuserar på smakrik street food och enkel onlinebeställning. Välj dina favoriter och hämta din nylagade mat från vår foodtruck.",
-        "paragraph2": "Istället för att vara en klassisk hamburgerrestaurang ligger Nordic Eatery närmare polsk street food med rätter som Maczanka, Knysza, krispiga pommes frites och utvalda comfort food-favoriter.",
+        "paragraph2": "Local Soul, Global Taste. Hos Nordic Eatery hittar du rätter som Maczanka, Knysza, krispiga pommes frites och utvalda comfort food-favoriter.",
         "paragraph3": "Om du letar efter polsk mat, takeaway nära dig eller något annat än vanlig snabbmat, ger Nordic Eatery dig ett fräscht lokalt alternativ.",
         "menuCta": "Visa hela menyn",
         "deliveryCta": "Hitta vår foodtruck"
@@ -276,9 +276,9 @@
       "tasteText": "Streetfood utöver det vanliga.",
       "finalTitle": "Byggd för människor som värdesätter god mat",
       "finalText": "Ingen väntan. Inga överpriser. Bara god mat gjord på rätt sätt.",
-      "badge": "Polsk streetfood med en svensk twist",
+      "badge": "Local Soul, Global Taste.",
       "foodTitle": "Polska smaker med svenska nyanser",
-      "foodText": "Vi tillagar vår mat från grunden så långt det är möjligt och strävar efter att endast använda oss av färska och svenska råvaror. Mike's maträtter är tillagade med inspiration från klassisk polsk streetfood och ingredienser från Sverige.",
+      "foodText": "Vi tillagar vår mat från grunden så långt det är möjligt och strävar efter att endast använda oss av färska och svenska råvaror. Local Soul, Global Taste.",
       "ctaTitle": "Behöver du mat till ditt event?",
       "ctaText": "Boka catering, foodtruck eller en kock till din privata fest, företagsevent, festival eller speciella tillfälle. Vill ni ha en specialanpassad meny, kontakta oss så ska vi göra vårt bästa för att möta era önskemål.",
       "ctaBook": "Boka oss",
@@ -365,7 +365,7 @@
       "festivalsTitle": "Festivaler",
       "festivalsText": "Ett starkt streetfood-koncept för marknader, festivaler och utomhusevenemang.",
       "ctaTitle": "Boka Mike's foodtruck till ditt event",
-      "ctaText": "Lyft ditt event med polsk streetfood, boka Mike's Bite till festen, företagseventet, festivalen eller ett speciellt tillfälle. Vill ni ha en specialanpassad meny, kontakta oss så ska vi göra vårt bästa för att möta era önskemål.",
+      "ctaText": "Local Soul, Global Taste. Boka vår foodtruck till festen, företagseventet, festivalen eller ett speciellt tillfälle. Vill ni ha en specialanpassad meny, kontakta oss så ska vi göra vårt bästa för att möta era önskemål.",
       "ctaButton": "Skicka bokningsförfrågan",
       "heroImage": ""
     },
@@ -792,7 +792,7 @@
       "categories": {
         "maczanka": {
           "title": "Maczanka",
-          "description": "Polsk street food och varma huvudrätter."
+          "description": "Local Soul, Global Taste."
         },
         "knysza": {
           "title": "Knysza",

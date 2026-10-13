@@ -13,11 +13,11 @@ export const metadata: Metadata = {
 
   applicationName: "Nordic Eatery",
   title: {
-    default: "Nordic Eatery | Polish Street Food",
+    default: "Nordic Eatery | Local Soul, Global Taste.",
     template: "%s | Nordic Eatery",
   },
   description:
-    "Nordic Eatery serves Polish street food, takeaway, catering and food truck service, Sweden.",
+    "Nordic Eatery – Local Soul, Global Taste. Takeaway, catering and food truck service in Sweden.",
 
   icons: {
     icon: [
@@ -35,25 +35,25 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Nordic Eatery",
-    title: "Nordic Eatery | Polish Street Food",
+    title: "Nordic Eatery | Local Soul, Global Taste.",
     description:
-      "Polish street food, takeaway, catering and food truck service, Sweden.",
+      "Local Soul, Global Taste. Takeaway, catering and food truck service in Sweden.",
     url: baseUrl,
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Nordic Eatery - Polish street food",
+        alt: "Nordic Eatery – Local Soul, Global Taste.",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Nordic Eatery | Polish Street Food",
+    title: "Nordic Eatery | Local Soul, Global Taste.",
     description:
-      "Polish street food, takeaway, catering and food truck service, Sweden.",
+      "Local Soul, Global Taste. Takeaway, catering and food truck service in Sweden.",
     images: ["/og-image.jpg"],
   },
 
